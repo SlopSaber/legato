@@ -98,6 +98,7 @@
       <Compile Remove="$(LegatoSourceRoot)Polyfills\LeaderboardCore\**\*.cs" />
       <Compile Remove="$(LegatoSourceRoot)Polyfills\SongCore\**\*.cs" />
       <Compile Remove="$(LegatoSourceRoot)Polyfills\SongDataCore\**\*.cs" />
+      <Compile Remove="$(LegatoSourceRoot)Polyfills\TMPro\**\*.cs" />
       <Compile Remove="$(LegatoSourceRoot)Polyfills\BS_Utils\**\*.cs" />
       <Compile Remove="$(LegatoSourceRoot)Polyfills\SiraUtil\**\*.cs" />
       <Compile Remove="$(LegatoSourceRoot)Polyfills\GlobalNamespace\BeatmapKey\BeatmapKeyExtensions.cs" />
@@ -111,6 +112,7 @@
   <Target Name="LegatoAddOptionalSources" BeforeTargets="CoreCompile" DependsOnTargets="LegatoAddBaseSources;ResolveReferences">
     <ItemGroup>
       <_LegatoBSMLReference Include="@(ReferencePath->WithMetadataValue('Filename', 'BSML'))" />
+      <_LegatoTextMeshProReference Include="@(ReferencePath->WithMetadataValue('Filename', 'Unity.TextMeshPro'))" />
       <_LegatoLeaderboardCoreReference Include="@(ReferencePath->WithMetadataValue('Filename', 'LeaderboardCore'))" />
       <_LegatoSiraUtilReference Include="@(ReferencePath->WithMetadataValue('Filename', 'SiraUtil'))" />
       <_LegatoSongCoreReference Include="@(ReferencePath->WithMetadataValue('Filename', 'SongCore'))" />
@@ -139,6 +141,7 @@
     </ItemGroup>
     <PropertyGroup>
       <LegatoEnableBSML Condition="'$(LegatoEnableBSML)' == '' AND '@(_LegatoBSMLReference)' != ''">true</LegatoEnableBSML>
+      <LegatoEnableTextMeshPro Condition="'$(LegatoEnableTextMeshPro)' == '' AND '@(_LegatoTextMeshProReference)' != ''">true</LegatoEnableTextMeshPro>
       <LegatoEnableLeaderboardCore Condition="'$(LegatoEnableLeaderboardCore)' == '' AND '@(_LegatoLeaderboardCoreReference)' != ''">true</LegatoEnableLeaderboardCore>
       <LegatoEnableSiraUtil Condition="'$(LegatoEnableSiraUtil)' == '' AND '@(_LegatoSiraUtilReference)' != ''">true</LegatoEnableSiraUtil>
       <LegatoEnableSongCore Condition="'$(LegatoEnableSongCore)' == '' AND '@(_LegatoSongCoreReference)' != ''">true</LegatoEnableSongCore>
@@ -175,6 +178,8 @@
       <Compile Include="$(LegatoSourceRoot)Polyfills\BeatSaberMarkupLanguage\**\*.cs"
                Exclude="$(LegatoSourceRoot)**\Versions\**\*.cs"
                Condition="'$(LegatoEnableBSML)' == 'true'" />
+      <Compile Include="$(LegatoSourceRoot)Polyfills\TMPro\**\*.cs"
+               Condition="'$(LegatoEnableTextMeshPro)' == 'true'" />
       <Compile Include="$(LegatoSourceRoot)Polyfills\BeatSaberMarkupLanguage\**\Versions\$(LegatoTargetProfile)\**\*.cs"
                Condition="'$(LegatoEnableBSML)' == 'true' AND '$(LegatoTargetProfile)' != ''" />
       <Compile Include="$(LegatoSourceRoot)Polyfills\BeatSaberMarkupLanguage\**\Versions\1.29.0-1.37.1\**\*.cs"
