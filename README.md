@@ -44,6 +44,9 @@ The same setup can be added by hand:
 | `1.38.0` | `1.38.0-1.39.1` |
 | `1.40.0` | `1.40.0-1.40.8` |
 | `1.42.0` | `1.42.0-1.44.1` |
+| `1.45.1` | `1.45.1` |
+
+The local `0.1.2-local.1` package adds the 1.45.1 profile. Build each mod against its target game assemblies and check remaining API differences before deployment.
 
 ## How it works
 
