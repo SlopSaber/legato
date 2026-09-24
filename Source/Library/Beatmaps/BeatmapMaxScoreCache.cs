@@ -62,8 +62,11 @@ namespace Legato.Beatmaps {
 #endif
                                                                             beatmapLevelDataVersion: beatmapLevelDataVersion,
                                                                             gameplayModifiers: null,
-                                                                            playerSpecificSettings: null,
-                                                                            enableBeatmapDataCaching: false);
+                                                                            playerSpecificSettings: null
+#if !BEAT_SABER_1_45_1
+                                                                            , enableBeatmapDataCaching: false
+#endif
+                                                                            );
             if (beatmapData == null) {
                 throw new InvalidOperationException($"Beatmap could not be loaded for {beatmapKey.levelId}");
             }
