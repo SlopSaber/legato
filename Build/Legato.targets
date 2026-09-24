@@ -90,6 +90,10 @@
         <HintPath>$(LegatoReferenceRoot)\Beat Saber_Data\Managed\netstandard.dll</HintPath>
         <Private>false</Private>
       </Reference>
+      <Reference Include="System.Drawing" Condition="'$(LegatoTargetProfile)' == '1.45.1' AND '@(Reference->WithMetadataValue('Identity', 'System.Drawing'))' == '' AND Exists('$(LegatoReferenceRoot)\Beat Saber_Data\Managed\System.Drawing.dll')">
+        <HintPath>$(LegatoReferenceRoot)\Beat Saber_Data\Managed\System.Drawing.dll</HintPath>
+        <Private>false</Private>
+      </Reference>
     </ItemGroup>
   </Target>
 
@@ -186,10 +190,7 @@
       <Compile Include="$(LegatoSourceRoot)Library\Coroutines\**\Versions\$(LegatoTargetProfile)\**\*.cs"
                Condition="'$(LegatoEnableCoroutines)' == 'true'" />
       <Compile Include="$(LegatoSourceRoot)Library\Presentation\**\*.cs;$(LegatoSourceRoot)Library\Resources\**\*.cs"
-               Exclude="$(LegatoSourceRoot)Library\Presentation\SpriteFactory.cs"
                Condition="'$(LegatoEnableBSML)' == 'true'" />
-      <Compile Include="$(LegatoSourceRoot)Library\Presentation\SpriteFactory.cs"
-               Condition="'$(LegatoEnableBSML)' == 'true' AND '$(LegatoTargetProfile)' != '1.45.1'" />
       <Compile Include="$(LegatoSourceRoot)Polyfills\BeatSaberMarkupLanguage\**\*.cs"
                Exclude="$(LegatoSourceRoot)**\Versions\**\*.cs"
                Condition="'$(LegatoEnableBSML)' == 'true'" />
