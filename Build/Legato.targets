@@ -90,8 +90,8 @@
         <HintPath>$(LegatoReferenceRoot)\Beat Saber_Data\Managed\netstandard.dll</HintPath>
         <Private>false</Private>
       </Reference>
-      <Reference Include="System.Drawing" Condition="'$(LegatoTargetProfile)' == '1.45.1' AND '@(Reference->WithMetadataValue('Identity', 'System.Drawing'))' == '' AND Exists('$(LegatoReferenceRoot)\Beat Saber_Data\Managed\System.Drawing.dll')">
-        <HintPath>$(LegatoReferenceRoot)\Beat Saber_Data\Managed\System.Drawing.dll</HintPath>
+      <Reference Include="UnityEngine.ImageConversionModule" Condition="'$(LegatoTargetProfile)' == '1.45.1' AND '@(Reference->WithMetadataValue('Identity', 'UnityEngine.ImageConversionModule'))' == '' AND Exists('$(LegatoReferenceRoot)\Beat Saber_Data\Managed\UnityEngine.ImageConversionModule.dll')">
+        <HintPath>$(LegatoReferenceRoot)\Beat Saber_Data\Managed\UnityEngine.ImageConversionModule.dll</HintPath>
         <Private>false</Private>
       </Reference>
     </ItemGroup>

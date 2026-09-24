@@ -2,42 +2,31 @@
 
 #if BEAT_SABER_1_45_1
 using System;
-using System.Drawing;
-using System.Drawing.Imaging;
-using System.IO;
-using System.Runtime.InteropServices;
 #endif
 using BeatSaberMarkupLanguage;
 using UnityEngine;
 
 namespace Legato.Presentation {
     internal static class SpriteFactory {
+#if BEAT_SABER_1_45_1
+        private static readonly Func<Texture2D, byte[], bool, bool> LoadImage =
+            (Func<Texture2D, byte[], bool, bool>)Delegate.CreateDelegate(
+                typeof(Func<Texture2D, byte[], bool, bool>),
+                typeof(ImageConversion).GetMethod("LoadImage", new[] { typeof(Texture2D), typeof(byte[]), typeof(bool) })
+                    ?? throw new MissingMethodException(typeof(ImageConversion).FullName, "LoadImage(Texture2D, byte[], bool)"));
+#endif
+
         internal static Sprite Create(byte[] image) {
 #if BEAT_SABER_1_45_1
             if (image == null) {
                 throw new ArgumentNullException(nameof(image));
             }
 
-            using var stream = new MemoryStream(image, writable: false);
-            using var bitmap = new Bitmap(stream);
-            bitmap.RotateFlip(RotateFlipType.RotateNoneFlipY);
-
-            int rowBytes = checked(bitmap.Width * 4);
-            byte[] pixels = new byte[checked(rowBytes * bitmap.Height)];
-            var bounds = new Rectangle(0, 0, bitmap.Width, bitmap.Height);
-            BitmapData data = bitmap.LockBits(bounds, ImageLockMode.ReadOnly, PixelFormat.Format32bppArgb);
+            Texture2D texture = new Texture2D(2, 2);
             try {
-                for (int row = 0; row < bitmap.Height; row++) {
-                    Marshal.Copy(IntPtr.Add(data.Scan0, row * data.Stride), pixels, row * rowBytes, rowBytes);
+                if (!LoadImage(texture, image, false)) {
+                    throw new InvalidOperationException("Unity could not decode the sprite image.");
                 }
-            } finally {
-                bitmap.UnlockBits(data);
-            }
-
-            Texture2D texture = new Texture2D(bitmap.Width, bitmap.Height, TextureFormat.BGRA32, false);
-            try {
-                texture.LoadRawTextureData(pixels);
-                texture.Apply(false, false);
                 return Utilities.LoadSpriteFromTexture(texture);
             } catch {
                 UnityEngine.Object.Destroy(texture);

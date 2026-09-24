@@ -46,7 +46,7 @@ The same setup can be added by hand:
 | `1.42.0` | `1.42.0-1.44.1` |
 | `1.45.1` | `1.45.1` |
 
-The local `0.1.2-local.5` package adds the 1.45.1 profile. `SpriteFactory` decodes image bytes to BGRA32 pixels for Unity 6 while retaining its synchronous API. Build each mod against its target game assemblies and check remaining API differences before deployment.
+The local `0.1.2-local.6` package adds the 1.45.1 profile. `SpriteFactory` binds Unity 6's byte-array image decoder while retaining its synchronous API. Build each mod against its target game assemblies and check remaining API differences before deployment.
 
 ## How it works
 
