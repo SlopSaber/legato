@@ -81,19 +81,19 @@
         <HintPath>$(LegatoReferenceRoot)\Beat Saber_Data\Managed\UnityEngine.UnityWebRequestModule.dll</HintPath>
         <Private>false</Private>
       </Reference>
-      <Reference Include="BeatmapCore" Condition="'$(LegatoTargetProfile)' == '1.45.1' AND '@(Reference->WithMetadataValue('Identity', 'BeatmapCore'))' == '' AND Exists('$(LegatoReferenceRoot)\Beat Saber_Data\Managed\BeatmapCore.dll')">
+      <Reference Include="BeatmapCore" Condition="('$(LegatoTargetProfile)' == '1.45.1' OR '$(LegatoTargetProfile)' == '1.45.3') AND '@(Reference->WithMetadataValue('Identity', 'BeatmapCore'))' == '' AND Exists('$(LegatoReferenceRoot)\Beat Saber_Data\Managed\BeatmapCore.dll')">
         <HintPath>$(LegatoReferenceRoot)\Beat Saber_Data\Managed\BeatmapCore.dll</HintPath>
         <Private>false</Private>
       </Reference>
-      <Reference Include="Unity.TextMeshPro" Condition="'$(LegatoTargetProfile)' == '1.45.1' AND '@(Reference->WithMetadataValue('Identity', 'Unity.TextMeshPro'))' == '' AND Exists('$(LegatoReferenceRoot)\Beat Saber_Data\Managed\Unity.TextMeshPro.dll')">
+      <Reference Include="Unity.TextMeshPro" Condition="('$(LegatoTargetProfile)' == '1.45.1' OR '$(LegatoTargetProfile)' == '1.45.3') AND '@(Reference->WithMetadataValue('Identity', 'Unity.TextMeshPro'))' == '' AND Exists('$(LegatoReferenceRoot)\Beat Saber_Data\Managed\Unity.TextMeshPro.dll')">
         <HintPath>$(LegatoReferenceRoot)\Beat Saber_Data\Managed\Unity.TextMeshPro.dll</HintPath>
         <Private>false</Private>
       </Reference>
-      <Reference Include="netstandard" Condition="'$(LegatoTargetProfile)' == '1.45.1' AND '@(Reference->WithMetadataValue('Identity', 'netstandard'))' == '' AND Exists('$(LegatoReferenceRoot)\Beat Saber_Data\Managed\netstandard.dll')">
+      <Reference Include="netstandard" Condition="('$(LegatoTargetProfile)' == '1.45.1' OR '$(LegatoTargetProfile)' == '1.45.3') AND '@(Reference->WithMetadataValue('Identity', 'netstandard'))' == '' AND Exists('$(LegatoReferenceRoot)\Beat Saber_Data\Managed\netstandard.dll')">
         <HintPath>$(LegatoReferenceRoot)\Beat Saber_Data\Managed\netstandard.dll</HintPath>
         <Private>false</Private>
       </Reference>
-      <Reference Include="UnityEngine.ImageConversionModule" Condition="'$(LegatoTargetProfile)' == '1.45.1' AND '@(Reference->WithMetadataValue('Identity', 'UnityEngine.ImageConversionModule'))' == '' AND Exists('$(LegatoReferenceRoot)\Beat Saber_Data\Managed\UnityEngine.ImageConversionModule.dll')">
+      <Reference Include="UnityEngine.ImageConversionModule" Condition="('$(LegatoTargetProfile)' == '1.45.1' OR '$(LegatoTargetProfile)' == '1.45.3') AND '@(Reference->WithMetadataValue('Identity', 'UnityEngine.ImageConversionModule'))' == '' AND Exists('$(LegatoReferenceRoot)\Beat Saber_Data\Managed\UnityEngine.ImageConversionModule.dll')">
         <HintPath>$(LegatoReferenceRoot)\Beat Saber_Data\Managed\UnityEngine.ImageConversionModule.dll</HintPath>
         <Private>false</Private>
       </Reference>
