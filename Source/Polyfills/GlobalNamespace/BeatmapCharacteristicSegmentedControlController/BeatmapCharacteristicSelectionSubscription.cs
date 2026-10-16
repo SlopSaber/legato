@@ -12,7 +12,7 @@ namespace Legato {
         private readonly BeatmapCharacteristicSegmentedControlController _controller;
         private readonly Action _callback;
 
-#if BEAT_SABER_1_45_1
+#if BEAT_SABER_1_45_1 || BEAT_SABER_1_45_3
         private readonly Action<BeatmapCharacteristicSegmentedControlController, BeatmapCharacteristic> _handler;
 #else
         private readonly Action<BeatmapCharacteristicSegmentedControlController, BeatmapCharacteristicSO> _handler;

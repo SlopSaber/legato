@@ -25,6 +25,8 @@ namespace Legato {
             beatmapKey.difficultyBeatmap.GetEnvironmentInfo()?.serializedName ?? string.Empty;
 #elif BEAT_SABER_1_37_1 || BEAT_SABER_1_38_0 || BEAT_SABER_1_40_0 || BEAT_SABER_1_42_0
             beatmapLevel.GetEnvironmentName(beatmapKey.beatmapCharacteristic, beatmapKey.difficulty);
+#elif BEAT_SABER_1_45_3
+            beatmapLevel.GetEnvironmentName(in beatmapKey);
 #else
             beatmapLevel.GetEnvironmentName(beatmapKey.characteristic, beatmapKey.difficulty);
 #endif
@@ -33,6 +35,8 @@ namespace Legato {
         internal static BeatmapBasicData? GetDifficultyBeatmapData(this BeatmapLevel beatmapLevel, in BeatmapKey beatmapKey) {
 #if BEAT_SABER_1_37_1 || BEAT_SABER_1_38_0 || BEAT_SABER_1_40_0 || BEAT_SABER_1_42_0
             return beatmapLevel.GetDifficultyBeatmapData(beatmapKey.beatmapCharacteristic, beatmapKey.difficulty);
+#elif BEAT_SABER_1_45_3
+            return beatmapLevel.GetDifficultyBeatmapData(in beatmapKey);
 #else
             return beatmapLevel.GetDifficultyBeatmapData(beatmapKey.characteristic, beatmapKey.difficulty);
 #endif
@@ -44,6 +48,8 @@ namespace Legato {
             return null;
 #elif BEAT_SABER_1_37_1 || BEAT_SABER_1_38_0 || BEAT_SABER_1_40_0 || BEAT_SABER_1_42_0
             return beatmapLevel.GetColorScheme(beatmapKey.beatmapCharacteristic, beatmapKey.difficulty);
+#elif BEAT_SABER_1_45_3
+            return beatmapLevel.GetColorScheme(in beatmapKey);
 #else
             return beatmapLevel.GetColorScheme(beatmapKey.characteristic, beatmapKey.difficulty);
 #endif

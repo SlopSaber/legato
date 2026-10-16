@@ -1,6 +1,6 @@
 #nullable enable
 
-#if BEAT_SABER_1_45_1
+#if BEAT_SABER_1_45_1 || BEAT_SABER_1_45_3
 using System;
 #endif
 using BeatSaberMarkupLanguage;
@@ -8,7 +8,7 @@ using UnityEngine;
 
 namespace Legato.Presentation {
     internal static class SpriteFactory {
-#if BEAT_SABER_1_45_1
+#if BEAT_SABER_1_45_1 || BEAT_SABER_1_45_3
         private static readonly Func<Texture2D, byte[], bool, bool> LoadImage =
             (Func<Texture2D, byte[], bool, bool>)Delegate.CreateDelegate(
                 typeof(Func<Texture2D, byte[], bool, bool>),
@@ -17,7 +17,7 @@ namespace Legato.Presentation {
 #endif
 
         internal static Sprite Create(byte[] image) {
-#if BEAT_SABER_1_45_1
+#if BEAT_SABER_1_45_1 || BEAT_SABER_1_45_3
             if (image == null) {
                 throw new ArgumentNullException(nameof(image));
             }

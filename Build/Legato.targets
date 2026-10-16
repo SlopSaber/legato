@@ -7,6 +7,9 @@
     <LegatoSourceVersion Condition="'$(LegatoSourceVersion)' == ''">$(LegatoCurrentVersion)</LegatoSourceVersion>
     <LegatoReferenceRoot Condition="'$(GameReferences)' != ''">$(GameReferences)</LegatoReferenceRoot>
     <LegatoReferenceRoot Condition="'$(LegatoReferenceRoot)' == ''">$(BeatSaberDir)</LegatoReferenceRoot>
+    <LegatoLibraryRoot>$(LegatoReferenceRoot)\Libs</LegatoLibraryRoot>
+    <LegatoLibraryRoot Condition="Exists('$(LegatoReferenceRoot)\IPA\Data\Managed\IPA.Loader.dll')">$(LegatoReferenceRoot)\Mods\Libraries</LegatoLibraryRoot>
+    <LegatoLibraryRoot Condition="Exists('$(LegatoReferenceRoot)\IPA\Pending\Libraries')">$(LegatoReferenceRoot)\IPA\Pending\Libraries</LegatoLibraryRoot>
   </PropertyGroup>
 
   <Target Name="LegatoConfigure" BeforeTargets="PrepareForBuild">
@@ -29,10 +32,10 @@
   <Target Name="LegatoAddRequiredReferences" BeforeTargets="ResolveAssemblyReferences" DependsOnTargets="LegatoConfigure">
     <ItemGroup>
       <Reference Remove="SongDataCore"
-                 Condition="'$(LegatoSourceProfile)' == '1.29.0' AND !Exists('$(LegatoReferenceRoot)\Plugins\SongDataCore.dll') AND Exists('$(LegatoReferenceRoot)\Libs\SongDetailsCache.dll')" />
+                 Condition="'$(LegatoSourceProfile)' == '1.29.0' AND !Exists('$(LegatoReferenceRoot)\Plugins\SongDataCore.dll') AND Exists('$(LegatoLibraryRoot)\SongDetailsCache.dll')" />
       <Reference Include="SongDetailsCache"
-                 Condition="'$(LegatoSourceProfile)' == '1.29.0' AND '@(Reference->WithMetadataValue('Identity', 'SongDetailsCache'))' == '' AND !Exists('$(LegatoReferenceRoot)\Plugins\SongDataCore.dll') AND Exists('$(LegatoReferenceRoot)\Libs\SongDetailsCache.dll')">
-        <HintPath>$(LegatoReferenceRoot)\Libs\SongDetailsCache.dll</HintPath>
+                 Condition="'$(LegatoSourceProfile)' == '1.29.0' AND '@(Reference->WithMetadataValue('Identity', 'SongDetailsCache'))' == '' AND !Exists('$(LegatoReferenceRoot)\Plugins\SongDataCore.dll') AND Exists('$(LegatoLibraryRoot)\SongDetailsCache.dll')">
+        <HintPath>$(LegatoLibraryRoot)\SongDetailsCache.dll</HintPath>
         <Private>false</Private>
       </Reference>
       <Reference Remove="Polyglot"

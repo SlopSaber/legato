@@ -63,7 +63,7 @@ namespace Legato.Beatmaps {
                                                                             beatmapLevelDataVersion: beatmapLevelDataVersion,
                                                                             gameplayModifiers: null,
                                                                             playerSpecificSettings: null
-#if !BEAT_SABER_1_45_1
+#if !BEAT_SABER_1_45_1 && !BEAT_SABER_1_45_3
                                                                             , enableBeatmapDataCaching: false
 #endif
                                                                             );

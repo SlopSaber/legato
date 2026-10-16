@@ -27,7 +27,11 @@ namespace Legato.Beatmaps {
             return beatmapLevelsModel
                 .GetAllPacks()
                 .SelectMany(AllBeatmapLevels)
+#if BEAT_SABER_1_45_3
+                .Where(level => level.gameplayTypeBeatmapBasicData.Count > 0);
+#else
                 .Where(level => level.beatmapBasicData.Count > 0);
+#endif
 #endif
         }
 
