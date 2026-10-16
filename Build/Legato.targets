@@ -248,6 +248,9 @@
       <Compile Include="$(LegatoSourceRoot)Polyfills\GlobalNamespace\OculusVRHelper\**\*.cs;$(LegatoSourceRoot)Polyfills\GlobalNamespace\PauseController\**\*.cs;$(LegatoSourceRoot)Polyfills\GlobalNamespace\UnityXRHelper\**\*.cs;$(LegatoSourceRoot)Polyfills\GlobalNamespace\UnityXRSystemState\**\*.cs;$(LegatoSourceRoot)Polyfills\GlobalNamespace\VariableMovementDataProvider\**\*.cs"
                Condition="'$(LegatoEnableHarmonyEvents)' == 'true'" />
     </ItemGroup>
+    <ItemGroup Condition="Exists('$(GameDirectory)\IPA\Data\Managed\IPA.Loader.dll') OR Exists('$(BeatSaberDir)\IPA\Data\Managed\IPA.Loader.dll')">
+      <Compile Remove="$(LegatoSourceRoot)Polyfills\SiraUtil\Tools\FPFC\**\*.cs" />
+    </ItemGroup>
   </Target>
 
 </Project>
