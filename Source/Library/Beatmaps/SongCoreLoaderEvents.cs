@@ -15,16 +15,26 @@ namespace Legato
 
         internal static async Task<bool> RefreshSongsAsync(this SongCore.Loader loader, bool fullRefresh, TimeSpan timeout, CancellationToken cancellationToken)
         {
+            cancellationToken.ThrowIfCancellationRequested();
             var loaded = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
             using (SubscribeToSongsLoaded(() => loaded.TrySetResult(true)))
+            using (var timeoutCancellation = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken))
             {
-                loader.RefreshSongs(fullRefresh);
-                Task completed = await Task.WhenAny(loaded.Task, Task.Delay(timeout, cancellationToken));
-                if (completed == loaded.Task)
-                    return true;
+                try
+                {
+                    cancellationToken.ThrowIfCancellationRequested();
+                    loader.RefreshSongs(fullRefresh);
+                    Task completed = await Task.WhenAny(loaded.Task, Task.Delay(timeout, timeoutCancellation.Token));
+                    if (completed == loaded.Task)
+                        return true;
 
-                cancellationToken.ThrowIfCancellationRequested();
-                return false;
+                    cancellationToken.ThrowIfCancellationRequested();
+                    return false;
+                }
+                finally
+                {
+                    timeoutCancellation.Cancel();
+                }
             }
         }
     }
