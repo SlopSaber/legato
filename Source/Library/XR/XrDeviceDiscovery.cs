@@ -27,6 +27,37 @@ namespace Legato.XR {
             }
         }
 
+        public static string DescribeHeadset(string? steamHeadsetName) {
+#if BEAT_SABER_1_29_0
+            string device = "(xrdevice):" + LegacyHeadsetModel;
+            if (steamHeadsetName != null) device = $"{device}:(steamcfg):{steamHeadsetName}";
+            return "legacy:" + device;
+#else
+            string runtime = RuntimeName;
+            string? headset = DescribeNode(XRNode.Head);
+            if (runtime.IndexOf("steam", System.StringComparison.OrdinalIgnoreCase) >= 0 && steamHeadsetName != null)
+                headset = $"{headset}:(steamcfg):{steamHeadsetName}";
+            return $"{runtime}:{headset}";
+#endif
+        }
+
+        public static string DescribeController(XRNode node, InputDeviceCharacteristics hand) {
+#if BEAT_SABER_1_29_0
+            string? name = GetControllerDeviceName(hand);
+            string device = name == null ? string.Empty : "(inputdevice):" + name;
+            string? nodeName = DescribeNode(node);
+            if (nodeName != null) device = string.IsNullOrEmpty(device) ? nodeName : $"{device}:{nodeName}";
+            return !string.IsNullOrEmpty(device) ? "legacy:" + device : "legacy:unknown";
+#else
+            return $"{RuntimeName}:{DescribeNode(node)}";
+#endif
+        }
+
+        private static string? DescribeNode(XRNode node) {
+            string? name = GetNodeDeviceName(node);
+            return name == null ? null : "(xrnode):" + name;
+        }
+
         public static string? GetNodeDeviceName(XRNode node) {
             var devices = new List<InputDevice>();
             InputDevices.GetDevicesAtXRNode(node, devices);

@@ -181,6 +181,10 @@
     <ItemGroup>
       <Compile Include="$(LegatoSourceRoot)ForwardPolyfills\**\Transitions\1.37.1-1.38.0\**\*.cs"
                Condition="'@(_LegatoDataModelsReference)' != '' AND '$(LegatoSourceOrder)' != '' AND '$(LegatoTargetOrder)' != '' AND $(LegatoSourceOrder) &lt;= 1 AND $(LegatoTargetOrder) &gt;= 2" />
+      <Compile Include="$(LegatoSourceRoot)Library\Results\**\*.cs"
+               Condition="'@(_LegatoIPAReference)' != '' AND '@(_LegatoGameplayCoreReference)' != ''" />
+      <Compile Include="$(LegatoSourceRoot)Library\Tracking\**\*.cs"
+               Condition="'$(LegatoEnableSpatialTracking)' == 'true' OR '$(LegatoTargetProfile)' == '1.29.0'" />
       <Compile Include="$(LegatoSourceRoot)ForwardPolyfills\**\Transitions\1.38.0-1.40.0\**\*.cs"
                Condition="'@(_LegatoDataModelsReference)' != '' AND '$(LegatoSourceOrder)' != '' AND '$(LegatoTargetOrder)' != '' AND $(LegatoSourceOrder) &lt;= 2 AND $(LegatoTargetOrder) &gt;= 3" />
       <Compile Include="$(LegatoSourceRoot)ForwardPolyfills\**\Transitions\1.40.0-1.42.0\**\*.cs"
