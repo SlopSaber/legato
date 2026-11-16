@@ -1,5 +1,7 @@
 #nullable enable
 
+using System.Linq;
+
 namespace Legato {
     internal static class BeatmapKeyExtensions {
         internal static string LevelId(this BeatmapKey key) =>
@@ -15,6 +17,19 @@ namespace Legato {
 #else
             key.IsValid();
 #endif
+
+        internal static string FirstMapperName(this BeatmapLevel level) =>
+#if BEAT_SABER_1_29_0
+            level?.levelAuthorName ?? string.Empty;
+#else
+            level?.allMappers?.FirstOrDefault() ?? string.Empty;
+#endif
+
+        internal static string CharacteristicWireName(this BeatmapKey key) => CharacteristicName(key) switch {
+            "90Degree" => "Degree90",
+            "360Degree" => "Degree360",
+            var name => name
+        };
 
         internal static string CharacteristicSerializedName(this BeatmapKey beatmapKey) {
 #if BEAT_SABER_1_29_0 && LEGATO_NATIVE_BEATMAP_KEYS
