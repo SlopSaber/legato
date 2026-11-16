@@ -91,7 +91,12 @@ namespace CustomJSONData.CustomBeatmap
             {
             }
 
-            public override NoteData Convert(BeatmapSaveData.ColorNoteData data)
+#if BEAT_SABER_1_29_0
+            protected override NoteData Convert(
+#else
+            public override NoteData Convert(
+#endif
+                BeatmapSaveData.ColorNoteData data)
             {
                 NoteData noteData = CustomNoteData.CreateCustomBasicNoteData(
                     BeatToTime(data.beat),
@@ -115,7 +120,12 @@ namespace CustomJSONData.CustomBeatmap
             {
             }
 
-            public override NoteData Convert(BeatmapSaveData.BombNoteData data)
+#if BEAT_SABER_1_29_0
+            protected override NoteData Convert(
+#else
+            public override NoteData Convert(
+#endif
+                BeatmapSaveData.BombNoteData data)
             {
                 return CustomNoteData.CreateCustomBombNoteData(
                     BeatToTime(data.beat),
@@ -135,7 +145,12 @@ namespace CustomJSONData.CustomBeatmap
             {
             }
 
-            public override ObstacleData Convert(BeatmapSaveData.ObstacleData data)
+#if BEAT_SABER_1_29_0
+            protected override ObstacleData Convert(
+#else
+            public override ObstacleData Convert(
+#endif
+                BeatmapSaveData.ObstacleData data)
             {
                 float beat = BeatToTime(data.beat);
                 return new CustomObstacleData(
@@ -159,7 +174,12 @@ namespace CustomJSONData.CustomBeatmap
             {
             }
 
-            public override SliderData Convert(BeatmapSaveData.SliderData data)
+#if BEAT_SABER_1_29_0
+            protected override SliderData Convert(
+#else
+            public override SliderData Convert(
+#endif
+                BeatmapSaveData.SliderData data)
             {
                 return CustomSliderData.CreateCustomSliderData(
                     _convertColorType(data.colorType),
@@ -190,7 +210,12 @@ namespace CustomJSONData.CustomBeatmap
             {
             }
 
-            public override SliderData Convert(BeatmapSaveData.BurstSliderData data)
+#if BEAT_SABER_1_29_0
+            protected override SliderData Convert(
+#else
+            public override SliderData Convert(
+#endif
+                BeatmapSaveData.BurstSliderData data)
             {
                 return CustomSliderData.CreateCustomBurstSliderData(
                     _convertColorType(data.colorType),
@@ -219,7 +244,12 @@ namespace CustomJSONData.CustomBeatmap
             {
             }
 
-            public override WaypointData Convert(BeatmapSaveData.WaypointData data)
+#if BEAT_SABER_1_29_0
+            protected override WaypointData Convert(
+#else
+            public override WaypointData Convert(
+#endif
+                BeatmapSaveData.WaypointData data)
             {
                 return new CustomWaypointData(
                     BeatToTime(data.beat),
@@ -240,7 +270,12 @@ namespace CustomJSONData.CustomBeatmap
             {
             }
 
-            public override BPMChangeBeatmapEventData Convert(BeatmapSaveData.BpmChangeEventData data)
+#if BEAT_SABER_1_29_0
+            protected override BPMChangeBeatmapEventData Convert(
+#else
+            public override BPMChangeBeatmapEventData Convert(
+#endif
+                BeatmapSaveData.BpmChangeEventData data)
             {
                 return new CustomBPMChangeBeatmapEventData(
                     BeatToTime(data.beat),
@@ -259,7 +294,12 @@ namespace CustomJSONData.CustomBeatmap
             {
             }
 
-            public override SpawnRotationBeatmapEventData Convert(BeatmapSaveData.RotationEventData data)
+#if BEAT_SABER_1_29_0
+            protected override SpawnRotationBeatmapEventData Convert(
+#else
+            public override SpawnRotationBeatmapEventData Convert(
+#endif
+                BeatmapSaveData.RotationEventData data)
             {
                 SpawnRotationBeatmapEventData.SpawnRotationEventType executionTime =
                     data.executionTime == BeatmapSaveData.ExecutionTime.Early
@@ -289,7 +329,12 @@ namespace CustomJSONData.CustomBeatmap
                 _specialEventsFilter = specialEventsFilter;
             }
 
-            public override BasicBeatmapEventData Convert(BeatmapSaveData.BasicEventData data)
+#if BEAT_SABER_1_29_0
+            protected override BasicBeatmapEventData Convert(
+#else
+            public override BasicBeatmapEventData Convert(
+#endif
+                BeatmapSaveData.BasicEventData data)
             {
                 if (!_specialEventsFilter.IsEventValid(data.eventType))
                 {
@@ -315,7 +360,12 @@ namespace CustomJSONData.CustomBeatmap
             {
             }
 
-            public override ColorBoostBeatmapEventData Convert(BeatmapSaveData.ColorBoostEventData data)
+#if BEAT_SABER_1_29_0
+            protected override ColorBoostBeatmapEventData Convert(
+#else
+            public override ColorBoostBeatmapEventData Convert(
+#endif
+                BeatmapSaveData.ColorBoostEventData data)
             {
                 return new CustomColorBoostBeatmapEventData(
                     BeatToTime(data.beat),

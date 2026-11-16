@@ -16,9 +16,11 @@
                        Condition="'$(LegatoEnableCustomJsonDataProviders)' == 'true'" />
   </ItemGroup>
   <Target Name="LegatoCustomJsonLegacyReferences" BeforeTargets="ResolveAssemblyReferences" DependsOnTargets="LegatoConfigure">
+    <PropertyGroup Condition="'$(LegatoTargetProfile)' == '1.29.0' AND '$(LegatoEnableCustomJsonDataProviders)' == 'true'">
+      <LegatoUseReferencePublicizeMetadata>true</LegatoUseReferencePublicizeMetadata>
+    </PropertyGroup>
     <ItemGroup Condition="'$(LegatoTargetProfile)' == '1.29.0' AND '$(LegatoEnableCustomJsonDataProviders)' == 'true'">
       <Reference Remove="AdditionalContentModel.Interfaces;DataModels;Tweening" />
-      <Reference Update="GameplayCore" Publicize="true" />
     </ItemGroup>
   </Target>
   <!-- Keep the suite's original version ordering while selecting it from Legato's target. -->
