@@ -87,11 +87,15 @@ namespace Legato.XR {
         private static extern bool CloseHandle(IntPtr handle);
 
         internal void Enable() {
+#if BEAT_SABER_1_29_0
+            info("OpenXR pose prediction is unavailable on this game version.");
+#else
             lock (Sync) {
                 if (!TryApply()) {
                     retryTimer = new Timer(Retry, null, 250, 250);
                 }
             }
+#endif
         }
 
         internal void Disable() {
