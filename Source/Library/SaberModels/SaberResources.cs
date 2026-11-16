@@ -1,6 +1,7 @@
 using System;
 using System.Linq;
 using UnityEngine;
+using Zenject;
 #if !BEAT_SABER_1_29_0
 using static BGLib.UnityExtension.AddressablesExtensions;
 #endif
@@ -26,6 +27,13 @@ internal static class SaberResources
 #else
         LoadContent<GameObject>("Assets/Prefabs/Sabers/BasicSaberModel.prefab").FirstOrDefault()
         ?? throw ResourceException;
+#endif
+
+    internal static SaberTrailRenderer InstantiateRenderer(DiContainer container, SaberTrailRenderer prefab) =>
+#if BEAT_SABER_1_29_0
+        container.InstantiatePrefabForComponent<SaberTrailRenderer>(prefab, Vector3.zero, Quaternion.identity, null);
+#else
+        container.InstantiatePrefabForComponentAt<SaberTrailRenderer>(prefab, Vector3.zero, Quaternion.identity, null);
 #endif
 
     internal static GameObject CreateModel(GameObject prefab, string name)

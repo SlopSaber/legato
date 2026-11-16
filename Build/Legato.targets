@@ -287,6 +287,7 @@
       <Compile Include="$(LegatoSourceRoot)Library\LocalizationAccess\**\*.cs" Condition="'$(LegatoEnableLocalizationAccess)' == 'true'" />
       <Compile Include="$(LegatoSourceRoot)Library\PortableFonts\**\*.cs" Condition="'$(LegatoEnablePortableFonts)' == 'true'" />
       <Compile Include="$(LegatoSourceRoot)Library\FontResources\**\*.cs" Condition="'$(LegatoEnableFontResources)' == 'true'" />
+      <Compile Include="$(LegatoSourceRoot)Library\AsyncFiles\**\*.cs" Condition="'$(LegatoEnableAsyncFiles)' == 'true'" />
       <Compile Include="$(LegatoSourceRoot)Library\RuntimeServices\**\*.cs"
                Condition="'$(LegatoEnableRuntimeServices)' == 'true'" />
       <Compile Include="$(LegatoSourceRoot)Library\TableSources\**\*.cs"

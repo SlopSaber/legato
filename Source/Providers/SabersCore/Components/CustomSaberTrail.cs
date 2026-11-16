@@ -1,0 +1,114 @@
+﻿using SaberComponents.Models;
+using SabersCore.Models;
+using SabersCore.Utilities.Common;
+using SabersCore.Utilities.Extensions;
+using UnityEngine;
+using Zenject;
+
+namespace SabersCore.Components;
+
+public class CustomSaberTrail : SaberTrail
+{
+    private readonly SaberMovementData customTrailMovementData = new();
+
+    private TimeHelper timeHelper = null!;
+    private Transform trailTop = null!;
+    private Transform trailBottom = null!;
+    private ITrailData trailData = null!;
+
+    [Inject]
+    public void Construct(
+        TimeHelper timeHelper,
+        InitData initData)
+    {
+        this.timeHelper = timeHelper;
+        trailTop = initData.TrailTop;
+        trailBottom = initData.TrailBottom;
+        trailData = initData.TrailData;
+        gameObject.layer = 12;
+        Legato.Models.SaberTrailAccess.SetMovementData(this, customTrailMovementData);
+    }
+
+    public float OverrideWidth { private get; set; } = 1f;
+    public bool UseWidthOverride { private get; set; }
+    
+    public ITrailData TrailData => trailData;
+
+    public void SetColorScheme(ColorScheme colorScheme) => SetColor(colorScheme);
+
+    public void SetBoostColors(ColorScheme colorScheme, bool isBoostOn) =>
+        UpdateBoostColors(colorScheme, isBoostOn);
+
+    public void SetSpecificColor(Color color)
+    {
+        if (!trailData.UseTrailColor && trailData.ColorSchemeType is ColorSchemeType.LeftSaber or ColorSchemeType.RightSaber)
+            SetColor(color);
+    }
+
+    public void SetColor(ColorScheme colorScheme)
+    {
+        if (trailData.UseTrailColor)
+        {
+            SetColor(trailData.CustomColor);
+            return;
+        }
+        var color = colorScheme.GetColorByType(trailData.ColorSchemeType);
+        SetColor(color);
+    }
+    
+    public void UpdateBoostColors(ColorScheme colorScheme, bool isBoostOn)
+    {
+        if (trailData.UseTrailColor || !trailData.UseColorBoostEvents) return;
+        var color = colorScheme.GetBoostColorByType(trailData.ColorSchemeType, isBoostOn);
+        SetColor(color);
+    }
+
+    public void SetColor(Color color, SaberType saberType)
+    {
+        if (trailData.UseTrailColor) return;
+        if ((saberType == SaberType.SaberA && trailData.ColorSchemeType == ColorSchemeType.LeftSaber)
+            || (saberType == SaberType.SaberB && trailData.ColorSchemeType == ColorSchemeType.RightSaber))
+        {
+            SetColor(color);
+        }
+    }
+    
+    private void SetColor(Color color)
+    {
+        Legato.Models.SaberTrailAccess.SetColor(this, color * trailData.ColorMultiplier,
+            MaterialProperties.Color);
+    }
+    
+#if BEAT_SABER_1_29_0
+    private void Start()
+#else
+    private new void Start()
+#endif
+    {
+        // Ignored
+    }
+
+    private void Update()
+    {
+        if (!gameObject.activeInHierarchy) return;
+
+        var topPos = trailTop.position;
+        var bottomPos = trailBottom.position;
+
+        if (UseWidthOverride)
+        {
+            TrailUtils.ApplyWidthMultiplier(trailData, OverrideWidth, ref topPos, ref bottomPos);
+        }
+        
+        customTrailMovementData.AddNewData(
+            topPos,
+            bottomPos,
+#if BEAT_SABER_1_29_0
+            TimeHelper.time);
+#else
+            timeHelper.Time);
+#endif
+    }
+    
+    public record InitData(Transform TrailTop, Transform TrailBottom, ITrailData TrailData);
+}

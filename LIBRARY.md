@@ -247,3 +247,5 @@ Environment access also exposes native scene names and list order. `LegatoEnable
 Async-interface consumers declare their runtime and framework-reference PackageReference entries explicitly so the first clean restore includes them. The async build option supplies framework binding and artifact copying; runtime pins are Microsoft.Bcl.AsyncInterfaces 11.0.0, System.Threading.Tasks.Extensions 4.6.3 and their Unsafe 6.1.2 dependency, with net472 reference assemblies 1.0.3. These versions were checked against the official NuGet feeds on 2026-11-16.
 
 The async framework override and extra runtime payload apply only to Unity 2019 profiles. Current profiles retain the game's native netstandard 2.1 and async types. Consumers condition their three compatibility PackageReferences on the legacy target version.
+
+Saber model helpers include native prefab/component creation and texture resizing. The SabersCore provider preserves current custom trail motion and selects native lifecycle visibility and clock access. `LegatoEnableAsyncFiles` supplies asynchronous file writes on legacy CLR without changing byte data or adding a UTF-8 BOM; current profiles use native file APIs.

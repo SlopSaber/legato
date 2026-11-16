@@ -13,5 +13,11 @@
     "original": "PublicMods\\SabersCore\\SabersCore\\Components\\LegacyColorTargets.cs",
     "shared": "Source\\Providers\\SabersCore\\Components\\LegacyColorTargets.cs",
     "sha256": "751dd1566d8a8ab981c777f2a6de78dd73fbd09ac1528bc6b7ab0f5adbdfe573"
+  },
+  {
+    "original": "SabersCore/Components/CustomSaberTrail.cs",
+    "shared": "Source/Providers/SabersCore/Components/CustomSaberTrail.cs",
+    "sha256": "7d73e6fc1074a79479509a391f3b7d626b7f16394dc85b690b66d78b793db3f9",
+    "note": "Maintained current trail implementation; only native lifecycle visibility and TimeHelper access are selected by profile."
   }
 ]
