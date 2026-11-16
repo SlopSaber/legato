@@ -309,6 +309,10 @@
                Condition="'$(LegatoEnableViewLifecycle)' == 'true'" />
       <Compile Include="$(LegatoSourceRoot)Library\LevelDetailAccess\**\*.cs"
                Condition="'$(LegatoEnableLevelDetailAccess)' == 'true'" />
+      <Compile Include="$(LegatoSourceRoot)Library\BloomMesh\**\*.cs"
+               Condition="'$(LegatoEnableBloomMesh)' == 'true'" />
+      <Compile Include="$(LegatoSourceRoot)Library\MenuLighting\**\*.cs"
+               Condition="'$(LegatoEnableMenuLighting)' == 'true'" />
       <Compile Include="$(LegatoSourceRoot)Library\SettingsTemplates\**\*.cs"
                Condition="'$(LegatoEnableSettingsTemplates)' == 'true'" />
       <Compile Include="$(LegatoSourceRoot)Library\TableSources\**\*.cs"

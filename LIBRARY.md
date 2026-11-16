@@ -271,3 +271,5 @@ Score effect helpers also construct native normal/chain preview notes with the c
 Hitbloq providers discover the supported BSML/SongCore API names independently of game version, and retain playlist selection/download/open behavior through the native legacy pack interface. No remote actions run during builds.
 
 `LegatoEnableEditorAccess` selects the native beatmap-editor assembly and playhead time. `LegatoEnableViewLifecycle` exposes stable protected menu callbacks while selecting native visibility. `LegatoEnableLevelDetailAccess` selects completed native detail refresh; legacy async hooks ignore suspended state-machine steps. `LegatoPreferLoaderJson` uses the installed BSIPA core JSON reference; set `LegatoJsonLayoutTarget` when a consumer has a later reference layout target.
+
+`LegatoEnableBloomMesh` retains material/submesh pass selection while submitting through the native bloom API. Legacy rendering reuses an owned command buffer and releases it on destruction. `LegatoEnableMenuLighting` exposes the native menu-light pair type.
