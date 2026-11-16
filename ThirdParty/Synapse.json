@@ -1,0 +1,26 @@
+{
+  "repository": "https://github.com/SlopSaber/Synapse.git",
+  "source_commit": "19c3af0208c26124e713ac1f71f54179de8461af",
+  "license": "MIT",
+  "paths": [
+    "HarmonyPatches/EventLeaderboardVisuals.cs",
+    "HarmonyPatches/PauseHijack.cs",
+    "KeyboardKeyer/KeyboardKeyer.cs",
+    "Managers/HeckIntegrationManager.cs",
+    "Managers/LevelStartManager.cs",
+    "Managers/MapDownloadingManager.cs",
+    "Managers/NetworkManager.cs",
+    "Managers/PromoManager.cs",
+    "Managers/SongCoreLoader.cs",
+    "Models/DownloadedMap.cs",
+    "Settings/SettingsMenu.cs",
+    "Views/EventDivisionSelectViewController.cs",
+    "Views/EventFlowCoordinator.cs",
+    "Views/EventIntroViewController.cs",
+    "Views/EventLeaderboardViewController.cs",
+    "Views/EventLobbyChatViewController.cs",
+    "Views/EventLobbySongInfoViewController.cs",
+    "Views/EventModsViewController.cs"
+  ],
+  "integration": "Current native providers compile into the original Synapse assembly with shared game/dependency profile selection."
+}

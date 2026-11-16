@@ -30,6 +30,7 @@
     <None Include="Build\Legato.Versions.props" Pack="true" PackagePath="build\Legato.Versions.props" />
     <None Include="Build\BsUtilsHost.targets" Pack="true" PackagePath="build\BsUtilsHost.targets" />
     <None Include="Resources\**\*" Pack="true" PackagePath="build\Resources\%(RecursiveDir)%(Filename)%(Extension)" />
+    <None Include="Build\SynapseProviders.targets" Pack="true" PackagePath="build\SynapseProviders.targets" />
     <None Include="Build\ReactiveHost.targets" Pack="true" PackagePath="build\ReactiveHost.targets" />
     <None Include="Build\NativeTypeAliases.targets" Pack="true" PackagePath="build\NativeTypeAliases.targets" />
     <None Include="Build\SiraHost.targets" Pack="true" PackagePath="build\SiraHost.targets" />

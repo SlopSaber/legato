@@ -1,0 +1,10 @@
+<Project>
+  <ItemGroup>
+    <EditorConfigFiles Include="$(LegatoSourceRoot)Providers\Synapse\.editorconfig" />
+  </ItemGroup>
+  <Target Name="LegatoSynapseNativeReferences" BeforeTargets="ResolveAssemblyReferences" DependsOnTargets="LegatoConfigure">
+    <ItemGroup Condition="'$(LegatoTargetProfile)' == '1.29.0'">
+      <Reference Remove="BGLib.AppFlow;BGLib.UnityExtension;BGNetCore;BeatSaber.Multiplayer.Core;BeatSaber.ViewSystem;DataModels;MediaLoader;Networking;OculusStudios.Platform.Core;PlatformUserModel;SegmentedControl;Transitions;Tweening" />
+    </ItemGroup>
+  </Target>
+</Project>
