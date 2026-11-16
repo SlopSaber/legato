@@ -269,3 +269,5 @@ Score effect helpers also construct native normal/chain preview notes with the c
 `LegatoEnableCollectionNavigation` exposes native pack collections, selection subscriptions, cell collection data and row-selection methods. `LegatoEnablePlaylistManagerProviders` selects the native collection-grid layout while retaining current-profile horizontal expansion and legacy vertical animation. Folder and playlist policy remain consumer-owned.
 
 Hitbloq providers discover the supported BSML/SongCore API names independently of game version, and retain playlist selection/download/open behavior through the native legacy pack interface. No remote actions run during builds.
+
+`LegatoEnableEditorAccess` selects the native beatmap-editor assembly and playhead time. `LegatoEnableViewLifecycle` exposes stable protected menu callbacks while selecting native visibility. `LegatoEnableLevelDetailAccess` selects completed native detail refresh; legacy async hooks ignore suspended state-machine steps. `LegatoPreferLoaderJson` uses the installed BSIPA core JSON reference; set `LegatoJsonLayoutTarget` when a consumer has a later reference layout target.

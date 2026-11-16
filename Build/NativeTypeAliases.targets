@@ -28,4 +28,16 @@
       <Reference Include="UnityEngine.ImageConversionModule" HintPath="$(LegatoReferenceRoot)\Beat Saber_Data\Managed\UnityEngine.ImageConversionModule.dll" Private="false" />
     </ItemGroup>
   </Target>
+  <Target Name="LegatoEditorReferences" BeforeTargets="ResolveAssemblyReferences" DependsOnTargets="LegatoConfigure" Condition="'$(LegatoEnableEditorAccess)' == 'true' AND '$(LegatoTargetProfile)' == '1.29.0'">
+    <ItemGroup>
+      <Reference Remove="BeatSaber.BeatmapEditor" />
+      <Reference Include="BeatmapEditor3D" HintPath="$(LegatoReferenceRoot)\Beat Saber_Data\Managed\BeatmapEditor3D.dll" Publicize="true" Private="false" />
+    </ItemGroup>
+  </Target>
+  <Target Name="LegatoResolveLoaderJson" BeforeTargets="ResolveAssemblyReferences" DependsOnTargets="$(LegatoJsonLayoutTarget)" Condition="'$(LegatoPreferLoaderJson)' == 'true' AND Exists('$(LegatoReferenceRoot)\IPA\CoreLibraries\Newtonsoft.Json.dll')">
+    <ItemGroup>
+      <Reference Remove="Newtonsoft.Json" />
+      <Reference Include="Newtonsoft.Json" HintPath="$(LegatoReferenceRoot)\IPA\CoreLibraries\Newtonsoft.Json.dll" Private="false" />
+    </ItemGroup>
+  </Target>
 </Project>

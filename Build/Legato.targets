@@ -303,6 +303,12 @@
                Condition="'$(LegatoEnableCollectionNavigation)' == 'true'" />
       <Compile Include="$(LegatoSourceRoot)Providers\PlaylistManager\**\*.cs"
                Condition="'$(LegatoEnablePlaylistManagerProviders)' == 'true'" />
+      <Compile Include="$(LegatoSourceRoot)Library\EditorAccess\**\*.cs"
+               Condition="'$(LegatoEnableEditorAccess)' == 'true'" />
+      <Compile Include="$(LegatoSourceRoot)Library\ViewLifecycle\**\*.cs"
+               Condition="'$(LegatoEnableViewLifecycle)' == 'true'" />
+      <Compile Include="$(LegatoSourceRoot)Library\LevelDetailAccess\**\*.cs"
+               Condition="'$(LegatoEnableLevelDetailAccess)' == 'true'" />
       <Compile Include="$(LegatoSourceRoot)Library\SettingsTemplates\**\*.cs"
                Condition="'$(LegatoEnableSettingsTemplates)' == 'true'" />
       <Compile Include="$(LegatoSourceRoot)Library\TableSources\**\*.cs"
