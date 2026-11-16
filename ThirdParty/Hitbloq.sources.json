@@ -1,0 +1,72 @@
+[
+  {
+    "original": "PublicMods\\Hitbloq\\Hitbloq\\Installers\\HitbloqMenuInstaller.cs",
+    "shared": "Source\\Providers\\Hitbloq\\Installers\\HitbloqMenuInstaller.cs",
+    "sha256": "a7fe26834ffdc3a3ee67521b92402ac0810c00fa5002b9354eba5990955f9387"
+  },
+  {
+    "original": "PublicMods\\Hitbloq\\Hitbloq\\Managers\\BeatLeaderUploadManager.cs",
+    "shared": "Source\\Providers\\Hitbloq\\Managers\\BeatLeaderUploadManager.cs",
+    "sha256": "361e9938862e41f6fb735e7c5034d6388f02ee47630d6011a6e6902932b9ae03"
+  },
+  {
+    "original": "PublicMods\\Hitbloq\\Hitbloq\\Managers\\HitbloqManager.cs",
+    "shared": "Source\\Providers\\Hitbloq\\Managers\\HitbloqManager.cs",
+    "sha256": "5c9e5018042e04da2bd164bcfd4b08c75721ae851b6dd6ebe2241dd7b05a8327"
+  },
+  {
+    "original": "PublicMods\\Hitbloq\\Hitbloq\\Other\\BeatmapKeyCompat.cs",
+    "shared": "Source\\Providers\\Hitbloq\\Other\\BeatmapKeyCompat.cs",
+    "sha256": "99ac745a0aa21dfd5088a9e837eee2864f9222fe6944761f468fb7f41e4423f3"
+  },
+  {
+    "original": "PublicMods\\Hitbloq\\Hitbloq\\Other\\PlaylistManagerIHardlyKnowHer.cs",
+    "shared": "Source\\Providers\\Hitbloq\\Other\\PlaylistManagerIHardlyKnowHer.cs",
+    "sha256": "34f33a97ddf586cd37e3b24b47cd6c7b3eae51578653d16ba12181f4c1b0c062"
+  },
+  {
+    "original": "PublicMods\\Hitbloq\\Hitbloq\\Other\\SpriteLoader.cs",
+    "shared": "Source\\Providers\\Hitbloq\\Other\\SpriteLoader.cs",
+    "sha256": "9b0951c20e4c072dce45703bfe96277e6b4d54fc714fab4a07f4614885cdccdb"
+  },
+  {
+    "original": "PublicMods\\Hitbloq\\Hitbloq\\UI\\HitbloqFlowCoordinator.cs",
+    "shared": "Source\\Providers\\Hitbloq\\UI\\HitbloqFlowCoordinator.cs",
+    "sha256": "dcc2fa910c2c22e9da9e363b2299b12661fafa3ead4fca5709bb601e100e1979"
+  },
+  {
+    "original": "PublicMods\\Hitbloq\\Hitbloq\\UI\\MenuButtonUI.cs",
+    "shared": "Source\\Providers\\Hitbloq\\UI\\MenuButtonUI.cs",
+    "sha256": "d323aa1949a4a8347d87cf0369e779fee35e6f300d33dab7720a058b6cea2e75"
+  },
+  {
+    "original": "PublicMods\\Hitbloq\\Hitbloq\\Utilities\\BSMLCompat.cs",
+    "shared": "Source\\Providers\\Hitbloq\\Utilities\\BSMLCompat.cs",
+    "sha256": "c82282967e4e4cd0152e64ef01a28b0b1b436d57d6370f28910278ce38af128d"
+  },
+  {
+    "original": "PublicMods\\Hitbloq\\Hitbloq\\Utilities\\PlatformUserAccessor.cs",
+    "shared": "Source\\Providers\\Hitbloq\\Utilities\\PlatformUserAccessor.cs",
+    "sha256": "e3243e6aa6734084c219a688b9473fb553eaaff5f7171e37e14dd2f9fc31ead6"
+  },
+  {
+    "original": "PublicMods\\Hitbloq\\Hitbloq\\Utilities\\Utils.cs",
+    "shared": "Source\\Providers\\Hitbloq\\Utilities\\Utils.cs",
+    "sha256": "77ac9db974eb870daddde6d6cbb4eba497e590051ea773854d6bb5938c6bfa13"
+  },
+  {
+    "original": "PublicMods\\Hitbloq\\Hitbloq\\UI\\ViewControllers\\HitbloqLeaderboardViewController.cs",
+    "shared": "Source\\Providers\\Hitbloq\\UI\\ViewControllers\\HitbloqLeaderboardViewController.cs",
+    "sha256": "e8f0b2295eb2276ea1b406f4e418aed2c47a1b7d14c42f85e323b51dfe499914"
+  },
+  {
+    "original": "PublicMods\\Hitbloq\\Hitbloq\\UI\\ViewControllers\\HitbloqPoolLeaderboardViewController.cs",
+    "shared": "Source\\Providers\\Hitbloq\\UI\\ViewControllers\\HitbloqPoolLeaderboardViewController.cs",
+    "sha256": "77f0b76001bbf2896f296c02fc2619b0361d2c0fa1c370194f9cb852e70eba53"
+  },
+  {
+    "original": "PublicMods\\Hitbloq\\Hitbloq\\UI\\ViewControllers\\HitbloqPoolListViewController.cs",
+    "shared": "Source\\Providers\\Hitbloq\\UI\\ViewControllers\\HitbloqPoolListViewController.cs",
+    "sha256": "fe76ba9dba7be5a066f64c033c0739505d754410cc28445a9a5da7af9aed39e0"
+  }
+]

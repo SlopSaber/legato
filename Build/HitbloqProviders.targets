@@ -1,0 +1,20 @@
+<Project>
+  <Target Name="LegatoConfigureHitbloqProfile" BeforeTargets="LegatoPrepareManifest;ResolveAssemblyReferences"
+          DependsOnTargets="LegatoConfigure">
+    <PropertyGroup>
+      <DefineConstants>$([System.Text.RegularExpressions.Regex]::Replace('$(DefineConstants)', '\bHITBLOQ_BS_\d+_\d+_\d+\b', ''))</DefineConstants>
+      <_LegatoHitbloqApi>HITBLOQ_BS_1_45_0</_LegatoHitbloqApi>
+      <_LegatoHitbloqApi Condition="'$(LegatoTargetProfile)' == '1.29.0'">HITBLOQ_BS_1_29_1</_LegatoHitbloqApi>
+      <_LegatoHitbloqApi Condition="'$(LegatoTargetProfile)' == '1.40.0'">HITBLOQ_BS_1_40_8</_LegatoHitbloqApi>
+      <_LegatoHitbloqApi Condition="'$(LegatoTargetVersion)' == '1.44.0'">HITBLOQ_BS_1_44_0</_LegatoHitbloqApi>
+      <DefineConstants>$(DefineConstants);$(_LegatoHitbloqApi)</DefineConstants>
+      <LegatoManifestFile>manifest.1.46.0.json</LegatoManifestFile>
+      <LegatoManifestFile Condition="$([MSBuild]::VersionLessThan('$(LegatoTargetVersion)', '1.45.3'))">manifest.1.45.0.json</LegatoManifestFile>
+      <LegatoManifestFile Condition="'$(LegatoTargetProfile)' == '1.29.0'">manifest.1.29.1.json</LegatoManifestFile>
+      <LegatoManifestFile Condition="'$(LegatoTargetProfile)' == '1.40.0'">manifest.1.40.8.json</LegatoManifestFile>
+      <LegatoManifestFile Condition="'$(LegatoTargetVersion)' == '1.44.0'">manifest.1.44.0.json</LegatoManifestFile>
+      <HitbloqGameVersion>$(LegatoTargetVersion)</HitbloqGameVersion>
+    </PropertyGroup>
+    <Message Text="Legato Hitbloq profile: $(LegatoTargetVersion); $(_LegatoHitbloqApi)" Importance="high" />
+  </Target>
+</Project>
