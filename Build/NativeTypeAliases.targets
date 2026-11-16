@@ -42,7 +42,7 @@
     </PropertyGroup>
     <ItemGroup>
       <Reference Remove="Steamworks.NET;com.rlabrecque.steamworks.net" />
-      <Reference Include="$(_LegatoSteamIdentityAssembly)" HintPath="$(LegatoReferenceRoot)\Beat Saber_Data\Managed\$(_LegatoSteamIdentityAssembly).dll" Private="false" />
+      <Reference Include="$(_LegatoSteamIdentityAssembly)" HintPath="$(LegatoReferenceRoot)\Beat Saber_Data\Managed\$(_LegatoSteamIdentityAssembly).dll" Private="false" Publicize="$(LegatoEnableSteamAuthentication)" />
     </ItemGroup>
   </Target>
   <Target Name="LegatoResolveLoaderJson" BeforeTargets="ResolveAssemblyReferences" DependsOnTargets="$(LegatoJsonLayoutTarget)" Condition="'$(LegatoPreferLoaderJson)' == 'true' AND Exists('$(LegatoReferenceRoot)\IPA\CoreLibraries\Newtonsoft.Json.dll')">

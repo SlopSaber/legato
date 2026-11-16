@@ -7,6 +7,8 @@ namespace Legato {
         internal static string LevelId(this BeatmapKey key) =>
 #if BEAT_SABER_1_29_0 && LEGATO_NATIVE_BEATMAP_KEYS
             key?.level?.levelID ?? string.Empty;
+#elif BEAT_SABER_1_29_0
+            key.levelId ?? string.Empty;
 #else
             key.levelId;
 #endif
@@ -14,6 +16,8 @@ namespace Legato {
         internal static bool IsValidKey(this BeatmapKey key) =>
 #if BEAT_SABER_1_29_0 && LEGATO_NATIVE_BEATMAP_KEYS
             key?.level != null && key.parentDifficultyBeatmapSet?.beatmapCharacteristic != null;
+#elif BEAT_SABER_1_29_0
+            key.difficultyBeatmap?.level != null && key.beatmapCharacteristic != null;
 #else
             key.IsValid();
 #endif
@@ -26,7 +30,7 @@ namespace Legato {
 #endif
 
         internal static string FirstMapperName(this BeatmapLevel level) =>
-#if BEAT_SABER_1_29_0
+#if BEAT_SABER_1_29_0 && LEGATO_NATIVE_BEATMAP_KEYS
             level?.levelAuthorName ?? string.Empty;
 #else
             level?.allMappers?.FirstOrDefault() ?? string.Empty;
@@ -52,7 +56,7 @@ namespace Legato {
 #if BEAT_SABER_1_29_0 && LEGATO_NATIVE_BEATMAP_KEYS
             key.parentDifficultyBeatmapSet.beatmapCharacteristic.sortingOrder;
 #elif BEAT_SABER_1_29_0 || BEAT_SABER_1_37_1 || BEAT_SABER_1_38_0 || BEAT_SABER_1_40_0 || BEAT_SABER_1_42_0
-            key.beatmapCharacteristic.sortingOrder;
+            key.beatmapCharacteristic?.sortingOrder ?? 0;
 #else
             key.characteristic.SortingOrder();
 #endif
@@ -94,7 +98,7 @@ namespace Legato {
 #if BEAT_SABER_1_29_0 && LEGATO_NATIVE_BEATMAP_KEYS
             beatmapKey?.GetEnvironmentInfo()?.serializedName ?? string.Empty;
 #elif BEAT_SABER_1_29_0
-            beatmapKey.difficultyBeatmap.GetEnvironmentInfo()?.serializedName ?? string.Empty;
+            beatmapKey.difficultyBeatmap?.GetEnvironmentInfo()?.serializedName ?? string.Empty;
 #elif BEAT_SABER_1_37_1 || BEAT_SABER_1_38_0 || BEAT_SABER_1_40_0 || BEAT_SABER_1_42_0
             beatmapLevel.GetEnvironmentName(beatmapKey.beatmapCharacteristic, beatmapKey.difficulty);
 #elif BEAT_SABER_1_45_3

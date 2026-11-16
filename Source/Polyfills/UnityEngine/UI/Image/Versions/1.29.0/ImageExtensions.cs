@@ -11,11 +11,10 @@ namespace Legato {
     internal static class ImageExtensions {
         public static Task SetImageAsync(this Image image, string location) {
 #if LEGATO_BSML_ALIASED
-            Bsml::BeatSaberMarkupLanguage.BeatSaberUI.SetImage(image, location);
+            return Bsml::BeatSaberMarkupLanguage.BeatSaberUI.SetImageAsync(image, location);
 #else
-            BeatSaberMarkupLanguage.BeatSaberUI.SetImage(image, location);
+            return BeatSaberMarkupLanguage.BeatSaberUI.SetImageAsync(image, location);
 #endif
-            return Task.CompletedTask;
         }
     }
 }

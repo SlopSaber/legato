@@ -53,7 +53,7 @@ namespace Legato.Beatmaps {
                 return null;
             }
 
-            CustomPreviewBeatmapLevel? previewLevel = Loader.GetLevelByHash(hash.ToUpperInvariant());
+            IPreviewBeatmapLevel? previewLevel = Loader.GetLevelByHash(hash.ToUpperInvariant());
             if (previewLevel == null) {
                 return null;
             }

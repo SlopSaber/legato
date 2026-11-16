@@ -1,5 +1,6 @@
 using System;
 using System.Runtime.InteropServices;
+using System.Threading;
 using System.Threading.Tasks;
 using Steamworks;
 
@@ -8,7 +9,8 @@ namespace Legato.Platform {
         private HAuthTicket _ticket = HAuthTicket.Invalid;
         internal string Token { get; private set; } = string.Empty;
 
-        internal static async Task<SteamWebTicket> Create(string identity, TimeSpan timeout) {
+        internal static async Task<SteamWebTicket> Create(string identity, TimeSpan timeout, CancellationToken cancellationToken = default) {
+            cancellationToken.ThrowIfCancellationRequested();
             var result = new SteamWebTicket();
             var completion = new TaskCompletionSource<string>(TaskCreationOptions.RunContinuationsAsynchronously);
 #if BEAT_SABER_1_29_0
@@ -37,8 +39,12 @@ namespace Legato.Platform {
                 result._ticket = SteamUser.GetAuthTicketForWebApi(identity);
 #endif
                 if (result._ticket == HAuthTicket.Invalid) throw new InvalidOperationException("Steam did not issue a web authentication ticket.");
-                if (await Task.WhenAny(completion.Task, Task.Delay(timeout)).ConfigureAwait(true) != completion.Task)
+                using var timeoutCancellation = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+                var completed = await Task.WhenAny(completion.Task, Task.Delay(timeout, timeoutCancellation.Token)).ConfigureAwait(true);
+                cancellationToken.ThrowIfCancellationRequested();
+                if (completed != completion.Task)
                     throw new TimeoutException("Steam authentication ticket timed out.");
+                timeoutCancellation.Cancel();
                 result.Token = await completion.Task.ConfigureAwait(true);
                 return result;
             } catch {
@@ -57,8 +63,13 @@ namespace Legato.Platform {
 
         public void Dispose() {
             if (_ticket == HAuthTicket.Invalid) return;
-            SteamUser.CancelAuthTicket(_ticket);
-            _ticket = HAuthTicket.Invalid;
+            try {
+                SteamUser.CancelAuthTicket(_ticket);
+            } catch (InvalidOperationException exception) when (exception.Message == "Steamworks is not initialized.") {
+                // Steam invalidates outstanding tickets before its shutdown callback.
+            } finally {
+                _ticket = HAuthTicket.Invalid;
+            }
         }
 
 #if BEAT_SABER_1_29_0
