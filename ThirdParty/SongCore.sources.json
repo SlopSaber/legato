@@ -1,0 +1,6 @@
+{
+  "repository": "https://github.com/SlopSaber/SongCore",
+  "sourceHead": "bdced3fe10a7af3b327664f665bfb56dc0e89474",
+  "license": "MIT",
+  "boundary": "Native loader, pack and v4 hashing adapters. The maintained parallel loading pipeline and bounded caches remain consumer-owned."
+}
