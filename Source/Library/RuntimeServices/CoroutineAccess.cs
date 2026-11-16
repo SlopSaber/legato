@@ -13,6 +13,10 @@ namespace Legato.Coroutines {
 #else
             _starter.StartCoroutine(routine);
 #endif
+        internal void StartSingleCoroutine(ref Coroutine routine, IEnumerator enumerator) {
+            if (routine != null) StopCoroutine(routine);
+            routine = StartCoroutine(enumerator);
+        }
         internal void StopCoroutine(Coroutine routine) {
 #if BEAT_SABER_1_29_0
             global::SharedCoroutineStarter.instance.StopCoroutine(routine);
