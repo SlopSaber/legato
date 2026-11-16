@@ -255,6 +255,8 @@
                Condition="'$(LegatoEnableLegacyTypeNames)' == 'true'" />
       <Compile Include="$(LegatoSourceRoot)Library\Unity\**\*.cs"
                Condition="'$(LegatoEnableUnityCompatibility)' == 'true'" />
+      <Compile Include="$(LegatoSourceRoot)Library\LocalizationSupport\NativeAliases.cs"
+               Condition="'$(LegatoEnableLocalizationAliases)' == 'true' AND '$(LegatoEnableBsmlHost)' != 'true'" />
       <Compile Include="$(LegatoSourceRoot)Library\Rendering\**\*.cs"
                Condition="'$(LegatoEnableCameraEffects)' == 'true'" />
       <Compile Include="$(LegatoSourceRoot)Library\Performance\**\*.cs"

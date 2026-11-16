@@ -1,6 +1,9 @@
 <Project>
   <Target Name="LegatoLegacyTypeReferences" BeforeTargets="ResolveAssemblyReferences" DependsOnTargets="LegatoConfigure">
     <ItemGroup>
+      <Reference Remove="BGLib.Polyglot" Condition="'$(LegatoEnableLocalizationAliases)' == 'true' AND Exists('$(LegatoReferenceRoot)\Beat Saber_Data\Managed\Polyglot.dll')" />
+      <Reference Include="Polyglot" HintPath="$(LegatoReferenceRoot)\Beat Saber_Data\Managed\Polyglot.dll" Private="false"
+                 Condition="'$(LegatoEnableLocalizationAliases)' == 'true' AND Exists('$(LegatoReferenceRoot)\Beat Saber_Data\Managed\Polyglot.dll') AND '@(Reference->WithMetadataValue('Identity', 'Polyglot'))' == ''" />
       <Reference Include="Main" HintPath="$(LegatoReferenceRoot)\Beat Saber_Data\Managed\Main.dll" Private="false"
                  Condition="'$(LegatoEnableNativeTypeAliases)' == 'true' AND Exists('$(LegatoReferenceRoot)\Beat Saber_Data\Managed\Main.dll') AND '@(Reference->WithMetadataValue('Identity', 'Main'))' == ''" />
       <Reference Include="HMLib" HintPath="$(LegatoReferenceRoot)\Beat Saber_Data\Managed\HMLib.dll" Private="false"
