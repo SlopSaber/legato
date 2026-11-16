@@ -12,7 +12,7 @@
       <Output TaskParameter="GameVersion" PropertyName="GeneratedGameVersion" />
     </GetConfigurationInfo>
     <PropertyGroup>
-      <DefineConstants>$([System.Text.RegularExpressions.Regex]::Replace('$(DefineConstants)', '\b(?:(?:PRE_|POST_)?V\d+_\d+_\d+|LATEST|BEAT_SABER_1453|BEAT_SABER_1460)\b', ''));$(GeneratedConstants)</DefineConstants>
+      <DefineConstants>$([System.Text.RegularExpressions.Regex]::Replace('$(DefineConstants)', '\b(?:(?:PRE_|POST_)?V\d+_\d+_\d+|LATEST|BEAT_SABER_1453|BEAT_SABER_1460)\b', ''));$(GeneratedConstants);LATEST</DefineConstants>
       <DefineConstants Condition="'$(LegatoTargetProfile)' == '1.45.3'">$(DefineConstants);BEAT_SABER_1453</DefineConstants>
       <DefineConstants Condition="$([MSBuild]::VersionGreaterThanOrEquals('$(LegatoTargetVersion)', '1.46.0'))">$(DefineConstants);BEAT_SABER_1460</DefineConstants>
       <GameVersion>$(LegatoTargetVersion)</GameVersion>
