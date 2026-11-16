@@ -85,3 +85,5 @@ For a static plugin manifest, also set `LegatoManifestFile` to the existing sour
 Changing the build target still requires selecting a supported Legato version and rebuilding/deploying each consumer. Build metadata integration does not establish runtime API compatibility or update dependency requirements automatically.
 
 For an existing external library manifest, set `LegatoEmbedManifest=false` and `LegatoManifestSidecar=true`. The prepared manifest is copied beside the target DLL as `$(AssemblyName).manifest`; custom packaging can also read the prepared `ManifestPath`. This preserves library assemblies without embedding plugin metadata.
+
+Saber model compatibility: opt into `LegatoEnableSaberModels` for native resource discovery, trail field access, UV mapping and foreground material ownership. Consumers keep settings, sample generation, injection and Harmony ownership. Supply publicized native saber/trail references and BGLib.UnityExtension. `ForegroundMaterials.Apply` accepts a clone-name suffix and preserves the previous material ownership and render-queue policy.

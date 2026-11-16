@@ -292,6 +292,8 @@
                Condition="'$(LegatoEnableResultsCopy)' == 'true'" />
       <Compile Include="$(LegatoSourceRoot)Library\ColorOverrideAliases\**\*.cs"
                Condition="'$(LegatoEnableColorOverrideAlias)' == 'true'" />
+      <Compile Include="$(LegatoSourceRoot)Library\SaberModels\**\*.cs"
+               Condition="'$(LegatoEnableSaberModels)' == 'true'" />
       <Compile Include="$(LegatoSourceRoot)Library\AssetBundles\**\*.cs"
                Condition="'$(LegatoEnableAssetBundleLoading)' == 'true'" />
       <Compile Include="$(LegatoSourceRoot)Library\LegacyShaderRendering\**\*.cs"
