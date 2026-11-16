@@ -361,6 +361,8 @@
                Condition="'$(LegatoEnableObjectDiscovery)' == 'true' AND '$(LegatoEnableUnityCompatibility)' != 'true'" />
       <Compile Include="$(LegatoSourceRoot)Library\BsmlAudio\**\*.cs"
                Condition="'$(LegatoEnableBsmlAudio)' == 'true'" />
+      <Compile Include="$(LegatoSourceRoot)Library\Ranking\**\*.cs"
+               Condition="'$(LegatoEnableRanking)' == 'true'" />
       <Compile Include="$(LegatoSourceRoot)Library\PlayerDataPersistence\**\*.cs"
                Condition="'$(LegatoEnablePlayerDataPersistence)' == 'true'" />
       <Compile Include="$(LegatoSourceRoot)Library\CustomLevelFolders\**\*.cs"
