@@ -5,6 +5,7 @@ global using NativePlatformService = global::IPlatformUserModel;
 global using NativePlatformService = global::OculusStudios.Platform.Core.IPlatform;
 #endif
 using System.Threading.Tasks;
+using System.Threading;
 using IPA.Utilities;
 #if !BEAT_SABER_1_29_0
 using OculusStudios.Platform.Core;
@@ -38,6 +39,18 @@ namespace Legato.Platform {
                  (string.IsNullOrEmpty(_identityTask.Result.UserId) || _identityTask.Result.UserId == "0")))
                 _identityTask = ReadIdentity();
             return _identityTask;
+        }
+
+        internal async Task<UserIdentity> GetIdentity(CancellationToken token) {
+            token.ThrowIfCancellationRequested();
+            Task<UserIdentity> identity = GetIdentity();
+            if (!identity.IsCompleted && token.CanBeCanceled) {
+                var cancelled = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
+                using (token.Register(() => cancelled.TrySetResult(true)))
+                    await Task.WhenAny(identity, cancelled.Task).ConfigureAwait(false);
+            }
+            token.ThrowIfCancellationRequested();
+            return await identity.ConfigureAwait(false);
         }
 
         internal static PlatformAuthentication FromLeaderboards(PlatformLeaderboardsModel model) => new PlatformAuthentication(
