@@ -40,7 +40,7 @@ This lists the small reusable APIs supplied by Legato. Transparent polyfills mir
 
 ## Optional adapters
 
-These APIs compile into the consumer. Enable only the features whose references and native API contracts the consumer supports. Package revisions through `0.1.2-local.55` contain the following additions; a consumer pinned to an earlier revision has only the APIs in that revision.
+These APIs compile into the consumer. Enable only the features whose references and native API contracts the consumer supports. Package revisions through `0.1.2-local.56` contain the following additions; a consumer pinned to an earlier revision has only the APIs in that revision.
 
 | Property | APIs and scope |
 | --- | --- |
@@ -100,3 +100,5 @@ Recent optional APIs preserve the caller's existing behavior:
 The latest additions have consumer build evidence for 1.45.3 and 1.46.0. Earlier profile implementations remain source support, without new build certification from this batch. Mod-specific native patches, audio or shader assets, Addressables labels and external APIs still need their own review.
 
 `LegatoEnableSaberDepth` supplies `SaberDepthOcclusion.Attach` and `LoadPreviewShader`. Attach the depth pass to its owning camera, supply the saber layer mask, displacement layer, an eligibility predicate and a one-time diagnostic callback. The shared implementation preserves the RenderObjects filters, screen-displacement checks, MSAA depth copy and pass ordering. The consumer owns camera policy and shader resources. Preview loading retains the caller's fallback shader and unloads the temporary bundle. Both operations preserve the earlier no-op/fallback path outside the 1.45.3 API profile; runtime rendering still needs visual confirmation.
+
+`LegatoEnableNumericText` supplies `NumericTextFormatter.Publish` for one value or a left/right pair. The 1.45.3 profile retains the 128-character buffer, current culture, formatting fallback and unchanged-text suppression. Earlier profiles keep direct string formatting. Each displayed value group needs its own formatter instance. Consumers retain sampling, precision, labels and update cadence.
