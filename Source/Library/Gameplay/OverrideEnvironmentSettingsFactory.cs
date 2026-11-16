@@ -2,6 +2,12 @@
 
 namespace Legato.Gameplay {
     internal static class OverrideEnvironmentSettingsFactory {
+        internal static OverrideEnvironmentSettings CreateEmpty(bool enabled) {
+            var settings = new OverrideEnvironmentSettings();
+            settings.overrideEnvironments = enabled;
+            return settings;
+        }
+
         internal static OverrideEnvironmentSettings? Create(PlayerData playerData, EnvironmentsListModel environmentsListModel, string environmentName, bool useOverride) {
 #if BEAT_SABER_1_29_0
             return playerData.overrideEnvironmentSettings;

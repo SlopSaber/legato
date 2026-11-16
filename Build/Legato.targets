@@ -228,6 +228,8 @@
                Condition="'$(LegatoEnableGpuTiming)' == 'true'" />
       <Compile Include="$(LegatoSourceRoot)Library\GameplayAccess\**\*.cs"
                Condition="'$(LegatoEnableGameplayAccess)' == 'true'" />
+      <Compile Include="$(LegatoSourceRoot)Library\Gameplay\OverrideEnvironmentSettingsFactory.cs"
+               Condition="'$(LegatoEnableEnvironmentSettings)' == 'true' AND '$(LegatoEnableGameplay)' != 'true'" />
       <Compile Include="$(LegatoSourceRoot)Library\Tracking\**\*.cs"
                Condition="'$(LegatoEnableSpatialTracking)' == 'true' OR '$(LegatoTargetProfile)' == '1.29.0'" />
       <Compile Include="$(LegatoSourceRoot)ForwardPolyfills\**\Transitions\1.38.0-1.40.0\**\*.cs"
