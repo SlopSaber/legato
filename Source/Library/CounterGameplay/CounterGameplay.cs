@@ -3,6 +3,9 @@ using System.Collections.Generic;
 
 namespace Legato.Gameplay {
     internal static class GameplaySceneAccess {
+        internal static GameplayCoreSceneSetupData FromTransition(LevelScenesTransitionSetupData data) =>
+            FieldAccessor<LevelScenesTransitionSetupData, GameplayCoreSceneSetupData>.Get(data, "<gameplayCoreSceneSetupData>k__BackingField");
+
         internal static BeatmapKey Key(GameplayCoreSceneSetupData data) =>
 #if BEAT_SABER_1_29_0
             data.difficultyBeatmap;
