@@ -117,12 +117,16 @@ namespace MappingExtensions.HarmonyPatches
         }
     }
 
+#if BEAT_SABER_1_29_0
+    [HarmonyPatch(typeof(ObstacleController), nameof(ObstacleController.Init))]
+#else
     [HarmonyPatch(typeof(BeatmapObjectSpawnMovementData), nameof(BeatmapObjectSpawnMovementData.GetObstacleSpawnData))]
+#endif
     internal static class BeatmapObjectSpawnMovementDataGetObstacleSpawnDataPatch
     {
         private static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
         {
-            // Replaces the obstacle width.
+            // Legacy width multiplication lives in controller initialization; current profiles use spawn data.
             return new CodeMatcher(instructions)
                 .MatchEndForward(
                     new CodeMatch(i => i.opcode == OpCodes.Callvirt && ((MethodBase)i.operand).Name == $"get_{nameof(ObstacleController.width)}"),

@@ -75,11 +75,11 @@ namespace MappingExtensions.HarmonyPatches
             // Converts normal notes to arrowless notes when using a certain rotation range.
             return new CodeMatcher(instructions, il)
                 .MatchEndForward(
-                    new CodeMatch(OpCodes.Bne_Un),
+                    new CodeMatch(instruction => instruction.opcode == OpCodes.Bne_Un || instruction.opcode == OpCodes.Bne_Un_S),
                     new CodeMatch(OpCodes.Ldarg_0))
                 .ThrowIfInvalid("Could not find ColorNoteVisuals note type branch")
                 .CreateLabel(out var destination)
-                .MatchStartBackwards(new CodeMatch(OpCodes.Bne_Un))
+                .MatchStartBackwards(new CodeMatch(instruction => instruction.opcode == OpCodes.Bne_Un || instruction.opcode == OpCodes.Bne_Un_S))
                 .InsertAndAdvance(
                     new CodeInstruction(OpCodes.Beq, destination),
                     new CodeInstruction(OpCodes.Ldloc_0),
