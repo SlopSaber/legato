@@ -20,7 +20,7 @@ namespace Legato.Presentation {
             Apply = apply;
         }
 
-#if BEAT_SABER_1_45_3
+#if BEAT_SABER_1_45_3 || BEAT_SABER_1_29_0
         private sealed class CellBinding
         {
             internal readonly LevelListTableCell Cell;
@@ -42,19 +42,28 @@ namespace Legato.Presentation {
 
         private static ConditionalWeakTable<LevelListTableCell, CellBinding> _bindings = new ConditionalWeakTable<LevelListTableCell, CellBinding>();
         private static readonly List<WeakReference<CellBinding>> TrackedCells = new List<WeakReference<CellBinding>>();
+#if !BEAT_SABER_1_29_0
         private static readonly AccessTools.FieldRef<LevelListTableCell, BeatmapLevel> CurrentLevel = AccessTools.FieldRefAccess<LevelListTableCell, BeatmapLevel>("_beatmapLevel");
+#endif
+
+        private static bool MatchesLevel(CellBinding binding) =>
+#if BEAT_SABER_1_29_0
+            IsStored(binding);
+#else
+            ReferenceEquals(CurrentLevel(binding.Cell), binding.Level);
+#endif
         private static readonly AccessTools.FieldRef<LevelListTableCell, GameObject> CurrentBadge = AccessTools.FieldRefAccess<LevelListTableCell, GameObject>("_promoBadgeGo");
         private static readonly AccessTools.FieldRef<TableCell, ITableCellOwner> CurrentOwner = AccessTools.FieldRefAccess<TableCell, ITableCellOwner>("_tableCellOwner");
 
         [HarmonyPrefix]
-        private static void Prefix(LevelListTableCell __instance, BeatmapLevel beatmapLevel, bool isPromoted,
+        private static void Prefix(LevelListTableCell __instance, BeatmapLevel __0, bool isPromoted,
             string ____settingDataFromLevelId, GameObject ____promoBadgeGo, out CellBinding? __state)
         {
             __state = null;
-            if (IsStopped() || beatmapLevel == null || ____settingDataFromLevelId == beatmapLevel.levelID) return;
+            if (IsStopped() || __0 == null || ____settingDataFromLevelId == __0.levelID) return;
             _bindings.Remove(__instance);
             PruneBindings();
-            __state = new CellBinding(__instance, beatmapLevel, isPromoted, ____promoBadgeGo);
+            __state = new CellBinding(__instance, __0, isPromoted, ____promoBadgeGo);
             _bindings.Add(__instance, __state);
             TrackedCells.Add(new WeakReference<CellBinding>(__state));
         }
@@ -62,12 +71,12 @@ namespace Legato.Presentation {
         [HarmonyPostfix]
         private static void Postfix(LevelListTableCell __instance, CellBinding? __state)
         {
-            if (__state != null && IsStored(__state) && ReferenceEquals(CurrentLevel(__instance), __state.Level))
+            if (__state != null && IsStored(__state) && MatchesLevel(__state))
                 __state.Prepared = true;
             if (_bindings.TryGetValue(__instance, out var binding))
             {
                 if (__state == null && binding.Pooled && binding.Prepared &&
-                    ReferenceEquals(CurrentLevel(__instance), binding.Level) && ReferenceEquals(CurrentBadge(__instance), binding.Badge))
+                    MatchesLevel(binding) && ReferenceEquals(CurrentBadge(__instance), binding.Badge))
                 {
                     // A skipped native call retains the previously admitted level and promotion flag.
                     binding = new CellBinding(__instance, binding.Level, binding.IsPromoted, binding.Badge) { Prepared = true };
@@ -86,7 +95,7 @@ namespace Legato.Presentation {
         private static bool IsCurrent(CellBinding binding, bool requireVisible)
         {
             if (!binding.Prepared || binding.Pooled || !IsStored(binding) || binding.Badge == null ||
-                !ReferenceEquals(CurrentLevel(binding.Cell), binding.Level) ||
+                !MatchesLevel(binding) ||
                 !ReferenceEquals(CurrentBadge(binding.Cell), binding.Badge)) return false;
             if (!requireVisible) return true;
             if (!binding.Cell.isActiveAndEnabled || !binding.Cell.gameObject.activeInHierarchy ||
@@ -139,13 +148,13 @@ namespace Legato.Presentation {
         }
 #else
         [HarmonyPostfix]
-        private static void Postfix(ref BeatmapLevel beatmapLevel, ref bool isPromoted, GameObject ____promoBadgeGo)
-            => Apply(beatmapLevel, isPromoted, ____promoBadgeGo, null);
+        private static void Postfix(ref BeatmapLevel __0, ref bool isPromoted, GameObject ____promoBadgeGo)
+            => Apply(__0, isPromoted, ____promoBadgeGo, null);
 #endif
 
         internal static void ClearBindings()
         {
-#if BEAT_SABER_1_45_3
+#if BEAT_SABER_1_45_3 || BEAT_SABER_1_29_0
             _bindings = new ConditionalWeakTable<LevelListTableCell, CellBinding>();
             TrackedCells.Clear();
 #endif
@@ -153,21 +162,21 @@ namespace Legato.Presentation {
 
         internal static void PruneRetiredBindings()
         {
-#if BEAT_SABER_1_45_3
+#if BEAT_SABER_1_45_3 || BEAT_SABER_1_29_0
             PruneBindings();
 #endif
         }
 
         internal static void RefreshReadyCells()
         {
-#if BEAT_SABER_1_45_3
+#if BEAT_SABER_1_45_3 || BEAT_SABER_1_29_0
             RefreshBindings(null);
 #endif
         }
 
     }
 
-#if BEAT_SABER_1_45_3
+#if BEAT_SABER_1_45_3 || BEAT_SABER_1_29_0
     [HarmonyPatch(typeof(LevelListTableCell), "WasPreparedForReuse")]
     internal static class LevelListTableCellReusePatch
     {
