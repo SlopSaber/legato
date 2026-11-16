@@ -7,10 +7,5 @@ global using BeatmapCharacteristicCollection = global::BeatmapCharacteristicColl
 global using EnvironmentsListModel = global::EnvironmentsListSO;
 global using IEnvironmentInfo = global::EnvironmentInfoSO;
 global using SpriteAsyncLoader = global::CachedMediaAsyncLoader;
-global using CustomLevelFolderInfo = Legato.Beatmaps.Formats.LegacyLevelFolderInfo;
-global using NativeLoadedSaveData = Legato.Beatmaps.Formats.LegacyLoadedSaveData;
-global using NativeV4LevelInfo = Legato.Beatmaps.Formats.V4LevelInfo;
-#else
-global using NativeLoadedSaveData = global::CustomLevelLoader.LoadedSaveData;
-global using NativeV4LevelInfo = BeatmapLevelSaveDataVersion4.BeatmapLevelSaveData;
+
 #endif

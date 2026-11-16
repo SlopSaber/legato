@@ -103,116 +103,9 @@ namespace SongCore
             CancelSongLoading();
         }
 
-        public async void RefreshLevelPacks()
-        {
-            CustomLevelsPack?.UpdateBeatmapLevels([.. CustomLevels.Values]);
-            WIPLevelsPack?.UpdateBeatmapLevels([.. CustomWIPLevels.Values]);
-            CachedWIPLevelsPack?.UpdateBeatmapLevels([.. CachedWIPLevels.Values]);
 
-            if (CachedWIPLevelsPack != null && CustomLevelsRepository != null)
-            {
-                if (!CachedWIPLevels.IsEmpty)
-                {
-                    CustomLevelsRepository.AddLevelPack(CachedWIPLevelsPack ?? throw new InvalidOperationException("CachedWIPLevelsPack was not created."));
-                }
-                else
-                {
-                    CustomLevelsRepository.RemoveLevelPack(CachedWIPLevelsPack);
-                }
-            }
 
-            foreach (var folderEntry in SeparateSongFolders)
-            {
-                if (folderEntry.SongFolderEntry.Pack == FolderLevelPack.NewPack)
-                {
-                    var levelPack = folderEntry.LevelPack ?? throw new InvalidOperationException("Separate song folder has no level pack.");
-                    levelPack.UpdateBeatmapLevels([.. folderEntry.Levels.Values]);
-                    if (CustomLevelsRepository != null && (!folderEntry.Levels.IsEmpty || folderEntry is ModSeparateSongFolder { AlwaysShow: true }))
-                    {
-                        CustomLevelsRepository.AddLevelPack(levelPack);
-                    }
-                }
-            }
 
-            foreach (var (levelID, loadedSaveData) in LoadedBeatmapSaveData)
-            {
-                _customLevelLoader._loadedBeatmapSaveData[levelID] = loadedSaveData;
-            }
-
-            LoadedBeatmapSaveData.Clear();
-
-            await UnityGame.SwitchToMainThreadAsync();
-
-            _beatmapLevelsModel.ClearLoadedBeatmapLevelsCaches();
-            _beatmapLevelsModel._customLevelsRepository = CustomLevelsRepository;
-            _beatmapLevelsModel.LoadAllBeatmapLevelPacks();
-
-            if (!_loadingTaskCancellationTokenSource.IsCancellationRequested && _levelFilteringNavigationController.isActiveAndEnabled)
-            {
-                _levelFilteringNavigationController.UpdateCustomSongs();
-            }
-
-            OnLevelPacksRefreshed?.Invoke();
-        }
-
-        private (string hash, BeatmapLevel beatmapLevel)? LoadSong(NativeLoadedSaveData loadedSaveData, SongFolderEntry? folderEntry = null)
-        {
-            var wip = loadedSaveData.customLevelFolderInfo.folderPath.Contains("CustomWIPLevels") || folderEntry != null && (folderEntry.Pack == FolderLevelPack.CustomWIPLevels || folderEntry.Pack == FolderLevelPack.CachedWIPLevels || folderEntry.WIP);
-            string hash;
-            BeatmapLevel? beatmapLevel;
-            try
-            {
-                if (loadedSaveData.standardLevelInfoSaveData != null)
-                {
-                    hash = Hashing.ComputeCustomLevelHash(loadedSaveData.customLevelFolderInfo, loadedSaveData.standardLevelInfoSaveData);
-                    beatmapLevel = _customLevelLoader.CreateBeatmapLevelFromV3(loadedSaveData.customLevelFolderInfo, loadedSaveData.standardLevelInfoSaveData);
-                }
-                else if (loadedSaveData.beatmapLevelSaveData != null)
-                {
-                    hash = Hashing.ComputeCustomLevelHash(loadedSaveData.customLevelFolderInfo, loadedSaveData.beatmapLevelSaveData);
-                    beatmapLevel = _customLevelLoader.CreateBeatmapLevelFromV4(loadedSaveData.customLevelFolderInfo, loadedSaveData.beatmapLevelSaveData);
-                }
-                else
-                {
-                    throw new InvalidOperationException("Level save data is missing.");
-                }
-
-                var levelID = CustomLevelLoader.kCustomLevelPrefixId + hash;
-                var folderName = new DirectoryInfo(loadedSaveData.customLevelFolderInfo.folderPath).Name;
-                while (!Collections.LevelHashDictionary.TryAdd(levelID + (wip ? " WIP" : ""), hash))
-                {
-                    levelID += $"_{folderName}";
-                }
-
-                if (wip)
-                {
-                    levelID += " WIP";
-                }
-
-                Collections.HashLevelDictionary.AddOrUpdate(hash, new List<string> { levelID }, (_, levels) =>
-                {
-                    lock (levels)
-                    {
-                        levels.Add(levelID);
-                    }
-                    return levels;
-                });
-                BlacklistLevelFiles(loadedSaveData);
-                Collections.CreateCustomLevelSongData(levelID, loadedSaveData);
-                LoadedBeatmapSaveData.TryAdd(levelID, loadedSaveData);
-
-                Accessors.LevelIDAccessor(ref beatmapLevel) = levelID;
-                GetSongDuration(loadedSaveData, beatmapLevel);
-            }
-            catch (Exception e)
-            {
-                Plugin.Log.Error($"Failed to load song: {loadedSaveData.customLevelFolderInfo.folderPath}");
-                Plugin.Log.Error(e);
-                return null;
-            }
-
-            return (hash, beatmapLevel);
-        }
 
         private static void BlacklistLevelFiles(NativeLoadedSaveData loadedSaveData)
         {
@@ -485,6 +378,18 @@ namespace SongCore
             }
 
             return length;
+        }
+        private BeatmapLevel CreateNativePreview(NativeLoadedSaveData data) => data.standardLevelInfoSaveData != null
+            ? _customLevelLoader.CreateBeatmapLevelFromV3(data.customLevelFolderInfo, data.standardLevelInfoSaveData)
+            : _customLevelLoader.CreateBeatmapLevelFromV4(data.customLevelFolderInfo, data.beatmapLevelSaveData!);
+
+        private static void SetNativeLevelId(BeatmapLevel level, string id) => Accessors.LevelIDAccessor(ref level) = id;
+
+        private void RefreshNativeLevelPacks()
+        {
+            _beatmapLevelsModel.ClearLoadedBeatmapLevelsCaches();
+            _beatmapLevelsModel._customLevelsRepository = CustomLevelsRepository;
+            _beatmapLevelsModel.LoadAllBeatmapLevelPacks();
         }
     }
 }
