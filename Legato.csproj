@@ -28,6 +28,7 @@
     <None Include="ThirdParty\**\*" Pack="true" PackagePath="ThirdParty\%(RecursiveDir)%(Filename)%(Extension)" />
     <None Include="Build\Legato.props" Pack="true" PackagePath="build\LegatoBS.props" />
     <None Include="Build\Legato.Versions.props" Pack="true" PackagePath="build\Legato.Versions.props" />
+    <None Include="Build\BsUtilsHost.targets" Pack="true" PackagePath="build\BsUtilsHost.targets" />
     <None Include="Build\SiraHost.targets" Pack="true" PackagePath="build\SiraHost.targets" />
     <None Include="Build\BsmlHost.targets" Pack="true" PackagePath="build\BsmlHost.targets" />
     <None Include="Build\HitbloqProviders.targets" Pack="true" PackagePath="build\HitbloqProviders.targets" />

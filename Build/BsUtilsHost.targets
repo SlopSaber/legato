@@ -1,0 +1,9 @@
+<Project>
+  <Target Name="LegatoBsUtilsNativeReferences" BeforeTargets="ResolveAssemblyReferences" DependsOnTargets="LegatoConfigure">
+    <ItemGroup Condition="'$(LegatoTargetProfile)' == '1.29.0'">
+      <Reference Remove="BGLib.AppFlow;BGLib.UnityExtension;BGNetCore;BeatSaber.Init;BeatSaber.Multiplayer.Core;BeatSaber.ViewSystem;DataModels;PlatformUserModel;OculusStudios.Platform.Core;OculusStudios.Platform.Steam;com.rlabrecque.steamworks.net" />
+      <Reference Include="Steamworks.NET" HintPath="$(LegatoReferenceRoot)\Beat Saber_Data\Managed\Steamworks.NET.dll" Private="false" />
+      <Reference Include="BGNet" HintPath="$(LegatoReferenceRoot)\Beat Saber_Data\Managed\BGNet.dll" Private="false" />
+    </ItemGroup>
+  </Target>
+</Project>

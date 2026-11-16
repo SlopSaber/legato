@@ -1,0 +1,9 @@
+{
+  "repository": "https://github.com/Kylemc1413/Beat-Saber-Utils",
+  "source_commit": "f88b7c3bbd7b028bcc3104aef91afd46f39186f2",
+  "license": "MIT",
+  "paths": [
+    "Beat Saber Utils/Gameplay/UserInfo.cs"
+  ],
+  "integration": "Compile the original user-info API into BS_Utils with native platform identities for each profile."
+}
