@@ -1,0 +1,16 @@
+{
+  "repository": "https://github.com/Auros/SiraUtil",
+  "source_commit": "cc9994358106316764d06dfefeff758f0c96988a",
+  "license": "MIT",
+  "paths": [
+    "Sabers/SiraSaber.cs",
+    "Submissions/SiraSubmissionViewController.cs",
+    "Zenject/Harmony/ContextDecorator.cs",
+    "Tweaks/DisableOpenXRRecentering.cs",
+    "Tweaks/UnityXRHelperExceptionFixer.cs",
+    "Tweaks/ForceTrackedPoseDriverUpdateOnEnable.cs",
+    "Tweaks/DontCallSetTrackingSpaceType.cs",
+    "Tweaks/SilenceObstacleMaterialSetter.cs"
+  ],
+  "integration": "Native providers compile in the original SiraUtil assembly; legacy profiles select native signatures and omit fixes for APIs absent from Unity 2019."
+}

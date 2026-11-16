@@ -298,6 +298,8 @@
                Condition="'$(LegatoEnableChromaProviders)' == 'true'" />
       <Compile Include="$(LegatoSourceRoot)Providers\NoodleExtensions\**\*.cs"
                Condition="'$(LegatoEnableNoodleExtensionsProviders)' == 'true'" />
+      <Compile Include="$(LegatoSourceRoot)Providers\SiraHost\**\*.cs;$(LegatoSourceRoot)Library\NativeTypeAliases\**\*.cs"
+               Condition="'$(LegatoEnableSiraHost)' == 'true'" />
       <Compile Include="$(LegatoSourceRoot)Providers\BsmlHost\**\*.cs;$(LegatoSourceRoot)Library\LocalizationSupport\**\*.cs"
                Condition="'$(LegatoEnableBsmlHost)' == 'true'" />
       <Compile Include="$(LegatoSourceRoot)Providers\SabersCore\**\*.cs"
@@ -402,5 +404,6 @@
 
   <Import Project="$(MSBuildThisFileDirectory)HeckProviders.targets" Condition="'$(LegatoEnableHeckProfiles)' == 'true'" />
   <Import Project="$(MSBuildThisFileDirectory)HitbloqProviders.targets" Condition="'$(LegatoEnableHitbloqProviders)' == 'true'" />
+  <Import Project="$(MSBuildThisFileDirectory)SiraHost.targets" Condition="'$(LegatoEnableSiraHost)' == 'true'" />
   <Import Project="$(MSBuildThisFileDirectory)BsmlHost.targets" Condition="'$(LegatoEnableBsmlHost)' == 'true'" />
 </Project>
