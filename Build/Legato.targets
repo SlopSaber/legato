@@ -109,7 +109,8 @@
           Condition="'$(LegatoUseReferencePublicizeMetadata)' == 'true'">
     <ItemGroup>
       <_LegatoPublicizeReference Include="@(Reference)" Condition="'%(Reference.Publicize)' == 'true'" />
-      <Publicize Include="@(_LegatoPublicizeReference)" />
+      <Publicize Include="@(_LegatoPublicizeReference)" PublicizeTarget="All"
+                 PublicizeCompilerGenerated="false" IncludeOriginalAttributesAttribute="false" Strip="false" />
     </ItemGroup>
   </Target>
 
