@@ -280,6 +280,8 @@
                Condition="'$(LegatoEnablePhysics)' == 'true'" />
       <Compile Include="$(LegatoSourceRoot)Library\ComponentBindings\**\*.cs"
                Condition="'$(LegatoEnableComponentBindings)' == 'true'" />
+      <Compile Include="$(LegatoSourceRoot)Library\BsmlTableSources\**\*.cs"
+               Condition="'$(LegatoEnableBsmlTableSources)' == 'true'" />
       <Compile Include="$(LegatoSourceRoot)Library\FlowNavigation\**\*.cs"
                Condition="'$(LegatoEnableFlowNavigation)' == 'true'" />
       <Compile Include="$(LegatoSourceRoot)Providers\Shaffuru\**\*.cs" Condition="'$(LegatoEnableShaffuruProviders)' == 'true'" />

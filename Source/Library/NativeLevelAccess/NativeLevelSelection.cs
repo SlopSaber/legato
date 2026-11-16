@@ -2,6 +2,15 @@ using IPA.Utilities;
 
 namespace Legato.UI {
     internal static class NativeLevelSelection {
+        internal static System.Reflection.MethodInfo CloseCollectionMethod => HarmonyLib.AccessTools.DeclaredMethod(typeof(AnnotatedBeatmapLevelCollectionsGridView), "CloseLevelCollection");
+        internal static void PlayPreview(LevelCollectionViewController view, BeatmapLevel level, System.Threading.CancellationToken token) {
+#if BEAT_SABER_1_29_0
+            token.ThrowIfCancellationRequested();
+            view.SongPlayerCrossfadeToLevelAsync(level);
+#else
+            view.SongPlayerCrossfadeToLevelAsync(level, token);
+#endif
+        }
         internal static bool SelectCharacteristic(BeatmapCharacteristicSegmentedControlController view, NativeBeatmapCharacteristic characteristic) {
             if (view.selectedBeatmapCharacteristic == characteristic) return true;
 #if BEAT_SABER_1_29_0
