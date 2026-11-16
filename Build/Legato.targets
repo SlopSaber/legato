@@ -24,6 +24,8 @@
       <LegatoSourceOrder>@(_LegatoSourceVersion->'%(Order)')</LegatoSourceOrder>
       <LegatoTargetDefine Condition="'$(LegatoTargetProfile)' != ''">BEAT_SABER_$([System.String]::Copy('$(LegatoTargetProfile)').Replace('.', '_'))</LegatoTargetDefine>
       <DefineConstants Condition="'$(LegatoTargetDefine)' != ''">$(DefineConstants);$(LegatoTargetDefine)</DefineConstants>
+      <LegatoUsesNativeRenderTiming>false</LegatoUsesNativeRenderTiming>
+      <LegatoUsesNativeRenderTiming Condition="'$(LegatoTargetProfile)' == '1.45.1' OR '$(LegatoTargetProfile)' == '1.45.3'">true</LegatoUsesNativeRenderTiming>
     </PropertyGroup>
     <Error Condition="'$(LegatoTargetProfile)' == ''" Text="Legato does not support Beat Saber $(LegatoTargetVersion)" />
     <Error Condition="'$(LegatoSourceProfile)' == ''" Text="Legato does not support source written for Beat Saber $(LegatoSourceVersion)" />
@@ -203,6 +205,8 @@
                Condition="'$(LegatoEnableUnityCompatibility)' == 'true'" />
       <Compile Include="$(LegatoSourceRoot)Library\Rendering\**\*.cs"
                Condition="'$(LegatoEnableCameraEffects)' == 'true'" />
+      <Compile Include="$(LegatoSourceRoot)Library\Performance\**\*.cs"
+               Condition="'$(LegatoEnableGpuTiming)' == 'true'" />
       <Compile Include="$(LegatoSourceRoot)Library\Tracking\**\*.cs"
                Condition="'$(LegatoEnableSpatialTracking)' == 'true' OR '$(LegatoTargetProfile)' == '1.29.0'" />
       <Compile Include="$(LegatoSourceRoot)ForwardPolyfills\**\Transitions\1.38.0-1.40.0\**\*.cs"
