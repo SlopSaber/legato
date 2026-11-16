@@ -14,7 +14,7 @@ namespace Legato.Beatmaps {
         internal static bool HasData(LoadBeatmapLevelDataResult result) => !result.isError && result.beatmapLevelData != null;
         internal static string? Error(LoadBeatmapLevelDataResult result) => result.errorMessage;
 
-        internal static Task<string> ReadText(LoadBeatmapLevelDataResult result, in BeatmapKey key) =>
+        internal static Task<string?> ReadText(LoadBeatmapLevelDataResult result, in BeatmapKey key) =>
             result.beatmapLevelData!.GetBeatmapStringAsync(in key);
     }
 }
