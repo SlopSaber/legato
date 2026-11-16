@@ -33,7 +33,7 @@ namespace Legato.Beatmaps {
             }
 #else
             if (level != null && !level.hasPrecalculatedData && loader != null) {
-                var field = loader.GetType().GetField("_loadedBeatmapSaveData", BindingFlags.Instance | BindingFlags.NonPublic);
+                var field = typeof(CustomLevelLoader).GetField("_loadedBeatmapSaveData", BindingFlags.Instance | BindingFlags.NonPublic);
                 var loaded = (field?.GetValue(loader) as IDictionary)?[level.levelID];
                 var info = loaded?.GetType().GetField("standardLevelInfoSaveData")?.GetValue(loaded);
                 var folder = loaded?.GetType().GetField("customLevelFolderInfo")?.GetValue(loaded);
