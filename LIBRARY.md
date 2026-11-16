@@ -249,3 +249,5 @@ Async-interface consumers declare their runtime and framework-reference PackageR
 The async framework override and extra runtime payload apply only to Unity 2019 profiles. Current profiles retain the game's native netstandard 2.1 and async types. Consumers condition their three compatibility PackageReferences on the legacy target version.
 
 Saber model helpers include native prefab/component creation and texture resizing. The SabersCore provider preserves current custom trail motion and selects native lifecycle visibility and clock access. `LegatoEnableAsyncFiles` supplies asynchronous file writes on legacy CLR without changing byte data or adding a UTF-8 BOM; current profiles use native file APIs.
+
+`LegatoEnableLevelAudio` exposes native level audio providers, asset-bundle location/clip access, playback state and level selection. Legacy loads pass through the maintained game/SongCore level model, including custom/v4 loading. Unity bundle requests finish before cancellation is surfaced, preserving caller-owned bundle cleanup. Audio measurement, external playback and cache policy remain in consumers.
