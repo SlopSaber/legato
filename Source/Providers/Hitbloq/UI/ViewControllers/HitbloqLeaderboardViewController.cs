@@ -228,7 +228,6 @@ namespace Hitbloq.UI.ViewControllers
 				}
 			});
 
-			// Edited by GPT-5 Codex 2026-05-27
 			// The click target reuse fix removes the delayed-destroy race this wait was hiding.
 			// Keep score rendering immediate so pool changes can be tested without artificial delay.
 			await Task.CompletedTask;
@@ -305,7 +304,7 @@ namespace Hitbloq.UI.ViewControllers
 					HitbloqLeaderboardCellClickingView.ClearCellClickers(leaderboardTableCells);
 					for (var i = 0; i < leaderboardTableCells.Length; i++)
 					{
-						ApplyScoreSaberCellStyle(leaderboardTableCells[i]);
+						ApplyHitbloqCellStyle(leaderboardTableCells[i]);
 					}
 
 					if (canOpenProfiles && leaderboardEntries != null)
@@ -367,7 +366,6 @@ namespace Hitbloq.UI.ViewControllers
 						return;
 					}
 
-					// Edited by GPT-5 Codex 2026-05-27
 					// Each visible row starts its own profile-picture lookup.
 					// Slow profile requests no longer block later rows from loading their images.
 					var index = i;
@@ -458,7 +456,7 @@ namespace Hitbloq.UI.ViewControllers
 		[UIAction("bl-info-click")]
 		private void BeatLeaderInfoClicked()
 		{
-			// Edited by GPT-5 Codex 2026-05-27
+
 			// The no-dependency panel links players to the matching BeatLeader release page.
 			// Older Beat Saber builds need the older BeatLeader release.
 #if HITBLOQ_BS_1_29_1
@@ -471,7 +469,7 @@ namespace Hitbloq.UI.ViewControllers
 		[UIAction("ss-info-click")]
 		private void ScoreSaberInfoClicked()
 		{
-			// Edited by GPT-5 Codex 2026-05-27
+
 			// The no-dependency panel links players to the matching ScoreSaber release page.
 			// Older Beat Saber builds need the older ScoreSaber release.
 #if HITBLOQ_BS_1_29_1
@@ -497,7 +495,7 @@ namespace Hitbloq.UI.ViewControllers
 
 			foreach (var leaderboardTableCell in leaderboardTableCells)
 			{
-				ApplyScoreSaberCellStyle(leaderboardTableCell);
+				ApplyHitbloqCellStyle(leaderboardTableCell);
 			}
 
 			foreach (var profileImageHolder in _profileImageHolders)
@@ -517,7 +515,7 @@ namespace Hitbloq.UI.ViewControllers
 			}
 		}
 
-		private void ApplyScoreSaberCellStyle(LeaderboardTableCell leaderboardTableCell)
+		private void ApplyHitbloqCellStyle(LeaderboardTableCell leaderboardTableCell)
 		{
 			leaderboardTableCell._playerNameText.richText = true;
 			leaderboardTableCell.showSeparator = true;
