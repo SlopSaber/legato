@@ -1,9 +1,28 @@
+using System;
+using System.Reflection;
+using HMUI;
 using UnityEngine.Networking;
 
 namespace Legato.Sira
 {
     internal static class NativeAccess
     {
+#if BEAT_SABER_1_29_0
+        private static readonly Action<FlowCoordinator, ViewController?, ViewController.AnimationType> SetBottomScreen =
+            (Action<FlowCoordinator, ViewController?, ViewController.AnimationType>)Delegate.CreateDelegate(
+                typeof(Action<FlowCoordinator, ViewController?, ViewController.AnimationType>),
+                typeof(FlowCoordinator).GetMethod("SetBottomScreenViewController", BindingFlags.Instance | BindingFlags.NonPublic)!);
+#endif
+
+        internal static void SetBottomScreenViewController(FlowCoordinator flow, ViewController? view, ViewController.AnimationType animation)
+        {
+#if BEAT_SABER_1_29_0
+            SetBottomScreen(flow, view, animation);
+#else
+            flow.SetBottomScreenViewController(view, animation);
+#endif
+        }
+
         internal static bool IsPaused(PauseController controller)
         {
 #if BEAT_SABER_1_29_0
