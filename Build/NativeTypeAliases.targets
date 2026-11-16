@@ -1,5 +1,11 @@
 <Project>
   <Target Name="LegatoLegacyTypeReferences" BeforeTargets="ResolveAssemblyReferences" DependsOnTargets="LegatoConfigure">
+    <ItemGroup>
+      <Reference Include="HMLib" HintPath="$(LegatoReferenceRoot)\Beat Saber_Data\Managed\HMLib.dll" Private="false"
+                 Condition="'$(LegatoEnableNativeTypeAliases)' == 'true' AND Exists('$(LegatoReferenceRoot)\Beat Saber_Data\Managed\HMLib.dll') AND '@(Reference->WithMetadataValue('Identity', 'HMLib'))' == ''" />
+      <Reference Include="Unity.TextMeshPro" HintPath="$(LegatoReferenceRoot)\Beat Saber_Data\Managed\Unity.TextMeshPro.dll" Private="false"
+                 Condition="'$(LegatoEnableBSML)' == 'true' AND Exists('$(LegatoReferenceRoot)\Beat Saber_Data\Managed\Unity.TextMeshPro.dll') AND '@(Reference->WithMetadataValue('Identity', 'Unity.TextMeshPro'))' == ''" />
+    </ItemGroup>
     <ItemGroup Condition="'$(LegatoTargetProfile)' == '1.29.0'">
       <Reference Remove="BeatSaber.Haptics;AdditionalContentModel.Interfaces;DataModels;BGLib.AppFlow;BeatSaber.Init;BeatSaber.ViewSystem;GameInit;Menu.ColorSettings;Menu.CommonLib;BGLib.UnityExtension;Unity.RenderPipelines.Core.Runtime;Unity.RenderPipelines.Universal.Runtime;Unity.XR.Management;Unity.XR.OpenXR" />
       <Reference Remove="@(Reference)" Condition="$([System.Text.RegularExpressions.Regex]::IsMatch('%(Reference.Identity)', '^(?:BeatSaber\.ViewSystem|GameInit|BGLib\.AppFlow)(?:,|$)'))" />
