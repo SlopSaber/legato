@@ -297,6 +297,8 @@
                Condition="'$(LegatoEnableSelectionNavigation)' == 'true'" />
       <Compile Include="$(LegatoSourceRoot)Library\CurvedText\**\*.cs"
                Condition="'$(LegatoEnableCurvedText)' == 'true'" />
+      <Compile Include="$(LegatoSourceRoot)Library\CameraRendering\**\*.cs"
+               Condition="'$(LegatoEnableCameraRendering)' == 'true'" />
       <Compile Include="$(LegatoSourceRoot)Library\SettingsTemplates\**\*.cs"
                Condition="'$(LegatoEnableSettingsTemplates)' == 'true'" />
       <Compile Include="$(LegatoSourceRoot)Library\TableSources\**\*.cs"
