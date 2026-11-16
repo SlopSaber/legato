@@ -1,0 +1,8 @@
+<Project>
+  <Target Name="LegatoMappingExtensionsSources" BeforeTargets="ResolveAssemblyReferences" DependsOnTargets="LegatoConfigure">
+    <ItemGroup>
+      <Compile Remove="HarmonyPatches\ExtraLanesAndLayersPatches.cs;HarmonyPatches\360DegreeNoteRotationPatches.cs;HarmonyPatches\AdditionalWallAdjustementsPatches.cs;HarmonyPatches\PrecisePlacementPatches.cs" />
+      <Compile Include="$(LegatoSourceRoot)Providers\MappingExtensions\**\*.cs" />
+    </ItemGroup>
+  </Target>
+</Project>

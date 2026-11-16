@@ -518,4 +518,5 @@
   <Import Project="$(MSBuildThisFileDirectory)BsmlHost.targets" Condition="'$(LegatoEnableBsmlHost)' == 'true'" />
   <Import Project="$(MSBuildThisFileDirectory)KeepOverrides.targets" Condition="'$(LegatoEnableOverridePersistenceProviders)' == 'true'" />
   <Import Project="$(MSBuildThisFileDirectory)ChatPlexProviders.targets" Condition="'$(LegatoEnableChatPlexProviders)' == 'true'" />
+  <Import Project="$(MSBuildThisFileDirectory)MappingExtensionsProviders.targets" Condition="'$(LegatoEnableMappingExtensionsProviders)' == 'true'" />
 </Project>
