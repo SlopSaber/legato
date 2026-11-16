@@ -271,6 +271,8 @@
                Condition="'$(LegatoEnableLevelProxies)' == 'true'" />
       <Compile Include="$(LegatoSourceRoot)Library\StatisticsViews\**\*.cs"
                Condition="'$(LegatoEnableStatisticsViews)' == 'true'" />
+      <Compile Include="$(LegatoSourceRoot)Library\SceneNames\**\*.cs"
+               Condition="'$(LegatoEnableSceneNames)' == 'true'" />
       <Compile Include="$(LegatoSourceRoot)Library\EnvironmentSceneLoading\**\*.cs"
                Condition="'$(LegatoEnableEnvironmentSceneLoading)' == 'true'" />
       <Compile Include="$(LegatoSourceRoot)Library\EnvironmentAccess\**\*.cs"
