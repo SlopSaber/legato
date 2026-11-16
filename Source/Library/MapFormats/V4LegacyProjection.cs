@@ -78,6 +78,8 @@ namespace Legato.Beatmaps.Formats
                 foreach (string field in fields)
                     entry[field] = name == "colorBoostEvents" ? new JValue(Number(data, "b") != 0)
                         : new JValue(Number(data, name == "basicEvents" && field == "et" ? "t" : field));
+                if (name == "colorNotes" || name == "bombNotes" || name == "obstacles")
+                    ((JObject)entry["customData"]!)["legatoV4Rotation"] = Number(item, "r");
                 result.Add(entry);
             }
             return result;
@@ -99,6 +101,8 @@ namespace Legato.Beatmaps.Formats
                     ["tx"] = Number(tail, chain ? "tx" : "x"), ["ty"] = Number(tail, chain ? "ty" : "y"),
                     ["customData"] = Metadata(item)
                 };
+                ((JObject)entry["customData"]!)["legatoV4Rotation"] = Number(item, "hr");
+                ((JObject)entry["customData"]!)["legatoV4TailRotation"] = Number(item, "tr");
                 if (chain)
                 {
                     entry["sc"] = Number(data, "c");

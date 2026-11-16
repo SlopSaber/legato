@@ -20,9 +20,15 @@ namespace SongCore.Hooks
             _setDataFromLevelAsyncHook.Dispose();
         }
 
+#if BEAT_SABER_1_29_0
+        private void RoundBpmAndShowAuthors(Action<LevelListTableCell, BeatmapLevel, bool, bool, bool> original, LevelListTableCell instance, BeatmapLevel beatmapLevel, bool isFavorite, bool isPromoted, bool interactable)
+        {
+            original(instance, beatmapLevel, isFavorite, isPromoted, interactable);
+#else
         private void RoundBpmAndShowAuthors(Action<LevelListTableCell, BeatmapLevel, bool, bool, bool, bool> original, LevelListTableCell instance, BeatmapLevel beatmapLevel, bool isFavorite, bool isPromoted, bool isUpdated, bool interactable)
         {
             original(instance, beatmapLevel, isFavorite, isPromoted, isUpdated, interactable);
+#endif
 
             // Rounding BPM display for all maps, including official ones.
             instance._songBpmText.text = Math.Round(beatmapLevel.beatsPerMinute).ToString(CultureInfo.InvariantCulture);

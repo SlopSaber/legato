@@ -325,6 +325,9 @@ namespace SongCore.Hooks
 
             var beatmapLevel = _standardLevelDetailViewController.beatmapLevel;
             var beatmapKey = SongCoreNative.SelectedKey(instance);
+#if BEAT_SABER_1_29_0
+            if (beatmapLevel == null || !SongCoreNative.KeyIsValid(beatmapKey)) return;
+#endif
             var actionButton = instance.actionButton;
             var practiceButton = instance.practiceButton;
 
@@ -428,7 +431,12 @@ namespace SongCore.Hooks
             var cursor = new ILCursor(context);
             cursor.GotoNext(MoveType.Before, i => i.MatchCall(out var method) && method.Name == "set_colorScheme");
             cursor.Emit(OpCodes.Ldarg_0);
+#if BEAT_SABER_1_29_0
+            if (context.Method.DeclaringType.Name.StartsWith("Multiplayer", StringComparison.Ordinal)) cursor.Emit(OpCodes.Ldarg_S, context.Method.Parameters[4]);
+            else cursor.Emit(OpCodes.Ldarg_2);
+#else
             cursor.Emit(OpCodes.Ldarg_2);
+#endif
 #if BEAT_SABER_1_29_0
             cursor.EmitDelegate<Func<ColorScheme, LevelScenesTransitionSetupData, IDifficultyBeatmap, ColorScheme>>((color, transition, key) => SetOverrideColorScheme(color, transition, in key));
 #else
@@ -438,7 +446,12 @@ namespace SongCore.Hooks
 
         private ColorScheme SetOverrideColorScheme(ColorScheme colorScheme, LevelScenesTransitionSetupData levelScenesTransitionSetupData, in BeatmapKey beatmapKey)
         {
+#if BEAT_SABER_1_29_0
+            var nativeColors = V4NativeColors.Apply(colorScheme, beatmapKey);
+            var overrideColorScheme = GetOverrideColorScheme(nativeColors ?? colorScheme, beatmapKey) ?? nativeColors;
+#else
             var overrideColorScheme = GetOverrideColorScheme(colorScheme, beatmapKey);
+#endif
 
             if (overrideColorScheme == null)
             {

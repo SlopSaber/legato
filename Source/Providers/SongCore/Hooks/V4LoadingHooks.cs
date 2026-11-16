@@ -26,9 +26,12 @@ namespace SongCore.Hooks
         private static readonly AsyncLocal<DifficultyContext?> Loading = new();
         private static readonly AsyncLocal<V4LegacyProjection?> Converting = new();
         private readonly List<Hook> _hooks = new();
+        private readonly EnvironmentsListSO _environments;
+        private V4LoadingHooks(EnvironmentsListSO environments) => _environments = environments;
 
         public void Initialize()
         {
+            _hooks.Add(new Hook(typeof(BeatmapEnvironmentHelper).GetMethod(nameof(BeatmapEnvironmentHelper.GetEnvironmentInfo))!, EnvironmentForDifficulty, true));
             _hooks.Add(new Hook(typeof(CustomLevelLoader).GetMethod(nameof(CustomLevelLoader.LoadCustomBeatmapLevelAsync), Methods)!, LoadLevel, true));
             _hooks.Add(new Hook(typeof(CustomLevelLoader).GetMethod(nameof(CustomLevelLoader.LoadDifficultyBeatmapAsync), Methods)!, LoadDifficulty, true));
             _hooks.Add(new Hook(typeof(CustomLevelLoader).GetMethod(nameof(CustomLevelLoader.LoadBeatmapDataBasicInfo), Methods)!, LoadSaveData, true));
@@ -57,6 +60,19 @@ namespace SongCore.Hooks
                 loader.LoadEnvironmentInfo(projected.allDirectionsEnvironmentName, true), sets);
             Levels.Add(preview, context);
             return preview;
+        }
+
+        private EnvironmentInfoSO EnvironmentForDifficulty(Func<IDifficultyBeatmap, EnvironmentInfoSO> original, IDifficultyBeatmap key)
+        {
+            var song = key?.level == null ? null : Collections.GetCustomLevelSongData(key.level.levelID);
+            var difficulty = key == null ? null : Collections.GetCustomLevelSongDifficultyData(key);
+            if (difficulty?._environmentNameIdx is int index && index >= 0 && song != null && index < song._environmentNames.Length)
+            {
+                string name = song._environmentNames[index];
+                var environment = _environments.environmentInfos.FirstOrDefault(value => value.serializedName == name);
+                if (environment != null) return environment;
+            }
+            return original(key!);
         }
 
         private Task<CustomBeatmapLevel> LoadLevel(Func<CustomLevelLoader, CustomPreviewBeatmapLevel, CancellationToken, Task<CustomBeatmapLevel>> original,

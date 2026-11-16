@@ -10,7 +10,7 @@ namespace SongCore.OverrideClasses
     {
         private readonly MutableCollection _levels;
 
-        public SongCoreCustomBeatmapLevelPack(string packID, string packName, Sprite coverImage, BeatmapLevel[] beatmapLevels, string shortPackName = "")
+        public SongCoreCustomBeatmapLevelPack(string packID, string packName, Sprite? coverImage, BeatmapLevel[] beatmapLevels, string shortPackName = "")
             : base(packID, packName, shortPackName.Length == 0 ? packName : shortPackName,
                 CreateCover(coverImage), coverImage ?? Loader.defaultCoverImage, new CustomBeatmapLevelCollection(Array.Empty<CustomPreviewBeatmapLevel>()))
         {
@@ -18,7 +18,7 @@ namespace SongCore.OverrideClasses
             this.SetField("<beatmapLevelCollection>k__BackingField", (IBeatmapLevelCollection)_levels);
         }
 
-        private static Sprite CreateCover(Sprite cover)
+        private static Sprite CreateCover(Sprite? cover)
         {
             cover ??= Loader.defaultCoverImage;
             if (cover == null) throw new InvalidOperationException("SongCore cover sprites have not been initialized.");

@@ -111,6 +111,7 @@ namespace SongCore.Hooks.BeatmapLevelCache
             }
 
             await _beatmapLevelCache.WaitUntilReadyAsync(cancellationToken);
+            if (cancellationToken.IsCancellationRequested) return;
 
             foreach (var action in modHandlers)
             {
@@ -196,12 +197,14 @@ namespace SongCore.Hooks.BeatmapLevelCache
             Plugin.Log.Debug("Attempting to set beatmap level cache beatmap key");
 
             var tcs = _beatmapLevelCache.BeatmapKeyTaskCompletionSource!;
-            var beatmapLevelData = await _beatmapLevelCache.BeatmapLevelDataLoadingTask!;
+            var loading = _beatmapLevelCache.BeatmapLevelDataLoadingTask!;
+            var beatmapLevelData = await loading;
+            if (!ReferenceEquals(loading, _beatmapLevelCache.BeatmapLevelDataLoadingTask) || !ReferenceEquals(tcs, _beatmapLevelCache.BeatmapKeyTaskCompletionSource)) return;
 
             // Task errored, faulted or canceled.
             if (beatmapLevelData == null)
             {
-                tcs.SetResult(false);
+                tcs.TrySetResult(false);
                 return;
             }
 

@@ -26,7 +26,6 @@ namespace SongCore.Hooks
             original(instance);
 #if BEAT_SABER_1_29_0
             instance.Container.Bind<BeatmapLevel>().FromInstance(instance._sceneSetupData.difficultyBeatmap.level).AsSingle();
-            instance.Container.Bind<IDifficultyBeatmap>().FromInstance(instance._sceneSetupData.difficultyBeatmap).AsSingle();
 #else
             instance.Container.Bind<BeatmapLevel>().FromInstance(instance._sceneSetupData.beatmapLevel).AsSingle();
 #endif
