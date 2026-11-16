@@ -261,3 +261,5 @@ Score effect helpers also construct native normal/chain preview notes with the c
 `LegatoEnableFontGlyphs` selects native TextCore references and TMP character construction for custom/emote glyphs. Older TMP uses glyph-only characters; current TMP associates characters with the source font.
 
 `LegatoEnableSettingsTemplates` supplies native position-slider and audio-latency toggle templates. Table sources include a MonoBehaviour data source and a compatible cell destruction callback; consumers retain cell layout and cleanup ownership.
+
+`LegatoEnableSelectionNavigation` supplies native selected level/key access and disposable difficulty/pack event subscriptions. `LegatoEnableCurvedText` refreshes native text mesh curvature, including zero-radius reset, submeshes and scriptable colors. HMUI and TMP references must be publicized for text mesh access.

@@ -293,6 +293,10 @@
       <Compile Include="$(LegatoSourceRoot)Library\FontGlyphs\**\*.cs" Condition="'$(LegatoEnableFontGlyphs)' == 'true'" />
       <Compile Include="$(LegatoSourceRoot)Library\RuntimeServices\**\*.cs"
                Condition="'$(LegatoEnableRuntimeServices)' == 'true'" />
+      <Compile Include="$(LegatoSourceRoot)Library\SelectionNavigation\**\*.cs"
+               Condition="'$(LegatoEnableSelectionNavigation)' == 'true'" />
+      <Compile Include="$(LegatoSourceRoot)Library\CurvedText\**\*.cs"
+               Condition="'$(LegatoEnableCurvedText)' == 'true'" />
       <Compile Include="$(LegatoSourceRoot)Library\SettingsTemplates\**\*.cs"
                Condition="'$(LegatoEnableSettingsTemplates)' == 'true'" />
       <Compile Include="$(LegatoSourceRoot)Library\TableSources\**\*.cs"
