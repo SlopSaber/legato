@@ -105,6 +105,14 @@
     </ItemGroup>
   </Target>
 
+  <Target Name="LegatoBridgeReferencePublicizeMetadata" BeforeTargets="Publicize"
+          Condition="'$(LegatoUseReferencePublicizeMetadata)' == 'true'">
+    <ItemGroup>
+      <_LegatoPublicizeReference Include="@(Reference)" Condition="'%(Reference.Publicize)' == 'true'" />
+      <Publicize Include="@(_LegatoPublicizeReference)" />
+    </ItemGroup>
+  </Target>
+
   <Target Name="LegatoAddBaseSources" BeforeTargets="CoreCompile" DependsOnTargets="LegatoConfigure">
     <ItemGroup>
       <Compile Include="$(LegatoSourceRoot)GlobalUsings.cs;$(LegatoSourceRoot)Library\Platform\Authentication\**\*.cs;$(LegatoSourceRoot)Library\Platform\Friends\**\*.cs;$(LegatoSourceRoot)Library\XR\Headset\**\*.cs;$(LegatoSourceRoot)Library\XR\InputFocus\**\*.cs" />
