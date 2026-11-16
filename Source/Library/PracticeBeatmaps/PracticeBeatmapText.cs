@@ -8,6 +8,7 @@ using IPA.Utilities;
 #if BEAT_SABER_1_29_0
 using Legato.Beatmaps.Formats;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 #endif
 
 namespace Legato.Beatmaps {
@@ -68,13 +69,16 @@ namespace Legato.Beatmaps {
             if (Version.TryParse(version, out Version? parsed) && parsed.Major == 4) {
                 var level = new V4LevelInfo(info);
                 var difficulty = level.Difficulties.Single(value => value.Characteristic == _characteristic && value.Name == _difficulty.ToString());
-                var projection = new V4LegacyProjection(
-                    V4Documents.Read(level.ResolveAsset(directory, difficulty.BeatmapFilename)),
-                    V4Documents.Read(level.ResolveAsset(directory, difficulty.LightshowFilename)),
-                    V4Documents.Read(level.ResolveAsset(directory, level.AudioDataFilename)), level.Bpm);
+                JObject gameplay = V4Documents.Read(level.ResolveAsset(directory, difficulty.BeatmapFilename));
                 token.ThrowIfCancellationRequested();
-                OfficialBeatToSeconds = beat => (float)projection.Tempo.BeatToSeconds(beat);
-                return projection.SaveData.ToString(Formatting.None);
+                JObject lightshow = V4Documents.Read(level.ResolveAsset(directory, difficulty.LightshowFilename));
+                token.ThrowIfCancellationRequested();
+                var tempo = new V4TempoMap(V4Documents.Read(level.ResolveAsset(directory, level.AudioDataFilename)), level.Bpm);
+                token.ThrowIfCancellationRequested();
+                OfficialBeatToSeconds = beat => (float)tempo.BeatToSeconds(beat);
+                return new JObject {
+                    ["customData"] = V4LegacyProjection.MergeCustomData(lightshow["customData"], gameplay["customData"])
+                }.ToString(Formatting.None);
             }
             var set = custom.standardLevelInfoSaveData.difficultyBeatmapSets.Single(value => value.beatmapCharacteristicName == _characteristic);
             var entry = set.difficultyBeatmaps.Single(value => value.difficulty == _difficulty.ToString());

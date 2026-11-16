@@ -70,7 +70,7 @@ namespace Legato.Beatmaps.Formats
             return result;
         }
 
-        private static JObject MergeCustomData(JToken? first, JToken? second)
+        internal static JObject MergeCustomData(JToken? first, JToken? second)
         {
             JObject result = first is JObject source ? (JObject)source.DeepClone() : new JObject();
             if (second is JObject extra)
