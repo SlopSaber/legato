@@ -12,6 +12,7 @@ namespace Legato.Gameplay {
             FieldAccessor<LevelCompletionResults, int>.GetAccessor("multipliedScore");
 #endif
 
+#if !BEAT_SABER_1_29_0 || LEGATO_NATIVE_BEATMAP_KEYS
         internal static BeatmapLevel SoloLevel(object[] arguments) =>
 #if BEAT_SABER_1_29_0
             ((IDifficultyBeatmap)arguments[2]).level;
@@ -19,6 +20,7 @@ namespace Legato.Gameplay {
             (BeatmapLevel)arguments[3];
 #endif
 
+#endif
         internal static void NegateMultipliedScore(ref LevelCompletionResults results) {
 #if BEAT_SABER_1_45_3
             LevelCompletionResultsBase baseResults = results;
