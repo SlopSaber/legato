@@ -596,4 +596,11 @@
       <EmbeddedResource Include="$(MSBuildThisFileDirectory)Resources\CinemaLegacy\bscinema.bundle" LogicalName="BeatSaberCinema.Resources.bscinema.bundle" />
     </ItemGroup>
   </Target>
+  <Target Name="LegatoSelectProfileResources" BeforeTargets="AssignTargetPaths" DependsOnTargets="LegatoConfigure" Condition="'@(LegatoProfileResource)' != ''">
+    <ItemGroup>
+      <_LegatoSelectedProfileResource Include="@(LegatoProfileResource)" Condition="'%(LegatoProfileResource.Profile)' == '$(LegatoTargetProfile)'" />
+      <EmbeddedResource Remove="@(_LegatoSelectedProfileResource->'%(Replaces)')" />
+      <EmbeddedResource Include="@(_LegatoSelectedProfileResource)" LogicalName="%(_LegatoSelectedProfileResource.LogicalName)" />
+    </ItemGroup>
+  </Target>
 </Project>
