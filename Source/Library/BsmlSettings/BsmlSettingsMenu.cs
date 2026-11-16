@@ -11,5 +11,10 @@ namespace Legato.Presentation {
             BSMLSettings.Instance.AddSettingsMenu(title, resource, host);
 
         internal static void Remove(object host) => BSMLSettings.Instance.RemoveSettingsMenu(host);
+
+        internal static void Add(BSMLSettings settings, string title, string resource, object host) =>
+            settings.AddSettingsMenu(title, resource, host);
+
+        internal static void Remove(BSMLSettings settings, object host) => settings.RemoveSettingsMenu(host);
     }
 }
