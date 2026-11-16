@@ -1,0 +1,11 @@
+{
+  "source": "https://github.com/SlopSaber/KeepMyOverridesPls",
+  "commit": "0fb1a64c2bd77fecd38a34b4b72d0ce9179ea5f1",
+  "files": [
+    "Overrider.cs",
+    "Patches/EnvironmentSettingsHook.cs",
+    "Patches/DefaultOverrideSettingsPatch.cs",
+    "Patches/PromoButtonPatch.cs"
+  ],
+  "notes": "Native environment persistence providers adapted for legacy ScriptableObject identities and current native enum APIs."
+}

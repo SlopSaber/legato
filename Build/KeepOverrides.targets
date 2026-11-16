@@ -1,0 +1,8 @@
+<Project>
+  <Target Name="LegatoKeepOverridesSources" BeforeTargets="ResolveAssemblyReferences" DependsOnTargets="LegatoConfigure">
+    <ItemGroup>
+      <Compile Remove="Overrider.cs;Patches\EnvironmentSettingsHook.cs;Patches\DefaultOverrideSettingsPatch.cs;Patches\PromoButtonPatch.cs" />
+      <Compile Include="$(LegatoSourceRoot)Providers\KeepOverrides\**\*.cs" />
+    </ItemGroup>
+  </Target>
+</Project>

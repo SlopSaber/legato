@@ -30,6 +30,7 @@
     <None Include="Build\Legato.Versions.props" Pack="true" PackagePath="build\Legato.Versions.props" />
     <None Include="Build\BsUtilsHost.targets" Pack="true" PackagePath="build\BsUtilsHost.targets" />
     <None Include="Resources\**\*" Pack="true" PackagePath="build\Resources\%(RecursiveDir)%(Filename)%(Extension)" />
+    <None Include="Build\KeepOverrides.targets" Pack="true" PackagePath="build\KeepOverrides.targets" />
     <None Include="Build\SongCoreProviders.targets" Pack="true" PackagePath="build\SongCoreProviders.targets" />
     <None Include="Build\SynapseProviders.targets" Pack="true" PackagePath="build\SynapseProviders.targets" />
     <None Include="Build\ReactiveHost.targets" Pack="true" PackagePath="build\ReactiveHost.targets" />

@@ -1,4 +1,7 @@
 #nullable enable
+#if BEAT_SABER_1_29_0
+using EnvironmentsListModel = global::EnvironmentsListSO;
+#endif
 
 namespace Legato.Gameplay {
     internal static class OverrideEnvironmentSettingsFactory {
