@@ -242,6 +242,10 @@
                Condition="'$(LegatoEnablePauseMenu)' == 'true'" />
       <Compile Include="$(LegatoSourceRoot)Library\BsmlSettings\**\*.cs"
                Condition="'$(LegatoEnableBsmlSettings)' == 'true'" />
+      <Compile Include="$(LegatoSourceRoot)Library\RendererLayers\**\*.cs"
+               Condition="'$(LegatoEnableRendererLayers)' == 'true'" />
+      <Compile Include="$(LegatoSourceRoot)Library\Unity\ObjectDiscovery.cs"
+               Condition="'$(LegatoEnableObjectDiscovery)' == 'true' AND '$(LegatoEnableUnityCompatibility)' != 'true'" />
       <Compile Include="$(LegatoSourceRoot)Library\BeatmapText\**\*.cs"
                Condition="'$(LegatoEnableBeatmapText)' == 'true'" />
       <Compile Include="$(LegatoSourceRoot)Library\Gameplay\OverrideEnvironmentSettingsFactory.cs"
