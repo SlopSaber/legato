@@ -7,17 +7,18 @@ using Tweaks55.Util;
 namespace Tweaks55.HarmonyPatches {
 	[HarmonyPatch]
 	static class PatchHealthWarning {
-		[HarmonyPriority(int.MinValue)]
 #if BEAT_SABER_1_29_0
         static readonly IPA.Utilities.FieldAccessor<HealthWarningViewController, Action>.Accessor finished =
             IPA.Utilities.FieldAccessor<HealthWarningViewController, Action>.GetAccessor("didFinishEvent");
 
+        [HarmonyPriority(int.MinValue)]
         static void Postfix(HealthWarningViewController __instance, bool __1) {
             if(Config.Instance.disableHealthWarning && __1)
                 finished(ref __instance)?.Invoke();
         }
 #else
-		static void Postfix(HealthWarningViewController __instance) {
+		[HarmonyPriority(int.MinValue)]
+        static void Postfix(HealthWarningViewController __instance) {
 			if(!Config.Instance.disableHealthWarning || __instance._taskCompletionSource == null)
 				return;
 
