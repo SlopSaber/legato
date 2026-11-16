@@ -265,6 +265,10 @@
                Condition="'$(LegatoEnableResults)' == 'true' OR ('$(LegatoEnableAutoAdapters)' != 'false' AND '@(_LegatoIPAReference)' != '' AND '@(_LegatoGameplayCoreReference)' != '')" />
       <Compile Include="$(LegatoSourceRoot)Library\Characteristics\**\*.cs;$(LegatoSourceRoot)Library\LegacyNames\**\*.cs"
                Condition="'$(LegatoEnableLegacyTypeNames)' == 'true'" />
+      <Compile Include="$(LegatoSourceRoot)Library\CounterGameplay\**\*.cs"
+               Condition="'$(LegatoEnableCounterGameplay)' == 'true'" />
+      <Compile Include="$(LegatoSourceRoot)Library\Unity\WebRequestCompatibility.cs"
+               Condition="'$(LegatoEnableWebRequests)' == 'true' AND '$(LegatoEnableUnityCompatibility)' != 'true'" />
       <Compile Include="$(LegatoSourceRoot)Library\ScreenDisplacement\**\*.cs"
                Condition="'$(LegatoEnableScreenDisplacement)' == 'true'" />
       <Compile Include="$(LegatoSourceRoot)Library\Unity\**\*.cs"
