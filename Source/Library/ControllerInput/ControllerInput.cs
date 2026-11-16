@@ -6,6 +6,18 @@ namespace Legato.Unity
 {
     internal static class ControllerInput
     {
+        internal static VRController SelectedController(VRPointer pointer) =>
+#if BEAT_SABER_1_29_0
+            pointer.vrController;
+#else
+            pointer.lastSelectedVrController;
+#endif
+        internal static float VerticalAxis(VRController controller) =>
+#if BEAT_SABER_1_29_0
+            controller.verticalAxisValue;
+#else
+            controller.thumbstick.y;
+#endif
 #if BEAT_SABER_1_29_0
         private static readonly FieldAccessor<VRController, IVRPlatformHelper>.Accessor Platform =
             FieldAccessor<VRController, IVRPlatformHelper>.GetAccessor("_vrPlatformHelper");

@@ -297,3 +297,5 @@ LegatoEnableSteamAuthentication leases a web API ticket until server verificatio
 LegatoEnableNativeLevelAccess exposes typed key identity, characteristic, validity, mapper metadata and native level loading. Legacy difficulty enumeration requires a loaded native IBeatmapLevel; preview data is never presented as loaded gameplay data. Enable native beatmap aliases and legacy type names with this feature.
 
 LegatoEnableNativeGameState exposes native pause/audio state, zero-energy continuation, room/effect settings, modal visibility, basic haptic selection and shader time. Scoring constants preserve the stable serialized IDs; Unity 2019 native gameplay does not emit modern combination IDs. Avatar aliases also provide coroutine ownership through the native shared starter.
+
+Native level access includes profile-correct selection states, detail/results levels, cloned level-bar bindings and cancellable ID/hash loading. Legacy loads retain the native loader, including installed map-format translations. Controller input exposes the selected pointer controller and vertical axis through native APIs.
