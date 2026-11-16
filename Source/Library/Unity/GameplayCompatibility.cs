@@ -1,17 +1,21 @@
 #nullable enable
 
+using System;
 using System.Reflection;
 using UnityEngine;
 
 namespace Legato.Unity {
     internal static class GameplayCompatibility {
-        internal static void Resume(PauseController controller) {
+        private const BindingFlags InstanceMethods = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic;
 #if BEAT_SABER_1_45_1 || BEAT_SABER_1_45_3
-            controller.Resume();
+        private const string ResumeMethod = "Resume";
 #else
-            controller.HandlePauseMenuManagerDidPressContinueButton();
+        private const string ResumeMethod = "HandlePauseMenuManagerDidPressContinueButton";
 #endif
-        }
+        private static readonly Action<PauseController> ResumeAction = (Action<PauseController>)
+            typeof(PauseController).GetMethod(ResumeMethod, InstanceMethods)!.CreateDelegate(typeof(Action<PauseController>));
+
+        internal static void Resume(PauseController controller) => ResumeAction(controller);
 
         internal static MenuTransitionsHelper? FindActiveMenuTransitions() {
 #if BEAT_SABER_1_45_1 || BEAT_SABER_1_45_3
