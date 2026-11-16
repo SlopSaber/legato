@@ -7,19 +7,19 @@ namespace SongCore.OverrideClasses
 {
     public class SongCoreBeatmapLevelsRepository : BeatmapLevelsRepository
     {
-        private readonly List<BeatmapLevelPack> _customBeatmapLevelPacks = new();
+        private readonly List<NativeSongPack> _customBeatmapLevelPacks = new();
 
-        private SongCoreBeatmapLevelsRepository(IEnumerable<BeatmapLevelPack> beatmapLevelPacks)
+        private SongCoreBeatmapLevelsRepository(IEnumerable<NativeSongPack> beatmapLevelPacks)
             : base(beatmapLevelPacks)
         {
         }
 
         public static SongCoreBeatmapLevelsRepository CreateNew()
         {
-            return new SongCoreBeatmapLevelsRepository(Array.Empty<BeatmapLevelPack>());
+            return new SongCoreBeatmapLevelsRepository(Array.Empty<NativeSongPack>());
         }
 
-        public void AddLevelPack(BeatmapLevelPack pack)
+        public void AddLevelPack(NativeSongPack pack)
         {
             if (pack != null && !_customBeatmapLevelPacks.Contains(pack))
             {
@@ -28,7 +28,7 @@ namespace SongCore.OverrideClasses
             }
         }
 
-        public void RemoveLevelPack(BeatmapLevelPack pack)
+        public void RemoveLevelPack(NativeSongPack pack)
         {
             if (pack != null && _customBeatmapLevelPacks.Contains(pack))
             {

@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace SongCore.OverrideClasses
 {
-    public class SongCoreCustomBeatmapLevelPack : BeatmapLevelPack
+    public class SongCoreCustomBeatmapLevelPack : NativeSongPack
     {
         public SongCoreCustomBeatmapLevelPack(string packID, string packName, Sprite? coverImage, BeatmapLevel[] beatmapLevels, string shortPackName = "")
             : base(packID, packName, shortPackName.Length == 0 ? packName : shortPackName,  CreateCover(coverImage), coverImage ?? Loader.defaultCoverImage, PackBuyOption.Default, beatmapLevels, PlayerSensitivityFlag.Safe)
@@ -24,7 +24,7 @@ namespace SongCore.OverrideClasses
 
         public void UpdateBeatmapLevels(BeatmapLevel[] beatmapLevels)
         {
-            var that = (BeatmapLevelPack)this;
+            var that = (NativeSongPack)this;
             Accessors.AllBeatmapLevelsAccessor(ref that) = beatmapLevels.Concat(_additionalBeatmapLevels).ToList();
         }
     }
