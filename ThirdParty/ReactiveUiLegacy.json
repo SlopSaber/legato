@@ -1,0 +1,341 @@
+{
+  "tool": "UnityPy 1.25.4",
+  "toolSource": "https://pypi.org/project/UnityPy/",
+  "currentSpriteBundle": "D:\\Development\\BeatSaberModpackProject\\PublicMods\\reactive-mono\\src\\reactive-bs-sdk\\Reactive.BeatSaber\\Resources\\AssetBundles\\asset_bundle",
+  "currentSpriteBundleSha256": "9f831759f6a6648ff4d1ba5864a978b1840b749ee3a416279a4e5e9430b83c56",
+  "shaderSource": "Embedded BeatLeader asset bundle from the preserved 1.29.1 instance; no legacy plugin DLL is deployed.",
+  "shaderSourceSha256": "cf862e12977c253886f5f42dd4e845c3da765ef79c232bed8a3308e376d2b504",
+  "shaderUnityVersion": "2019.4.40f1",
+  "shaderRawSha256": "4348f3cba2c6c0bb4f6278bf4e09bab58e0412bf0260943f027e9606043b3d80",
+  "materialRawSha256": "c8160298ece0fcac013bed72b4aa68bd8ef0f87befa4ae615b099367ae77d771",
+  "sprites": [
+    {
+      "field": "rectangle",
+      "name": "Rectangle",
+      "rect": {
+        "x": 40.959999084472656,
+        "y": 40.959999084472656,
+        "width": 46.07999801635742,
+        "height": 46.07999801635742
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "border": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0,
+        "w": 0.0
+      },
+      "pixelsPerUnit": 32.0,
+      "texture": "texture-0.png"
+    },
+    {
+      "field": "background",
+      "name": "Background",
+      "rect": {
+        "x": 0.0,
+        "y": 0.0,
+        "width": 128.0,
+        "height": 128.0
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "border": {
+        "x": 40.959999084472656,
+        "y": 40.959999084472656,
+        "z": 40.959999084472656,
+        "w": 40.959999084472656
+      },
+      "pixelsPerUnit": 32.0,
+      "texture": "texture-0.png"
+    },
+    {
+      "field": "backgroundLeft",
+      "name": "Left",
+      "rect": {
+        "x": 0.0,
+        "y": 0.0,
+        "width": 40.959999084472656,
+        "height": 128.0
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "border": {
+        "x": 40.959999084472656,
+        "y": 40.959999084472656,
+        "z": 0.0,
+        "w": 40.959999084472656
+      },
+      "pixelsPerUnit": 32.0,
+      "texture": "texture-0.png"
+    },
+    {
+      "field": "backgroundRight",
+      "name": "Right",
+      "rect": {
+        "x": 87.04000091552734,
+        "y": 0.0,
+        "width": 40.959999084472656,
+        "height": 128.0
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "border": {
+        "x": 0.0,
+        "y": 40.959999084472656,
+        "z": 40.959999084472656,
+        "w": 40.959999084472656
+      },
+      "pixelsPerUnit": 32.0,
+      "texture": "texture-0.png"
+    },
+    {
+      "field": "backgroundBottom",
+      "name": "Bottom",
+      "rect": {
+        "x": 0.0,
+        "y": 0.0,
+        "width": 128.0,
+        "height": 40.959999084472656
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "border": {
+        "x": 40.959999084472656,
+        "y": 40.959999084472656,
+        "z": 40.959999084472656,
+        "w": 0.0
+      },
+      "pixelsPerUnit": 32.0,
+      "texture": "texture-0.png"
+    },
+    {
+      "field": "backgroundTop",
+      "name": "Top",
+      "rect": {
+        "x": 0.0,
+        "y": 87.04000091552734,
+        "width": 128.0,
+        "height": 40.959999084472656
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "border": {
+        "x": 40.959999084472656,
+        "y": 0.0,
+        "z": 40.959999084472656,
+        "w": 40.959999084472656
+      },
+      "pixelsPerUnit": 32.0,
+      "texture": "texture-0.png"
+    },
+    {
+      "field": "backgroundUnderline",
+      "name": "Underline",
+      "rect": {
+        "x": 0.0,
+        "y": 0.0,
+        "width": 128.0,
+        "height": 128.0
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "border": {
+        "x": 40.959999084472656,
+        "y": 40.959999084472656,
+        "z": 40.959999084472656,
+        "w": 40.959999084472656
+      },
+      "pixelsPerUnit": 32.0,
+      "texture": "texture-1.png"
+    },
+    {
+      "field": "spinnerIcon",
+      "name": "Spinner",
+      "rect": {
+        "x": 0.0,
+        "y": 0.0,
+        "width": 128.0,
+        "height": 128.0
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "border": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0,
+        "w": 0.0
+      },
+      "pixelsPerUnit": 50.0,
+      "texture": "texture-2.png"
+    },
+    {
+      "field": "crossIcon",
+      "name": "Cross",
+      "rect": {
+        "x": 0.0,
+        "y": 0.0,
+        "width": 128.0,
+        "height": 128.0
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "border": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0,
+        "w": 0.0
+      },
+      "pixelsPerUnit": 50.0,
+      "texture": "texture-3.png"
+    },
+    {
+      "field": "frame",
+      "name": "Frame",
+      "rect": {
+        "x": 0.0,
+        "y": 0.0,
+        "width": 128.0,
+        "height": 128.0
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "border": {
+        "x": 40.959999084472656,
+        "y": 40.959999084472656,
+        "z": 40.959999084472656,
+        "w": 40.959999084472656
+      },
+      "pixelsPerUnit": 32.0,
+      "texture": "texture-4.png"
+    },
+    {
+      "field": "transparentPixel",
+      "name": "TransparentPixel",
+      "rect": {
+        "x": 0.0,
+        "y": 0.0,
+        "width": 1.0,
+        "height": 1.0
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      },
+      "border": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0,
+        "w": 0.0
+      },
+      "pixelsPerUnit": 100.0,
+      "texture": "texture-5.png"
+    }
+  ],
+  "textures": [
+    {
+      "file": "texture-0.png",
+      "width": 128,
+      "height": 128,
+      "filterMode": 1,
+      "aniso": 1,
+      "wrap": 1
+    },
+    {
+      "file": "texture-1.png",
+      "width": 128,
+      "height": 128,
+      "filterMode": 1,
+      "aniso": 1,
+      "wrap": 1
+    },
+    {
+      "file": "texture-2.png",
+      "width": 128,
+      "height": 128,
+      "filterMode": 1,
+      "aniso": 1,
+      "wrap": 1
+    },
+    {
+      "file": "texture-3.png",
+      "width": 128,
+      "height": 128,
+      "filterMode": 1,
+      "aniso": 1,
+      "wrap": 1
+    },
+    {
+      "file": "texture-4.png",
+      "width": 128,
+      "height": 128,
+      "filterMode": 1,
+      "aniso": 1,
+      "wrap": 1
+    },
+    {
+      "file": "texture-5.png",
+      "width": 1,
+      "height": 1,
+      "filterMode": 1,
+      "aniso": 1,
+      "wrap": 1
+    }
+  ],
+  "materialReused": true,
+  "shaderRebuilt": false,
+  "outputs": [
+    {
+      "file": "texture-0.png",
+      "sha256": "21fdfc82f5e77d426288a6220ad4cf391599ebb2e002603f7432ae1c5413843a"
+    },
+    {
+      "file": "texture-1.png",
+      "sha256": "ae2187209e2a4ebd136d04571b2573df4b55d7db49950faf5aa96bc2ad876af0"
+    },
+    {
+      "file": "texture-2.png",
+      "sha256": "936b20a65597adc09b21a99df69aefd4cce5fb134a65a748e9c403376b112752"
+    },
+    {
+      "file": "texture-3.png",
+      "sha256": "2eb7bf526a49d8d942581281c608ec3442d580a8728fea275f581756474c8d43"
+    },
+    {
+      "file": "texture-4.png",
+      "sha256": "c4502605fcb1fc6633d2ca687eb30fa9bad5f3e09b54d113cb41dd5e6a66c1da"
+    },
+    {
+      "file": "texture-5.png",
+      "sha256": "c2153f77e11087fcb078ae38527fa83bef29791e3700e30cc87fec4405a66d0f"
+    },
+    {
+      "file": "ui-2019.bundle",
+      "sha256": "412868c3ca1dd7193e1a77bb4f0b3ce9d7111537101ebada439892790330daa7"
+    }
+  ],
+  "sourceRepository": "https://github.com/SlopSaber/reactive-mono.git",
+  "currentSourceHead": "9b93a2e7799e46f62ff9cd82d043ccae0ef4061b",
+  "shaderLicense": "BeatLeader.LICENSE.txt (MIT)",
+  "sourceLicense": "The local reactive-mono checkout does not contain a license file; this integration has not been published."
+}

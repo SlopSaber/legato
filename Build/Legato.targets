@@ -268,6 +268,8 @@
                Condition="'$(LegatoEnableBsmlSettings)' == 'true'" />
       <Compile Include="$(LegatoSourceRoot)Library\RendererLayers\**\*.cs"
                Condition="'$(LegatoEnableRendererLayers)' == 'true'" />
+      <Compile Include="$(LegatoSourceRoot)Providers\ReactiveHost\**\*.cs"
+               Condition="'$(LegatoEnableReactiveHost)' == 'true'" />
       <Compile Include="$(LegatoSourceRoot)Library\JoystickInput\**\*.cs"
                Condition="'$(LegatoEnableJoystickInput)' == 'true'" />
       <Compile Include="$(LegatoSourceRoot)Library\TextWrapping\**\*.cs"
@@ -416,6 +418,7 @@
 
   <Import Project="$(MSBuildThisFileDirectory)HeckProviders.targets" Condition="'$(LegatoEnableHeckProfiles)' == 'true'" />
   <Import Project="$(MSBuildThisFileDirectory)HitbloqProviders.targets" Condition="'$(LegatoEnableHitbloqProviders)' == 'true'" />
+  <Import Project="$(MSBuildThisFileDirectory)ReactiveHost.targets" Condition="'$(LegatoEnableReactiveHost)' == 'true'" />
   <Import Project="$(MSBuildThisFileDirectory)NativeTypeAliases.targets" Condition="'$(LegatoEnableNativeTypeAliases)' == 'true'" />
   <Import Project="$(MSBuildThisFileDirectory)BsUtilsHost.targets" Condition="'$(LegatoEnableBsUtilsHost)' == 'true'" />
   <Import Project="$(MSBuildThisFileDirectory)SiraHost.targets" Condition="'$(LegatoEnableSiraHost)' == 'true'" />
