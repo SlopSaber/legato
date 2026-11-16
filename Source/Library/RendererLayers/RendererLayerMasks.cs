@@ -1,5 +1,6 @@
 #nullable enable
 using System;
+using UnityEngine;
 #if BEAT_SABER_1_45_1 || BEAT_SABER_1_45_3
 using HarmonyLib;
 using UnityEngine.Rendering;
@@ -8,6 +9,8 @@ using UnityEngine.Rendering.Universal;
 
 namespace Legato.Rendering {
     internal static class RendererLayerMasks {
+        internal static readonly int WaterLayerBit = 1 << LayerMask.NameToLayer("Water");
+
         internal static void Apply(int additionalLayers, int transparentGroupLayers,
             Action<string> onGrouped, Action onFallback, Action onMissingRenderers) {
 #if BEAT_SABER_1_45_1 || BEAT_SABER_1_45_3
