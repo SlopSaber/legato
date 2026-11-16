@@ -47,7 +47,7 @@ namespace SongCore.Hooks
 
         private void HandleSingle(Action<LightColorGroupEffect, LightColorBeatmapEventData> original, LightColorGroupEffect effect, LightColorBeatmapEventData current)
         {
-            if (current is V4LightingData.Event)
+            if (current is V4LightingData.Event && NeedsAdvanced(current))
             {
                 if (!_single.TryGetValue(effect, out Single state))
                 {
@@ -92,6 +92,7 @@ namespace SongCore.Hooks
                     state.Events[current.elementId] = current;
                     state.Bpms[current.elementId] = _bpm.currentBpm;
                     state.Dirty = true;
+                    state.Advanced |= NeedsAdvanced(current);
                 }
             }
             original(effect, current);
@@ -99,7 +100,7 @@ namespace SongCore.Hooks
 
         private void FlushBuffered(Action<BufferedLightColorGroupEffect> original, BufferedLightColorGroupEffect effect)
         {
-            if (_buffered.TryGetValue(effect, out Buffered state) && (state.Dirty || state.Animated || state.Boost != effect._useBoostColors))
+            if (_buffered.TryGetValue(effect, out Buffered state) && state.Advanced && (state.Dirty || state.Animated || state.Boost != effect._useBoostColors))
             {
                 float time = _audio.songTime;
                 int count = 0;
@@ -157,6 +158,16 @@ namespace SongCore.Hooks
             return color;
         }
 
+        private static bool NeedsAdvanced(LightColorBeatmapEventData current)
+        {
+            var next = current.nextSameTypeEventData as LightColorBeatmapEventData;
+            var details = (current as V4LightingData.Event)?.Details;
+            var nextDetails = (next as V4LightingData.Event)?.Details;
+            return current.strobeBeatFrequency > 0 || (next?.strobeBeatFrequency ?? 0) > 0
+                || (details?.StrobeBrightness ?? 0) != 0 || details?.StrobeFade == true
+                || (nextDetails != null && nextDetails.Ease != EaseType.None && nextDetails.Ease != EaseType.Linear);
+        }
+
         private sealed class Single
         {
             internal readonly LightColorGroupEffect Effect;
@@ -172,7 +183,7 @@ namespace SongCore.Hooks
             internal readonly LightColorBeatmapEventData?[] Events;
             internal readonly float[] Bpms;
             internal readonly Func<EnvironmentColorType, bool, float, Color> GetColor;
-            internal bool Dirty, Boost, Animated;
+            internal bool Dirty, Boost, Animated, Advanced;
             internal Buffered(BufferedLightColorGroupEffect effect)
             {
                 Events = new LightColorBeatmapEventData?[effect._lightColorBeatmapEventCallbackWrappers.Length];

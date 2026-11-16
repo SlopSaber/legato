@@ -91,7 +91,7 @@ namespace SongCore.Hooks
             foreach (BeatmapDataItem item in data.allBeatmapDataItems)
                 if (item is Event current && (int)current.transitionType == 2)
                 {
-                    var previous = current.prevSameTypeEventData as Event;
+                    var previous = current.previousSameTypeEventData as Event;
                     current.Details = new Metadata(current.Details.Ease, previous?.Details.StrobeBrightness ?? 0, previous?.Details.StrobeFade ?? false);
                 }
         }

@@ -36,7 +36,7 @@ namespace Legato.Beatmaps.Formats
                 ["lightTranslationEventBoxGroups"] = Groups(3),
                 ["basicEventTypesWithKeywords"] = Lightshow["basicEventTypesWithKeywords"]?.DeepClone(),
                 ["useNormalEventsAsCompatibleEvents"] = Lightshow["useNormalEventsAsCompatibleEvents"]?.DeepClone() ?? new JValue(false),
-                ["customData"] = Gameplay["customData"]?.DeepClone() ?? new JObject()
+                ["customData"] = MergeCustomData(Lightshow["customData"], Gameplay["customData"])
             };
             NormalizeNumbers(SaveData);
         }
@@ -67,6 +67,14 @@ namespace Legato.Beatmaps.Formats
                 result.Merge(dataCustom.DeepClone());
             if (item["customData"] is JObject objectCustom)
                 result.Merge(objectCustom.DeepClone(), new JsonMergeSettings { MergeArrayHandling = MergeArrayHandling.Replace });
+            return result;
+        }
+
+        private static JObject MergeCustomData(JToken? first, JToken? second)
+        {
+            JObject result = first is JObject source ? (JObject)source.DeepClone() : new JObject();
+            if (second is JObject extra)
+                result.Merge(extra.DeepClone(), new JsonMergeSettings { MergeArrayHandling = MergeArrayHandling.Union });
             return result;
         }
 
@@ -144,7 +152,7 @@ namespace Legato.Beatmaps.Formats
                         ["f"] = filter.DeepClone(), ["w"] = Number(box, "w"),
                         ["d"] = Number(box, "d", 1), ["t"] = Number(box, "t", 1),
                         ["b"] = Number(box, "b"), ["i"] = Number(box, "e"),
-                        ["customData"] = box["customData"]?.DeepClone() ?? new JObject()
+                        ["customData"] = MergeCustomData(box["customData"], box["referenceCustomData"])
                     };
                     if (projected["f"]!["f"] == null) projected["f"]!["f"] = 1;
                     var events = new JArray();
