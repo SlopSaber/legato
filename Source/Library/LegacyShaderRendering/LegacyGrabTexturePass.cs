@@ -12,11 +12,11 @@ namespace Legato.Rendering
     {
         private static readonly int GrabTexture = Shader.PropertyToID("_GrabTexture");
 
-        private readonly string passName;
+        private readonly string passLabel;
 
         internal LegacyGrabTexturePass(string passName)
         {
-            this.passName = passName;
+            passLabel = passName;
             renderPassEvent = RenderPassEvent.BeforeRenderingTransparents;
             ConfigureInput(ScriptableRenderPassInput.Color);
         }
@@ -30,7 +30,7 @@ namespace Legato.Rendering
                 return;
             }
 
-            using IUnsafeRenderGraphBuilder builder = renderGraph.AddUnsafePass(passName, out PassData _);
+            using IUnsafeRenderGraphBuilder builder = renderGraph.AddUnsafePass(passLabel, out PassData _);
             builder.UseTexture(opaque);
             builder.SetGlobalTextureAfterPass(opaque, GrabTexture);
             builder.AllowPassCulling(false);

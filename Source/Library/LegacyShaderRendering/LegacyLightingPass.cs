@@ -12,7 +12,7 @@ namespace Legato.Rendering
         private static readonly int LightColor = Shader.PropertyToID("_LightColor0");
         private static readonly int LightPosition = Shader.PropertyToID("_WorldSpaceLightPos0");
 
-        private readonly string passName;
+        private readonly string passLabel;
         private readonly bool restoreOnDispose;
         private readonly Vector4 originalColor;
         private readonly Vector4 originalPosition;
@@ -22,7 +22,7 @@ namespace Legato.Rendering
         internal LegacyLightingPass(string passName, bool restoreOnDispose)
 
         {
-            this.passName = passName;
+            passLabel = passName;
             this.restoreOnDispose = restoreOnDispose;
             if (restoreOnDispose)
             {
@@ -39,7 +39,7 @@ namespace Legato.Rendering
             if (disposed) return;
 
             UniversalLightData lightData = frameData.Get<UniversalLightData>();
-            using IRasterRenderGraphBuilder builder = renderGraph.AddRasterRenderPass(passName, out PassData data);
+            using IRasterRenderGraphBuilder builder = renderGraph.AddRasterRenderPass(passLabel, out PassData data);
             data.Color = Vector4.zero;
             data.Position = new Vector4(0, 1, 0, 0);
             int mainLight = lightData.mainLightIndex;
