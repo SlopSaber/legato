@@ -1,7 +1,7 @@
 <Project>
   <Target Name="LegatoChatPlexSources" BeforeTargets="ResolveAssemblyReferences" DependsOnTargets="LegatoConfigure">
     <ItemGroup>
-      <Compile Remove="Compatibility\LatestCompatibility.cs;CP_SDK_BS\Game\LevelData.cs;CP_SDK_BS\Game\Levels.cs;CP_SDK_BS\Game\Logic.cs;CP_SDK_BS\UI\LevelDetail.cs;CP_SDK_BS\UI\Patches\PVRPointer.cs" />
+      <Compile Remove="CP_SDK_BS\Game\LevelSelection.cs;CP_SDK_BS\Game\UserPlatform.cs;CP_SDK_BS\UI\DefaultComponentsOverrides\Subs\SubFloatingPanelMover.cs;CP_SDK_BS\UI\Data\SongListItem.cs;CP_SDK\Network\WebResponse.cs;CP_SDK\UI\Components\CText.cs;CP_SDK\Unity\FontManager.cs;CP_SDK\Misc\ICSharpCode.SharpZipLib\Encryption\ZipAESTransform.cs;Compatibility\LatestCompatibility.cs;CP_SDK_BS\Game\LevelData.cs;CP_SDK_BS\Game\Levels.cs;CP_SDK_BS\Game\Logic.cs;CP_SDK_BS\UI\LevelDetail.cs;CP_SDK_BS\UI\Patches\PVRPointer.cs" />
       <Compile Include="$(LegatoSourceRoot)Providers\ChatPlex\**\*.cs" />
     </ItemGroup>
     <ItemGroup Condition="'$(LegatoTargetProfile)' == '1.29.0'">

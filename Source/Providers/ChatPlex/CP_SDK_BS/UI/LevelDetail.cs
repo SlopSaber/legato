@@ -21,6 +21,9 @@ namespace CP_SDK_BS.UI
     public class LevelDetail
     {
         private static GameObject m_SongDetailViewTemplate = null;
+#if BEAT_SABER_1_29_0
+        private int _legacyDifficultyVersion;
+#endif
 
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////
@@ -41,9 +44,11 @@ namespace CP_SDK_BS.UI
                 var l_Component = m_SongDetailViewTemplate.GetComponent<StandardLevelDetailView>();
                 if (l_Component)
                 {
+#if !BEAT_SABER_1_29_0
                     var l_Loader = new BeatmapLevelLoader(null, new MockBeatmapDataAssetFileModel(), null, null, new BeatmapLevelLoader.InitData(0));
                     var l_Packs = new List<PackDefinitionSO>();
                     l_Component.SetField("_beatmapLevelsModel", new BeatmapLevelsModel(null, l_Loader, null, null, null, l_Packs));
+#endif
                     GameObject.DestroyImmediate(l_Component);
                 }
             }
@@ -393,6 +398,9 @@ namespace CP_SDK_BS.UI
         /// </summary>
         public void Reset()
         {
+#if BEAT_SABER_1_29_0
+            ++_legacyDifficultyVersion;
+#endif
             m_LocalBeatMap = null;
             m_BeatMap = null;
             m_LimitedBeatmapDifficulty = null;
@@ -447,7 +455,7 @@ namespace CP_SDK_BS.UI
             OnCharacteristicChanged(null, 0);
 
             Name            = p_BeatMap.songName;
-            AuthorNameText  = "Mapped by <b><u>" + (p_BeatMap.allMappers.FirstOrDefault() ?? "") + "</b></u>";
+            AuthorNameText  = "Mapped by <b><u>" + (Legato.ChatPlex.NativeAccess.Mappers(p_BeatMap).FirstOrDefault() ?? "") + "</b></u>";
             Cover           = p_Cover ?? Game.Levels.GetDefaultPackCover();
             Time            = p_BeatMap.songDuration;
             BPM             = p_BeatMap.beatsPerMinute;
@@ -494,7 +502,7 @@ namespace CP_SDK_BS.UI
 
             /// Display informations
             Name            = p_BeatMap.songName;
-            AuthorNameText  = "Mapped by <b><u>" + p_BeatMap.allMappers.FirstOrDefault() + "</b></u>";
+            AuthorNameText  = "Mapped by <b><u>" + Legato.ChatPlex.NativeAccess.Mappers(p_BeatMap).FirstOrDefault() + "</b></u>";
             Cover           = p_Cover ?? Game.Levels.GetDefaultPackCover();
             BPM             = p_BeatMap.beatsPerMinute;
 
@@ -782,9 +790,8 @@ namespace CP_SDK_BS.UI
                 List<string> l_Difficulties =
                     m_LimitedBeatmapDifficulty == null
                     ?
-                        m_LocalBeatMap.GetBeatmapKeys()
-                            .Where(x => x.characteristic == SelectedBeatmapCharacteristic)
-                            .Select(x => Game.Levels.BeatmapDifficultySerializedNameToDifficultyName(x.difficulty.SerializedName())).ToList()
+                        Legato.ChatPlex.NativeAccess.Difficulties(m_LocalBeatMap, SelectedBeatmapCharacteristic)
+                            .Select(x => Game.Levels.BeatmapDifficultySerializedNameToDifficultyName(x.SerializedName())).ToList()
                     :
                         new List<string>()
                         {
@@ -825,6 +832,14 @@ namespace CP_SDK_BS.UI
         {
             if (m_LocalBeatMap != null)
             {
+#if BEAT_SABER_1_29_0
+                var choices = Legato.ChatPlex.NativeAccess.Difficulties(m_LocalBeatMap, SelectedBeatmapCharacteristic)
+                    .Where(value => m_LimitedBeatmapDifficulty == null || value == m_LimitedBeatmapDifficulty).ToArray();
+                int request = ++_legacyDifficultyVersion;
+                if (p_Index < 0 || p_Index >= choices.Length) return;
+                SelectedBeatmapDifficulty = choices[p_Index];
+                _ = PublishLegacyDifficulty(m_LocalBeatMap.levelID, SelectedBeatmapCharacteristic, SelectedBeatmapDifficulty, request, true);
+#else
                 var l_Characs = Legato.Beatmaps.BeatmapLevelCharacteristics.GetBeatSaber(m_LocalBeatMap).Distinct();
 
                 if (m_SongCharacteristicSegmentedControl.selectedCellNumber > l_Characs.Count())
@@ -889,6 +904,7 @@ namespace CP_SDK_BS.UI
 
                 if (OnActiveDifficultyChanged != null)
                     OnActiveDifficultyChanged.Invoke(l_BeatmapKey);
+#endif
             }
             else if (m_BeatMap != null)
             {
@@ -925,10 +941,47 @@ namespace CP_SDK_BS.UI
 
                 if (OnActiveDifficultyChanged != null && Game.Levels.TryGetLevelIDFromHash(l_Version.hash, out var l_LevelID))
                 {
+#if BEAT_SABER_1_29_0
+                    _ = PublishLegacyDifficulty(l_LevelID, SelectedBeatmapCharacteristicSO, SelectedBeatmapDifficulty, ++_legacyDifficultyVersion, false);
+#else
                     OnActiveDifficultyChanged.Invoke(Legato.BeatmapKeyFactory.Create(l_LevelID, SelectedBeatmapCharacteristicSO.AsEnum(), SelectedBeatmapDifficulty));
+#endif
                 }
             }
         }
+#if BEAT_SABER_1_29_0
+        private async Task PublishLegacyDifficulty(string id, BeatmapCharacteristicSO characteristic, BeatmapDifficulty difficulty, int request, bool updateStats)
+        {
+            try
+            {
+                var loaded = new TaskCompletionSource<IBeatmapLevel>();
+                await Game.Levels.LoadBeatmapLevelDataByLevelID(id, (level, _) => loaded.TrySetResult(level as IBeatmapLevel));
+                var full = await loaded.Task;
+                if (full == null || request != _legacyDifficultyVersion) return;
+                var key = full.beatmapLevelData.difficultyBeatmapSets
+                    .Where(set => set.beatmapCharacteristic == characteristic)
+                    .SelectMany(set => set.difficultyBeatmaps).FirstOrDefault(value => value.difficulty == difficulty);
+                if (key == null) return;
+                if (updateStats)
+                {
+                    var info = await key.GetBeatmapDataBasicInfoAsync();
+                    if (request != _legacyDifficultyVersion) return;
+                    Time = full.songDuration;
+                    Notes = info.cuttableNotesCount;
+                    NPS = full.songDuration > 0 ? (float)info.cuttableNotesCount / full.songDuration : 0;
+                    NJS = (int)key.noteJumpMovementSpeed;
+                    Offset = key.noteJumpStartBeatOffset;
+                    Obstacles = info.obstaclesCount;
+                    Bombs = info.bombsCount;
+                }
+                if (request == _legacyDifficultyVersion) OnActiveDifficultyChanged?.Invoke(key);
+            }
+            catch (Exception error)
+            {
+                if (request == _legacyDifficultyVersion) CP_SDK.ChatPlexSDK.Logger.Error(error);
+            }
+        }
+#endif
         /// <summary>
         /// Secondary button on click
         /// </summary>

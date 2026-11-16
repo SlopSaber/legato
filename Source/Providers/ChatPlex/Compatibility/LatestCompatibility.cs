@@ -1,3 +1,4 @@
+global using Legato.ChatPlex;
 #if BEAT_SABER_1_45_1 || BEAT_SABER_1_45_3
 global using ScenesTransitionSetupDataSO = ScenesTransitionSetupData;
 global using StandardLevelScenesTransitionSetupDataSO = StandardLevelScenesTransitionSetupData;

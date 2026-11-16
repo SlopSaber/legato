@@ -17,7 +17,8 @@ namespace Legato.Platform {
     internal sealed class UserIdentity {
         internal readonly AuthenticationPlatform Platform;
         internal readonly string UserId;
-        internal UserIdentity(AuthenticationPlatform platform, string userId) { Platform = platform; UserId = userId; }
+        internal readonly string DisplayName;
+        internal UserIdentity(AuthenticationPlatform platform, string userId, string displayName = "") { Platform = platform; UserId = userId; DisplayName = displayName; }
     }
 
     internal sealed class UserCredentials {
@@ -64,13 +65,13 @@ namespace Legato.Platform {
             UserInfo user = await _model.GetUserInfo();
             AuthenticationPlatform platform = user.platform == UserInfo.Platform.Steam ? AuthenticationPlatform.Steam
                 : user.platform == UserInfo.Platform.Oculus ? AuthenticationPlatform.Meta : AuthenticationPlatform.Unknown;
-            return new UserIdentity(platform, user.platformUserId);
+            return new UserIdentity(platform, user.platformUserId, user.userName);
         }
 #else
         private Task<UserIdentity> ReadIdentity() {
             AuthenticationPlatform platform = _model.vendor == Vendor.Valve ? AuthenticationPlatform.Steam
                 : _model.vendor == Vendor.Meta ? AuthenticationPlatform.Meta : AuthenticationPlatform.Unknown;
-            return Task.FromResult(new UserIdentity(platform, _model.user?.userId.ToString() ?? string.Empty));
+            return Task.FromResult(new UserIdentity(platform, _model.user?.userId.ToString() ?? string.Empty, _model.user?.displayName ?? string.Empty));
         }
 #endif
         internal async Task<UserCredentials> GetCredentials() {
