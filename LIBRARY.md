@@ -283,3 +283,5 @@ Hitbloq providers discover the supported BSML/SongCore API names independently o
 `LegatoProfileResource` items select consumer-owned native assets by resolved profile. Set `Profile`, `Replaces` and `LogicalName` metadata; unsupported profiles retain the original resource. This preserves native serialized data without changing headers. Asset provenance and visual verification remain consumer-owned.
 
 `LegatoEnableAppBindings` selects the declared native root-binding method and its actual container. Legacy hooks use MainSystemInit.InstallBindings(DiContainer), avoiding the inherited MonoInstaller no-op reached through AppInit.
+
+`LegatoEnableSpawnData` creates native bombs and obstacles from semantic lane/layer/time/size values. Modern beat and rotation metadata default to zero; consumers retain action geometry and schedule policy.

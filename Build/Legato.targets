@@ -323,6 +323,8 @@
                Condition="'$(LegatoEnableControllerTracking)' == 'true'" />
       <Compile Include="$(LegatoSourceRoot)Library\AppBindings\**\*.cs"
                Condition="'$(LegatoEnableAppBindings)' == 'true'" />
+      <Compile Include="$(LegatoSourceRoot)Library\SpawnData\**\*.cs"
+               Condition="'$(LegatoEnableSpawnData)' == 'true'" />
       <Compile Include="$(LegatoSourceRoot)Library\SettingsTemplates\**\*.cs"
                Condition="'$(LegatoEnableSettingsTemplates)' == 'true'" />
       <Compile Include="$(LegatoSourceRoot)Library\TableSources\**\*.cs"
