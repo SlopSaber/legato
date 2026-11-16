@@ -44,9 +44,12 @@ The same setup can be added by hand:
 | `1.38.0` | `1.38.0-1.39.1` |
 | `1.40.0` | `1.40.0-1.40.8` |
 | `1.42.0` | `1.42.0-1.44.1` |
-| `1.45.1` | `1.45.1` |
+| `1.45.1` | `1.45.1-1.45.2` |
+| `1.45.3` | `1.45.3; 1.46.0` |
 
-The local `0.1.2-local.6` package adds the 1.45.1 profile. `SpriteFactory` binds Unity 6's byte-array image decoder while retaining its synchronous API. Build each mod against its target game assemblies and check remaining API differences before deployment.
+Local revisions through `0.1.2-local.35` include the 1.45.3 and 1.46.0 targets and the optional adapters listed in [LIBRARY.md](LIBRARY.md). The version table is a source-selection catalog; each consumer still needs a successful build against its actual game assemblies. It does not certify every adapter on every listed version.
+
+Legato source is embedded into each plugin. Updating this package alone does not update installed plugins: rebuild and redeploy each consumer. Private fields, Harmony targets, IL patterns, native hooks, dependency APIs and shader bundles can still need changes. Confirm behavior in the game after building.
 
 ## How it works
 
@@ -62,3 +65,11 @@ For a mod such as SongBrowser for example which was written for 1.29.0 and hypot
 2. Update the game references, mod dependencies and manifest
 3. Build the existing source and fix anything Legato doesn't cover
 4. Test the build against the target
+
+## Selecting a small adapter set
+
+For a consumer that needs only named adapters, set `LegatoEnableAutoAdapters` and `LegatoEnablePolyfills` to `false`, then enable the required features. This avoids compiling unrelated compatibility code. Existing consumers can keep automatic reference-based selection.
+
+Set `LegatoReferenceRoot` to the selected game directory and pass `LegatoTargetVersion` explicitly. Keep per-target output paths so a historical build cannot overwrite the selected target. A static manifest can opt into `LegatoManifestFile`; the generated resource changes `gameVersion` while preserving the original manifest. Projects with their own manifest generator should retain that generator.
+
+Optional features include gameplay ownership, environment settings, menu layout/events, beatmap keys/text, native pose prediction, transition discovery, level-list badge bindings, pause-menu layout, BSML settings, Unity API compatibility, camera effects and GPU timing. Each feature requires the game or dependency references used by its source. See the library reference for property names and ownership requirements.
