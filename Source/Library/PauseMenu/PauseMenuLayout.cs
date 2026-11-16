@@ -51,6 +51,14 @@ namespace Legato.Presentation {
         internal static Transform? FindCanvas(PauseMenuManager manager) =>
             manager.transform.Find("Wrapper/MenuWrapper/Canvas");
 
+        internal static Canvas? ParentCanvas(Component? component) {
+            for (Transform? current = component != null ? component.transform : null; current != null; current = current.parent) {
+                Canvas canvas = current.GetComponent<Canvas>();
+                if (canvas != null) return canvas;
+            }
+            return null;
+        }
+
         internal static ImageView? FindBackground(Transform canvas) {
             var background = canvas.Find("MainBar/LevelBarSimple/BG");
             return background != null ? background.GetComponent<ImageView>() : null;
