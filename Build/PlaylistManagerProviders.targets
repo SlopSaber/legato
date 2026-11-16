@@ -1,0 +1,5 @@
+<Project>
+  <ItemGroup Condition="'$(LegatoEnablePlaylistManagerProviders)' == 'true'">
+    <Compile Remove="AffinityPatches\AnnotatedBeatmapLevelCollectionsUIPatches.cs" />
+  </ItemGroup>
+</Project>

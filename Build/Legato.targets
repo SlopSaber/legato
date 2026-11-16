@@ -299,6 +299,10 @@
                Condition="'$(LegatoEnableCurvedText)' == 'true'" />
       <Compile Include="$(LegatoSourceRoot)Library\CameraRendering\**\*.cs"
                Condition="'$(LegatoEnableCameraRendering)' == 'true'" />
+      <Compile Include="$(LegatoSourceRoot)Library\CollectionNavigation\**\*.cs"
+               Condition="'$(LegatoEnableCollectionNavigation)' == 'true'" />
+      <Compile Include="$(LegatoSourceRoot)Providers\PlaylistManager\**\*.cs"
+               Condition="'$(LegatoEnablePlaylistManagerProviders)' == 'true'" />
       <Compile Include="$(LegatoSourceRoot)Library\SettingsTemplates\**\*.cs"
                Condition="'$(LegatoEnableSettingsTemplates)' == 'true'" />
       <Compile Include="$(LegatoSourceRoot)Library\TableSources\**\*.cs"
@@ -567,4 +571,5 @@
   <Import Project="$(MSBuildThisFileDirectory)BetterSongListProviders.targets" Condition="'$(LegatoEnableBetterSongListProviders)' == 'true'" />
   <Import Project="$(MSBuildThisFileDirectory)Tweaks55Providers.targets" Condition="'$(LegatoEnableTweaks55Providers)' == 'true'" />
   <Import Project="$(MSBuildThisFileDirectory)MappingExtensionsProviders.targets" Condition="'$(LegatoEnableMappingExtensionsProviders)' == 'true'" />
+  <Import Project="$(MSBuildThisFileDirectory)PlaylistManagerProviders.targets" />
 </Project>

@@ -1,7 +1,7 @@
 using HMUI;
 
 namespace Legato.UI {
-    internal abstract class TableDataSource : TableView.IDataSource {
+    public abstract class TableDataSource : TableView.IDataSource {
         protected abstract float CellHeight(int index);
         public abstract int NumberOfCells();
         public abstract TableCell CellForIdx(TableView table, int index);

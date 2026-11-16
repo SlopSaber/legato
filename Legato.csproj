@@ -32,6 +32,7 @@
     <None Include="Resources\**\*" Pack="true" PackagePath="build\Resources\%(RecursiveDir)%(Filename)%(Extension)" />
     <None Include="Build\AsyncInterfaces.targets" Pack="true" PackagePath="build\AsyncInterfaces.targets" />
     <None Include="Build\SiraLocalizerProviders.targets" Pack="true" PackagePath="build\SiraLocalizerProviders.targets" />
+    <None Include="Build\PlaylistManagerProviders.targets" Pack="true" PackagePath="build\PlaylistManagerProviders.targets" />
     <None Include="Build\ShaffuruProviders.targets" Pack="true" PackagePath="build\ShaffuruProviders.targets" />
     <None Include="Build\BetterSongListProviders.targets" Pack="true" PackagePath="build\BetterSongListProviders.targets" />
     <None Include="Build\Tweaks55Providers.targets" Pack="true" PackagePath="build\Tweaks55Providers.targets" />

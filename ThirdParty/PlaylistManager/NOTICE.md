@@ -1,0 +1,1 @@
+The collection grid provider includes code from PlaylistManager, licensed under GPL-3.0. Source: https://github.com/rithik-b/PlaylistManager. Baseline c5423d7b7b65d4d613200f88c66c641babef8c32. Native legacy grid support is maintained in this provider.

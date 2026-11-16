@@ -2,6 +2,7 @@
 global using BeatmapLevel = global::IPreviewBeatmapLevel;
 global using BeatmapKey = global::IDifficultyBeatmap;
 global using NativeSongPack = global::IBeatmapLevelPack;
+global using NativeSongCollection = global::IAnnotatedBeatmapLevelCollection;
 global using BeatmapCharacteristic = global::BeatmapCharacteristicSO;
 global using BeatmapCharacteristicCollection = global::BeatmapCharacteristicCollectionSO;
 global using EnvironmentsListModel = global::EnvironmentsListSO;
@@ -10,4 +11,5 @@ global using SpriteAsyncLoader = global::CachedMediaAsyncLoader;
 
 #else
 global using NativeSongPack = global::BeatmapLevelPack;
+global using NativeSongCollection = global::BeatmapLevelPack;
 #endif

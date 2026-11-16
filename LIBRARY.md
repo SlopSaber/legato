@@ -265,3 +265,5 @@ Score effect helpers also construct native normal/chain preview notes with the c
 `LegatoEnableSelectionNavigation` supplies native selected level/key access and disposable difficulty/pack event subscriptions. `LegatoEnableCurvedText` refreshes native text mesh curvature, including zero-radius reset, submeshes and scriptable colors. HMUI and TMP references must be publicized for text mesh access.
 
 `LegatoEnableCameraRendering` supplies native camera render submission, disposable render-context callbacks and replay opaque-texture overrides. Built-in rendering retains native Render/OnRenderImage. Room, depth-settings and wall-property hooks use native profile methods and settings. Camera layout, postprocessing and replay policy remain consumer-owned.
+
+`LegatoEnableCollectionNavigation` exposes native pack collections, selection subscriptions, cell collection data and row-selection methods. `LegatoEnablePlaylistManagerProviders` selects the native collection-grid layout while retaining current-profile horizontal expansion and legacy vertical animation. Folder and playlist policy remain consumer-owned.
