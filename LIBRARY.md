@@ -40,7 +40,7 @@ This lists the small reusable APIs supplied by Legato. Transparent polyfills mir
 
 ## Optional adapters
 
-These APIs compile into the consumer. Enable only the features whose references and native API contracts the consumer supports. Package revisions through `0.1.2-local.35` contain the following additions; a consumer pinned to an earlier revision has only the APIs in that revision.
+These APIs compile into the consumer. Enable only the features whose references and native API contracts the consumer supports. Package revisions through `0.1.2-local.45` contain the following additions; a consumer pinned to an earlier revision has only the APIs in that revision.
 
 | Property | APIs and scope |
 | --- | --- |
@@ -66,3 +66,20 @@ Base polyfills include `BeatmapKeyFactory`, `GameModes` and difficulty-selection
 `LegatoUsesNativeRenderTiming` is a selected-profile capability for native timing build/copy targets. `LegatoManifestFile` selects a static input manifest and generates an isolated target resource before manifest consumers run; do not combine it with a separate manifest generator. These build properties do not establish runtime compatibility.
 
 Avoid broad feature selection solely to increase adoption counts. A mod with no compatibility work can remain version-neutral without adding Legato. A mod-specific native hook, hierarchy, external dependency or IL pattern can still require a future consumer change even after shared adapters are adopted.
+
+## Additional optional adapters
+
+| Property | APIs and behavior |
+| --- | --- |
+| `LegatoEnableObjectDiscovery` | Select `ObjectDiscovery` alone. First/sorted-active and unsorted-active queries retain the consumer's selection policy; they do not replace loaded-asset queries with active-only queries |
+| `LegatoEnableRendererLayers` | `RendererLayerMasks.Apply`; discover URP renderer data and add supplied visibility layers, grouping transparents with a supplied existing layer group. The consumer supplies masks and diagnostics |
+| `LegatoEnableBsmlAudio` | `BsmlUiAudio.Manager`; resolve BSML's UI audio manager |
+| `LegatoEnableBsmlTitle` | `BsmlMenuTitle.Get`; resolve the title view from BSML's current screen system |
+| `LegatoEnableDetailArtwork` | `LevelDetailArtwork`; cached ref accessors for detail view, level bar and artwork image, preserving the consumer's component ownership |
+| `LegatoEnableBeatmapDataCopy` | `BeatmapLevelDataCopy.CopyBasicData`; copy the appropriate native beatmap dictionary for the selected constructor era without changing the consumer's base class or key/value identities |
+
+`BsmlSettingsMenu.Add` and `Remove` accept either the singleton or an explicitly supplied settings owner. Remove the same host that was registered. `PauseMenuLayout.InitializeLevelBar` initializes the native pause level bar only when requested, present and not already populated; it returns the initialized level for optional diagnostics.
+
+Minimal beatmap-key selection also includes `BeatmapKeyFactory`. `CharacteristicName` preserves enum-name strings for wire formats; `CharacteristicSerializedName` uses the native serialized identifier. Rotational characteristic names can differ between these representations, so choose the API matching the existing contract.
+
+For projects with explicit SDK imports, define profile output paths before `Sdk.targets` evaluates framework output paths. Keep existing manifest generators; static-manifest generation is for projects with an actual source JSON manifest. Independently inspect generated sidecars for historical targets as well as embedded manifests.
