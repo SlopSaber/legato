@@ -17,6 +17,22 @@ namespace Legato.Platform {
         private Task<UserIdentity>? _identityTask;
         internal PlatformAuthentication(NativePlatformService model) => _model = model;
         internal bool Available => _model != null;
+        internal async Task<global::UserInfo?> GetGameUserInfo(CancellationToken token) {
+            token.ThrowIfCancellationRequested();
+#if BEAT_SABER_1_29_0
+            var user = await _model.GetUserInfo().ConfigureAwait(true);
+            token.ThrowIfCancellationRequested();
+            return user;
+#else
+            await Task.CompletedTask.ConfigureAwait(true);
+            var user = _model.user;
+            if (user == null || user.userId == 0) return null;
+            var platform = _model.vendor == Vendor.Valve ? global::UserInfo.Platform.Steam
+                : _model.vendor == Vendor.Meta ? global::UserInfo.Platform.Oculus
+                : _model.vendor == Vendor.Sony ? global::UserInfo.Platform.PS5 : global::UserInfo.Platform.Test;
+            return new global::UserInfo(platform, user.userId.ToString(System.Globalization.CultureInfo.InvariantCulture), user.displayName);
+#endif
+        }
         internal UserIdentity? Identity => _identityTask?.Status == TaskStatus.RanToCompletion ? _identityTask.Result : null;
         internal Task<UserIdentity> GetIdentity() {
             if (_identityTask == null || _identityTask.IsFaulted || _identityTask.IsCanceled ||
