@@ -152,7 +152,7 @@ namespace Hitbloq.Other
 				{
 					try
 					{
-                        var sprite = await BSMLCompat.LoadSpriteAsync(imageBytes);
+                        var sprite = await Hitbloq.Utilities.BSMLCompat.LoadSpriteAsync(imageBytes);
 						sprite.texture.wrapMode = TextureWrapMode.Clamp;
 						CachedSprites.TryAdd(key, sprite);
 						taskCompletionSource.TrySetResult(sprite);

@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Reflection;
+using System.Linq;
 using System.Threading.Tasks;
 using BeatSaberMarkupLanguage;
 using BeatSaberMarkupLanguage.Components;
@@ -54,11 +55,17 @@ namespace Hitbloq.Utilities
         internal static BeatSaberMarkupLanguage.MenuButtons.MenuButtons MenuRegistry =>
             (BeatSaberMarkupLanguage.MenuButtons.MenuButtons)GetStaticMemberValue(typeof(BeatSaberMarkupLanguage.MenuButtons.MenuButtons), "Instance", "instance")!;
 
-        private static readonly MethodInfo? LoadSprite = typeof(BeatSaberMarkupLanguage.Utilities).GetMethod("LoadSpriteAsync", BindingFlags.Public | BindingFlags.Static, null, new[] { typeof(byte[]) }, null);
-        private static readonly MethodInfo? LoadSpriteRaw = typeof(BeatSaberMarkupLanguage.Utilities).GetMethod("LoadSpriteRaw", BindingFlags.Public | BindingFlags.Static, null, new[] { typeof(byte[]) }, null);
-        internal static Task<Sprite> LoadSpriteAsync(byte[] bytes) => LoadSprite != null
-            ? (Task<Sprite>)LoadSprite.Invoke(null, new object[] { bytes })!
-            : Task.FromResult((Sprite)LoadSpriteRaw!.Invoke(null, new object[] { bytes })!);
+        private static readonly MethodInfo? LoadSprite = typeof(BeatSaberMarkupLanguage.Utilities).GetMethods(BindingFlags.Public | BindingFlags.Static)
+            .Where(method => method.Name == "LoadSpriteAsync" || method.Name == "LoadSpriteRaw")
+            .Where(method => method.GetParameters().Length > 0 && method.GetParameters()[0].ParameterType == typeof(byte[])
+                && method.GetParameters().Skip(1).All(parameter => parameter.HasDefaultValue))
+            .OrderBy(method => method.Name == "LoadSpriteAsync" ? 0 : 1).FirstOrDefault();
+        internal static Task<Sprite> LoadSpriteAsync(byte[] bytes) {
+            var method = LoadSprite ?? throw new System.MissingMethodException("BSML sprite loader is unavailable.");
+            var arguments = method.GetParameters().Select((parameter, index) => index == 0 ? bytes : parameter.DefaultValue).ToArray();
+            var result = method.Invoke(null, arguments);
+            return result is Task<Sprite> task ? task : Task.FromResult((Sprite)result!);
+        }
 
 		public static Task<Sprite> LoadSpriteFromAssemblyAsync(string resourceName)
 		{
