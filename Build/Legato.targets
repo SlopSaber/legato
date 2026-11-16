@@ -134,6 +134,17 @@
     </ItemGroup>
   </Target>
 
+  <Target Name="LegatoLoaderJsonReference" BeforeTargets="ResolveAssemblyReferences"
+          DependsOnTargets="LegatoConfigure;BSIPA_ResolveLayoutReferences"
+          Condition="'$(LegatoUseLoaderJson)' == 'true'">
+    <ItemGroup>
+      <Reference Update="@(Reference)" Condition="'%(Reference.Identity)' == 'Newtonsoft.Json' AND Exists('$(LegatoReferenceRoot)\IPA\CoreLibraries\Newtonsoft.Json.dll')">
+        <HintPath>$(LegatoReferenceRoot)\IPA\CoreLibraries\Newtonsoft.Json.dll</HintPath>
+        <Private>false</Private>
+      </Reference>
+    </ItemGroup>
+  </Target>
+
   <Target Name="LegatoPrepareManifest" BeforeTargets="BSMT_StartBSIPA;PrepareForBuild"
           DependsOnTargets="LegatoConfigure" Condition="'$(LegatoManifestFile)' != ''">
     <PropertyGroup>
@@ -254,6 +265,8 @@
                Condition="'$(LegatoEnableResults)' == 'true' OR ('$(LegatoEnableAutoAdapters)' != 'false' AND '@(_LegatoIPAReference)' != '' AND '@(_LegatoGameplayCoreReference)' != '')" />
       <Compile Include="$(LegatoSourceRoot)Library\Characteristics\**\*.cs;$(LegatoSourceRoot)Library\LegacyNames\**\*.cs"
                Condition="'$(LegatoEnableLegacyTypeNames)' == 'true'" />
+      <Compile Include="$(LegatoSourceRoot)Library\ScreenDisplacement\**\*.cs"
+               Condition="'$(LegatoEnableScreenDisplacement)' == 'true'" />
       <Compile Include="$(LegatoSourceRoot)Library\Unity\**\*.cs"
                Condition="'$(LegatoEnableUnityCompatibility)' == 'true'" />
       <Compile Include="$(LegatoSourceRoot)Library\LocalizationSupport\NativeAliases.cs"
