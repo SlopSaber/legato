@@ -254,6 +254,8 @@
                Condition="'$(LegatoEnableBeatmapDataCopy)' == 'true'" />
       <Compile Include="$(LegatoSourceRoot)Library\BsmlTitle\**\*.cs"
                Condition="'$(LegatoEnableBsmlTitle)' == 'true'" />
+      <Compile Include="$(LegatoSourceRoot)Polyfills\GlobalNamespace\BeatmapKey\BeatmapKeyFactory.cs"
+               Condition="'$(LegatoEnableBeatmapKeys)' == 'true' AND '$(LegatoEnablePolyfills)' == 'false'" />
       <Compile Include="$(LegatoSourceRoot)Library\BeatmapText\**\*.cs"
                Condition="'$(LegatoEnableBeatmapText)' == 'true'" />
       <Compile Include="$(LegatoSourceRoot)Library\Gameplay\OverrideEnvironmentSettingsFactory.cs"
