@@ -1,0 +1,9 @@
+{
+  "repository": "https://github.com/SlopSaber/BetterPause",
+  "sourceHead": "f815a87",
+  "license": "MIT",
+  "files": [
+    "Source/Providers/BetterPause/SetDataPatch.cs"
+  ],
+  "note": "Native affinity hook declarations extracted; styling policy remains in the consumer."
+}
