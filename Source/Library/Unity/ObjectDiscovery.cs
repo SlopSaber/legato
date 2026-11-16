@@ -8,6 +8,14 @@ using UnityEngine;
 
 namespace Legato.Unity {
     internal static class ObjectDiscovery {
+        internal static T? FindInParentsIncludingInactive<T>(Component component) where T : Component {
+            for (Transform? current = component != null ? component.transform : null; current != null; current = current.parent) {
+                T candidate = current.GetComponent<T>();
+                if (candidate != null) return candidate;
+            }
+            return null;
+        }
+
         internal static UnityEngine.Object FindFirstActive(Type type) {
 #if BEAT_SABER_1_45_1 || BEAT_SABER_1_45_3
             return UnityEngine.Object.FindFirstObjectByType(type);
