@@ -30,6 +30,7 @@
     <None Include="Build\Legato.Versions.props" Pack="true" PackagePath="build\Legato.Versions.props" />
     <None Include="Build\BsUtilsHost.targets" Pack="true" PackagePath="build\BsUtilsHost.targets" />
     <None Include="Resources\**\*" Pack="true" PackagePath="build\Resources\%(RecursiveDir)%(Filename)%(Extension)" />
+    <None Include="Build\AsyncInterfaces.targets" Pack="true" PackagePath="build\AsyncInterfaces.targets" />
     <None Include="Build\SiraLocalizerProviders.targets" Pack="true" PackagePath="build\SiraLocalizerProviders.targets" />
     <None Include="Build\ShaffuruProviders.targets" Pack="true" PackagePath="build\ShaffuruProviders.targets" />
     <None Include="Build\BetterSongListProviders.targets" Pack="true" PackagePath="build\BetterSongListProviders.targets" />

@@ -16,6 +16,7 @@
     <DefineConstants>$(DefineConstants);LEGATO_BSML_ALIASED</DefineConstants>
   </PropertyGroup>
 
+  <Import Project="$(MSBuildThisFileDirectory)AsyncInterfaces.targets" />
   <Import Project="$(MSBuildThisFileDirectory)ShaffuruProviders.targets" />
   <Import Project="$(MSBuildThisFileDirectory)SiraLocalizerProviders.targets" />
   <Target Name="LegatoConfigure" BeforeTargets="PrepareForBuild">

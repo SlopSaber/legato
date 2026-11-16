@@ -17,14 +17,20 @@ namespace Legato.Assets {
             internal readonly List<Object> Items = new();
             internal void Release() { foreach (var item in Items) if (item != null) Object.Destroy(item); }
         }
-        private sealed class FloatProperty { public string Name; public float Value; }
-        private sealed class ColorProperty { public string Name; public float R, G, B, A; }
+        private sealed class FloatProperty { public string Name { get; set; } public float Value { get; set; } }
+        private sealed class ColorProperty { public string Name { get; set; } public float R { get; set; } public float G { get; set; } public float B { get; set; } public float A { get; set; } }
         private sealed class Data {
-            public string Name, JsonData, SourceBundle;
-            public string[] Textures;
-            public int PointSize, Padding, AtlasWidth, AtlasHeight, RenderMode;
-            public FloatProperty[] Floats;
-            public ColorProperty[] Colors;
+            public string Name { get; set; }
+            public string JsonData { get; set; }
+            public string SourceBundle { get; set; }
+            public string[] Textures { get; set; }
+            public int PointSize { get; set; }
+            public int Padding { get; set; }
+            public int AtlasWidth { get; set; }
+            public int AtlasHeight { get; set; }
+            public int RenderMode { get; set; }
+            public FloatProperty[] Floats { get; set; }
+            public ColorProperty[] Colors { get; set; }
         }
         internal static TMP_FontAsset Load(Assembly assembly, string prefix, string name, Material nativeMaterial) {
             using var metadata = new StreamReader(Open(assembly, prefix + name + ".json"));
