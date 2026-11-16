@@ -240,6 +240,8 @@
                Condition="'$(LegatoEnableLevelListBadges)' == 'true'" />
       <Compile Include="$(LegatoSourceRoot)Library\PauseMenu\**\*.cs"
                Condition="'$(LegatoEnablePauseMenu)' == 'true'" />
+      <Compile Include="$(LegatoSourceRoot)Library\BsmlSettings\**\*.cs"
+               Condition="'$(LegatoEnableBsmlSettings)' == 'true'" />
       <Compile Include="$(LegatoSourceRoot)Library\BeatmapText\**\*.cs"
                Condition="'$(LegatoEnableBeatmapText)' == 'true'" />
       <Compile Include="$(LegatoSourceRoot)Library\Gameplay\OverrideEnvironmentSettingsFactory.cs"
