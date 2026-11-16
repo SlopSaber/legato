@@ -14,10 +14,10 @@ namespace Legato.Compatibility {
 
         private static BeatmapCharacteristicSO? Resolve(BeatmapCharacteristic characteristic) {
             if (_assets.TryGetValue(characteristic, out BeatmapCharacteristicSO cached) && cached != null) return cached;
-            if (_collection == null) _collection = Resources.FindObjectsOfTypeAll<BeatmapCharacteristicCollectionSO>().FirstOrDefault();
+            if (_collection == null) _collection = UnityEngine.Resources.FindObjectsOfTypeAll<BeatmapCharacteristicCollectionSO>().FirstOrDefault();
             BeatmapCharacteristicSO? asset = _collection?.allBeatmapCharacteristics?
                 .FirstOrDefault(candidate => BeatmapCharacteristicExtensions.AsEnum(candidate) == characteristic)
-                ?? Resources.FindObjectsOfTypeAll<BeatmapCharacteristicSO>()
+                ?? UnityEngine.Resources.FindObjectsOfTypeAll<BeatmapCharacteristicSO>()
                     .FirstOrDefault(candidate => BeatmapCharacteristicExtensions.AsEnum(candidate) == characteristic);
             if (asset != null) _assets[characteristic] = asset;
             return asset;

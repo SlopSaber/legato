@@ -15,7 +15,7 @@ namespace Legato.Unity {
 
         internal static MenuTransitionsHelper? FindActiveMenuTransitions() {
 #if BEAT_SABER_1_45_1 || BEAT_SABER_1_45_3
-            foreach (MainFlowCoordinator coordinator in Resources.FindObjectsOfTypeAll<MainFlowCoordinator>()) {
+            foreach (MainFlowCoordinator coordinator in UnityEngine.Resources.FindObjectsOfTypeAll<MainFlowCoordinator>()) {
                 if (coordinator == null || !coordinator.gameObject.activeInHierarchy) continue;
                 var helper = (MenuTransitionsHelper?)MenuTransitionsField.GetValue(coordinator);
                 if (helper != null) return helper;
