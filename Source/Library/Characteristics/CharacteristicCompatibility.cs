@@ -59,23 +59,52 @@ namespace Legato.Compatibility {
         }
 
         internal static BeatmapCharacteristicSO? GetAsset(NativeBeatmapKey key) {
+#if BEAT_SABER_1_29_0
+            return key.parentDifficultyBeatmapSet.beatmapCharacteristic;
+#else
 #if BEAT_SABER_1_45_1 || BEAT_SABER_1_45_3
             return Resolve(key.characteristic);
 #else
             return key.beatmapCharacteristic;
 #endif
+#endif
         }
 
-        internal static object GetNativeValue(NativeBeatmapKey key) {
+        internal static object GetNativeValue(object value) {
+#if BEAT_SABER_1_29_0
+            return value is NativeBeatmapKey difficultyBeatmap
+                ? difficultyBeatmap.parentDifficultyBeatmapSet.beatmapCharacteristic
+                : ((LegacyBeatmapKey)value).beatmapCharacteristic;
+#else
+            var key = (NativeBeatmapKey)value;
 #if BEAT_SABER_1_45_1 || BEAT_SABER_1_45_3
             return key.characteristic;
 #else
             return key.beatmapCharacteristic;
 #endif
+#endif
         }
 
-        internal static NativeBeatmapKey CreateKey(string levelId, BeatmapCharacteristicSO asset, BeatmapDifficulty difficulty) {
-#if BEAT_SABER_1_45_3
+        internal static string KeyLevelId(object value) {
+#if BEAT_SABER_1_29_0
+            return value is NativeBeatmapKey difficultyBeatmap ? difficultyBeatmap.level.levelID : ((LegacyBeatmapKey)value).levelId;
+#else
+            return ((NativeBeatmapKey)value).levelId;
+#endif
+        }
+
+        internal static BeatmapDifficulty KeyDifficulty(object value) {
+#if BEAT_SABER_1_29_0
+            return value is NativeBeatmapKey difficultyBeatmap ? difficultyBeatmap.difficulty : ((LegacyBeatmapKey)value).difficulty;
+#else
+            return ((NativeBeatmapKey)value).difficulty;
+#endif
+        }
+
+        internal static object CreateKey(string levelId, BeatmapCharacteristicSO asset, BeatmapDifficulty difficulty) {
+#if BEAT_SABER_1_29_0
+            return new LegacyBeatmapKey(levelId, asset, difficulty);
+#elif BEAT_SABER_1_45_3
             return new NativeBeatmapKey(levelId, GameplayType.BeatSaber, FromAsset(asset), difficulty);
 #else
             return new NativeBeatmapKey(levelId, FromAsset(asset), difficulty);

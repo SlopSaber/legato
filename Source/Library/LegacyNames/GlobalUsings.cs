@@ -17,7 +17,7 @@ global using NativeHapticFeedbackManager = global::HapticFeedbackManager;
 #endif
 
 #if BEAT_SABER_1_29_0
-global using NativeBeatmapKey = Legato.Compatibility.LegacyBeatmapKey;
+global using NativeBeatmapKey = global::IDifficultyBeatmap;
 #else
 global using NativeBeatmapKey = global::BeatmapKey;
 #endif
