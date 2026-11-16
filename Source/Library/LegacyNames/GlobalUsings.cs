@@ -6,8 +6,18 @@ global using MissionLevelScenesTransitionSetupDataSO = MissionLevelScenesTransit
 global using MultiplayerLevelScenesTransitionSetupDataSO = MultiplayerLevelScenesTransitionSetupData;
 global using NativeBeatmapCharacteristic = global::BeatmapCharacteristic;
 global using NativeHapticFeedbackManager = BeatSaber.Haptics.HapticFeedbackManager;
+#elif BEAT_SABER_1_29_0
+global using HapticPresetSO = Libraries.HM.HMLib.VR.HapticPresetSO;
+global using NativeBeatmapCharacteristic = global::BeatmapCharacteristicSO;
+global using NativeHapticFeedbackManager = global::HapticFeedbackController;
 #else
 global using HapticPresetSO = Libraries.HM.HMLib.VR.HapticPresetSO;
 global using NativeBeatmapCharacteristic = global::BeatmapCharacteristicSO;
 global using NativeHapticFeedbackManager = global::HapticFeedbackManager;
+#endif
+
+#if BEAT_SABER_1_29_0
+global using NativeBeatmapKey = Legato.Compatibility.LegacyBeatmapKey;
+#else
+global using NativeBeatmapKey = global::BeatmapKey;
 #endif

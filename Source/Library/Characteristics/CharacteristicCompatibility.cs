@@ -24,6 +24,13 @@ namespace Legato.Compatibility {
         }
 #endif
 
+        internal static string KeyCharacteristicMember =>
+#if BEAT_SABER_1_45_1 || BEAT_SABER_1_45_3
+            "characteristic";
+#else
+            "beatmapCharacteristic";
+#endif
+
         internal static bool TryResolveEnum(object? value, out BeatmapCharacteristicSO? asset) {
 #if BEAT_SABER_1_45_1 || BEAT_SABER_1_45_3
             if (value is BeatmapCharacteristic characteristic) {
@@ -51,7 +58,7 @@ namespace Legato.Compatibility {
 #endif
         }
 
-        internal static BeatmapCharacteristicSO? GetAsset(global::BeatmapKey key) {
+        internal static BeatmapCharacteristicSO? GetAsset(NativeBeatmapKey key) {
 #if BEAT_SABER_1_45_1 || BEAT_SABER_1_45_3
             return Resolve(key.characteristic);
 #else
@@ -59,7 +66,7 @@ namespace Legato.Compatibility {
 #endif
         }
 
-        internal static object GetNativeValue(global::BeatmapKey key) {
+        internal static object GetNativeValue(NativeBeatmapKey key) {
 #if BEAT_SABER_1_45_1 || BEAT_SABER_1_45_3
             return key.characteristic;
 #else
@@ -67,11 +74,11 @@ namespace Legato.Compatibility {
 #endif
         }
 
-        internal static global::BeatmapKey CreateKey(string levelId, BeatmapCharacteristicSO asset, BeatmapDifficulty difficulty) {
+        internal static NativeBeatmapKey CreateKey(string levelId, BeatmapCharacteristicSO asset, BeatmapDifficulty difficulty) {
 #if BEAT_SABER_1_45_3
-            return new global::BeatmapKey(levelId, GameplayType.BeatSaber, FromAsset(asset), difficulty);
+            return new NativeBeatmapKey(levelId, GameplayType.BeatSaber, FromAsset(asset), difficulty);
 #else
-            return new global::BeatmapKey(levelId, FromAsset(asset), difficulty);
+            return new NativeBeatmapKey(levelId, FromAsset(asset), difficulty);
 #endif
         }
     }
