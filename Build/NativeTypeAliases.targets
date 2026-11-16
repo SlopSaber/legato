@@ -2,6 +2,10 @@
   <Target Name="LegatoLegacyTypeReferences" BeforeTargets="ResolveAssemblyReferences" DependsOnTargets="LegatoConfigure">
     <ItemGroup Condition="'$(LegatoTargetProfile)' == '1.29.0'">
       <Reference Remove="BeatSaber.Haptics;AdditionalContentModel.Interfaces;DataModels;BGLib.AppFlow;BeatSaber.Init;BeatSaber.ViewSystem;GameInit;Menu.ColorSettings;Menu.CommonLib;BGLib.UnityExtension;Unity.RenderPipelines.Core.Runtime;Unity.RenderPipelines.Universal.Runtime;Unity.XR.Management;Unity.XR.OpenXR" />
+      <Reference Remove="@(Reference)" Condition="$([System.Text.RegularExpressions.Regex]::IsMatch('%(Reference.Identity)', '^(?:BeatSaber\.ViewSystem|GameInit|BGLib\.AppFlow)(?:,|$)'))" />
+    </ItemGroup>
+    <ItemGroup Condition="'$(LegatoEnableBSML)' == 'true' AND Exists('$(LegatoReferenceRoot)\Beat Saber_Data\Managed\UnityEngine.ImageConversionModule.dll') AND '@(Reference->WithMetadataValue('Identity', 'UnityEngine.ImageConversionModule'))' == ''">
+      <Reference Include="UnityEngine.ImageConversionModule" HintPath="$(LegatoReferenceRoot)\Beat Saber_Data\Managed\UnityEngine.ImageConversionModule.dll" Private="false" />
     </ItemGroup>
   </Target>
 </Project>
