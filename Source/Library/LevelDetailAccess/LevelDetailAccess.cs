@@ -1,3 +1,4 @@
+#nullable enable
 using System;
 using System.Reflection;
 using System.Runtime.CompilerServices;
@@ -17,7 +18,7 @@ namespace Legato.UI {
 #else
             AccessTools.DeclaredMethod(typeof(StandardLevelDetailView), "CheckIfBeatmapLevelDataExists");
 #endif
-        internal static StandardLevelDetailView CompletedView(object instance) =>
+        internal static StandardLevelDetailView? CompletedView(object instance) =>
 #if BEAT_SABER_1_29_0
             (int)State.GetValue(instance) == -2 ? (StandardLevelDetailView)Owner.GetValue(instance) : null;
 #else

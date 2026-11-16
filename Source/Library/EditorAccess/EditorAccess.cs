@@ -6,7 +6,7 @@ namespace Legato.Editor {
 #if BEAT_SABER_1_29_0
             command._signal.sample / (float)command._beatmapDataModel.audioClip.frequency;
 #else
-            AudioTimeHelper.SamplesToSeconds(command._signal.sample, command._audioDataModel.audioClip.frequency);
+            command._signal.sample / (float)command._audioDataModel.audioClip.frequency;
 #endif
     }
 }

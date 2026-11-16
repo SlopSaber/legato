@@ -1,3 +1,4 @@
+#nullable enable
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -17,7 +18,7 @@ namespace Legato.Beatmaps {
 #else
             model.ostAndExtrasBeatmapLevelsRepository.beatmapLevelPacks.Concat(model.dlcBeatmapLevelsRepository.beatmapLevelPacks).SelectMany(pack => pack._beatmapLevels);
 #endif
-        internal static Task<AudioClip> CachedAudio(BeatmapLevelsModel model, AudioClipAsyncLoader loader, string levelId) {
+        internal static Task<AudioClip>? CachedAudio(BeatmapLevelsModel model, AudioClipAsyncLoader loader, string levelId) {
 #if BEAT_SABER_1_29_0
             var level = model.GetBeatmapLevelIfLoaded(levelId);
             return level == null ? null : loader.LoadSong(level);

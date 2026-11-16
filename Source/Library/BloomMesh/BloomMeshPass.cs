@@ -1,3 +1,4 @@
+#nullable enable
 using UnityEngine;
 using UnityEngine.Rendering;
 
@@ -5,7 +6,7 @@ namespace Legato.Rendering {
     public abstract class BloomMeshPass : BloomPrePassNonLightPass {
         protected abstract bool TryGetDraw(Matrix4x4 view, out Mesh mesh, out Matrix4x4 model, out Material material, out MaterialPropertyBlock properties);
 #if BEAT_SABER_1_29_0
-        private CommandBuffer _commands;
+        private CommandBuffer? _commands;
         public override void Render(RenderTexture destination, Matrix4x4 view, Matrix4x4 projection) {
             if (!TryGetDraw(view, out var mesh, out var model, out var material, out var properties)) return;
             if (_commands == null) _commands = new CommandBuffer { name = "Bloom mesh" };
