@@ -227,3 +227,5 @@ Beatmap-key helpers expose native characteristic sorting order. Counter gameplay
 Environment access also exposes native scene names and list order. `LegatoEnableEnvironmentSceneLoading` loads built-in legacy scenes or current addressable scenes and releases owned addressable handles on unload. Call on the Unity main thread, supply a live coroutine host, and retain unload ownership in the consumer. Legacy duplicate scenes are distinguished by their handles.
 
 `LegatoEnableSceneNames` supplies the ordered native scene names from a level transition setup, selecting legacy scene descriptors or current names. Enable native type aliases. Consumers retain scene loading and unload ownership.
+
+`LegatoEnableBetterSongListProviders` selects native browser search, selection, menu restoration, table callbacks and played-map records while retaining maintained processing/cancellation code. Enable native type/beatmap aliases, beatmap keys, object discovery and custom-level folder access. Original files and settings stay consumer-owned; licensing and source provenance are packaged separately.

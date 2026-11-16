@@ -1,0 +1,89 @@
+using BetterSongList.UI;
+using BetterSongList.Util;
+using HarmonyLib;
+using System;
+using static SelectLevelCategoryViewController;
+
+namespace BetterSongList.HarmonyPatches {
+	[HarmonyPatch(typeof(LevelFilteringNavigationController), nameof(LevelFilteringNavigationController.ShowPacksInSecondChildController))]
+	static class PackPreselect {
+		public static NativeSongPack restoredPack = null;
+
+		public static void LoadPackFromCollectionName() {
+			if(restoredPack?.shortPackName == Config.Instance.LastPack)
+				return;
+
+			if(Config.Instance.LastPack == null) {
+				restoredPack = null;
+				return;
+			}
+
+			restoredPack = PlaylistsUtil.GetPack(Config.Instance.LastPack);
+		}
+
+		[HarmonyPriority(int.MinValue)]
+		static void Prefix(LevelFilteringNavigationController __instance) {
+			if(__instance._levelPackIdToBeSelectedAfterPresent != null)
+				return;
+
+			LoadPackFromCollectionName();
+			__instance._levelPackIdToBeSelectedAfterPresent = restoredPack?.packID;
+		}
+	}
+
+	// Animation might get stuck when switching category if it hasn't finished.
+	#if BEAT_SABER_1_29_0
+    [HarmonyPatch(typeof(LevelFilteringNavigationController), "SelectLevelCategoryViewControllerDidSelectLevelCategory")]
+#else
+    [HarmonyPatch(typeof(LevelFilteringNavigationController), nameof(LevelFilteringNavigationController.HandleSelectLevelCategoryViewControllerDidSelectLevelCategory))]
+#endif
+	static class PackPreselectAnimationFix {
+		static void Postfix(LevelFilteringNavigationController __instance) {
+			__instance._annotatedBeatmapLevelCollectionsViewController._annotatedBeatmapLevelCollectionsGridView._animator.DespawnAllActiveTweens();
+		}
+	}
+
+#if !BEAT_SABER_1_29_0
+	// For some reason the collection is trying to be closed when it hasn't been opened yet.
+	[HarmonyPatch(typeof(AnnotatedBeatmapLevelCollectionsGridView), nameof(AnnotatedBeatmapLevelCollectionsGridView.CloseLevelCollection))]
+	static class CloseLevelCollectionFix {
+		static bool Prefix(AnnotatedBeatmapLevelCollectionsGridView __instance) => __instance._gridView.columnCount != 0;
+	}
+
+#endif
+
+	[HarmonyPatch(typeof(LevelSelectionFlowCoordinator), nameof(LevelSelectionFlowCoordinator.DidActivate))]
+	static class LevelSelectionFlowCoordinator_DidActivate {
+		static void Prefix(LevelSelectionFlowCoordinator __instance, bool addedToHierarchy, bool firstActivation) {
+			if(!addedToHierarchy)
+				return;
+
+			if(firstActivation)
+				FilterUI.Init();
+
+			if(__instance._startState != null) {
+#if DEBUG
+				Plugin.Log.Debug("Not restoring last state because we are starting off from somewhere!");
+#endif
+				FilterUI.SetFilter(null, false, false);
+				return;
+			}
+
+			if(!Enum.TryParse(Config.Instance.LastCategory, out LevelCategory restoreCategory))
+				restoreCategory = LevelCategory.None;
+
+            var lastSelectedLevel = Config.Instance.LastSong == null ? null :
+                Legato.SongBrowser.BrowserLevels.Find(__instance.levelSelectionNavigationController._levelFilteringNavigationController._beatmapLevelsModel, Config.Instance.LastSong);
+
+			PackPreselect.LoadPackFromCollectionName();
+
+			var pack = PackPreselect.restoredPack;
+
+			if(restoreCategory == LevelCategory.All || restoreCategory == LevelCategory.Favorites || 
+				(pack == null && restoreCategory == LevelCategory.CustomSongs))
+				pack = SongCore.Loader.CustomLevelsPack;
+
+			__instance._startState = Legato.SongBrowser.BrowserLevels.State(restoreCategory, pack, lastSelectedLevel);
+		}
+	}
+}

@@ -1,0 +1,9 @@
+<Project>
+  <Target Name="LegatoBetterSongListSources" BeforeTargets="ResolveAssemblyReferences" DependsOnTargets="LegatoConfigure">
+    <ItemGroup>
+      <Compile Remove="HarmonyPatches\ImproveBasegameSearch.cs;HarmonyPatches\PresetFilter.cs;HarmonyPatches\HookSelectedInTable.cs;HarmonyPatches\RestoreLevelSelection.cs;HarmonyPatches\HookFilterClear.cs;HarmonyPatches\HookLevelCollectionTableSet.cs;HarmonyPatches\HookSelectedCollection.cs;Util\LocalScoresUtil.cs" />
+      <Compile Include="$(LegatoSourceRoot)Providers\BetterSongList\**\*.cs" />
+      <Compile Include="$(LegatoSourceRoot)Library\SongBrowser\**\*.cs" />
+    </ItemGroup>
+  </Target>
+</Project>

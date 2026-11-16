@@ -1,0 +1,3 @@
+# BetterSongList native providers
+
+These sources derive from the MIT-licensed maintained BetterSongList source at signed commit 3d66b8c. Original native-boundary files remain in the consumer and are excluded when the provider is selected. Current cancellation, stale publication, semaphore ownership, sorting/filtering caches, playlist identities and menu restoration are preserved. Legacy search uses the native preview and culture-aware phrase comparison with mapper metadata. Native collection and score-record shapes are selected centrally. Build and metadata evidence do not establish runtime compatibility.
