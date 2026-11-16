@@ -20,7 +20,6 @@ namespace Legato.Rendering
         private bool disposed;
 
         internal LegacyLightingPass(string passName, bool restoreOnDispose)
-
         {
             passLabel = passName;
             this.restoreOnDispose = restoreOnDispose;
@@ -30,13 +29,17 @@ namespace Legato.Rendering
                 originalPosition = Shader.GetGlobalVector(LightPosition);
                 originalDirectional = Shader.IsKeywordEnabled("DIRECTIONAL");
             }
+
             // Mirrors can render at BeforeRendering, before the ordinary opaque pass.
             renderPassEvent = RenderPassEvent.BeforeRendering;
         }
 
         public override void RecordRenderGraph(RenderGraph renderGraph, ContextContainer frameData)
         {
-            if (disposed) return;
+            if (disposed)
+            {
+                return;
+            }
 
             UniversalLightData lightData = frameData.Get<UniversalLightData>();
             using IRasterRenderGraphBuilder builder = renderGraph.AddRasterRenderPass(passLabel, out PassData data);
@@ -66,13 +69,27 @@ namespace Legato.Rendering
 
         public void Dispose()
         {
-            if (disposed) return;
+            if (disposed)
+            {
+                return;
+            }
+
             disposed = true;
-            if (!restoreOnDispose) return;
+            if (!restoreOnDispose)
+            {
+                return;
+            }
+
             Shader.SetGlobalVector(LightColor, originalColor);
             Shader.SetGlobalVector(LightPosition, originalPosition);
-            if (originalDirectional) Shader.EnableKeyword("DIRECTIONAL");
-            else Shader.DisableKeyword("DIRECTIONAL");
+            if (originalDirectional)
+            {
+                Shader.EnableKeyword("DIRECTIONAL");
+            }
+            else
+            {
+                Shader.DisableKeyword("DIRECTIONAL");
+            }
         }
 
         private sealed class PassData
