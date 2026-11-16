@@ -4,6 +4,24 @@ using IPA.Utilities;
 
 namespace Legato.Gameplay {
     internal static class CompletionResultsAdapter {
+#if BEAT_SABER_1_45_3
+        private static readonly FieldAccessor<LevelCompletionResultsBase, LevelScore>.Accessor ScoreAccessor =
+            FieldAccessor<LevelCompletionResultsBase, LevelScore>.GetAccessor("score");
+#else
+        private static readonly FieldAccessor<LevelCompletionResults, int>.Accessor MultipliedScoreAccessor =
+            FieldAccessor<LevelCompletionResults, int>.GetAccessor("multipliedScore");
+#endif
+
+        internal static void NegateMultipliedScore(ref LevelCompletionResults results) {
+#if BEAT_SABER_1_45_3
+            LevelCompletionResultsBase baseResults = results;
+            var score = baseResults.score;
+            ScoreAccessor(ref baseResults) = new LevelScore(-score.multiplied, score.modified, score.maxMultiplied, score.maxModified);
+#else
+            MultipliedScoreAccessor(ref results) = -results.multipliedScore;
+#endif
+        }
+
         internal static int GetModifiedScore(LevelCompletionResults results) {
 #if BEAT_SABER_1_45_3
             return results.score.modified;
