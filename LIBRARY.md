@@ -180,3 +180,12 @@ Older installations use available native environments. The 1.29.1 engine has no 
 - `LegatoEnableEnvironmentFilters` adapts the native transformation arguments for legacy presets and current player settings. `LegatoEnableHitsoundLifecycle` selects effect-update and actual sound-spawn methods; native state aliases come from `LegatoEnableSongAudio`.
 
 These adapters embed into consumers. Preserve consumed package versions, rebuild for each selected game profile and confirm runtime behavior separately from compilation.
+
+### Native statistics and result selection
+
+- `LegatoEnableLevelStatistics` supplies read-only player statistics lookup, disposable difficulty subscriptions, and `BeatmapScoringDataLoader`. Use native beatmap aliases and beatmap-key helpers. Legacy lookups do not create player records; legacy data loading uses the actual difficulty so custom JSON and v4 hooks remain active. Native services are constructor-injected only on profiles that need them.
+- `LegatoEnableStatisticsViews` supplies the Sira `LevelStatsObserver` base and multiplayer result selection. Enable level statistics alongside it. The observer keeps the native legacy two-argument and current one-argument statistics hooks; consumers implement `OnStatsChanged`. Multiplayer selection resolves the actual legacy difficulty from the native full-level model, with request cancellation.
+- Beatmap-key helpers expose `LevelId` and `IsValidKey` across native key shapes. `LegatoEnableNativeTypeAliases` also maps legacy player models and the BGNet assembly reference.
+- `LegatoEnableMenuAudio` supplies native default-clip access and result-menu destination handling where the native API exists. `LegatoEnablePlatformAuthentication` also exposes cached native credentials and cancellable identity waits. Cancellation stops a wait without cancelling the shared identity query. `LegatoEnableLevelDetailArtwork` supplies native cover loading.
+
+These modules preserve consumer-owned caches, history formats and request publication rules. Build receipts and native hook metadata do not establish runtime or visual compatibility.
