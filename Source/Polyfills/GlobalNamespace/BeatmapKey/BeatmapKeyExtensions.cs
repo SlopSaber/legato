@@ -48,6 +48,15 @@ namespace Legato {
 #endif
         }
 
+        internal static int CharacteristicSortingOrder(this BeatmapKey key) =>
+#if BEAT_SABER_1_29_0 && LEGATO_NATIVE_BEATMAP_KEYS
+            key.parentDifficultyBeatmapSet.beatmapCharacteristic.sortingOrder;
+#elif BEAT_SABER_1_29_0 || BEAT_SABER_1_37_1 || BEAT_SABER_1_38_0 || BEAT_SABER_1_40_0 || BEAT_SABER_1_42_0
+            key.beatmapCharacteristic.sortingOrder;
+#else
+            key.characteristic.SortingOrder();
+#endif
+
         internal static string CharacteristicName(this BeatmapKey beatmapKey) {
 #if BEAT_SABER_1_29_0 && LEGATO_NATIVE_BEATMAP_KEYS
             return beatmapKey?.parentDifficultyBeatmapSet?.beatmapCharacteristic?.serializedName ?? string.Empty;

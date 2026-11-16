@@ -18,6 +18,13 @@ namespace Legato.Gameplay {
 #else
             data.beatmapLevel;
 #endif
+        internal static float NoteJumpBeatOffset(GameplayCoreSceneSetupData data) =>
+#if BEAT_SABER_1_29_0
+            data.difficultyBeatmap.noteJumpStartBeatOffset;
+#else
+            data.beatmapBasicData.noteJumpStartBeatOffset;
+#endif
+
         internal static PlayerLevelStatsData Stats(PlayerData player, BeatmapKey key) =>
 #if BEAT_SABER_1_29_0
             player.GetPlayerLevelStatsData(key);
