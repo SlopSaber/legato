@@ -36,9 +36,22 @@ namespace Legato.Beatmaps {
 
     public abstract class LevelPackProxy :
 #if BEAT_SABER_1_29_0
-        CustomBeatmapLevelPack {
-        protected LevelPackProxy(string id, string title, Sprite cover, Sprite smallCover, BeatmapLevel[] levels)
-            : base(id, title, title, cover, smallCover, new CustomBeatmapLevelCollection(levels)) { }
+        IBeatmapLevelPack {
+        public string packID { get; }
+        public string packName { get; }
+        public string shortPackName => packName;
+        public string collectionName => packName;
+        public Sprite coverImage { get; }
+        public Sprite smallCoverImage { get; }
+        public IBeatmapLevelCollection beatmapLevelCollection { get; }
+        public bool isPackAlwaysOwned => true;
+        protected LevelPackProxy(string id, string title, Sprite cover, Sprite smallCover, BeatmapLevel[] levels) {
+            packID = id;
+            packName = title;
+            coverImage = cover;
+            smallCoverImage = smallCover;
+            beatmapLevelCollection = new BeatmapLevelCollection(levels);
+        }
 #else
         BeatmapLevelPack {
         protected LevelPackProxy(string id, string title, Sprite cover, Sprite smallCover, BeatmapLevel[] levels)
