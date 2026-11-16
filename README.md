@@ -101,3 +101,5 @@ Beatmap-key helpers expose native characteristic sorting order. Counter gameplay
 `LegatoEnableCustomLevelMedia` resolves audio and cover paths from real legacy custom-level metadata or current file-system preview media. Enable native beatmap aliases. Cached native accessors preserve current private media fields, and unsupported preview wrappers return no path. Consumers retain playback, file policy and cancellation ownership.
 
 `LegatoEnableEnvironmentAccess` selects loaded legacy environment assets or the current addressable list, reads the original gameplay environment and resolves the native environment for a real key. Enable native type/beatmap aliases. It fails explicitly if the legacy environment list is unavailable; environment selection policy stays consumer-owned.
+
+Environment access also exposes native scene names and list order. `LegatoEnableEnvironmentSceneLoading` loads built-in legacy scenes or current addressable scenes and releases owned addressable handles on unload. Call on the Unity main thread, supply a live coroutine host, and retain unload ownership in the consumer. Legacy duplicate scenes are distinguished by their handles.

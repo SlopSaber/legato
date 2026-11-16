@@ -11,6 +11,20 @@ namespace Legato.Rendering {
             EnvironmentsListModel.CreateFromAddressables();
 #endif
 
+        internal static string SceneName(EnvironmentInfoSO info) =>
+#if BEAT_SABER_1_29_0
+            info.sceneInfo.sceneName;
+#else
+            info.environmentSceneName;
+#endif
+
+        internal static int Order(EnvironmentsListModel list, EnvironmentInfoSO info) =>
+#if BEAT_SABER_1_29_0
+            Array.IndexOf(list.environmentInfos, info);
+#else
+            info.order;
+#endif
+
         internal static EnvironmentInfoSO Original(GameplayCoreSceneSetupData scene) =>
 #if BEAT_SABER_1_29_0
             scene.environmentInfo;
