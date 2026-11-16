@@ -268,6 +268,10 @@
                Condition="'$(LegatoEnableBsmlSettings)' == 'true'" />
       <Compile Include="$(LegatoSourceRoot)Library\RendererLayers\**\*.cs"
                Condition="'$(LegatoEnableRendererLayers)' == 'true'" />
+      <Compile Include="$(LegatoSourceRoot)Library\TextWrapping\**\*.cs"
+               Condition="'$(LegatoEnableTextWrapping)' == 'true'" />
+      <Compile Include="$(LegatoSourceRoot)Library\WebRequests\**\*.cs"
+               Condition="'$(LegatoEnableWebRequests)' == 'true'" />
       <Compile Include="$(LegatoSourceRoot)Library\Collections\**\*.cs"
                Condition="'$(LegatoEnableCollectionPools)' == 'true'" />
       <Compile Include="$(LegatoSourceRoot)Library\Unity\ObjectDiscovery.cs"
