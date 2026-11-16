@@ -31,6 +31,11 @@
 
   <Target Name="LegatoAddRequiredReferences" BeforeTargets="ResolveAssemblyReferences" DependsOnTargets="LegatoConfigure">
     <ItemGroup>
+      <Reference Include="Unity.RenderPipelines.Core.Runtime;Unity.RenderPipelines.Universal.Runtime"
+                 Condition="'$(LegatoEnableCameraEffects)' == 'true' AND ('$(LegatoTargetProfile)' == '1.45.1' OR '$(LegatoTargetProfile)' == '1.45.3')">
+        <HintPath>$(LegatoReferenceRoot)\Beat Saber_Data\Managed\%(Identity).dll</HintPath>
+        <Private>false</Private>
+      </Reference>
       <Reference Remove="SongDataCore"
                  Condition="'$(LegatoSourceProfile)' == '1.29.0' AND !Exists('$(LegatoReferenceRoot)\Plugins\SongDataCore.dll') AND Exists('$(LegatoLibraryRoot)\SongDetailsCache.dll')" />
       <Reference Include="SongDetailsCache"
@@ -183,6 +188,12 @@
                Condition="'@(_LegatoDataModelsReference)' != '' AND '$(LegatoSourceOrder)' != '' AND '$(LegatoTargetOrder)' != '' AND $(LegatoSourceOrder) &lt;= 1 AND $(LegatoTargetOrder) &gt;= 2" />
       <Compile Include="$(LegatoSourceRoot)Library\Results\**\*.cs"
                Condition="'@(_LegatoIPAReference)' != '' AND '@(_LegatoGameplayCoreReference)' != ''" />
+      <Compile Include="$(LegatoSourceRoot)Library\Characteristics\**\*.cs;$(LegatoSourceRoot)Library\LegacyNames\**\*.cs"
+               Condition="'$(LegatoEnableLegacyTypeNames)' == 'true'" />
+      <Compile Include="$(LegatoSourceRoot)Library\Unity\**\*.cs"
+               Condition="'$(LegatoEnableUnityCompatibility)' == 'true'" />
+      <Compile Include="$(LegatoSourceRoot)Library\Rendering\**\*.cs"
+               Condition="'$(LegatoEnableCameraEffects)' == 'true'" />
       <Compile Include="$(LegatoSourceRoot)Library\Tracking\**\*.cs"
                Condition="'$(LegatoEnableSpatialTracking)' == 'true' OR '$(LegatoTargetProfile)' == '1.29.0'" />
       <Compile Include="$(LegatoSourceRoot)ForwardPolyfills\**\Transitions\1.38.0-1.40.0\**\*.cs"

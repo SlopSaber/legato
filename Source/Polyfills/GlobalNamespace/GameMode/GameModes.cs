@@ -2,6 +2,11 @@
 
 namespace Legato {
     internal static class GameModes {
+#if BEAT_SABER_1_29_0
+        internal static bool RequiresPersistentCallPatch => false;
+#else
+        internal static bool RequiresPersistentCallPatch => true;
+#endif
 #if BEAT_SABER_1_45_3
         internal static GameMode Replay => GameMode.Development;
         internal static GameMode Solo => GameMode.Solo;
