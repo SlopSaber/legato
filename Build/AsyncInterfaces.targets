@@ -1,11 +1,11 @@
 <Project>
-  <Target Name="LegatoConfigureAsyncFramework" BeforeTargets="GetReferenceAssemblyPaths" Condition="'$(LegatoEnableAsyncInterfaces)' == 'true'">
+  <Target Name="LegatoConfigureAsyncFramework" BeforeTargets="GetReferenceAssemblyPaths" Condition="'$(LegatoEnableAsyncInterfaces)' == 'true' AND ('$(LegatoTargetVersion)' == '1.29.1' OR '$(LegatoTargetVersion)' == '1.29.0')">
     <PropertyGroup>
       <EnableFrameworkPathOverride>true</EnableFrameworkPathOverride>
       <FrameworkPathOverride>$(NuGetPackageRoot)microsoft.netframework.referenceassemblies.net472\1.0.3\build\.NETFramework\v4.7.2</FrameworkPathOverride>
     </PropertyGroup>
   </Target>
-  <Target Name="LegatoResolveAsyncFramework" BeforeTargets="ResolveAssemblyReferences" DependsOnTargets="$(LegatoAsyncLayoutTarget)" Condition="'$(LegatoEnableAsyncInterfaces)' == 'true'">
+  <Target Name="LegatoResolveAsyncFramework" BeforeTargets="ResolveAssemblyReferences" DependsOnTargets="$(LegatoAsyncLayoutTarget)" Condition="'$(LegatoEnableAsyncInterfaces)' == 'true' AND ('$(LegatoTargetVersion)' == '1.29.1' OR '$(LegatoTargetVersion)' == '1.29.0')">
     <ItemGroup>
       <Reference Remove="mscorlib;netstandard;Microsoft.Bcl.AsyncInterfaces;System.Threading.Tasks.Extensions;System.Runtime.CompilerServices.Unsafe" />
       <Reference Include="Microsoft.Bcl.AsyncInterfaces" HintPath="$(NuGetPackageRoot)microsoft.bcl.asyncinterfaces\11.0.0\lib\net462\Microsoft.Bcl.AsyncInterfaces.dll" Private="false" />
@@ -15,7 +15,7 @@
       <Reference Include="netstandard" HintPath="$(NuGetPackageRoot)microsoft.netframework.referenceassemblies.net472\1.0.3\build\.NETFramework\v4.7.2\Facades\netstandard.dll" Private="false" />
     </ItemGroup>
   </Target>
-  <Target Name="LegatoCopyAsyncRuntime" AfterTargets="Build" Condition="'$(LegatoEnableAsyncInterfaces)' == 'true'">
+  <Target Name="LegatoCopyAsyncRuntime" AfterTargets="Build" Condition="'$(LegatoEnableAsyncInterfaces)' == 'true' AND ('$(LegatoTargetVersion)' == '1.29.1' OR '$(LegatoTargetVersion)' == '1.29.0')">
     <ItemGroup>
       <_LegatoAsyncRuntime Include="$(NuGetPackageRoot)microsoft.bcl.asyncinterfaces\11.0.0\lib\net462\Microsoft.Bcl.AsyncInterfaces.dll;$(NuGetPackageRoot)system.threading.tasks.extensions\4.6.3\lib\net462\System.Threading.Tasks.Extensions.dll;$(NuGetPackageRoot)system.runtime.compilerservices.unsafe\6.1.2\lib\net462\System.Runtime.CompilerServices.Unsafe.dll" />
     </ItemGroup>
