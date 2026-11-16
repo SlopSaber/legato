@@ -105,7 +105,7 @@ namespace Hitbloq.Utilities
 			return sb.ToString();
 		}
 
-		public static LevelSelectionFlowCoordinator.State GetStateForPlaylist(BeatmapLevelPack beatmapLevelPack)
+		public static LevelSelectionFlowCoordinator.State GetStateForPlaylist(HitbloqNativePack beatmapLevelPack)
 		{
 			var state = new LevelSelectionFlowCoordinator.State(beatmapLevelPack);
 			Accessors.LevelCategoryAccessor(ref state) = SelectLevelCategoryViewController.LevelCategory.CustomSongs;

@@ -113,7 +113,7 @@ namespace Hitbloq.Other
 			_tokenSource?.Cancel();
 		}
 
-		private async Task<BeatmapLevelPack?> GetPlaylist(string poolID, CancellationToken token = default)
+		private async Task<HitbloqNativePack?> GetPlaylist(string poolID, CancellationToken token = default)
 		{
 			var localPlaylist = await FindLocalPlaylistFromPoolID(poolID, token);
 			if (localPlaylist != null)
@@ -125,7 +125,7 @@ namespace Hitbloq.Other
 			return await DownloadPlaylistFromPoolID(poolID, token);
 		}
 
-		public async Task<BeatmapLevelPack?> FindLocalPlaylistFromPoolID(string poolID, CancellationToken token = default)
+		public async Task<HitbloqNativePack?> FindLocalPlaylistFromPoolID(string poolID, CancellationToken token = default)
 		{
 			try
 			{
@@ -156,7 +156,7 @@ namespace Hitbloq.Other
 			}
 		}
 
-		public async Task<BeatmapLevelPack?> DownloadPlaylistFromPoolID(string poolID, CancellationToken token = default)
+		public async Task<HitbloqNativePack?> DownloadPlaylistFromPoolID(string poolID, CancellationToken token = default)
 		{
 			try
 			{
@@ -183,7 +183,7 @@ namespace Hitbloq.Other
 			}
 		}
 
-		public void OpenPlaylist(BeatmapLevelPack beatmapLevelPack)
+		public void OpenPlaylist(HitbloqNativePack beatmapLevelPack)
 		{
 			if (_mainFlowCoordinator.YoungestChildFlowCoordinatorOrSelf() is LevelSelectionFlowCoordinator)
 			{
