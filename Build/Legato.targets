@@ -219,6 +219,13 @@
       <_LegatoZenjectReference Include="@(ReferencePath->WithMetadataValue('Filename', 'Zenject'))" />
       <_LegatoHMLibReference Include="@(ReferencePath->WithMetadataValue('Filename', 'HMLib'))" />
     </ItemGroup>
+    <GetAssemblyIdentity AssemblyFiles="@(_LegatoBSMLReference)" Condition="'@(_LegatoBSMLReference)' != ''">
+      <Output TaskParameter="Assemblies" ItemName="_LegatoBsmlIdentity" />
+    </GetAssemblyIdentity>
+    <PropertyGroup>
+      <_LegatoBsmlApiVersion>@(_LegatoBsmlIdentity->'%(Version)')</_LegatoBsmlApiVersion>
+      <DefineConstants Condition="'$(_LegatoBsmlApiVersion)' != '' AND $([MSBuild]::VersionGreaterThanOrEquals('$(_LegatoBsmlApiVersion)', '1.14.0.0'))">$(DefineConstants);LEGATO_BSML_CURRENT</DefineConstants>
+    </PropertyGroup>
     <PropertyGroup Condition="'$(LegatoEnableAutoAdapters)' != 'false'">
       <LegatoEnableBSML Condition="'$(LegatoEnableBSML)' == '' AND '@(_LegatoBSMLReference)' != ''">true</LegatoEnableBSML>
       <LegatoEnableTextMeshPro Condition="'$(LegatoEnableTextMeshPro)' == '' AND '@(_LegatoTextMeshProReference)' != ''">true</LegatoEnableTextMeshPro>

@@ -23,7 +23,7 @@ using static BeatSaberMarkupLanguage.Components.CustomListTableData;
 namespace Legato {
     internal static class CustomListTableDataExtensions {
         private static readonly FieldInfo SongListTableCellPrefab = typeof(CustomListTableData).GetField(
-#if BEAT_SABER_1_29_0 || BEAT_SABER_1_37_1
+#if !LEGATO_BSML_CURRENT && (BEAT_SABER_1_29_0 || BEAT_SABER_1_37_1)
             "songListTableCellInstance",
 #else
             "songListTableCellPrefab",
@@ -32,7 +32,7 @@ namespace Legato {
             ?? throw new MissingFieldException(typeof(CustomListTableData).FullName, "songListTableCellPrefab");
 
         internal static IList<CustomCellInfo> GetData(this CustomListTableData tableData) {
-#if BEAT_SABER_1_29_0 || BEAT_SABER_1_37_1
+#if !LEGATO_BSML_CURRENT && (BEAT_SABER_1_29_0 || BEAT_SABER_1_37_1)
             return tableData.data;
 #else
             return tableData.Data;
@@ -40,7 +40,7 @@ namespace Legato {
         }
 
         internal static TableView GetTableView(this CustomListTableData tableData) {
-#if BEAT_SABER_1_29_0 || BEAT_SABER_1_37_1
+#if !LEGATO_BSML_CURRENT && (BEAT_SABER_1_29_0 || BEAT_SABER_1_37_1)
             return tableData.tableView;
 #else
             return tableData.TableView;
@@ -48,7 +48,7 @@ namespace Legato {
         }
 
         internal static Sprite GetIcon(this CustomCellInfo cell) {
-#if BEAT_SABER_1_29_0 || BEAT_SABER_1_37_1
+#if !LEGATO_BSML_CURRENT && (BEAT_SABER_1_29_0 || BEAT_SABER_1_37_1)
             return cell.icon;
 #else
             return cell.Icon;

@@ -30,7 +30,7 @@ namespace Legato.Unity {
 #elif BEAT_SABER_1_29_0
             if (!typeof(Component).IsAssignableFrom(typeof(T)) && typeof(T) != typeof(GameObject))
                 return UnityEngine.Object.FindObjectsOfType<T>();
-            return Resources.FindObjectsOfTypeAll<T>()
+            return UnityEngine.Resources.FindObjectsOfTypeAll<T>()
                 .Where(value => (value.hideFlags & HideFlags.DontSave) == 0 &&
                     (value is Component component ? component.gameObject.scene.IsValid() :
                      value is GameObject gameObject && gameObject.scene.IsValid()))
