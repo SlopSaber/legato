@@ -1,4 +1,8 @@
+using System;
 using System.IO;
+#if BEAT_SABER_1_29_0
+using UnityEngine.Networking;
+#endif
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -62,6 +66,19 @@ namespace Legato.Audio {
             return request.allAssets.OfType<BeatmapLevelDataSO>().Select(level => level.songAudioClip)
 #endif
                 .FirstOrDefault(clip => clip != null && clip.name == name);
+        }
+        internal static async Task<AudioClip> LoadDecodedFile(string path) {
+#if BEAT_SABER_1_29_0
+            using var request = UnityWebRequestMultimedia.GetAudioClip(new Uri(Path.GetFullPath(path)).AbsoluteUri,
+                AudioTypeHelper.GetAudioTypeFromPath(path));
+            ((DownloadHandlerAudioClip)request.downloadHandler).streamAudio = false;
+            var operation = request.SendWebRequest();
+            while (!operation.isDone) await Task.Yield();
+            if (request.isNetworkError || request.isHttpError) throw new IOException(request.error);
+            return DownloadHandlerAudioClip.GetContent(request);
+#else
+            return await MediaAsyncLoader.LoadAudioClipAsync(path, false);
+#endif
         }
         internal static bool IsPlaying(AudioTimeSyncController controller) =>
 #if BEAT_SABER_1_29_0
