@@ -2,6 +2,7 @@
   <Target Name="LegatoSiraNativeReferences" BeforeTargets="ResolveAssemblyReferences" DependsOnTargets="LegatoConfigure">
     <ItemGroup Condition="'$(LegatoTargetProfile)' == '1.29.0'">
       <Reference Remove="BGLib.AppFlow;BGLib.DotnetExtension;BGLib.Polyglot;BGLib.UnityExtension;BGNetCore;BeatSaber.Init;BeatSaber.Multiplayer.Core;BeatSaber.ViewSystem;DataModels;GameInit;SaberTrail;Unity.InputSystem;Unity.XR.Management;Unity.XR.OpenXR;UnityEngine.SpatialTracking" />
+      <Reference Update="HMUI" Publicize="true" />
       <Reference Include="Polyglot" HintPath="$(LegatoReferenceRoot)\Beat Saber_Data\Managed\Polyglot.dll" Private="false" />
       <Reference Include="BGNet" HintPath="$(LegatoReferenceRoot)\Beat Saber_Data\Managed\BGNet.dll" Private="false" />
     </ItemGroup>

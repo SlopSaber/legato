@@ -19,7 +19,10 @@ namespace Legato.Gameplay
             lcr.missedCount,
 #endif
             lcr.notGoodCount, lcr.okCount, lcr.maxCutScore, lcr.totalCutScore, lcr.goodCutsCountForNotesWithFullScoreScoringType, lcr.averageCenterDistanceCutScoreForNotesWithFullScoreScoringType, lcr.averageCutScoreForNotesWithFullScoreScoringType,
-            lcr.maxCombo, lcr.endSongTime, lcr.invalidated
+            lcr.maxCombo, lcr.endSongTime
+#if !BEAT_SABER_1_29_0
+            , lcr.invalidated
+#endif
 #if BEAT_SABER_1_45_3
             , lcr.startSongTime
 #endif
