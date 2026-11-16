@@ -566,7 +566,7 @@ internal class SettingsSetterViewController : BSMLResourceViewController, IPlayV
     private void Construct(
         SiraLog log,
         GameplaySetupViewController gameplaySetupViewController,
-#if !V1_29_1
+#if LEGATO_BSML_CURRENT || !V1_29_1
         BSMLParser bsmlParser,
 #endif
 #if !PRE_V1_40_8
@@ -579,7 +579,7 @@ internal class SettingsSetterViewController : BSMLResourceViewController, IPlayV
         _log = log;
         _colorSchemesSettings = gameplaySetupViewController.colorSchemesSettings;
         _playerDataModel = playerDataModel;
-#if !V1_29_1
+#if LEGATO_BSML_CURRENT || !V1_29_1
         _bsmlParser = bsmlParser;
 #else
         _bsmlParser = BSMLParser.instance;

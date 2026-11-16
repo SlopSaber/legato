@@ -122,8 +122,8 @@ internal class HeckIntegrationManager
             afterSceneSwitchCallback,
 #endif
             levelFinishedCallback,
-#if !V1_29_1
             levelRestartedCallback,
+#if !V1_29_1
 #if LATEST
             beatmapLevelData,
 #else

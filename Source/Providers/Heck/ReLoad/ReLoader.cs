@@ -234,13 +234,12 @@ public class ReLoader : ITickable
                 _gameplayCoreSceneSetupData.gameplayModifiers,
                 _gameplayCoreSceneSetupData.playerSpecificSettings)!);
 #endif
-#if PRE_V1_37_1
+#else
         _reLoaderLoader.Reload(_difficultyBeatmap);
         IReadonlyBeatmapData beatmapData =
             Task.Run<IReadonlyBeatmapData>(
                     async () => await _gameplayCoreSceneSetupData.GetTransformedBeatmapDataAsync())
                 .Result;
-#endif
 #endif
         FillBeatmapData(beatmapData, _beatmapData);
 
