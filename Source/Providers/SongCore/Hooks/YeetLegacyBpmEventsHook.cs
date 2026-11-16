@@ -1,4 +1,3 @@
-#if !BEAT_SABER_1_29_0
 using System;
 using BeatmapSaveDataCommon;
 using Mono.Cecil.Cil;
@@ -40,4 +39,3 @@ namespace SongCore.Hooks
     }
 }
 
-#endif

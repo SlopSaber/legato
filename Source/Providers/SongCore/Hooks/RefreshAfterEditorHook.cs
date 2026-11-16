@@ -1,4 +1,3 @@
-#if !BEAT_SABER_1_29_0
 using System;
 using System.Reflection;
 using MonoMod.RuntimeDetour;
@@ -39,4 +38,3 @@ namespace SongCore.Hooks
     }
 }
 
-#endif
