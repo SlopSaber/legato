@@ -1,4 +1,5 @@
 #if BEAT_SABER_1_29_0
+global using IPlayerDataModel = global::PlayerDataModel;
 global using BeatmapLevelsEntitlementModel = global::AdditionalContentModel;
 global using EntitlementStatus = global::AdditionalContentModel.EntitlementStatus;
 global using BeatSaberInit = global::AppInit;
