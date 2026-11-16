@@ -221,3 +221,5 @@ Beatmap-key helpers expose native characteristic sorting order. Counter gameplay
 `LegatoEnablePracticePlayback` supplies native spawn-ahead timing and the existing native audio-manager type alias. Consumers retain speed, pitch correction, callback reset and seek ownership. Native type references omit the newer audio assembly on legacy profiles.
 
 `LegatoEnableCustomLevelMedia` resolves audio and cover paths from real legacy custom-level metadata or current file-system preview media. Enable native beatmap aliases. Cached native accessors preserve current private media fields, and unsupported preview wrappers return no path. Consumers retain playback, file policy and cancellation ownership.
+
+`LegatoEnableEnvironmentAccess` selects loaded legacy environment assets or the current addressable list, reads the original gameplay environment and resolves the native environment for a real key. Enable native type/beatmap aliases. It fails explicitly if the legacy environment list is unavailable; environment selection policy stays consumer-owned.
