@@ -2,5 +2,5 @@
   "repository": "https://github.com/SlopSaber/SongCore",
   "sourceHead": "bdced3fe10a7af3b327664f665bfb56dc0e89474",
   "license": "MIT",
-  "boundary": "Native loader, pack and v4 hashing adapters. The maintained parallel loading pipeline and bounded caches remain consumer-owned."
+  "boundary": "Native loading, hashing, packs, selection/cache hooks and native UI/gameplay bindings. The maintained parallel loading pipeline, duplicate handling, bounded cache storage and song metadata parsing remain consumer-owned. Legacy v4 playback is in progress; parsed source retention is not a claim that every legacy rendering or movement feature is implemented."
 }

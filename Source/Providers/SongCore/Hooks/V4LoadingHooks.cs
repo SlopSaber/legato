@@ -9,6 +9,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using BeatmapSaveDataVersion3;
 using CustomJSONData.CustomBeatmap;
+using IPA.Utilities;
 using Legato.Beatmaps.Formats;
 using MonoMod.RuntimeDetour;
 using Newtonsoft.Json;
@@ -80,7 +81,11 @@ namespace SongCore.Hooks
         {
             cancellationToken.ThrowIfCancellationRequested();
             if (Levels.TryGetValue(preview, out var context))
-                preview = CreatePreview(loader, context.Info, context.Directory, preview.levelID, false);
+            {
+                var fullPreview = CreatePreview(loader, context.Info, context.Directory, preview.levelID, false);
+                fullPreview.SetField("<songDuration>k__BackingField", preview.songDuration);
+                preview = fullPreview;
+            }
             return original(loader, preview, cancellationToken);
         }
 

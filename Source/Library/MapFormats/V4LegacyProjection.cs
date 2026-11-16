@@ -1,6 +1,5 @@
 #nullable enable
 using System;
-using System.Linq;
 using Newtonsoft.Json.Linq;
 
 namespace Legato.Beatmaps.Formats
@@ -44,9 +43,10 @@ namespace Legato.Beatmaps.Formats
 
         private static void NormalizeNumbers(JToken token)
         {
-            foreach (JToken child in token.Children().ToArray())
+            for (JToken? child = token.First; child != null;)
             {
-                if (child is JProperty property && property.Name == "customData") continue;
+                JToken? next = child.Next;
+                if (child is JProperty property && property.Name == "customData") { child = next; continue; }
                 if (child is JValue number && number.Type == JTokenType.Float)
                 {
                     double value = number.Value<double>();
@@ -54,17 +54,19 @@ namespace Legato.Beatmaps.Formats
                         number.Replace(new JValue((long)value));
                 }
                 else NormalizeNumbers(child);
+                child = next;
             }
         }
 
-        // Keep expanded source data alongside the native projection. Native adapters consume
-        // lane rotations, variable NJS, FX and color easing that v3 JSON cannot express.
+        // Retain the expanded source because v3 JSON cannot express per-object lane
+        // rotations, variable NJS, FX or arbitrary light-color easing.
         private static JObject Metadata(JObject item)
         {
             var result = new JObject();
             if (item["data"] is JObject data && data["customData"] is JObject dataCustom)
                 result.Merge(dataCustom.DeepClone());
-            if (item["customData"] is JObject objectCustom) result.Merge(objectCustom.DeepClone());
+            if (item["customData"] is JObject objectCustom)
+                result.Merge(objectCustom.DeepClone(), new JsonMergeSettings { MergeArrayHandling = MergeArrayHandling.Replace });
             return result;
         }
 
