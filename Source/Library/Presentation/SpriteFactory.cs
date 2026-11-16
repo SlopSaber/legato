@@ -39,6 +39,25 @@ namespace Legato.Presentation {
 #endif
         }
 
+        internal static Sprite? Create(byte[] image, Vector2 pivot, float pixelsPerUnit, SpriteMeshType meshType = SpriteMeshType.Tight) {
+            Texture2D texture = new Texture2D(2, 2);
+            try {
+#if BEAT_SABER_1_45_1 || BEAT_SABER_1_45_3
+                bool loaded = LoadImage(texture, image, false);
+#else
+                bool loaded = texture.LoadImage(image);
+#endif
+                if (!loaded) {
+                    UnityEngine.Object.Destroy(texture);
+                    return null;
+                }
+                return Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height), pivot, pixelsPerUnit, 0, meshType);
+            } catch {
+                UnityEngine.Object.Destroy(texture);
+                throw;
+            }
+        }
+
         internal static void Destroy(Sprite sprite) {
             if (sprite == null) {
                 return;
