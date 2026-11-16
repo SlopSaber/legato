@@ -290,6 +290,7 @@
       <Compile Include="$(LegatoSourceRoot)Library\AsyncFiles\**\*.cs" Condition="'$(LegatoEnableAsyncFiles)' == 'true'" />
       <Compile Include="$(LegatoSourceRoot)Library\LevelAudio\**\*.cs" Condition="'$(LegatoEnableLevelAudio)' == 'true'" />
       <Compile Include="$(LegatoSourceRoot)Library\ScoreEffects\**\*.cs" Condition="'$(LegatoEnableScoreEffects)' == 'true'" />
+      <Compile Include="$(LegatoSourceRoot)Library\FontGlyphs\**\*.cs" Condition="'$(LegatoEnableFontGlyphs)' == 'true'" />
       <Compile Include="$(LegatoSourceRoot)Library\RuntimeServices\**\*.cs"
                Condition="'$(LegatoEnableRuntimeServices)' == 'true'" />
       <Compile Include="$(LegatoSourceRoot)Library\TableSources\**\*.cs"

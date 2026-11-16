@@ -12,6 +12,9 @@
                  Condition="'$(LegatoEnableNativeTypeAliases)' == 'true' AND Exists('$(LegatoReferenceRoot)\Beat Saber_Data\Managed\HMLib.dll') AND '@(Reference->WithMetadataValue('Identity', 'HMLib'))' == ''" />
       <Reference Include="Unity.TextMeshPro" HintPath="$(LegatoReferenceRoot)\Beat Saber_Data\Managed\Unity.TextMeshPro.dll" Private="false"
                  Condition="'$(LegatoEnableBSML)' == 'true' AND Exists('$(LegatoReferenceRoot)\Beat Saber_Data\Managed\Unity.TextMeshPro.dll') AND '@(Reference->WithMetadataValue('Identity', 'Unity.TextMeshPro'))' == ''" />
+      <Reference Include="UnityEngine.TextCoreModule" HintPath="$(LegatoReferenceRoot)\Beat Saber_Data\Managed\UnityEngine.TextCoreModule.dll" Private="false"
+                 Condition="'$(LegatoEnableFontGlyphs)' == 'true' AND Exists('$(LegatoReferenceRoot)\Beat Saber_Data\Managed\UnityEngine.TextCoreModule.dll') AND '@(Reference->WithMetadataValue('Identity', 'UnityEngine.TextCoreModule'))' == ''" />
+      <Reference Remove="UnityEngine.TextCoreFontEngineModule" Condition="'$(LegatoEnableFontGlyphs)' == 'true' AND !Exists('$(LegatoReferenceRoot)\Beat Saber_Data\Managed\UnityEngine.TextCoreFontEngineModule.dll')" />
     </ItemGroup>
     <ItemGroup Condition="'$(LegatoTargetProfile)' == '1.29.0'">
       <_LegatoLegacyNetworkReference Include="@(Reference->WithMetadataValue('Identity', 'BGNetCore'))" />

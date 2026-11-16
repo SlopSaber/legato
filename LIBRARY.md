@@ -257,3 +257,5 @@ Saber model helpers include native prefab/component creation and texture resizin
 `LegatoEnableScoreEffects` finds the native flying-text preview resource through current addressables or real loaded legacy effects, preferring prefab assets. Missing optional menu resources return null; resource availability remains a runtime boundary.
 
 Score effect helpers also construct native normal/chain preview notes with the correct constructor and scoring enum; preview note data remains separate from gameplay data.
+
+`LegatoEnableFontGlyphs` selects native TextCore references and TMP character construction for custom/emote glyphs. Older TMP uses glyph-only characters; current TMP associates characters with the source font.
