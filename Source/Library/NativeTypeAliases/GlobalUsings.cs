@@ -1,4 +1,5 @@
 #if BEAT_SABER_1_29_0
+global using LevelScenesTransitionSetupData = global::LevelScenesTransitionSetupDataSO;
 global using ScenesTransitionSetupData = global::ScenesTransitionSetupDataSO;
 global using TutorialScenesTransitionSetupData = global::TutorialScenesTransitionSetupDataSO;
 global using BeatSaberInit = global::AppInit;

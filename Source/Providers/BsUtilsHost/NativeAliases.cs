@@ -1,4 +1,6 @@
 #if BEAT_SABER_1_29_0
 global using BeatmapLevel = global::IPreviewBeatmapLevel;
-global using BeatmapLevelPack = global::IBeatmapLevelPack;
+global using NativeBeatmapLevelPack = global::IBeatmapLevelPack;
+#else
+global using NativeBeatmapLevelPack = global::BeatmapLevelPack;
 #endif
