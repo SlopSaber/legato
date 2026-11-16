@@ -255,3 +255,5 @@ Saber model helpers include native prefab/component creation and texture resizin
 `LevelAudioAccess.LoadDecodedFile` retains non-streaming file audio for PCM analysis. The legacy native media loader always enables streaming, so the helper owns a non-streaming Unity request and completes acquisition before returning the caller-owned clip. It does not alter player/desktop state.
 
 `LegatoEnableScoreEffects` finds the native flying-text preview resource through current addressables or real loaded legacy effects, preferring prefab assets. Missing optional menu resources return null; resource availability remains a runtime boundary.
+
+Score effect helpers also construct native normal/chain preview notes with the correct constructor and scoring enum; preview note data remains separate from gameplay data.
