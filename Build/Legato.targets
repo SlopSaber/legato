@@ -365,6 +365,8 @@
                Condition="'$(LegatoEnableOpenXrRuntime)' == 'true'" />
       <Compile Include="$(LegatoSourceRoot)Library\SteamAuthentication\**\*.cs"
                Condition="'$(LegatoEnableSteamAuthentication)' == 'true'" />
+      <Compile Include="$(LegatoSourceRoot)Library\SteamIdentity\**\*.cs"
+               Condition="'$(LegatoEnableSteamIdentity)' == 'true'" />
       <Compile Include="$(LegatoSourceRoot)Library\NativeLevelAccess\**\*.cs"
                Condition="'$(LegatoEnableNativeLevelAccess)' == 'true'" />
       <Compile Include="$(LegatoSourceRoot)Library\NativeGameState\**\*.cs"
