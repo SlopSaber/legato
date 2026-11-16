@@ -24,7 +24,7 @@ namespace Legato.Gameplay
         internal static void Complete(HealthWarningViewController controller)
         {
 #if BEAT_SABER_1_29_0
-            Finished(controller)?.Invoke();
+            Finished(ref controller)?.Invoke();
 #else
             if (CompletionSource.GetValue(controller) != null)
             {
