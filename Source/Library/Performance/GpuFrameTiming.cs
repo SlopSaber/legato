@@ -31,15 +31,26 @@ namespace Legato.Performance {
             }
         }
 
-        internal static bool RequiresLegacyOpenXrHooks => !UsesNativeRenderTiming;
+        internal static bool RequiresLegacyOpenXrHooks =>
+#if BEAT_SABER_1_29_0
+            false;
+#else
+            !UsesNativeRenderTiming;
+#endif
 
         internal float ReadEngineTiming() {
 #if !BEAT_SABER_1_45_1 && !BEAT_SABER_1_45_3
-            if (UnityEngine.FrameTimingManager.IsFeatureEnabled()) {
+            if (
+#if BEAT_SABER_1_29_0
+                true
+#else
+                UnityEngine.FrameTimingManager.IsFeatureEnabled()
+#endif
+            ) {
                 UnityEngine.FrameTimingManager.CaptureFrameTimings();
-                if (UnityEngine.FrameTimingManager.GetLatestTimings(1, _timings) > 0 && _timings[0].frameStartTimestamp != _lastFrameTimestamp) {
+                if (UnityEngine.FrameTimingManager.GetLatestTimings(1, _timings) > 0 && FrameTimestamp(_timings[0]) != _lastFrameTimestamp) {
                     FrameTiming timing = _timings[0];
-                    _lastFrameTimestamp = timing.frameStartTimestamp;
+                    _lastFrameTimestamp = FrameTimestamp(timing);
                     float gpu = (float)timing.gpuFrameTime;
                     if (Valid(gpu)) return gpu;
                 }
@@ -70,6 +81,14 @@ namespace Legato.Performance {
         }
 
         private static bool Finite(float value) => !float.IsNaN(value) && !float.IsInfinity(value);
+#if !BEAT_SABER_1_45_1 && !BEAT_SABER_1_45_3
+        private static ulong FrameTimestamp(FrameTiming timing) =>
+#if BEAT_SABER_1_29_0
+            timing.cpuTimeFrameComplete;
+#else
+            timing.frameStartTimestamp;
+#endif
+#endif
         private static bool Valid(float value) => Finite(value) && value > 0f;
 
         public void Dispose() {

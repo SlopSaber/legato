@@ -8,6 +8,26 @@ using UnityEngine.XR.OpenXR.Features.Interactions;
 
 namespace Legato.XR {
     internal static class OpenXrRuntime {
+        internal static string SettingsName =>
+#if BEAT_SABER_1_29_0
+            null;
+#else
+            OpenXRSettings.Instance == null ? null : OpenXRSettings.Instance.name;
+#endif
+        internal static System.Collections.IEnumerator RestartLoader() {
+#if !BEAT_SABER_1_29_0
+            yield return null;
+            var manager = UnityEngine.XR.Management.XRGeneralSettings.Instance.Manager;
+            if (manager.isInitializationComplete) {
+                manager.DeinitializeLoader();
+                yield return null;
+            }
+            yield return manager.InitializeLoader();
+            manager.StartSubsystems();
+#else
+            yield break;
+#endif
+        }
         internal static string Name =>
 #if BEAT_SABER_1_29_0
             XRSettings.loadedDeviceName;
