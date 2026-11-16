@@ -1,6 +1,9 @@
 #nullable enable
 
 using System;
+#if BEAT_SABER_1_29_0
+using System.Linq;
+#endif
 using UnityEngine;
 
 namespace Legato.Unity {
@@ -24,6 +27,14 @@ namespace Legato.Unity {
         internal static T[] FindIncludingInactiveUnsorted<T>() where T : UnityEngine.Object {
 #if BEAT_SABER_1_45_1 || BEAT_SABER_1_45_3
             return UnityEngine.Object.FindObjectsByType<T>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+#elif BEAT_SABER_1_29_0
+            if (!typeof(Component).IsAssignableFrom(typeof(T)) && typeof(T) != typeof(GameObject))
+                return UnityEngine.Object.FindObjectsOfType<T>();
+            return Resources.FindObjectsOfTypeAll<T>()
+                .Where(value => (value.hideFlags & HideFlags.DontSave) == 0 &&
+                    (value is Component component ? component.gameObject.scene.IsValid() :
+                     value is GameObject gameObject && gameObject.scene.IsValid()))
+                .OrderBy(value => value.GetInstanceID()).ToArray();
 #else
             return UnityEngine.Object.FindObjectsOfType<T>(true);
 #endif
