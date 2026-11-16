@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -174,16 +174,64 @@ namespace CustomJSONData.CustomBeatmap
         {
             using ProfilerMarker.AutoScope profile = _deserializeMarker.Auto();
 #if !PRE_V1_37_1
-            string version = string.Empty;
+            using StringReader text = new(path);
+            return DeserializeCore(text);
 #else
             string version = GetVersionFromPath(path);
-
             if (new Version(version).CompareTo(version2_6_0) <= 0)
             {
                 return SaveData2_6_0Converter.Convert2_6_0AndEarlier(path, beatmapCustomData, levelCustomData);
             }
+            using StreamReader text = new(path);
+            return DeserializeCore(text, beatmapCustomData, levelCustomData, version);
 #endif
+        }
 
+        /// <summary>
+        /// Reads v3 beatmap JSON directly, retaining legacy level and difficulty metadata when supported.
+        /// </summary>
+        /// <param name="json">The v3 beatmap document.</param>
+        /// <param name="beatmapCustomData">Legacy difficulty metadata.</param>
+        /// <param name="levelCustomData">Legacy level metadata.</param>
+        /// <returns>The custom beatmap save data.</returns>
+        public static Version3CustomBeatmapSaveData DeserializeJson(string json, CustomData? beatmapCustomData = null, CustomData? levelCustomData = null)
+        {
+            using ProfilerMarker.AutoScope profile = _deserializeMarker.Auto();
+            using StringReader text = new(json);
+#if !PRE_V1_37_1
+            return DeserializeCore(text);
+#else
+            string version = string.Empty;
+            using (JsonTextReader header = new(new StringReader(json)))
+            {
+                while (header.Read())
+                {
+                    if (header.TokenType != JsonToken.PropertyName || header.Depth != 1) continue;
+                    if (header.Value is "version" or "_version")
+                    {
+                        version = header.ReadAsString() ?? string.Empty;
+                        break;
+                    }
+                    header.Skip();
+                }
+            }
+            if (!Version.TryParse(version, out Version? parsed) || parsed.Major != 3)
+            {
+                throw new JsonSerializationException("Expected a v3 beatmap JSON document.");
+            }
+            return DeserializeCore(text, beatmapCustomData ?? new CustomData(), levelCustomData ?? new CustomData(), version);
+#endif
+        }
+
+        private static Version3CustomBeatmapSaveData DeserializeCore(TextReader text
+#if PRE_V1_37_1
+            , CustomData beatmapCustomData, CustomData levelCustomData, string version
+#endif
+        )
+        {
+#if !PRE_V1_37_1
+            string version = string.Empty;
+#endif
             // lets do this
             List<_BpmChangeEventData> bpmEvents = new();
             List<_RotationEventData> rotationEvents = new();
@@ -207,11 +255,7 @@ namespace CustomJSONData.CustomBeatmap
             CustomData data = new();
             List<CustomEventSaveData> customEvents = new();
 
-#if !PRE_V1_37_1
-            using JsonTextReader reader = new(new StringReader(path));
-#else
-            using JsonTextReader reader = new(new StreamReader(path));
-#endif
+            using JsonTextReader reader = new(text);
 
             object[] inputs =
             {
@@ -247,11 +291,10 @@ namespace CustomJSONData.CustomBeatmap
                             reader.Skip();
                             break;
 
-#if !PRE_V1_37_1
+                        case "version":
                         case "_version":
                             version = reader.ReadAsString() ?? version;
                             break;
-#endif
 
                         case "bpmEvents":
                             DeserializeBpmChangeArray(reader, bpmEvents);

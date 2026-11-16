@@ -50,6 +50,7 @@ namespace Legato.Beatmaps.Formats
 
         internal static JObject Indexed(JObject document, string name, JToken? index)
         {
+            if (document[name] == null && index == null) return new JObject();
             int position = Index(index, name);
             if (document[name] is not JArray array || position >= array.Count)
                 throw new InvalidDataException("Metadata index is outside " + name + ": " + position + ".");
@@ -77,7 +78,8 @@ namespace Legato.Beatmaps.Formats
 
         internal static JObject ExpandGameplay(JObject source)
         {
-            JObject expanded = (JObject)source.DeepClone();
+            JObject expanded = CopyExcept(source, "colorNotes", "bombNotes", "obstacles", "arcs", "chains", "njsEvents",
+                "colorNotesData", "bombNotesData", "obstaclesData", "arcsData", "chainsData", "njsEventData");
             ExpandItems(source, expanded, "colorNotes", "colorNotesData");
             ExpandItems(source, expanded, "bombNotes", "bombNotesData");
             ExpandItems(source, expanded, "obstacles", "obstaclesData");
@@ -101,13 +103,15 @@ namespace Legato.Beatmaps.Formats
                 chains.Add(chain);
             }
             expanded["chains"] = chains;
-            RemoveTables(expanded, "colorNotesData", "bombNotesData", "obstaclesData", "arcsData", "chainsData", "njsEventData");
             return expanded;
         }
 
         internal static JObject ExpandLightshow(JObject source)
         {
-            JObject expanded = (JObject)source.DeepClone();
+            JObject expanded = CopyExcept(source, "waypoints", "basicEvents", "colorBoostEvents", "eventBoxGroups",
+                "waypointsData", "basicEventsData", "colorBoostEventsData", "indexFilters", "lightColorEventBoxes",
+                "lightColorEvents", "lightRotationEventBoxes", "lightRotationEvents", "lightTranslationEventBoxes",
+                "lightTranslationEvents", "fxEventBoxes", "floatFxEvents");
             ExpandItems(source, expanded, "waypoints", "waypointsData");
             ExpandItems(source, expanded, "basicEvents", "basicEventsData");
             ExpandItems(source, expanded, "colorBoostEvents", "colorBoostEventsData");
@@ -147,9 +151,6 @@ namespace Legato.Beatmaps.Formats
                 groups.Add(group);
             }
             expanded["eventBoxGroups"] = groups;
-            RemoveTables(expanded, "waypointsData", "basicEventsData", "colorBoostEventsData", "indexFilters",
-                "lightColorEventBoxes", "lightColorEvents", "lightRotationEventBoxes", "lightRotationEvents",
-                "lightTranslationEventBoxes", "lightTranslationEvents", "fxEventBoxes", "floatFxEvents");
             return expanded;
         }
 
@@ -165,9 +166,13 @@ namespace Legato.Beatmaps.Formats
             target[name] = items;
         }
 
-        private static void RemoveTables(JObject document, params string[] names)
+        private static JObject CopyExcept(JObject source, params string[] names)
         {
-            foreach (string name in names) document.Remove(name);
+            HashSet<string> omitted = new(names, StringComparer.Ordinal);
+            JObject target = new();
+            foreach (JProperty property in source.Properties())
+                if (!omitted.Contains(property.Name)) target.Add(property.Name, property.Value.DeepClone());
+            return target;
         }
     }
 }
