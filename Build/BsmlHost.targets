@@ -1,0 +1,12 @@
+<Project>
+  <ItemGroup>
+    <EditorConfigFiles Include="$(LegatoSourceRoot)Providers\BsmlHost\.editorconfig;$(LegatoSourceRoot)Library\LocalizationSupport\.editorconfig" />
+  </ItemGroup>
+  <Target Name="LegatoBsmlNativeReferences" BeforeTargets="ResolveAssemblyReferences" DependsOnTargets="LegatoConfigure">
+    <ItemGroup Condition="'$(LegatoTargetProfile)' == '1.29.0'">
+      <Reference Remove="BGLib.AppFlow;BGLib.Polyglot;BGLib.UnityExtension;BeatSaber.GameSettings;BeatSaber.Init;BeatSaber.ViewSystem;GameInit;Menu.ColorSettings;Menu.CommonLib;MenuSystem;SegmentedControl;UnityEngine.TextCoreFontEngineModule" />
+      <Reference Include="Polyglot" HintPath="$(LegatoReferenceRoot)\Beat Saber_Data\Managed\Polyglot.dll" Private="false" Publicize="true" />
+      <Reference Include="UnityEngine.TextCoreModule" HintPath="$(LegatoReferenceRoot)\Beat Saber_Data\Managed\UnityEngine.TextCoreModule.dll" Private="false" />
+    </ItemGroup>
+  </Target>
+</Project>

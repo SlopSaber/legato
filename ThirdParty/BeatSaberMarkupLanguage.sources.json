@@ -1,0 +1,22 @@
+[
+  {
+    "original": "PublicMods\\BeatSaberMarkupLanguage\\BeatSaberMarkupLanguage\\Harmony Patches\\LocalizationLoader.cs",
+    "shared": "Source\\Providers\\BsmlHost\\Harmony Patches\\LocalizationLoader.cs"
+  },
+  {
+    "original": "PublicMods\\BeatSaberMarkupLanguage\\BeatSaberMarkupLanguage\\Harmony Patches\\LocalizationModelSilencer.cs",
+    "shared": "Source\\Providers\\BsmlHost\\Harmony Patches\\LocalizationModelSilencer.cs"
+  },
+  {
+    "original": "PublicMods\\BeatSaberMarkupLanguage\\BeatSaberMarkupLanguage\\Harmony Patches\\MainMenuInstaller.cs",
+    "shared": "Source\\Providers\\BsmlHost\\Harmony Patches\\MainMenuInstaller.cs"
+  },
+  {
+    "original": "PublicMods\\BeatSaberMarkupLanguage\\BeatSaberMarkupLanguage\\Harmony Patches\\EmojiSupport.cs",
+    "shared": "Source\\Providers\\BsmlHost\\Harmony Patches\\EmojiSupport.cs"
+  },
+  {
+    "original": "PublicMods\\BeatSaberMarkupLanguage\\BeatSaberMarkupLanguage\\Tags\\Settings\\GenericSliderSettingTag.cs",
+    "shared": "Source\\Providers\\BsmlHost\\Tags\\Settings\\GenericSliderSettingTag.cs"
+  }
+]
