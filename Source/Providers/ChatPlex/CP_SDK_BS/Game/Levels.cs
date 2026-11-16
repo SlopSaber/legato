@@ -614,7 +614,13 @@ namespace CP_SDK_BS.Game
                 {
                     Scoring.BeatLeader_ManualWarmUpSubmission();
 
+#if BEAT_SABER_1_29_0
+                    var l_BeatmapKey = beatmapLevelData?.difficultyBeatmapSets
+                        .Where(set => set.beatmapCharacteristic == characteristic).SelectMany(set => set.difficultyBeatmaps)
+                        .FirstOrDefault(value => value.difficulty == difficulty);
+#else
                     var l_BeatmapKey = level.GetBeatmapKeys().FirstOrDefault(x => Legato.ChatPlex.NativeAccess.Characteristic(x) == characteristic && x.difficulty == difficulty);
+#endif
 #if BEAT_SABER_1_29_0
                     if (l_BeatmapKey == null) return;
                     m_MenuTransitionsHelper.StartStandardLevel(Legato.GameModes.Solo, l_BeatmapKey, level,
