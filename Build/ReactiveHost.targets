@@ -2,9 +2,8 @@
   <Target Name="LegatoReactiveUiResources" BeforeTargets="AssignTargetPaths" DependsOnTargets="LegatoConfigure">
     <ItemGroup Condition="'$(LegatoTargetProfile)' == '1.29.0' AND !$(Configuration.Contains('Editor'))">
       <EmbeddedResource Remove="Resources\AssetBundles\asset_bundle" />
-      <EmbeddedResource Include="$(MSBuildThisFileDirectory)Resources\ReactiveUiLegacy\*">
-        <LogicalName>Legato.ReactiveUiLegacy.%(Filename)%(Extension)</LogicalName>
-      </EmbeddedResource>
+      <_LegatoReactiveResource Include="$(MSBuildThisFileDirectory)Resources\ReactiveUiLegacy\*" />
+      <EmbeddedResource Include="@(_LegatoReactiveResource)" LogicalName="Legato.ReactiveUiLegacy.%(_LegatoReactiveResource.Filename)%(_LegatoReactiveResource.Extension)" />
     </ItemGroup>
   </Target>
 </Project>
