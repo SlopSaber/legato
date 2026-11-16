@@ -31,7 +31,8 @@
     <Error Condition="'$(LegatoSourceProfile)' == ''" Text="Legato does not support source written for Beat Saber $(LegatoSourceVersion)" />
   </Target>
 
-  <Target Name="LegatoAddRequiredReferences" BeforeTargets="ResolveAssemblyReferences" DependsOnTargets="LegatoConfigure">
+  <Target Name="LegatoAddRequiredReferences" BeforeTargets="ResolveAssemblyReferences" DependsOnTargets="LegatoConfigure"
+          Condition="'$(LegatoEnableReferenceShims)' != 'false'">
     <ItemGroup>
       <Reference Include="Colors" HintPath="$(LegatoReferenceRoot)\Beat Saber_Data\Managed\Colors.dll" Private="false"
                  Condition="'$(LegatoEnableBeatmapKeys)' == 'true' AND '@(Reference->WithMetadataValue('Identity', 'Colors'))' == '' AND Exists('$(LegatoReferenceRoot)\Beat Saber_Data\Managed\Colors.dll')" />
@@ -219,7 +220,7 @@
       <Compile Include="$(LegatoSourceRoot)ForwardPolyfills\**\Transitions\1.37.1-1.38.0\**\*.cs"
                Condition="'@(_LegatoDataModelsReference)' != '' AND '$(LegatoSourceOrder)' != '' AND '$(LegatoTargetOrder)' != '' AND $(LegatoSourceOrder) &lt;= 1 AND $(LegatoTargetOrder) &gt;= 2" />
       <Compile Include="$(LegatoSourceRoot)Library\Results\**\*.cs"
-               Condition="'@(_LegatoIPAReference)' != '' AND '@(_LegatoGameplayCoreReference)' != ''" />
+               Condition="'$(LegatoEnableResults)' == 'true' OR ('$(LegatoEnableAutoAdapters)' != 'false' AND '@(_LegatoIPAReference)' != '' AND '@(_LegatoGameplayCoreReference)' != '')" />
       <Compile Include="$(LegatoSourceRoot)Library\Characteristics\**\*.cs;$(LegatoSourceRoot)Library\LegacyNames\**\*.cs"
                Condition="'$(LegatoEnableLegacyTypeNames)' == 'true'" />
       <Compile Include="$(LegatoSourceRoot)Library\Unity\**\*.cs"
