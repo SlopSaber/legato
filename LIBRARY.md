@@ -144,3 +144,5 @@ These opt-in provider sources intentionally retain their native and schema-speci
 The suite previously defined `LATEST` unconditionally in its projects. The shared profile target retains that API flag on historical builds as well as current builds; Luna still supplies the separate PRE/version constants. It must not be inferred from the highest configuration alone.
 
 `LegatoEnableHeckProviders` embeds the existing version-sensitive Heck provider files in that plugin, retaining original type/assembly identities, conditional branches and analyzer policy. Original paths and hashes are in `ThirdParty/Heck.sources.json`. Use the shared suite profile target; plugin initialization and patch activation stay consumer-owned.
+
+`LegatoEnableChromaProviders` embeds the existing version-sensitive Chroma provider files in that plugin, retaining original type/assembly identities, conditional branches and analyzer policy. Original paths and hashes are in `ThirdParty/Chroma.sources.json`. Use the shared suite profile target; plugin initialization and patch activation stay consumer-owned.

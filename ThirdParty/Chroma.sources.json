@@ -1,0 +1,112 @@
+[
+  {
+    "original": "PublicMods\\Heck\\Chroma\\Animation\\FogAnimatorV2.cs",
+    "shared": "Source\\Providers\\Chroma\\Animation\\FogAnimatorV2.cs",
+    "sha256": "8efeb2efc595542cdeccdf07868250ab65081868181895c96b083d322ef0b8f9"
+  },
+  {
+    "original": "PublicMods\\Heck\\Chroma\\EnvironmentEnhancement\\EnvironmentEnhancementManager.cs",
+    "shared": "Source\\Providers\\Chroma\\EnvironmentEnhancement\\EnvironmentEnhancementManager.cs",
+    "sha256": "3ea7a1e4172fdff0d017944e268d09e8d187159444731bfdedbfc6d896a68d8d"
+  },
+  {
+    "original": "PublicMods\\Heck\\Chroma\\EnvironmentEnhancement\\EnvironmentMaterialsManager.cs",
+    "shared": "Source\\Providers\\Chroma\\EnvironmentEnhancement\\EnvironmentMaterialsManager.cs",
+    "sha256": "e355ee2648e12273a562b4fd0e754cf113c6f48a7c94c249462997b2874c3753"
+  },
+  {
+    "original": "PublicMods\\Heck\\Chroma\\EnvironmentEnhancement\\EnvironmentOverrideChecker.cs",
+    "shared": "Source\\Providers\\Chroma\\EnvironmentEnhancement\\EnvironmentOverrideChecker.cs",
+    "sha256": "679b35df2969243a223ce1fc562ab50c4f5038bdaff359f4c221ec7bbfb83580"
+  },
+  {
+    "original": "PublicMods\\Heck\\Chroma\\EnvironmentEnhancement\\MaterialColorAnimator.cs",
+    "shared": "Source\\Providers\\Chroma\\EnvironmentEnhancement\\MaterialColorAnimator.cs",
+    "sha256": "a0ca82e5fdefb543a8ab3455c677a42f90953022185787d82ca0a1ad909b459e"
+  },
+  {
+    "original": "PublicMods\\Heck\\Chroma\\EnvironmentEnhancement\\MaterialsManager.cs",
+    "shared": "Source\\Providers\\Chroma\\EnvironmentEnhancement\\MaterialsManager.cs",
+    "sha256": "14f0d1067172775d74d6b254fd21116a3fe64ba69113c5ac3e901293bb58262a"
+  },
+  {
+    "original": "PublicMods\\Heck\\Chroma\\HarmonyPatches\\SavedEnvironmentLoading.cs",
+    "shared": "Source\\Providers\\Chroma\\HarmonyPatches\\SavedEnvironmentLoading.cs",
+    "sha256": "92dc2ca6f00ef7325b75f4e5604d30eb4fc3e718fc9c04a0c7c0da023af16e48"
+  },
+  {
+    "original": "PublicMods\\Heck\\Chroma\\Installers\\ChromaAppInstaller.cs",
+    "shared": "Source\\Providers\\Chroma\\Installers\\ChromaAppInstaller.cs",
+    "sha256": "7388f18d76ed03109b6f8cc9d88e7e629558246fd69d5ed8fcb7f4a0df9cd98f"
+  },
+  {
+    "original": "PublicMods\\Heck\\Chroma\\Installers\\ChromaPlayerInstaller.cs",
+    "shared": "Source\\Providers\\Chroma\\Installers\\ChromaPlayerInstaller.cs",
+    "sha256": "fe9fa7e6ae827e79f82818b3dea9ce3f6619e4b6efdaa907687240a29d44c19b"
+  },
+  {
+    "original": "PublicMods\\Heck\\Chroma\\Settings\\ChromaSettingsUI.cs",
+    "shared": "Source\\Providers\\Chroma\\Settings\\ChromaSettingsUI.cs",
+    "sha256": "febb9e4ca7f54a0d5d3da6949767a64d363737e9da837286d02a52d2909e54b1"
+  },
+  {
+    "original": "PublicMods\\Heck\\Chroma\\EnvironmentEnhancement\\Component\\TubeBloomLightCustomizer.cs",
+    "shared": "Source\\Providers\\Chroma\\EnvironmentEnhancement\\Component\\TubeBloomLightCustomizer.cs",
+    "sha256": "0f11ca07b2332fe8454bf94b2610296f5a416b0d82e7dc69cd464e39da53aeca"
+  },
+  {
+    "original": "PublicMods\\Heck\\Chroma\\EnvironmentEnhancement\\Saved\\Features.cs",
+    "shared": "Source\\Providers\\Chroma\\EnvironmentEnhancement\\Saved\\Features.cs",
+    "sha256": "ebf98d31da73f5a16e595b78527630c9f585c2d3ea389f4a4b6154f861c9bfc8"
+  },
+  {
+    "original": "PublicMods\\Heck\\Chroma\\EnvironmentEnhancement\\Saved\\ReloadListener.cs",
+    "shared": "Source\\Providers\\Chroma\\EnvironmentEnhancement\\Saved\\ReloadListener.cs",
+    "sha256": "bc71a28ee130464c0dc43df29fd5e784e03bc43a6ef610ae0ddd0741537f27eb"
+  },
+  {
+    "original": "PublicMods\\Heck\\Chroma\\HarmonyPatches\\Colorizer\\ObjectColorize.cs",
+    "shared": "Source\\Providers\\Chroma\\HarmonyPatches\\Colorizer\\ObjectColorize.cs",
+    "sha256": "74765912a2c7314e408a162f2be51df4c0a3ed1884946d141b7975748d8f2807"
+  },
+  {
+    "original": "PublicMods\\Heck\\Chroma\\HarmonyPatches\\Colorizer\\ObstacleEffectsColorize.cs",
+    "shared": "Source\\Providers\\Chroma\\HarmonyPatches\\Colorizer\\ObstacleEffectsColorize.cs",
+    "sha256": "e718c7d5a006d1206bfe01db381c8bc9d64e647a0832e7b494fbfcc50455c3d3"
+  },
+  {
+    "original": "PublicMods\\Heck\\Chroma\\HarmonyPatches\\Colorizer\\ObstacleEffectsColorize1_34_2AndEarlier.cs",
+    "shared": "Source\\Providers\\Chroma\\HarmonyPatches\\Colorizer\\ObstacleEffectsColorize1_34_2AndEarlier.cs",
+    "sha256": "37a1b0074a6604ef00a4747148ad97c98ad6a0cd953a102479ca220788ceaa60"
+  },
+  {
+    "original": "PublicMods\\Heck\\Chroma\\HarmonyPatches\\EnvironmentComponent\\BeatmapObjectsAvoidanceTransformOverride.cs",
+    "shared": "Source\\Providers\\Chroma\\HarmonyPatches\\EnvironmentComponent\\BeatmapObjectsAvoidanceTransformOverride.cs",
+    "sha256": "7a2ce3f7c9632c6894657b02ee31ceab49e24fd8e6523bf680b5a7458efe11ca"
+  },
+  {
+    "original": "PublicMods\\Heck\\Chroma\\HarmonyPatches\\EnvironmentComponent\\RingAwakeInstantiator.cs",
+    "shared": "Source\\Providers\\Chroma\\HarmonyPatches\\EnvironmentComponent\\RingAwakeInstantiator.cs",
+    "sha256": "64484d7017b08cc8ce7e7cd639cdf92b8e96028083bda18d262dfaa8d20389b1"
+  },
+  {
+    "original": "PublicMods\\Heck\\Chroma\\HeckImplementation\\Modules\\EnvironmentModule.cs",
+    "shared": "Source\\Providers\\Chroma\\HeckImplementation\\Modules\\EnvironmentModule.cs",
+    "sha256": "40c7523bf39d713b3205d49be39535a5b4c1a30d7460c2d95315bbe776f934fa"
+  },
+  {
+    "original": "PublicMods\\Heck\\Chroma\\HeckImplementation\\Modules\\FeaturesModule.cs",
+    "shared": "Source\\Providers\\Chroma\\HeckImplementation\\Modules\\FeaturesModule.cs",
+    "sha256": "e827edb9a5438e0c236eec90890f3cc751251ccae32a8b5e688069320925fab3"
+  },
+  {
+    "original": "PublicMods\\Heck\\Chroma\\HeckImplementation\\Modules\\LightshowQuality.cs",
+    "shared": "Source\\Providers\\Chroma\\HeckImplementation\\Modules\\LightshowQuality.cs",
+    "sha256": "9f263cbeb57eb00867830efc0fb3805fee6d4c4cba25d4b03b490850699d00dc"
+  },
+  {
+    "original": "PublicMods\\Heck\\Chroma\\HeckImplementation\\Modules\\NativeLightshowQuality.cs",
+    "shared": "Source\\Providers\\Chroma\\HeckImplementation\\Modules\\NativeLightshowQuality.cs",
+    "sha256": "dad84dad742807697d183f3ca97df44f4c98186eeb22dae30bb34a13432fd789"
+  }
+]
