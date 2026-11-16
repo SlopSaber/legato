@@ -13,6 +13,9 @@ namespace Legato.Unity {
 #endif
         }
 
+        internal static T[] FindLoaded<T>() where T : UnityEngine.Object =>
+            UnityEngine.Resources.FindObjectsOfTypeAll<T>();
+
         internal static T[] FindActiveUnsorted<T>() where T : UnityEngine.Object {
 #if BEAT_SABER_1_45_1 || BEAT_SABER_1_45_3
             return UnityEngine.Object.FindObjectsByType<T>(FindObjectsSortMode.None);
