@@ -288,7 +288,7 @@
       <Compile Include="$(LegatoSourceRoot)Library\Leaderboards\LeaderboardCore\SelectedLevelExtensions.cs"
                Condition="'$(LegatoEnableLeaderboardCore)' == 'true' AND '@(_LegatoHarmonyReference)' != ''" />
       <Compile Include="$(LegatoSourceRoot)Library\Leaderboards\PlatformLeaderboardContextExtensions.cs"
-               Condition="'@(_LegatoIPAReference)' != '' AND '@(_LegatoMainReference)' != ''" />
+               Condition="('$(LegatoEnablePlatformLeaderboards)' == 'true' OR '$(LegatoEnableAutoAdapters)' != 'false') AND '@(_LegatoIPAReference)' != '' AND '@(_LegatoMainReference)' != ''" />
       <Compile Include="$(LegatoSourceRoot)Polyfills\SiraUtil\**\*.cs"
                Exclude="$(LegatoSourceRoot)**\Versions\**\*.cs;$(LegatoSourceRoot)Polyfills\SiraUtil\Web\IHttpResponse\**\*.cs"
                Condition="'$(LegatoEnableSiraUtil)' == 'true'" />
