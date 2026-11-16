@@ -1,5 +1,9 @@
 using System;
+#if BEAT_SABER_1_29_0
+using BeatmapEventType = BeatmapSaveDataVersion2_6_0AndEarlier.BeatmapSaveData.BeatmapEventType;
+#else
 using BeatmapSaveDataCommon;
+#endif
 using Mono.Cecil.Cil;
 using MonoMod.Cil;
 using MonoMod.RuntimeDetour;
@@ -38,4 +42,3 @@ namespace SongCore.Hooks
         }
     }
 }
-

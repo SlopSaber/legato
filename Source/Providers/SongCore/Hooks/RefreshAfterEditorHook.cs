@@ -2,6 +2,11 @@ using System;
 using System.Reflection;
 using MonoMod.RuntimeDetour;
 using Zenject;
+#if BEAT_SABER_1_29_0
+using NativeEditorTransition = global::BeatmapEditorScenesTransitionSetupDataSO;
+#else
+using NativeEditorTransition = global::BeatmapEditorScenesTransitionSetupData;
+#endif
 
 namespace SongCore.Hooks
 {
@@ -30,11 +35,10 @@ namespace SongCore.Hooks
             _handleBeatmapEditorSceneDidFinishHook.Dispose();
         }
 
-        private void RefreshSongs(Action<MenuTransitionsHelper, BeatmapEditorScenesTransitionSetupData> original, MenuTransitionsHelper instance, BeatmapEditorScenesTransitionSetupData beatmapEditorScenesTransitionSetupData)
+        private void RefreshSongs(Action<MenuTransitionsHelper, NativeEditorTransition> original, MenuTransitionsHelper instance, NativeEditorTransition beatmapEditorScenesTransitionSetupData)
         {
             original(instance, beatmapEditorScenesTransitionSetupData);
             _loader.RefreshSongs();
         }
     }
 }
-

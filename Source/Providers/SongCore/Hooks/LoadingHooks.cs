@@ -6,6 +6,11 @@ using System.Threading;
 using System.Threading.Tasks;
 using MonoMod.RuntimeDetour;
 using Zenject;
+#if BEAT_SABER_1_29_0
+using NativePackCollection = global::IBeatmapLevelPackCollection;
+#else
+using NativePackCollection = global::BeatmapLevelsRepository;
+#endif
 
 namespace SongCore.Hooks
 {
@@ -27,9 +32,10 @@ namespace SongCore.Hooks
         }
 
         // TODO: Some code in LoadBeatmapLevelCollectionAsync is skipped that is important.
-        private Task<BeatmapLevelsRepository?> SuppressReload(Func<BeatmapLevelsModel, CancellationToken, Task<BeatmapLevelsRepository?>> original, BeatmapLevelsModel instance, CancellationToken cancellationToken)
+        private Task<NativePackCollection?> SuppressReload(Func<BeatmapLevelsModel, CancellationToken, Task<NativePackCollection?>> original, BeatmapLevelsModel instance, CancellationToken cancellationToken)
         {
-            return Task.FromResult<BeatmapLevelsRepository?>(null);
+            cancellationToken.ThrowIfCancellationRequested();
+            return Task.FromResult<NativePackCollection?>(Loader.CustomLevelsRepository);
         }
 
         private void SetPacksAndRefreshUI(Action<LevelFilteringNavigationController> original, LevelFilteringNavigationController instance)
@@ -62,4 +68,3 @@ namespace SongCore.Hooks
         }
     }
 }
-
