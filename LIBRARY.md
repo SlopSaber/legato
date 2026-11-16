@@ -40,7 +40,7 @@ This lists the small reusable APIs supplied by Legato. Transparent polyfills mir
 
 ## Optional adapters
 
-These APIs compile into the consumer. Enable only the features whose references and native API contracts the consumer supports. Package revisions through `0.1.2-local.57` contain the following additions; a consumer pinned to an earlier revision has only the APIs in that revision.
+These APIs compile into the consumer. Enable only the features whose references and native API contracts the consumer supports. Package revisions through `0.1.2-local.58` contain the following additions; a consumer pinned to an earlier revision has only the APIs in that revision.
 
 | Property | APIs and scope |
 | --- | --- |
@@ -104,3 +104,5 @@ The latest additions have consumer build evidence for 1.45.3 and 1.46.0. Earlier
 `LegatoEnableNumericText` supplies `NumericTextFormatter.Publish` for one value or a left/right pair. The 1.45.3 profile retains the 128-character buffer, current culture, formatting fallback and unchanged-text suppression. Earlier profiles keep direct string formatting. Each displayed value group needs its own formatter instance. Consumers retain sampling, precision, labels and update cadence.
 
 `LegatoEnableResultsCopy` supplies the internal abstract `CompletionResultsCopy` base. Its protected constructor copies the selected native completion-results fields through the appropriate native constructor, including modern score/max fields, missed cuts and start time. A consumer subclass retains its own metadata and remains assignable to native `LevelCompletionResults`; its immediate base type changes to the shared class. Use only where that inheritance change is compatible with the consumer contract.
+
+`ObjectDiscovery.FindAnyActive<T>` preserves an unsorted arbitrary active-object query on current profiles. `FindIncludingInactiveUnsorted<T>` includes inactive scene objects without replacing the query with loaded-asset discovery. Older API paths retain their native ordering; newly added paths require consumer build evidence before historical compatibility is claimed.
