@@ -1,9 +1,4 @@
 <Project>
-  <ItemGroup Condition="'$(LegatoEnableAsyncInterfaces)' == 'true'">
-    <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Version="11.0.0" />
-    <PackageReference Include="System.Threading.Tasks.Extensions" Version="4.6.3" />
-    <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies.net472" Version="1.0.3" PrivateAssets="all" />
-  </ItemGroup>
   <Target Name="LegatoConfigureAsyncFramework" BeforeTargets="GetReferenceAssemblyPaths" Condition="'$(LegatoEnableAsyncInterfaces)' == 'true'">
     <PropertyGroup>
       <EnableFrameworkPathOverride>true</EnableFrameworkPathOverride>
