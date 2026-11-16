@@ -2,10 +2,8 @@
 global using CustomLevelFolderInfo = Legato.Beatmaps.Formats.LegacyLevelFolderInfo;
 global using NativeLoadedSaveData = Legato.Beatmaps.Formats.LegacyLoadedSaveData;
 global using NativeV4LevelInfo = Legato.Beatmaps.Formats.V4LevelInfo;
-global using NativeEditorTransition = global::BeatmapEditorScenesTransitionSetupDataSO;
 global using NativeEntitlements = global::AdditionalContentModel;
 #else
-global using NativeEditorTransition = global::BeatmapEditorScenesTransitionSetupData;
 global using NativeEntitlements = global::IEntitlementModel;
 global using NativeLoadedSaveData = global::CustomLevelLoader.LoadedSaveData;
 global using NativeV4LevelInfo = BeatmapLevelSaveDataVersion4.BeatmapLevelSaveData;

@@ -14,6 +14,9 @@ using SongCore.Utilities;
 using TMPro;
 using UnityEngine;
 using Zenject;
+#if BEAT_SABER_1_29_0
+using Legato;
+#endif
 
 namespace SongCore.Hooks
 {
@@ -51,11 +54,17 @@ namespace SongCore.Hooks
             _getSongDataHook = new Hook(typeof(LevelCollectionViewController).GetMethod(nameof(LevelCollectionViewController.HandleLevelCollectionTableViewDidSelectLevel), BindingFlags.Instance | BindingFlags.NonPublic)!, HandleDidSelectLevel, true);
             _textSizeLimitHook = new Hook(typeof(BeatmapDifficultySegmentedControlController).GetMethod(nameof(BeatmapDifficultySegmentedControlController.SetData))!, LimitTextSize, true);
             _customDifficultyLabelsHook = new Hook(typeof(BeatmapDifficultySegmentedControlController).GetMethod(nameof(BeatmapDifficultySegmentedControlController.SetData))!, SetData, true);
+#if BEAT_SABER_1_29_0
+            _customDifficultyTextHook = new Hook(typeof(LevelBar).GetMethod(nameof(LevelBar.Setup), new[] { typeof(IPreviewBeatmapLevel), typeof(BeatmapCharacteristicSO), typeof(BeatmapDifficulty) })!, SetupData, true);
+#else
             _customDifficultyTextHook = new Hook(typeof(LevelBar).GetMethod(nameof(LevelBar.SetupData), BindingFlags.Instance | BindingFlags.NonPublic)!, SetupData, true);
+#endif
             _defaultCharacteristicHook = new Hook(typeof(BeatmapCharacteristicSegmentedControlController).GetMethod(nameof(BeatmapCharacteristicSegmentedControlController.SetData))!, SelectDefaultCharacteristic, true);
             _cosmeticCharacteristicHook = new Hook(typeof(BeatmapCharacteristicSegmentedControlController).GetMethod(nameof(BeatmapCharacteristicSegmentedControlController.SetData))!, SetCosmeticCharacteristic, true);
             _requirementsHook = new Hook(typeof(StandardLevelDetailView).GetMethod(nameof(StandardLevelDetailView.RefreshContent))!, ProcessBeatmapRequirements, true);
+#if !BEAT_SABER_1_29_0
             _buttonsStateHook = new Hook(typeof(StandardLevelDetailView).GetMethod(nameof(StandardLevelDetailView.CheckIfBeatmapLevelDataExists), BindingFlags.Instance | BindingFlags.NonPublic)!, SaveAndRestoreButtonsState, true);
+#endif
             _overrideColorSchemeHook = new ILHook(typeof(StandardLevelScenesTransitionSetupData).GetMethod(nameof(StandardLevelScenesTransitionSetupData.Init), BindingFlags.Instance | BindingFlags.Public | BindingFlags.DeclaredOnly)!, OverrideColorSchemeManipulator, true);
             _overrideMultiplayerColorSchemeHook = new ILHook(typeof(MultiplayerLevelScenesTransitionSetupData).GetMethod(nameof(MultiplayerLevelScenesTransitionSetupData.Init), BindingFlags.Instance | BindingFlags.Public | BindingFlags.DeclaredOnly)!, OverrideColorSchemeManipulator, true);
         }
@@ -69,13 +78,13 @@ namespace SongCore.Hooks
             _defaultCharacteristicHook.Dispose();
             _cosmeticCharacteristicHook.Dispose();
             _requirementsHook.Dispose();
-            _buttonsStateHook.Dispose();
+            _buttonsStateHook?.Dispose();
             _overrideColorSchemeHook.Dispose();
             _overrideMultiplayerColorSchemeHook.Dispose();
 
             foreach (var sprite in _characteristicDetailsSprites.Values)
             {
-                SpriteAsyncLoader.DestroySprite(sprite);
+                UnityEngine.Object.Destroy(sprite);
             }
         }
 
@@ -103,9 +112,15 @@ namespace SongCore.Hooks
         }
 
         // TODO: Add Hover Hints that shows full text when text is too large?
+#if BEAT_SABER_1_29_0
+        private void LimitTextSize(Action<BeatmapDifficultySegmentedControlController, IReadOnlyList<IDifficultyBeatmap>, BeatmapDifficulty> original, BeatmapDifficultySegmentedControlController instance, IReadOnlyList<IDifficultyBeatmap> difficultyBeatmaps, BeatmapDifficulty selectedDifficulty)
+        {
+            original(instance, difficultyBeatmaps, selectedDifficulty);
+#else
         private void LimitTextSize(Action<BeatmapDifficultySegmentedControlController, IEnumerable<BeatmapDifficulty>, BeatmapDifficulty, BeatmapDifficultyMask> original, BeatmapDifficultySegmentedControlController instance, IEnumerable<BeatmapDifficulty> difficultyBeatmaps, BeatmapDifficulty selectedDifficulty, BeatmapDifficultyMask allowedBeatmapDifficultyMask)
         {
             original(instance, difficultyBeatmaps, selectedDifficulty, allowedBeatmapDifficultyMask);
+#endif
 
             if (_songData == null || !_config.DisplayDiffLabels)
             {
@@ -125,15 +140,23 @@ namespace SongCore.Hooks
                 cell._text.fontSizeMin = 2.125f;
                 cell._text.fontSizeMax = 3f;
                 cell._text.alignment = TextAlignmentOptions.Midline;
-                cell._text.m_textAlignment = TextAlignmentOptions.Converted; // needed to stop Awake() from resetting alignment
+#if !BEAT_SABER_1_29_0
+                cell._text.m_textAlignment = TextAlignmentOptions.Converted;
+#endif // needed to stop Awake() from resetting alignment
                 cell._text.rectTransform.sizeDelta = new Vector2(0f, 1.2f);
                 cell._text.overflowMode = TextOverflowModes.Ellipsis;
             }
         }
 
+#if BEAT_SABER_1_29_0
+        private void SetData(Action<BeatmapDifficultySegmentedControlController, IReadOnlyList<IDifficultyBeatmap>, BeatmapDifficulty> original, BeatmapDifficultySegmentedControlController instance, IReadOnlyList<IDifficultyBeatmap> difficultyBeatmaps, BeatmapDifficulty selectedDifficulty)
+        {
+            original(instance, difficultyBeatmaps, selectedDifficulty);
+#else
         private void SetData(Action<BeatmapDifficultySegmentedControlController, IEnumerable<BeatmapDifficulty>, BeatmapDifficulty, BeatmapDifficultyMask> original, BeatmapDifficultySegmentedControlController instance, IEnumerable<BeatmapDifficulty> difficultyBeatmaps, BeatmapDifficulty selectedDifficulty, BeatmapDifficultyMask allowedBeatmapDifficultyMask)
         {
             original(instance, difficultyBeatmaps, selectedDifficulty, allowedBeatmapDifficultyMask);
+#endif
 
             if (_songData == null || !_config.DisplayDiffLabels)
             {
@@ -154,18 +177,36 @@ namespace SongCore.Hooks
             }
         }
 
+#if BEAT_SABER_1_29_0
+        private void SetupData(Action<LevelBar, IPreviewBeatmapLevel, BeatmapCharacteristicSO, BeatmapDifficulty> original, LevelBar instance, IPreviewBeatmapLevel beatmapLevel, BeatmapCharacteristicSO beatmapCharacteristic, BeatmapDifficulty beatmapDifficulty)
+        {
+            original(instance, beatmapLevel, beatmapCharacteristic, beatmapDifficulty);
+            ApplyLevelBar(instance, beatmapDifficulty, beatmapCharacteristic);
+        }
+#else
         private Task SetupData(Func<LevelBar, BeatmapLevel, BeatmapDifficulty, BeatmapCharacteristic, Task> original, LevelBar instance, BeatmapLevel beatmapLevel, BeatmapDifficulty beatmapDifficulty, BeatmapCharacteristic beatmapCharacteristic)
         {
             var result = original(instance, beatmapLevel, beatmapDifficulty, beatmapCharacteristic);
+            ApplyLevelBar(instance, beatmapDifficulty, beatmapCharacteristic);
+            return result;
+        }
+#endif
+
+        private void ApplyLevelBar(LevelBar instance, BeatmapDifficulty beatmapDifficulty, BeatmapCharacteristic beatmapCharacteristic)
+        {
 
             if (_songData == null || !_config.DisplayDiffLabels || !instance._showDifficultyAndCharacteristic)
             {
-                return result;
+                return;
             }
 
             if (_characteristicDifficultyLabels.TryGetValue(beatmapCharacteristic.SerializedName(), out var difficultyLabels) && difficultyLabels.TryGetValue(beatmapDifficulty, out var difficultyLabel))
             {
+#if BEAT_SABER_1_29_0
+                instance._difficultyText.enableWordWrapping = false;
+#else
                 instance._difficultyText.textWrappingMode = TextWrappingModes.NoWrap;
+#endif
                 instance._difficultyText.overflowMode = TextOverflowModes.Ellipsis;
                 instance._difficultyText.text = GetDifficultyLabel(difficultyLabel) ?? instance._difficultyText.text;
             }
@@ -180,7 +221,6 @@ namespace SongCore.Hooks
                 }
             }
 
-            return result;
         }
 
         private string? GetDifficultyLabel(string difficultyLabel)
@@ -188,26 +228,38 @@ namespace SongCore.Hooks
             return string.IsNullOrWhiteSpace(difficultyLabel) ? null : difficultyLabel.Replace("<", "<\u200B").Replace(">", ">\u200B");
         }
 
+#if BEAT_SABER_1_29_0
+        private void SelectDefaultCharacteristic(Action<BeatmapCharacteristicSegmentedControlController, IReadOnlyList<IDifficultyBeatmapSet>, BeatmapCharacteristic> original, BeatmapCharacteristicSegmentedControlController instance, IReadOnlyList<IDifficultyBeatmapSet> beatmapCharacteristics, BeatmapCharacteristic selectedBeatmapCharacteristic)
+        {
+            original(instance, beatmapCharacteristics, selectedBeatmapCharacteristic);
+#else
         private void SelectDefaultCharacteristic(Action<BeatmapCharacteristicSegmentedControlController, IEnumerable<BeatmapCharacteristic>, BeatmapCharacteristic, HashSet<BeatmapCharacteristic>> original, BeatmapCharacteristicSegmentedControlController instance, IEnumerable<BeatmapCharacteristic> beatmapCharacteristics, BeatmapCharacteristic selectedBeatmapCharacteristic, HashSet<BeatmapCharacteristic> notAllowedCharacteristics)
         {
             original(instance, beatmapCharacteristics, selectedBeatmapCharacteristic, notAllowedCharacteristics);
+#endif
 
             if (_songData == null || _songData._defaultCharacteristic == null || _songData._defaultCharacteristic == instance.selectedBeatmapCharacteristic.SerializedName())
             {
                 return;
             }
 
-            var index = instance._currentlyAvailableBeatmapCharacteristics.FindIndex(c => c.SerializedName() == _songData._defaultCharacteristic);
+            var index = SongCoreNative.AvailableCharacteristics(instance).FindIndex(c => c.SerializedName() == _songData._defaultCharacteristic);
             if (index != -1)
             {
                 instance._segmentedControl.SelectCellWithNumber(index);
-                instance._selectedBeatmapCharacteristic = instance._currentlyAvailableBeatmapCharacteristics[index];
+                instance._selectedBeatmapCharacteristic = SongCoreNative.AvailableCharacteristics(instance)[index];
             }
         }
 
+#if BEAT_SABER_1_29_0
+        private void SetCosmeticCharacteristic(Action<BeatmapCharacteristicSegmentedControlController, IReadOnlyList<IDifficultyBeatmapSet>, BeatmapCharacteristic> original, BeatmapCharacteristicSegmentedControlController instance, IReadOnlyList<IDifficultyBeatmapSet> beatmapCharacteristics, BeatmapCharacteristic selectedBeatmapCharacteristic)
+        {
+            original(instance, beatmapCharacteristics, selectedBeatmapCharacteristic);
+#else
         private void SetCosmeticCharacteristic(Action<BeatmapCharacteristicSegmentedControlController, IEnumerable<BeatmapCharacteristic>, BeatmapCharacteristic, HashSet<BeatmapCharacteristic>> original, BeatmapCharacteristicSegmentedControlController instance, IEnumerable<BeatmapCharacteristic> beatmapCharacteristics, BeatmapCharacteristic selectedBeatmapCharacteristic, HashSet<BeatmapCharacteristic> notAllowedCharacteristics)
         {
             original(instance, beatmapCharacteristics, selectedBeatmapCharacteristic, notAllowedCharacteristics);
+#endif
 
             if (_songData == null || _songData._characteristicDetails == null || !_config.DisplayCustomCharacteristics)
             {
@@ -216,7 +268,7 @@ namespace SongCore.Hooks
 
             foreach (var characteristicDetails in _songData._characteristicDetails)
             {
-                var index = instance._currentlyAvailableBeatmapCharacteristics.FindIndex(c => c.SerializedName() == characteristicDetails._beatmapCharacteristicName);
+                var index = SongCoreNative.AvailableCharacteristics(instance).FindIndex(c => c.SerializedName() == characteristicDetails._beatmapCharacteristicName);
 
                 if (index == -1)
                 {
@@ -248,7 +300,7 @@ namespace SongCore.Hooks
                 return null;
             }
 
-            var spritePath = Path.Combine(_customLevelLoader._loadedBeatmapSaveData[_standardLevelDetailViewController.beatmapLevel.levelID].customLevelFolderInfo.folderPath, characteristicIconFilePath);
+            var spritePath = Path.Combine(SongCoreNative.LevelDirectory(_standardLevelDetailViewController.beatmapLevel.levelID), characteristicIconFilePath);
             if (!_characteristicDetailsSprites.TryGetValue(spritePath, out var icon))
             {
                 if ((icon = Utils.LoadSpriteFromFile(spritePath)) != null)
@@ -265,7 +317,7 @@ namespace SongCore.Hooks
             original(instance);
 
             var beatmapLevel = _standardLevelDetailViewController.beatmapLevel;
-            var beatmapKey = instance.beatmapKey;
+            var beatmapKey = SongCoreNative.SelectedKey(instance);
             var actionButton = instance.actionButton;
             var practiceButton = instance.practiceButton;
 
@@ -370,7 +422,11 @@ namespace SongCore.Hooks
             cursor.GotoNext(MoveType.Before, i => i.MatchCall(out var method) && method.Name == "set_colorScheme");
             cursor.Emit(OpCodes.Ldarg_0);
             cursor.Emit(OpCodes.Ldarg_2);
+#if BEAT_SABER_1_29_0
+            cursor.EmitDelegate<Func<ColorScheme, LevelScenesTransitionSetupData, IDifficultyBeatmap, ColorScheme>>((color, transition, key) => SetOverrideColorScheme(color, transition, in key));
+#else
             cursor.EmitDelegate(SetOverrideColorScheme);
+#endif
         }
 
         private ColorScheme SetOverrideColorScheme(ColorScheme colorScheme, LevelScenesTransitionSetupData levelScenesTransitionSetupData, in BeatmapKey beatmapKey)

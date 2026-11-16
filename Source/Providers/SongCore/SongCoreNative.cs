@@ -47,6 +47,28 @@ namespace SongCore
 #else
             model.GetEnvironmentInfoBySerializedNameSafe(name);
 #endif
+        internal static List<BeatmapCharacteristic> AvailableCharacteristics(BeatmapCharacteristicSegmentedControlController controller) =>
+#if BEAT_SABER_1_29_0
+            controller._beatmapCharacteristics;
+#else
+            controller._currentlyAvailableBeatmapCharacteristics;
+#endif
+        internal static BeatmapKey SelectedKey(StandardLevelDetailView view) =>
+#if BEAT_SABER_1_29_0
+            view.selectedDifficultyBeatmap;
+#else
+            view.beatmapKey;
+#endif
         internal static string LevelDirectory(string id) => Loader.NativeSaveStore[id].customLevelFolderInfo.folderPath;
     }
 }
+
+#if BEAT_SABER_1_29_0
+namespace SongCore
+{
+    internal static class LegacyCharacteristicNames
+    {
+        internal static string SerializedName(this BeatmapCharacteristicSO value) => value.serializedName;
+    }
+}
+#endif

@@ -79,8 +79,9 @@ namespace SongCore
 
         private BeatmapLevel CreateNativePreview(NativeLoadedSaveData data)
         {
-            StandardLevelInfoSaveData info = data.standardLevelInfoSaveData
-                ?? StandardLevelInfoSaveData.DeserializeFromJSONString(data.beatmapLevelSaveData!.LegacyMetadata(true).ToString(Formatting.None));
+            if (data.beatmapLevelSaveData != null)
+                return Hooks.V4LoadingHooks.CreatePreview(_customLevelLoader, data.beatmapLevelSaveData, data.customLevelFolderInfo.folderPath, string.Empty);
+            StandardLevelInfoSaveData info = data.standardLevelInfoSaveData!;
             var sets = info.difficultyBeatmapSets.Select(set => new PreviewDifficultyBeatmapSet(
                 _beatmapCharacteristicCollection.GetBeatmapCharacteristicBySerializedName(set.beatmapCharacteristicName),
                 set.difficultyBeatmaps.Select(difficulty => Enum.TryParse(difficulty.difficulty, out BeatmapDifficulty value)
