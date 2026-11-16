@@ -260,6 +260,8 @@
                Condition="'$(LegatoEnableGameModes)' == 'true' AND '$(LegatoEnablePolyfills)' == 'false'" />
       <Compile Include="$(LegatoSourceRoot)Library\LevelCharacteristics\**\*.cs"
                Condition="'$(LegatoEnableLevelCharacteristics)' == 'true'" />
+      <Compile Include="$(LegatoSourceRoot)Library\SaberDepth\**\*.cs"
+               Condition="'$(LegatoEnableSaberDepth)' == 'true'" />
       <Compile Include="$(LegatoSourceRoot)Library\BsmlButtons\**\*.cs"
                Condition="'$(LegatoEnableMenuButtons)' == 'true'" />
       <Compile Include="$(LegatoSourceRoot)Library\BeatmapText\**\*.cs"
