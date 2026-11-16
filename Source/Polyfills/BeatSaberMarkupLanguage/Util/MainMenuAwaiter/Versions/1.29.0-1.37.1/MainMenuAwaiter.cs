@@ -1,5 +1,6 @@
 #nullable enable
 
+#if !LEGATO_BSML_CURRENT
 using System;
 
 namespace BeatSaberMarkupLanguage.Util {
@@ -10,3 +11,4 @@ namespace BeatSaberMarkupLanguage.Util {
         }
     }
 }
+#endif

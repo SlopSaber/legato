@@ -7,8 +7,14 @@ using HarmonyLib;
 namespace Legato.Gameplay {
     internal static class TransitionMethods {
         internal static MethodInfo? StandardLevelWithBeatmapData() => typeof(MenuTransitionsHelper).GetMethods()
+#if BEAT_SABER_1_29_0
+            .Where(method => method.Name == nameof(MenuTransitionsHelper.StartStandardLevel)
+                && method.GetParameters().Any(parameter => parameter.ParameterType == typeof(IDifficultyBeatmap)))
+            .OrderByDescending(method => method.GetParameters().Length).FirstOrDefault();
+#else
             .FirstOrDefault(method => method.Name == nameof(MenuTransitionsHelper.StartStandardLevel)
                 && method.GetParameters().Any(parameter => parameter.ParameterType.FullName == "IBeatmapLevelData"));
+#endif
 
         internal static MethodInfo? MissionLevel() => AccessTools.Method(typeof(MenuTransitionsHelper), nameof(MenuTransitionsHelper.StartMissionLevel));
         internal static MethodInfo? StandardLevelFinished() => AccessTools.DeclaredMethod(typeof(MenuTransitionsHelper), nameof(MenuTransitionsHelper.HandleMainGameSceneDidFinish));
