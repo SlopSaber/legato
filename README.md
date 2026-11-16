@@ -66,6 +66,30 @@ For a mod such as SongBrowser for example which was written for 1.29.0 and hypot
 3. Build the existing source and fix anything Legato doesn't cover
 4. Test the build against the target
 
+## Building source asset bundles
+
+`LegatoBuildAssetBundles` runs a consumer-owned static Unity exporter with the selected profile's editor. It checks the asset project's editor version, executable version and resulting UnityFS header, and records the output hash beside the build log. It never deploys assets or builds a game player. Existing builds do not start Unity unless this target is requested or `LegatoBuildAssets=true` is set.
+
+```xml
+<PropertyGroup>
+  <LegatoUnityEditorRoot>D:/Software/Programs/Unity</LegatoUnityEditorRoot>
+</PropertyGroup>
+<ItemGroup>
+  <LegatoAssetProject Include="AssetsProject2019" Profile="1.29.0"
+      ExecuteMethod="BundleExporter.Build"
+      OutputFile="$(MSBuildProjectDirectory)/Assets/2019/model.bundle" />
+  <LegatoAssetProject Include="AssetsProject6000" Profile="1.45.3"
+      ExecuteMethod="BundleExporter.Build"
+      OutputFile="$(MSBuildProjectDirectory)/Assets/6000/model.bundle" />
+</ItemGroup>
+```
+
+Run the mod's normal output build with `-t:LegatoBuildAssetBundles` and its explicit game/Legato target properties. To generate assets during the managed build, pass `-p:LegatoBuildAssets=true`. Exporters must write the declared output file. Use absolute output paths. Select the generated file with the existing `LegatoProfileResource` items while retaining its logical resource name.
+
+The default editors are 2019.4.28f1 for game 1.29.0/1.29.1 and 6000.3.19f1 for game 1.46.0. Other targets require an explicit `UnityVersion` on the asset project or `LegatoAssetUnityVersion`. `UNITY_EDITOR_ROOT` can supply the editor directory. Editors must already be installed and licensed. Do not point this target at a recovered game project.
+
+Keep one maintained source asset set with shared files or an export step feeding compatible asset projects. Project settings, packages, shader variants and script bindings must support each compiler and rendering pipeline. This runner does not downgrade a Unity project, decompile binary bundles, reconstruct missing shader source or implement unavailable engine features. Newer-only shaders still need an older-pipeline variant; that compatibility can be shared rather than copied into each mod. No legacy bundle or renderer compatibility is implied by successful packaging.
+
 ## Selecting a small adapter set
 
 For a consumer that needs only named adapters, set `LegatoEnableAutoAdapters` and `LegatoEnablePolyfills` to `false`, then enable the required features. This avoids compiling unrelated compatibility code. Existing consumers can keep automatic reference-based selection.

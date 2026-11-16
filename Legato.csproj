@@ -27,6 +27,8 @@
     <None Include="LICENSE" Pack="true" PackagePath="\" />
     <None Include="ThirdParty\**\*" Pack="true" PackagePath="ThirdParty\%(RecursiveDir)%(Filename)%(Extension)" />
     <None Include="Build\Legato.props" Pack="true" PackagePath="build\LegatoBS.props" />
+    <None Include="Build\AssetBundles.targets" Pack="true" PackagePath="build\AssetBundles.targets" />
+    <None Include="Build\Build-AssetBundle.ps1" Pack="true" PackagePath="build\Build-AssetBundle.ps1" />
     <None Include="Build\Legato.Versions.props" Pack="true" PackagePath="build\Legato.Versions.props" />
     <None Include="Build\BsUtilsHost.targets" Pack="true" PackagePath="build\BsUtilsHost.targets" />
     <None Include="Resources\**\*" Pack="true" PackagePath="build\Resources\%(RecursiveDir)%(Filename)%(Extension)" />

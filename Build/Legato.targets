@@ -1,4 +1,5 @@
 <Project>
+  <Import Project="$(MSBuildThisFileDirectory)AssetBundles.targets" />
   <Import Project="$(MSBuildProjectFullPath).user" Condition="'$(LegatoMetadataOnly)' != 'true' AND '$(BeatSaberDir)' == '' AND Exists('$(MSBuildProjectFullPath).user')" />
 
   <PropertyGroup>
