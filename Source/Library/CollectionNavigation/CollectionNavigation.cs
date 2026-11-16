@@ -5,6 +5,19 @@ using UnityEngine;
 
 namespace Legato.UI {
     internal static class CollectionNavigation {
+        internal static string EmptyCustomPackId => CustomLevelLoader.kCustomLevelPackPrefixId + "CustomLevels";
+        internal static string LevelId(BeatmapKey key) =>
+#if BEAT_SABER_1_29_0
+            key?.level?.levelID ?? string.Empty;
+#else
+            key.levelId;
+#endif
+        internal static bool EmptySetData(object[] args) =>
+#if BEAT_SABER_1_29_0
+            args[0] == null || ((IBeatmapLevelCollection)args[0]).beatmapLevels.Count == 0;
+#else
+            args[0] == null || ((IReadOnlyList<BeatmapLevel>)args[0]).Count == 0;
+#endif
         internal const LevelPackDetailViewController.ContentType NonBuyable =
 #if BEAT_SABER_1_29_0
             LevelPackDetailViewController.ContentType.Owned;
