@@ -23,7 +23,7 @@ namespace Legato.Rendering
         private readonly MirrorRendererSO _renderer = FindResource<MirrorRendererSO>();
         private readonly MirrorRendererGraphicsSettingsPresets _presets = FindResource<MirrorRendererGraphicsSettingsPresets>();
 
-        private static T FindResource<T>() where T : UnityEngine.Object => Resources.FindObjectsOfTypeAll<T>().FirstOrDefault()
+        private static T FindResource<T>() where T : UnityEngine.Object => UnityEngine.Resources.FindObjectsOfTypeAll<T>().FirstOrDefault()
             ?? throw new InvalidOperationException("Native mirror resource is unavailable: " + typeof(T).FullName);
 
         internal MirrorQuality Current => (MirrorQuality)_settings.mirrorGraphicsSettings.value;
