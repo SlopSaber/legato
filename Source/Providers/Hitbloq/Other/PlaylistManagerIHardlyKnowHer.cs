@@ -42,11 +42,8 @@ namespace Hitbloq.Other
 		}
 
 		public IPlaylist? SelectedPlaylist =>
-#if HITBLOQ_BS_1_29_1
-			null;
-#else
 			_playlistDataManager.selectedPlaylist;
-#endif
+
 
 		public bool IsDownloading => _tokenSource is {IsCancellationRequested: false};
 
@@ -150,11 +147,8 @@ namespace Hitbloq.Other
 
 					return null;
 				}, token);
-#if HITBLOQ_BS_1_29_1
-				return null;
-#else
 				return playlist?.PlaylistLevelPack;
-#endif
+
 			}
 			catch (OperationCanceledException)
 			{
@@ -180,11 +174,8 @@ namespace Hitbloq.Other
 					playlistManager.StorePlaylist(newPlaylist);
 				}
 
-#if HITBLOQ_BS_1_29_1
-				return null;
-#else
 				return newPlaylist?.PlaylistLevelPack;
-#endif
+
 			}
 			catch (OperationCanceledException)
 			{

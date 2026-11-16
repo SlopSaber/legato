@@ -48,12 +48,17 @@ namespace Hitbloq.Utilities
 
 		public static void Parse(string content, GameObject parent, object host)
 		{
-#if HITBLOQ_BS_1_29_1
-			BSMLParser.instance.Parse(content, parent, host);
-#else
-			BSMLParser.Instance.Parse(content, parent, host);
-#endif
+            ((BSMLParser)GetStaticMemberValue(typeof(BSMLParser), "Instance", "instance")!).Parse(content, parent, host);
 		}
+
+        internal static BeatSaberMarkupLanguage.MenuButtons.MenuButtons MenuRegistry =>
+            (BeatSaberMarkupLanguage.MenuButtons.MenuButtons)GetStaticMemberValue(typeof(BeatSaberMarkupLanguage.MenuButtons.MenuButtons), "Instance", "instance")!;
+
+        private static readonly MethodInfo? LoadSprite = typeof(BeatSaberMarkupLanguage.Utilities).GetMethod("LoadSpriteAsync", BindingFlags.Public | BindingFlags.Static, null, new[] { typeof(byte[]) }, null);
+        private static readonly MethodInfo? LoadSpriteRaw = typeof(BeatSaberMarkupLanguage.Utilities).GetMethod("LoadSpriteRaw", BindingFlags.Public | BindingFlags.Static, null, new[] { typeof(byte[]) }, null);
+        internal static Task<Sprite> LoadSpriteAsync(byte[] bytes) => LoadSprite != null
+            ? (Task<Sprite>)LoadSprite.Invoke(null, new object[] { bytes })!
+            : Task.FromResult((Sprite)LoadSpriteRaw!.Invoke(null, new object[] { bytes })!);
 
 		public static Task<Sprite> LoadSpriteFromAssemblyAsync(string resourceName)
 		{

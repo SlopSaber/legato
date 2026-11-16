@@ -11,6 +11,9 @@ namespace Hitbloq.Utilities
 {
 	internal static class Utils
 	{
+        private static readonly System.Func<string, string> CustomHash =
+            (System.Func<string, string>)System.Delegate.CreateDelegate(typeof(System.Func<string, string>),
+                typeof(Collections).GetMethod("GetCustomLevelHash") ?? typeof(Collections).GetMethod("hashForLevelID")!);
 		private static bool? _isScoreSaberInstalled;
 		private static bool? _isBeatLeaderInstalled;
 
@@ -43,11 +46,7 @@ namespace Hitbloq.Utilities
 		{
 			if (beatmapKey.levelId.StartsWith("custom_level_"))
 			{
-#if HITBLOQ_BS_1_29_1
-				var hash = Collections.hashForLevelID(beatmapKey.levelId);
-#else
-				var hash = Collections.GetCustomLevelHash(beatmapKey.levelId);
-#endif
+                var hash = CustomHash(beatmapKey.levelId);
 				var difficulty = beatmapKey.difficulty.ToString();
 #if HITBLOQ_BS_1_45_0
                 var characteristic = beatmapKey.characteristic.SerializedName();

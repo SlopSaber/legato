@@ -152,11 +152,7 @@ namespace Hitbloq.Other
 				{
 					try
 					{
-#if HITBLOQ_BS_1_29_1
-						var sprite = BeatSaberMarkupLanguage.Utilities.LoadSpriteRaw(imageBytes);
-#else
-						var sprite = await BeatSaberMarkupLanguage.Utilities.LoadSpriteAsync(imageBytes);
-#endif
+                        var sprite = await BSMLCompat.LoadSpriteAsync(imageBytes);
 						sprite.texture.wrapMode = TextureWrapMode.Clamp;
 						CachedSprites.TryAdd(key, sprite);
 						taskCompletionSource.TrySetResult(sprite);

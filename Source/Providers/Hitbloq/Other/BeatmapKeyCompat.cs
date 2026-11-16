@@ -1,4 +1,5 @@
 #if HITBLOQ_BS_1_29_1
+global using BeatmapLevelPack = global::IBeatmapLevelPack;
 public readonly struct BeatmapKey
 {
 	public BeatmapKey(string levelId, BeatmapDifficulty difficulty, BeatmapCharacteristicSO beatmapCharacteristic)
