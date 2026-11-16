@@ -271,6 +271,12 @@
                Condition="'$(LegatoEnableLevelProxies)' == 'true'" />
       <Compile Include="$(LegatoSourceRoot)Library\StatisticsViews\**\*.cs"
                Condition="'$(LegatoEnableStatisticsViews)' == 'true'" />
+      <Compile Include="$(LegatoSourceRoot)Library\Physics\**\*.cs"
+               Condition="'$(LegatoEnablePhysics)' == 'true'" />
+      <Compile Include="$(LegatoSourceRoot)Library\ComponentBindings\**\*.cs"
+               Condition="'$(LegatoEnableComponentBindings)' == 'true'" />
+      <Compile Include="$(LegatoSourceRoot)Library\FlowNavigation\**\*.cs"
+               Condition="'$(LegatoEnableFlowNavigation)' == 'true'" />
       <Compile Include="$(LegatoSourceRoot)Library\RuntimeServices\**\*.cs"
                Condition="'$(LegatoEnableRuntimeServices)' == 'true'" />
       <Compile Include="$(LegatoSourceRoot)Library\TableSources\**\*.cs"
