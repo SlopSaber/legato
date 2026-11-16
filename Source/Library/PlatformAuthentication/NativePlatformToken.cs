@@ -7,11 +7,13 @@ namespace Legato.Platform {
             token.ThrowIfCancellationRequested();
 #if BEAT_SABER_1_29_0
             var result = await provider.GetAuthenticationToken().ConfigureAwait(true);
+            token.ThrowIfCancellationRequested();
+            return result.sessionToken;
 #else
             var result = await provider.GetXPlatformAccessToken(token).ConfigureAwait(true);
-#endif
             token.ThrowIfCancellationRequested();
             return result.token;
+#endif
         }
     }
 }
