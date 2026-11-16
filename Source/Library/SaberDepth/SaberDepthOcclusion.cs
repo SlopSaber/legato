@@ -11,9 +11,9 @@ using UnityEngine.Rendering.Universal;
 
 namespace Legato.Rendering {
     internal static class SaberDepthOcclusion {
-        internal static void Attach(Camera camera, Func<bool> eligible, int saberMask, string label, Action applied) {
+        internal static void Attach(Camera camera, Func<bool> eligible, int saberMask, int displacementLayer, string label, Action applied) {
 #if BEAT_SABER_1_45_3
-            camera.gameObject.AddComponent<Registration>().Initialize(camera, eligible, saberMask, label, applied);
+            camera.gameObject.AddComponent<Registration>().Initialize(camera, eligible, saberMask, displacementLayer, label, applied);
 #endif
         }
 
@@ -47,6 +47,7 @@ namespace Legato.Rendering {
 		private Func<bool> eligible = null!;
 		private Action applied = null!;
 		private int saberMask;
+		private int displacementLayer;
 		private string label = null!;
 		private RenderObjects feature = null!;
 		private int layerMask;
@@ -56,10 +57,11 @@ namespace Legato.Rendering {
 		private RenderObjectsPass others = null!;
 		private bool logged;
 
-		internal void Initialize(Camera owner, Func<bool> isEligible, int mask, string passLabel, Action onApplied) {
+		internal void Initialize(Camera owner, Func<bool> isEligible, int mask, int screenDisplacementLayer, string passLabel, Action onApplied) {
 			ownerCamera = owner;
 			eligible = isEligible;
 			saberMask = mask;
+			displacementLayer = screenDisplacementLayer;
 			label = passLabel;
 			applied = onApplied;
 		}
@@ -67,8 +69,8 @@ namespace Legato.Rendering {
 		internal bool Enqueue(RenderObjects source, ScriptableRenderer renderer) {
 			var settings = source.settings;
 			if(ownerCamera == null || !eligible() || !ScreenDisplacementEffectRendererFeature.enabled ||
-				WallTextureLayers.ScreenDisplacement < 0 ||
-				(ownerCamera.cullingMask & (1 << WallTextureLayers.ScreenDisplacement)) == 0 ||
+				displacementLayer < 0 ||
+				(ownerCamera.cullingMask & (1 << displacementLayer)) == 0 ||
 				(SystemInfo.copyTextureSupport & CopyTextureSupport.Basic) == 0 ||
 				settings.passTag != "TransparentAfterScreenDisplacement" ||
 				settings.filterSettings.RenderQueueType != RenderQueueType.Transparent ||
