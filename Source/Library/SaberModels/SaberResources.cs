@@ -1,7 +1,9 @@
 using System;
 using System.Linq;
 using UnityEngine;
+#if !BEAT_SABER_1_29_0
 using static BGLib.UnityExtension.AddressablesExtensions;
+#endif
 using Object = UnityEngine.Object;
 
 namespace Legato.Models;
@@ -9,11 +11,22 @@ namespace Legato.Models;
 internal static class SaberResources
 {
     internal static SaberTrailRenderer LoadTrailRenderer() =>
+#if BEAT_SABER_1_29_0
+        LoadModel().GetComponent<SaberTrail>()._trailRendererPrefab;
+#else
         LoadAsset<SaberTrailRenderer>("Assets/Prefabs/Effects/Sabers/SaberTrailRenderer.prefab");
+#endif
 
     internal static GameObject LoadModel() =>
+#if BEAT_SABER_1_29_0
+        Resources.FindObjectsOfTypeAll<SaberModelController>()
+            .Where(model => model.name == "BasicSaberModel" || model.name == "BasicSaberModel(Clone)")
+            .OrderBy(model => model.gameObject.scene.IsValid())
+            .Select(model => model.gameObject).FirstOrDefault() ?? throw ResourceException;
+#else
         LoadContent<GameObject>("Assets/Prefabs/Sabers/BasicSaberModel.prefab").FirstOrDefault()
         ?? throw ResourceException;
+#endif
 
     internal static GameObject CreateModel(GameObject prefab, string name)
     {
@@ -25,8 +38,11 @@ internal static class SaberResources
         return model;
     }
 
+#if !BEAT_SABER_1_29_0
     private static T LoadAsset<T>(object label) where T : Object =>
         LoadContent<GameObject>(label).FirstOrDefault()?.GetComponent<T>() ?? throw ResourceException;
+
+#endif
 
     private static Exception ResourceException => new InvalidOperationException("An internal resource failed to load");
 }

@@ -271,6 +271,10 @@
                Condition="'$(LegatoEnableLevelProxies)' == 'true'" />
       <Compile Include="$(LegatoSourceRoot)Library\StatisticsViews\**\*.cs"
                Condition="'$(LegatoEnableStatisticsViews)' == 'true'" />
+      <Compile Include="$(LegatoSourceRoot)Library\RuntimeServices\**\*.cs"
+               Condition="'$(LegatoEnableRuntimeServices)' == 'true'" />
+      <Compile Include="$(LegatoSourceRoot)Library\TableSources\**\*.cs"
+               Condition="'$(LegatoEnableTableSources)' == 'true'" />
       <Compile Include="$(LegatoSourceRoot)Library\SceneNames\**\*.cs"
                Condition="'$(LegatoEnableSceneNames)' == 'true'" />
       <Compile Include="$(LegatoSourceRoot)Library\EnvironmentSceneLoading\**\*.cs"
