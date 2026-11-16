@@ -14,6 +14,16 @@ namespace Legato.Unity {
 #endif
         }
 
+        internal static bool HasRunningDisplay(List<XRDisplaySubsystem> displays) {
+            foreach (XRDisplaySubsystem display in displays)
+                if (display != null && display.running) return true;
+#if BEAT_SABER_1_29_0
+            return XRSettings.isDeviceActive;
+#else
+            return false;
+#endif
+        }
+
         internal static float LegacyRefreshRate {
             get {
 #if BEAT_SABER_1_45_1 || BEAT_SABER_1_45_3
