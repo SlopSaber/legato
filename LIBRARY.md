@@ -285,3 +285,5 @@ Hitbloq providers discover the supported BSML/SongCore API names independently o
 `LegatoEnableAppBindings` selects the declared native root-binding method and its actual container. Legacy hooks use MainSystemInit.InstallBindings(DiContainer), avoiding the inherited MonoInstaller no-op reached through AppInit.
 
 `LegatoEnableSpawnData` creates native bombs and obstacles from semantic lane/layer/time/size values. Modern beat and rotation metadata default to zero; consumers retain action geometry and schedule policy.
+
+`LegatoEnableUiAudio` exposes the native UI click audio source: the legacy single source or the current indexed source. Playback and replacement policy remain consumer-owned.
