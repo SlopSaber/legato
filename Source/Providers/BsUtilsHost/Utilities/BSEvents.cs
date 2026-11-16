@@ -161,14 +161,26 @@ namespace BS_Utils.Utilities
             gameScenesManager.transitionDidFinishEvent -= OnMenuSceneWasLoadedFresh;
 
             var levelDetailViewController = Legato.Unity.ObjectDiscovery.FindLoaded<StandardLevelDetailViewController>().FirstOrDefault();
+#if BEAT_SABER_1_29_0
+            levelDetailViewController.didChangeDifficultyBeatmapEvent += delegate (StandardLevelDetailViewController vc, IDifficultyBeatmap beatmap) { InvokeSafely(difficultySelected, vc); };
+#else
             levelDetailViewController.didChangeDifficultyBeatmapEvent += delegate (StandardLevelDetailViewController vc) { InvokeSafely(difficultySelected, vc); };
+#endif
 
             var characteristicSelect = Legato.Unity.ObjectDiscovery.FindLoaded<BeatmapCharacteristicSegmentedControlController>().FirstOrDefault();
+#if BEAT_SABER_1_29_0
+            characteristicSelect.didSelectBeatmapCharacteristicEvent += delegate (BeatmapCharacteristicSegmentedControlController controller, BeatmapCharacteristicSO characteristic)
+            {
+                InvokeSafely(characteristicSelected, controller, characteristic);
+            };
+#else
             characteristicSelect.didSelectBeatmapCharacteristicEvent += delegate (BeatmapCharacteristicSegmentedControlController controller, BeatmapCharacteristic characteristic)
             {
                 if (characteristicSelected != null)
                     InvokeSafely(characteristicSelected, controller, controller._beatmapCharacteristicCollection.GetBeatmapCharacteristicBySerializedName(characteristic.SerializedName()));
             };
+
+#endif
 
             var packSelectViewController = Legato.Unity.ObjectDiscovery.FindLoaded<LevelSelectionNavigationController>().FirstOrDefault();
             packSelectViewController.didSelectLevelPackEvent += delegate (LevelSelectionNavigationController controller, NativeBeatmapLevelPack pack) { InvokeSafely(levelPackSelected, controller, pack); };
