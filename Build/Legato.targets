@@ -298,6 +298,8 @@
                Condition="'$(LegatoEnableChromaProviders)' == 'true'" />
       <Compile Include="$(LegatoSourceRoot)Providers\NoodleExtensions\**\*.cs"
                Condition="'$(LegatoEnableNoodleExtensionsProviders)' == 'true'" />
+      <Compile Include="$(LegatoSourceRoot)Providers\SabersCore\**\*.cs"
+               Condition="'$(LegatoEnableSaberLegacyProviders)' == 'true'" />
       <Compile Include="$(LegatoSourceRoot)Providers\Hitbloq\**\*.cs"
                Condition="'$(LegatoEnableHitbloqProviders)' == 'true'" />
       <Compile Include="$(LegatoSourceRoot)Providers\Vivify\**\*.cs"

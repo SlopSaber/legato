@@ -1,0 +1,17 @@
+[
+  {
+    "original": "PublicMods\\SabersCore\\SabersCore\\Services\\LegacySaberConverter.cs",
+    "shared": "Source\\Providers\\SabersCore\\Services\\LegacySaberConverter.cs",
+    "sha256": "810a20c95d56768e1b15945991e4970162d0dcb448e164af0d3361093486d945"
+  },
+  {
+    "original": "PublicMods\\SabersCore\\SabersCore\\Components\\LegacyCustomTrail.cs",
+    "shared": "Source\\Providers\\SabersCore\\Components\\LegacyCustomTrail.cs",
+    "sha256": "9f7d6f69dad79f04d7d91f4f3391e4a016c1870bfd0fd812ae6e272c266801c1"
+  },
+  {
+    "original": "PublicMods\\SabersCore\\SabersCore\\Components\\LegacyColorTargets.cs",
+    "shared": "Source\\Providers\\SabersCore\\Components\\LegacyColorTargets.cs",
+    "sha256": "751dd1566d8a8ab981c777f2a6de78dd73fbd09ac1528bc6b7ab0f5adbdfe573"
+  }
+]
