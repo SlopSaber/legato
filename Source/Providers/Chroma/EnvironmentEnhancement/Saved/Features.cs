@@ -30,7 +30,7 @@ internal readonly struct Features
 
     internal List<Version3CustomBeatmapSaveData.BasicEventSaveData>? BasicEventDatas { get; }
 
-    private class FeaturesDataConverter : JsonConverter<Features>
+    private class FeaturesDataConverter : Legato.Json.TypedJsonConverter<Features>
     {
         public override Features ReadJson(
             JsonReader reader,
