@@ -269,6 +269,8 @@
                Condition="'$(LegatoEnableCounterGameplay)' == 'true'" />
       <Compile Include="$(LegatoSourceRoot)Library\Unity\WebRequestCompatibility.cs"
                Condition="'$(LegatoEnableWebRequests)' == 'true' AND '$(LegatoEnableUnityCompatibility)' != 'true'" />
+      <Compile Include="$(LegatoSourceRoot)Library\EnvironmentFilters\**\*.cs"
+               Condition="'$(LegatoEnableEnvironmentFilters)' == 'true'" />
       <Compile Include="$(LegatoSourceRoot)Library\PlatformAuthentication\**\*.cs"
                Condition="'$(LegatoEnablePlatformAuthentication)' == 'true'" />
       <Compile Include="$(LegatoSourceRoot)Library\JumpSpeedSelection\**\*.cs"
