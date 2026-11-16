@@ -42,6 +42,12 @@ namespace Legato.SongBrowser {
 #else
             new LevelSelectionFlowCoordinator.State(category, pack, default(BeatmapKey), level);
 #endif
+        internal static float DefaultJumpSpeed(BeatmapDifficulty difficulty) =>
+#if BEAT_SABER_1_29_0
+            BeatmapDifficultyMethods.NoteJumpMovementSpeed(difficulty);
+#else
+            BeatmapDifficultyMethods.NoteJumpMovementSpeed(difficulty, 0, true);
+#endif
         internal static int IndexOf(IReadOnlyList<BeatmapLevel> levels, System.Func<BeatmapLevel, bool> predicate) {
             for(int i = 0; i < levels.Count; i++) if(predicate(levels[i])) return i;
             return -1;
