@@ -32,6 +32,8 @@
       <LegatoTargetDefine Condition="'$(LegatoTargetProfile)' != ''">BEAT_SABER_$([System.String]::Copy('$(LegatoTargetProfile)').Replace('.', '_'))</LegatoTargetDefine>
       <DefineConstants Condition="'$(LegatoTargetDefine)' != ''">$(DefineConstants);$(LegatoTargetDefine)</DefineConstants>
       <DefineConstants Condition="'$(LegatoEnableNativeBeatmapAliases)' == 'true'">$(DefineConstants);LEGATO_NATIVE_BEATMAP_KEYS</DefineConstants>
+      <LegatoHasDefaultInterfaceMethods Condition="'$(LegatoTargetProfile)' != '1.29.0' AND '$(LegatoTargetProfile)' != ''">true</LegatoHasDefaultInterfaceMethods>
+      <DefineConstants Condition="'$(LegatoHasDefaultInterfaceMethods)' == 'true'">$(DefineConstants);LEGATO_DEFAULT_INTERFACE_METHODS</DefineConstants>
       <LegatoUsesNativeRenderTiming>false</LegatoUsesNativeRenderTiming>
       <LegatoUsesNativeRenderTiming Condition="'$(LegatoTargetProfile)' == '1.45.1' OR '$(LegatoTargetProfile)' == '1.45.3'">true</LegatoUsesNativeRenderTiming>
     </PropertyGroup>
