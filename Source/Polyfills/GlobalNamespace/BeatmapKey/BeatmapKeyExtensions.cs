@@ -48,6 +48,15 @@ namespace Legato {
 #endif
 
 #if !BEAT_SABER_1_29_0
+        internal static bool TryGetDifficultyBeatmapData(this BeatmapLevel level, in BeatmapKey key, out BeatmapBasicData data) =>
+#if BEAT_SABER_1_45_3
+            level.gameplayTypeBeatmapBasicData.TryGetValue((key.gameplayType, key.characteristic, key.difficulty), out data);
+#elif BEAT_SABER_1_45_1
+            level.beatmapBasicData.TryGetValue((key.characteristic, key.difficulty), out data);
+#else
+            level.beatmapBasicData.TryGetValue((key.beatmapCharacteristic, key.difficulty), out data);
+#endif
+
         internal static BeatmapBasicData? GetDifficultyBeatmapData(this BeatmapLevel beatmapLevel, in BeatmapKey beatmapKey) {
 #if BEAT_SABER_1_37_1 || BEAT_SABER_1_38_0 || BEAT_SABER_1_40_0 || BEAT_SABER_1_42_0
             return beatmapLevel.GetDifficultyBeatmapData(beatmapKey.beatmapCharacteristic, beatmapKey.difficulty);
