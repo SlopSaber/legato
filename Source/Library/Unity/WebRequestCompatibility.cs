@@ -1,7 +1,17 @@
 using UnityEngine.Networking;
+using System.Text;
 
 namespace Legato.Unity {
     internal static class WebRequestCompatibility {
+        internal static UnityWebRequest PostJson(string url, string json) {
+            var request = new UnityWebRequest(url, "POST") {
+                uploadHandler = new UploadHandlerRaw(Encoding.UTF8.GetBytes(json)),
+                downloadHandler = new DownloadHandlerBuffer()
+            };
+            request.SetRequestHeader("Content-Type", "application/json");
+            return request;
+        }
+
         internal static bool IsSuccess(UnityWebRequest request) =>
 #if BEAT_SABER_1_29_0
             !request.isNetworkError && !request.isHttpError;
