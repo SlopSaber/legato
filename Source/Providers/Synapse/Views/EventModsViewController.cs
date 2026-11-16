@@ -117,14 +117,14 @@ internal class EventModsViewController : BSMLAutomaticViewController
     [Inject]
     private void Construct(
         SiraLog log,
-#if !V1_29_1
+#if LEGATO_BSML_CURRENT || !V1_29_1
         BSMLParser bsmlParser,
 #endif
         ListingManager listingManager,
         NotificationManager notificationManager)
     {
         _log = log;
-#if !V1_29_1
+#if LEGATO_BSML_CURRENT || !V1_29_1
         _bsmlParser = bsmlParser;
 #else
         _bsmlParser = BSMLParser.instance;

@@ -294,7 +294,9 @@ internal class LevelStartManager : IDisposable
             null,
 #endif
             callback,
+#if !V1_29_1
             null,
+#endif
             null);
     }
 

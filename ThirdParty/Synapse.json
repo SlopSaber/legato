@@ -20,7 +20,9 @@
     "Views/EventLeaderboardViewController.cs",
     "Views/EventLobbyChatViewController.cs",
     "Views/EventLobbySongInfoViewController.cs",
-    "Views/EventModsViewController.cs"
+    "Views/EventModsViewController.cs",
+    "Extras/UICompatibility.cs",
+    "Extras/MediaExtensions.cs"
   ],
   "integration": "Current native providers compile into the original Synapse assembly with shared game/dependency profile selection."
 }

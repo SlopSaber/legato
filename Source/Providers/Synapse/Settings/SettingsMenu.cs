@@ -11,15 +11,14 @@ internal class SettingsMenu : IInitializable, IDisposable
     private readonly Config _config;
     private readonly BSMLSettings _bsmlSettings;
 
-    // i wish nico backported the bsml updates :(
     private SettingsMenu(
-#if !V1_29_1
+#if LEGATO_BSML_CURRENT || !V1_29_1
         BSMLSettings bsmlSettings,
 #endif
         Config config)
     {
         _config = config;
-#if !V1_29_1
+#if LEGATO_BSML_CURRENT || !V1_29_1
         _bsmlSettings = bsmlSettings;
 #else
         _bsmlSettings = BSMLSettings.instance;

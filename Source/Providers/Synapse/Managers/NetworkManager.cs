@@ -264,6 +264,10 @@ internal class NetworkManager : IDisposable
 #endif
 
         PlatformAuthenticationTokenProvider provider = new(_platformUserModel, userInfo);
+#if BEAT_SABER_1_29_0
+        var accessToken = await provider.GetAuthenticationToken();
+        return new AuthenticationToken(accessToken.platform, userInfo.platformUserId, userInfo.userName, accessToken.sessionToken);
+#else
         XPlatformAccessTokenData accessToken =
             await provider.GetXPlatformAccessToken(CancellationToken.None, false);
         return new AuthenticationToken(
@@ -271,6 +275,7 @@ internal class NetworkManager : IDisposable
             userInfo.platformUserId,
             userInfo.userName,
             accessToken.token);
+#endif
     }
 
     private async Task OnConnected(CancellationToken cancelToken)
