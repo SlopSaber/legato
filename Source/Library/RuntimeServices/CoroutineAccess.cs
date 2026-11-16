@@ -1,3 +1,4 @@
+#nullable enable
 using System.Collections;
 using UnityEngine;
 
@@ -13,7 +14,7 @@ namespace Legato.Coroutines {
 #else
             _starter.StartCoroutine(routine);
 #endif
-        internal void StartSingleCoroutine(ref Coroutine routine, IEnumerator enumerator) {
+        internal void StartSingleCoroutine(ref Coroutine? routine, IEnumerator enumerator) {
             if (routine != null) StopCoroutine(routine);
             routine = StartCoroutine(enumerator);
         }
