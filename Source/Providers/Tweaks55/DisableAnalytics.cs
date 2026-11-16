@@ -1,8 +1,8 @@
 ﻿#if !BEAT_SABER_1_29_0
 using BeatGames.Analytics;
-using HarmonyLib;
 using OSCE.Analytics;
 #endif
+using HarmonyLib;
 using System;
 using System.Reflection;
 using Tweaks55.Util;
