@@ -19,7 +19,11 @@ namespace Legato.Gameplay {
         }
 
         internal static void Fail(StandardLevelGameplayManager manager) {
+#if BEAT_SABER_1_29_0
+            manager._initData.SetField(nameof(manager._initData.failOn0Energy), true);
+#else
             manager._initData.SetField(nameof(manager._initData.continueGameplayWith0Energy), false);
+#endif
             manager.HandleGameEnergyDidReach0();
         }
     }
