@@ -23,6 +23,13 @@ namespace Legato.Gameplay {
 
 namespace Legato.UI {
     internal static class DifficultySelection {
+        internal static BeatmapLevel? Level(LevelSelectionNavigationController controller) =>
+#if BEAT_SABER_1_29_0
+            controller.selectedBeatmapLevel;
+#else
+            controller.beatmapLevel;
+#endif
+
         internal static BeatmapKey Key(StandardLevelDetailViewController controller) =>
 #if BEAT_SABER_1_29_0
             controller.selectedDifficultyBeatmap;
