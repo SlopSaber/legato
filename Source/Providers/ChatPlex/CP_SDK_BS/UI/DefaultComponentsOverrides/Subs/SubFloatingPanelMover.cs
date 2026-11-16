@@ -67,8 +67,8 @@ namespace CP_SDK_BS.UI.DefaultComponentsOverrides.Subs
                 if (m_GrabbingController)
                     return;
 
-                var l_HitCount = Physics.RaycastNonAlloc(   l_VRController.viewAnchorTransform.position,
-                                                            l_VRController.viewAnchorTransform.forward,
+                var l_HitCount = Physics.RaycastNonAlloc(   Legato.ChatPlex.NativeAccess.ViewAnchor(l_VRController).position,
+                                                            Legato.ChatPlex.NativeAccess.ViewAnchor(l_VRController).forward,
                                                             m_RaycastBuffer,
                                                             MaxLaserDistance,
                                                             1 << CP_SDK.UI.UISystem.UILayer);

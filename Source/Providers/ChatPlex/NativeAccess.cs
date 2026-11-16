@@ -39,6 +39,12 @@ namespace Legato.ChatPlex {
 #else
             pointer?.lastSelectedVrController;
 #endif
+        internal static Transform ViewAnchor(VRController controller) =>
+#if BEAT_SABER_1_29_0
+            controller.transform;
+#else
+            controller.viewAnchorTransform;
+#endif
         internal static float VerticalAxis(VRController controller) =>
 #if BEAT_SABER_1_29_0
             controller.verticalAxisValue;
