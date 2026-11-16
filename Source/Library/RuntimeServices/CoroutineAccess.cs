@@ -29,6 +29,12 @@ namespace Legato.Coroutines {
 }
 namespace Legato.Audio {
     internal static class PlaybackLifecycle {
+        internal static bool IsPlaying(AudioTimeSyncController controller) =>
+#if BEAT_SABER_1_29_0
+            controller.state == AudioTimeSyncController.State.Playing;
+#else
+            controller.state == IAudioTimeSource.State.Playing;
+#endif
         internal static bool DidStart(AudioTimeSyncController controller) =>
 #if BEAT_SABER_1_29_0
             IPA.Utilities.FieldAccessor<AudioTimeSyncController, bool>.Get(controller, "_audioStarted");

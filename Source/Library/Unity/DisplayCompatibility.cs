@@ -6,6 +6,13 @@ using UnityEngine.XR;
 
 namespace Legato.Unity {
     internal static class DisplayCompatibility {
+        internal static double RefreshRate(Resolution resolution) =>
+#if BEAT_SABER_1_29_0 || BEAT_SABER_1_34_2
+            resolution.refreshRate;
+#else
+            resolution.refreshRateRatio.value;
+#endif
+
         internal static void GetDisplays(List<XRDisplaySubsystem> displays) {
 #if BEAT_SABER_1_45_1 || BEAT_SABER_1_45_3
             SubsystemManager.GetSubsystems(displays);
