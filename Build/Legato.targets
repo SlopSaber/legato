@@ -282,7 +282,7 @@
                Exclude="$(LegatoSourceRoot)**\Versions\**\*.cs;$(LegatoSourceRoot)Library\Beatmaps\MutableBeatmapLevelPack.cs"
                Condition="'$(LegatoEnableSongCore)' == 'true'" />
       <Compile Include="$(LegatoSourceRoot)Library\Beatmaps\MutableBeatmapLevelPack.cs"
-               Condition="'@(_LegatoIPAReference)' != '' AND '@(_LegatoDataModelsReference)' != '' AND '@(_LegatoUnityReference)' != '' AND '$(LegatoTargetProfile)' != '1.29.0'" />
+               Condition="('$(LegatoEnableSongPacks)' == 'true' OR '$(LegatoEnableAutoAdapters)' != 'false') AND '@(_LegatoIPAReference)' != '' AND '@(_LegatoDataModelsReference)' != '' AND '@(_LegatoUnityReference)' != '' AND '$(LegatoTargetProfile)' != '1.29.0'" />
       <Compile Include="$(LegatoSourceRoot)Library\Gameplay\GameplayMetadataProvider.cs"
                Condition="'$(LegatoEnableGameplay)' == 'true' AND ('$(LegatoEnableGameSettings)' == 'true' OR '$(LegatoTargetProfile)' == '1.29.0' OR '$(LegatoTargetProfile)' == '1.37.1' OR '$(LegatoTargetProfile)' == '1.38.0')" />
       <Compile Include="$(LegatoSourceRoot)Library\Rooms\**\*.cs"
