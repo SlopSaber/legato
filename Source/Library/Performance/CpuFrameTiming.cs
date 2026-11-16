@@ -3,11 +3,11 @@ using System;
 namespace Legato.Performance {
     internal struct CpuFrameTiming : IDisposable {
 #if !BEAT_SABER_1_29_0
-        private Unity.Profiling.ProfilerRecorder _recorder;
+        private global::Unity.Profiling.ProfilerRecorder _recorder;
 #endif
         internal void Start() {
 #if !BEAT_SABER_1_29_0
-            _recorder = Unity.Profiling.ProfilerRecorder.StartNew(Unity.Profiling.ProfilerCategory.Internal, "CPU Main Thread Frame Time");
+            _recorder = global::Unity.Profiling.ProfilerRecorder.StartNew(global::Unity.Profiling.ProfilerCategory.Internal, "CPU Main Thread Frame Time");
 #endif
         }
         internal bool Valid =>
