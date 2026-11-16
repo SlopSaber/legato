@@ -1,9 +1,66 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace Legato.UI {
     internal static class CollectionNavigation {
+        internal const LevelPackDetailViewController.ContentType NonBuyable =
+#if BEAT_SABER_1_29_0
+            LevelPackDetailViewController.ContentType.Owned;
+#else
+            LevelPackDetailViewController.ContentType.NonBuyable;
+#endif
+        internal static IReadOnlyList<BeatmapLevel> Levels(LevelCollectionTableView table) =>
+#if BEAT_SABER_1_29_0
+            table._previewBeatmapLevels;
+#else
+            table._beatmapLevels;
+#endif
+        internal static NativeSongPack[] Packs(AnnotatedBeatmapLevelCollectionsViewController view) => view._annotatedBeatmapLevelCollections.OfType<NativeSongPack>().ToArray();
+        internal static string CollectionId(NativeSongCollection collection) =>
+#if BEAT_SABER_1_29_0
+            (collection as IBeatmapLevelPack)?.packID;
+#else
+            collection.packID;
+#endif
+        internal static string CollectionName(NativeSongCollection collection) =>
+#if BEAT_SABER_1_29_0
+            collection.collectionName;
+#else
+            collection.packName;
+#endif
+        internal static Vector2 CellSize(GridView grid) =>
+#if BEAT_SABER_1_29_0
+            new Vector2(grid._dataSource.GetCellWidth(), grid._dataSource.GetCellHeight());
+#else
+            new Vector2(grid._dataSource.cellWidth, grid._dataSource.cellHeight);
+#endif
+        internal static Sprite DefaultCover(LevelPackDetailViewController view, Sprite fallback) =>
+#if BEAT_SABER_1_29_0
+            fallback;
+#else
+            view._defaultCoverSprite;
+#endif
+        internal static void SetPack(LevelCollectionNavigationController view, NativeSongPack pack, bool practice, bool favorites, string action, bool select) {
+#if BEAT_SABER_1_29_0
+            view.SetDataForPack(pack, practice, favorites, action);
+#else
+            view.SetDataForPack(pack, practice, favorites, action, select);
+#endif
+        }
+        internal static BeatmapKey DetailKey(StandardLevelDetailViewController view) =>
+#if BEAT_SABER_1_29_0
+            view.selectedDifficultyBeatmap;
+#else
+            view.beatmapKey;
+#endif
+        internal static string CharacteristicName(BeatmapCharacteristic characteristic) =>
+#if BEAT_SABER_1_29_0
+            characteristic.serializedName;
+#else
+            characteristic.SerializedName();
+#endif
         internal const string RowSelectionMethod =
 #if BEAT_SABER_1_29_0
             "HandleDidSelectRowEvent";
