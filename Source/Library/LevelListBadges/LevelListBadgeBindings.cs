@@ -140,7 +140,7 @@ namespace Legato.Presentation {
 #else
         [HarmonyPostfix]
         private static void Postfix(ref BeatmapLevel beatmapLevel, ref bool isPromoted, GameObject ____promoBadgeGo)
-            => Apply(beatmapLevel, isPromoted, ____promoBadgeGo);
+            => Apply(beatmapLevel, isPromoted, ____promoBadgeGo, null);
 #endif
 
         internal static void ClearBindings()
