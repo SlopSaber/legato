@@ -2,6 +2,20 @@
 
 namespace Legato {
     internal static class BeatmapKeyExtensions {
+        internal static string LevelId(this BeatmapKey key) =>
+#if BEAT_SABER_1_29_0 && LEGATO_NATIVE_BEATMAP_KEYS
+            key?.level?.levelID ?? string.Empty;
+#else
+            key.levelId;
+#endif
+
+        internal static bool IsValidKey(this BeatmapKey key) =>
+#if BEAT_SABER_1_29_0 && LEGATO_NATIVE_BEATMAP_KEYS
+            key?.level != null && key.parentDifficultyBeatmapSet?.beatmapCharacteristic != null;
+#else
+            key.IsValid();
+#endif
+
         internal static string CharacteristicSerializedName(this BeatmapKey beatmapKey) {
 #if BEAT_SABER_1_29_0 && LEGATO_NATIVE_BEATMAP_KEYS
             return beatmapKey?.parentDifficultyBeatmapSet?.beatmapCharacteristic?.serializedName ?? string.Empty;
