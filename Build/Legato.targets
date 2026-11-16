@@ -284,6 +284,8 @@
       <Compile Include="$(LegatoSourceRoot)Library\JumpSelectionContext\**\*.cs" Condition="'$(LegatoEnableJumpSelectionContext)' == 'true'" />
       <Compile Include="$(LegatoSourceRoot)Providers\SiraLocalizer\**\*.cs" Condition="'$(LegatoEnableSiraLocalizerProviders)' == 'true'" />
       <Compile Include="$(LegatoSourceRoot)Library\LocalizationAccess\**\*.cs" Condition="'$(LegatoEnableLocalizationAccess)' == 'true'" />
+      <Compile Include="$(LegatoSourceRoot)Library\PortableFonts\**\*.cs" Condition="'$(LegatoEnablePortableFonts)' == 'true'" />
+      <Compile Include="$(LegatoSourceRoot)Library\FontResources\**\*.cs" Condition="'$(LegatoEnableFontResources)' == 'true'" />
       <Compile Include="$(LegatoSourceRoot)Library\RuntimeServices\**\*.cs"
                Condition="'$(LegatoEnableRuntimeServices)' == 'true'" />
       <Compile Include="$(LegatoSourceRoot)Library\TableSources\**\*.cs"
