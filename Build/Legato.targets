@@ -33,6 +33,8 @@
 
   <Target Name="LegatoAddRequiredReferences" BeforeTargets="ResolveAssemblyReferences" DependsOnTargets="LegatoConfigure">
     <ItemGroup>
+      <Reference Include="Colors" HintPath="$(LegatoReferenceRoot)\Beat Saber_Data\Managed\Colors.dll" Private="false"
+                 Condition="'$(LegatoEnableBeatmapKeys)' == 'true' AND '@(Reference->WithMetadataValue('Identity', 'Colors'))' == '' AND Exists('$(LegatoReferenceRoot)\Beat Saber_Data\Managed\Colors.dll')" />
       <Reference Include="Unity.RenderPipelines.Core.Runtime;Unity.RenderPipelines.Universal.Runtime"
                  Condition="'$(LegatoEnableCameraEffects)' == 'true' AND ('$(LegatoTargetProfile)' == '1.45.1' OR '$(LegatoTargetProfile)' == '1.45.3')">
         <HintPath>$(LegatoReferenceRoot)\Beat Saber_Data\Managed\%(Identity).dll</HintPath>
@@ -239,7 +241,7 @@
       <Compile Include="$(LegatoSourceRoot)ForwardPolyfills\**\Transitions\1.40.0-1.42.0\**\*.cs"
                Condition="('@(_LegatoAudioReference)' != '' OR ('$(LegatoTargetProfile)' == '1.42.0' AND '@(_LegatoMainReference)' != '')) AND '$(LegatoSourceOrder)' != '' AND '$(LegatoTargetOrder)' != '' AND $(LegatoSourceOrder) &lt;= 3 AND $(LegatoTargetOrder) &gt;= 4" />
       <Compile Include="$(LegatoSourceRoot)Polyfills\GlobalNamespace\BeatmapKey\BeatmapKeyExtensions.cs"
-               Condition="('@(_LegatoDataModelsReference)' != '' OR ('$(LegatoTargetProfile)' == '1.29.0' AND '@(_LegatoMainReference)' != '')) AND '@(_LegatoColorsReference)' != ''" />
+               Condition="('$(LegatoEnableBeatmapKeys)' == 'true' OR '$(LegatoEnableAutoAdapters)' != 'false') AND ('@(_LegatoDataModelsReference)' != '' OR ('$(LegatoTargetProfile)' == '1.29.0' AND '@(_LegatoMainReference)' != '')) AND '@(_LegatoColorsReference)' != ''" />
       <Compile Include="$(LegatoSourceRoot)Library\Gameplay\**\*.cs"
                Exclude="$(LegatoSourceRoot)Library\Gameplay\GameplayMetadataProvider.cs"
                Condition="'$(LegatoEnableGameplay)' == 'true'" />
