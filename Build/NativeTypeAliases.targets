@@ -1,6 +1,8 @@
 <Project>
   <Target Name="LegatoLegacyTypeReferences" BeforeTargets="ResolveAssemblyReferences" DependsOnTargets="LegatoConfigure">
     <ItemGroup>
+      <Reference Include="Main" HintPath="$(LegatoReferenceRoot)\Beat Saber_Data\Managed\Main.dll" Private="false"
+                 Condition="'$(LegatoEnableNativeTypeAliases)' == 'true' AND Exists('$(LegatoReferenceRoot)\Beat Saber_Data\Managed\Main.dll') AND '@(Reference->WithMetadataValue('Identity', 'Main'))' == ''" />
       <Reference Include="HMLib" HintPath="$(LegatoReferenceRoot)\Beat Saber_Data\Managed\HMLib.dll" Private="false"
                  Condition="'$(LegatoEnableNativeTypeAliases)' == 'true' AND Exists('$(LegatoReferenceRoot)\Beat Saber_Data\Managed\HMLib.dll') AND '@(Reference->WithMetadataValue('Identity', 'HMLib'))' == ''" />
       <Reference Include="Unity.TextMeshPro" HintPath="$(LegatoReferenceRoot)\Beat Saber_Data\Managed\Unity.TextMeshPro.dll" Private="false"
