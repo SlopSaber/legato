@@ -265,6 +265,8 @@
                Condition="'$(LegatoEnableResults)' == 'true' OR ('$(LegatoEnableAutoAdapters)' != 'false' AND '@(_LegatoIPAReference)' != '' AND '@(_LegatoGameplayCoreReference)' != '')" />
       <Compile Include="$(LegatoSourceRoot)Library\Characteristics\**\*.cs;$(LegatoSourceRoot)Library\LegacyNames\**\*.cs"
                Condition="'$(LegatoEnableLegacyTypeNames)' == 'true'" />
+      <Compile Include="$(LegatoSourceRoot)Library\EffectLifecycle\**\*.cs"
+               Condition="'$(LegatoEnableEffectLifecycle)' == 'true'" />
       <Compile Include="$(LegatoSourceRoot)Library\LevelProxies\**\*.cs"
                Condition="'$(LegatoEnableLevelProxies)' == 'true'" />
       <Compile Include="$(LegatoSourceRoot)Library\StatisticsViews\**\*.cs"
