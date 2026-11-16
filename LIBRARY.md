@@ -281,3 +281,5 @@ Hitbloq providers discover the supported BSML/SongCore API names independently o
 `LegatoEnableMutableSettings` routes room, controller and audio settings through native settings models and notifications. `LegatoEnableControllerTracking` retains raw pose caching, native node indices, model-origin offsets and disposable controller change notifications. Legacy poses already use the legacy origin. No settings are read or written by build tools.
 
 `LegatoProfileResource` items select consumer-owned native assets by resolved profile. Set `Profile`, `Replaces` and `LogicalName` metadata; unsupported profiles retain the original resource. This preserves native serialized data without changing headers. Asset provenance and visual verification remain consumer-owned.
+
+`LegatoEnableAppBindings` selects the declared native root-binding method and its actual container. Legacy hooks use MainSystemInit.InstallBindings(DiContainer), avoiding the inherited MonoInstaller no-op reached through AppInit.
