@@ -47,7 +47,7 @@ The same setup can be added by hand:
 | `1.45.1` | `1.45.1-1.45.2` |
 | `1.45.3` | `1.45.3; 1.46.0` |
 
-Local revisions through `0.1.2-local.45` include the 1.45.3 and 1.46.0 targets and the optional adapters listed in [LIBRARY.md](LIBRARY.md). The version table is a source-selection catalog; each consumer still needs a successful build against its actual game assemblies. It does not certify every adapter on every listed version.
+Local revisions through `0.1.2-local.53` include the 1.45.3 and 1.46.0 targets and the optional adapters listed in [LIBRARY.md](LIBRARY.md). The version table is a source-selection catalog; each consumer still needs a successful build against its actual game assemblies. It does not certify every adapter on every listed version.
 
 Legato source is embedded into each plugin. Updating this package alone does not update installed plugins: rebuild and redeploy each consumer. Private fields, Harmony targets, IL patterns, native hooks, dependency APIs and shader bundles can still need changes. Confirm behavior in the game after building.
 

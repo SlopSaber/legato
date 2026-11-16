@@ -40,7 +40,7 @@ This lists the small reusable APIs supplied by Legato. Transparent polyfills mir
 
 ## Optional adapters
 
-These APIs compile into the consumer. Enable only the features whose references and native API contracts the consumer supports. Package revisions through `0.1.2-local.45` contain the following additions; a consumer pinned to an earlier revision has only the APIs in that revision.
+These APIs compile into the consumer. Enable only the features whose references and native API contracts the consumer supports. Package revisions through `0.1.2-local.53` contain the following additions; a consumer pinned to an earlier revision has only the APIs in that revision.
 
 | Property | APIs and scope |
 | --- | --- |
@@ -71,7 +71,7 @@ Avoid broad feature selection solely to increase adoption counts. A mod with no 
 
 | Property | APIs and behavior |
 | --- | --- |
-| `LegatoEnableObjectDiscovery` | Select `ObjectDiscovery` alone. First/sorted-active and unsorted-active queries retain the consumer's selection policy; they do not replace loaded-asset queries with active-only queries |
+| `LegatoEnableObjectDiscovery` | Select `ObjectDiscovery` alone. `FindLoaded<T>` preserves loaded assets, inactive objects and native array order. First/sorted-active and unsorted-active queries preserve their distinct selection semantics |
 | `LegatoEnableRendererLayers` | `RendererLayerMasks.Apply`; discover URP renderer data and add supplied visibility layers, grouping transparents with a supplied existing layer group. The consumer supplies masks and diagnostics |
 | `LegatoEnableBsmlAudio` | `BsmlUiAudio.Manager`; resolve BSML's UI audio manager |
 | `LegatoEnableBsmlTitle` | `BsmlMenuTitle.Get`; resolve the title view from BSML's current screen system |
@@ -83,3 +83,18 @@ Avoid broad feature selection solely to increase adoption counts. A mod with no 
 Minimal beatmap-key selection also includes `BeatmapKeyFactory`. `CharacteristicName` preserves enum-name strings for wire formats; `CharacteristicSerializedName` uses the native serialized identifier. Rotational characteristic names can differ between these representations, so choose the API matching the existing contract.
 
 For projects with explicit SDK imports, define profile output paths before `Sdk.targets` evaluates framework output paths. Keep existing manifest generators; static-manifest generation is for projects with an actual source JSON manifest. Independently inspect generated sidecars for historical targets as well as embedded manifests.
+
+Recent optional APIs preserve the caller's existing behavior:
+
+| Property | APIs and behavior |
+| --- | --- |
+| `LegatoEnableMenuButtons` | `BsmlMenuButtons.Register` and `Unregister` use the BSML singleton |
+| `LegatoEnableGameModes` | Select `GameModes` without the base polyfills. `IsParty` compares the native enum on the 1.45.3 profile; older string profiles retain case-insensitive matching |
+| `LegatoEnableLevelCharacteristics` | `BeatmapLevelCharacteristics.GetBeatSaber` selects characteristics for the Beat Saber gameplay type on the 1.45.3 profile |
+| `LegatoEnableBeatmapKeys` | Also supplies `TryGetDifficultyBeatmapData`, preserving dictionary lookup success and missing-entry fallback; `Is360Degree` uses direct native comparisons |
+
+`SpriteFactory.Create(image, pivot, pixelsPerUnit, meshType)` preserves explicit sprite geometry and returns null when image decoding fails. Its one-argument overload keeps the original BSML behavior.
+
+`CompletionResultsAdapter.NegateMultipliedScore(ref results)` flips only the multiplied score's sign, including an already negative score. It preserves the modified score and maximum fields. This differs from `InvalidatePositiveScores`, which invalidates positive score fields; choose the operation matching the caller's score-submission policy.
+
+The latest additions have consumer build evidence for 1.45.3 and 1.46.0. Earlier profile implementations remain source support, without new build certification from this batch. Mod-specific native patches, audio or shader assets, Addressables labels and external APIs still need their own review.
