@@ -315,6 +315,8 @@
                Condition="'$(LegatoEnableMenuLighting)' == 'true'" />
       <Compile Include="$(LegatoSourceRoot)Library\LevelMedia\**\*.cs"
                Condition="'$(LegatoEnableLevelMedia)' == 'true'" />
+      <Compile Include="$(LegatoSourceRoot)Library\CinemaAssets\**\*.cs"
+               Condition="'$(LegatoEnableCinemaAssets)' == 'true'" />
       <Compile Include="$(LegatoSourceRoot)Library\SettingsTemplates\**\*.cs"
                Condition="'$(LegatoEnableSettingsTemplates)' == 'true'" />
       <Compile Include="$(LegatoSourceRoot)Library\TableSources\**\*.cs"
@@ -584,4 +586,10 @@
   <Import Project="$(MSBuildThisFileDirectory)Tweaks55Providers.targets" Condition="'$(LegatoEnableTweaks55Providers)' == 'true'" />
   <Import Project="$(MSBuildThisFileDirectory)MappingExtensionsProviders.targets" Condition="'$(LegatoEnableMappingExtensionsProviders)' == 'true'" />
   <Import Project="$(MSBuildThisFileDirectory)PlaylistManagerProviders.targets" />
+  <Target Name="LegatoCinemaAssetProfile" BeforeTargets="AssignTargetPaths" DependsOnTargets="LegatoConfigure" Condition="'$(LegatoEnableCinemaAssets)' == 'true' AND '$(LegatoTargetProfile)' == '1.29.0'">
+    <ItemGroup>
+      <EmbeddedResource Remove="Resources\bscinema.bundle" />
+      <EmbeddedResource Include="$(MSBuildThisFileDirectory)Resources\CinemaLegacy\bscinema.bundle" LogicalName="BeatSaberCinema.Resources.bscinema.bundle" />
+    </ItemGroup>
+  </Target>
 </Project>

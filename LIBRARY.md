@@ -275,3 +275,5 @@ Hitbloq providers discover the supported BSML/SongCore API names independently o
 `LegatoEnableBloomMesh` retains material/submesh pass selection while submitting through the native bloom API. Legacy rendering reuses an owned command buffer and releases it on destruction. `LegatoEnableMenuLighting` exposes the native menu-light pair type.
 
 `LegatoEnableLevelMedia` accesses native entitlement models, official levels and cached song audio without clearing caches or changing ownership. Environment access includes the active scene environment and native loader lookup with the legacy default fallback.
+
+`LegatoEnableCinemaAssets` embeds the unmodified native Unity 2019 video shader bundle for the legacy profile and uses the historical native opaque body shader. Current assets remain unchanged. Single-pass legacy bloom reuses an owned additive material and maps bloom strength to its color multiplier. Current multipass bloom retains its original pass. Legacy color/bloom/stereo parity requires runtime confirmation.
