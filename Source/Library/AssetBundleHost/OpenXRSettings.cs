@@ -1,3 +1,4 @@
+#if !BEAT_SABER_1_29_0
 using HarmonyLib;
 using Legato.XR;
 using UnityEngine.XR.OpenXR;
@@ -13,3 +14,4 @@ namespace AssetBundleLoadingTools.Patches
         }
     }
 }
+#endif

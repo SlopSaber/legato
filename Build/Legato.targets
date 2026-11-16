@@ -443,7 +443,7 @@
   <Import Project="$(MSBuildThisFileDirectory)HitbloqProviders.targets" Condition="'$(LegatoEnableHitbloqProviders)' == 'true'" />
   <Import Project="$(MSBuildThisFileDirectory)SynapseProviders.targets" Condition="'$(LegatoEnableSynapseProviders)' == 'true'" />
   <Import Project="$(MSBuildThisFileDirectory)ReactiveHost.targets" Condition="'$(LegatoEnableReactiveHost)' == 'true'" />
-  <Import Project="$(MSBuildThisFileDirectory)NativeTypeAliases.targets" Condition="'$(LegatoEnableNativeTypeAliases)' == 'true'" />
+  <Import Project="$(MSBuildThisFileDirectory)NativeTypeAliases.targets" Condition="'$(LegatoEnableNativeTypeAliases)' == 'true' OR '$(LegatoEnableAssetBundleHost)' == 'true' OR '$(LegatoEnableRendererLayers)' == 'true'" />
   <Import Project="$(MSBuildThisFileDirectory)BsUtilsHost.targets" Condition="'$(LegatoEnableBsUtilsHost)' == 'true'" />
   <Import Project="$(MSBuildThisFileDirectory)SiraHost.targets" Condition="'$(LegatoEnableSiraHost)' == 'true'" />
   <Import Project="$(MSBuildThisFileDirectory)BsmlHost.targets" Condition="'$(LegatoEnableBsmlHost)' == 'true'" />

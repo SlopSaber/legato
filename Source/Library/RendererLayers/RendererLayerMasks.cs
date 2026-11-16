@@ -1,13 +1,16 @@
 #nullable enable
 using System;
+#if BEAT_SABER_1_45_1 || BEAT_SABER_1_45_3
 using HarmonyLib;
 using UnityEngine.Rendering;
 using UnityEngine.Rendering.Universal;
+#endif
 
 namespace Legato.Rendering {
     internal static class RendererLayerMasks {
         internal static void Apply(int additionalLayers, int transparentGroupLayers,
             Action<string> onGrouped, Action onFallback, Action onMissingRenderers) {
+#if BEAT_SABER_1_45_1 || BEAT_SABER_1_45_3
             if (GraphicsSettings.currentRenderPipeline is not UniversalRenderPipelineAsset pipeline) return;
             var renderers = Traverse.Create(pipeline).Field<ScriptableRendererData[]>("m_RendererDataList").Value;
             if (renderers == null) {
@@ -26,8 +29,10 @@ namespace Legato.Rendering {
                 renderer.prepassLayerMask |= additionalLayers;
                 renderer.opaqueLayerMask |= additionalLayers;
             }
+#endif
         }
 
+#if BEAT_SABER_1_45_1 || BEAT_SABER_1_45_3
         private static bool TryFindTransparentGroup(ScriptableRendererData data, int groupLayers, out RenderObjects feature) {
             foreach (var candidate in data.rendererFeatures) {
                 if (candidate is not RenderObjects objects) continue;
@@ -39,5 +44,6 @@ namespace Legato.Rendering {
             feature = null!;
             return false;
         }
+#endif
     }
 }
