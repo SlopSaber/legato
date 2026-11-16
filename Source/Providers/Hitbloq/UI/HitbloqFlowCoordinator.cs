@@ -37,7 +37,7 @@ namespace Hitbloq.UI
 
 		private bool _flowAnimationComplete;
 
-		private FlowCoordinator? _parentFlowCoordinator;
+		private FlowCoordinator? _presentingFlowCoordinator;
 
 #if HITBLOQ_BS_1_29_1
 		public
@@ -114,7 +114,7 @@ namespace Hitbloq.UI
 
 		private void OnFlowDismissRequested()
 		{
-			_parentFlowCoordinator?.DismissFlowCoordinator(this, immediately: true);
+			_presentingFlowCoordinator?.DismissFlowCoordinator(this, immediately: true);
 		}
 
 		private void OnURLOpenRequested(string url)
@@ -132,13 +132,13 @@ namespace Hitbloq.UI
 			_hitbloqRankedListViewController.gameObject.SetActive(false);
 			_hitbloqPoolLeaderboardViewController.gameObject.SetActive(false);
 			_hitbloqInfoViewController.gameObject.SetActive(false);
-			_parentFlowCoordinator?.DismissFlowCoordinator(this);
+			_presentingFlowCoordinator?.DismissFlowCoordinator(this);
 		}
 
 		internal void Show()
 		{
-			_parentFlowCoordinator = _mainFlowCoordinator.YoungestChildFlowCoordinatorOrSelf();
-			_parentFlowCoordinator.PresentFlowCoordinator(this, () =>
+			_presentingFlowCoordinator = _mainFlowCoordinator.YoungestChildFlowCoordinatorOrSelf();
+			_presentingFlowCoordinator.PresentFlowCoordinator(this, () =>
 			{
 				_flowAnimationComplete = true;
 				if (_currentPool != null)

@@ -104,13 +104,13 @@ namespace Hitbloq.Utilities
 		{
 			foreach (var name in names)
 			{
-				var property = type.GetProperty(name, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static);
+				var property = type.GetProperty(name, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.FlattenHierarchy);
 				if (property != null)
 				{
 					return property.GetValue(null);
 				}
 
-				var field = type.GetField(name, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static);
+				var field = type.GetField(name, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.FlattenHierarchy);
 				if (field != null)
 				{
 					return field.GetValue(null);

@@ -21,7 +21,7 @@ namespace Hitbloq.Installers
 			Container.Bind<PopupModalsController>().AsSingle();
 
 			Container.BindInterfacesTo<MenuButtonUI>().AsSingle();
-			Container.BindInterfacesAndSelfTo<HitbloqFlowCoordinator>().FromNewComponentOnNewGameObject().AsSingle();
+			Legato.Injection.ComponentBinding.OnNewGameObject(Container.BindInterfacesAndSelfTo<HitbloqFlowCoordinator>()).AsSingle();
 			Container.BindInterfacesAndSelfTo<HitbloqNavigationController>().FromNewComponentAsViewController().AsSingle();
 			Container.BindInterfacesAndSelfTo<HitbloqPoolListViewController>().FromNewComponentAsViewController().AsSingle();
 			Container.BindInterfacesAndSelfTo<HitbloqPoolDetailViewController>().FromNewComponentAsViewController().AsSingle();
@@ -31,17 +31,14 @@ namespace Hitbloq.Installers
 
 			Container.BindInterfacesTo<HitbloqCustomLeaderboard>().AsSingle();
 			Container.BindInterfacesAndSelfTo<HitbloqManager>().AsSingle();
-			// Edited by GPT-5 Codex 2026-05-27
 			// BeatLeader and ScoreSaber can both report an upload for the same play.
 			// Prefer BeatLeader when it is present so one score event reaches Hitbloq.
 			// The fallback keeps ScoreSaber support for installs without BeatLeader.
-#if !HITBLOQ_BS_1_29_1
 			if (Utils.IsBeatLeaderInstalled)
 			{
 				Container.BindInterfacesTo<BeatLeaderUploadManager>().AsSingle();
 			}
 			else
-#endif
 			if (Utils.IsScoreSaberInstalled)
 			{
 				Container.BindInterfacesTo<ScoreSaberUploadManager>().AsSingle();

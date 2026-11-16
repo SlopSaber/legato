@@ -1,4 +1,3 @@
-#if !HITBLOQ_BS_1_29_1
 using System;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -20,7 +19,6 @@ namespace Hitbloq.Managers
 
 		public void Dispose()
 		{
-			// Edited by GPT-5 Codex 2026-05-27
 			// BeatLeader changed upload APIs between releases, so unsubscribe through reflection.
 			// This keeps old BeatLeader builds loadable when newer web request types are absent.
 			if (_uploadEventHandler == null)
@@ -38,7 +36,6 @@ namespace Hitbloq.Managers
 
 		public void Initialize()
 		{
-			// Edited by GPT-5 Codex 2026-05-27
 			// New BeatLeader exposes an upload state event; old BeatLeader exposes replay upload start.
 			// Subscribe to whichever API exists without putting missing types in this class signature.
 			if (TrySubscribeNewUploadEvent())
@@ -122,7 +119,6 @@ namespace Hitbloq.Managers
 
 		private void OnNewUploadStateChanged(object request, object state, string? failReason)
 		{
-			// Edited by GPT-5 Codex 2026-05-27
 			// New BeatLeader can report attempts/errors through the upload event.
 			// Refresh only when the state finished and the response status is Uploaded.
 			if (state.ToString() == "Finished" && IsUploadedStatus(request))
@@ -133,7 +129,6 @@ namespace Hitbloq.Managers
 
 		private void OnLegacyReplayUploadStarted(object replay, object? playEndData)
 		{
-			// Edited by GPT-5 Codex 2026-05-27
 			// Old BeatLeader lacks the newer upload response, so use replay completion data.
 			// Only a cleared play can refresh Hitbloq; quits/fails/practice replays are ignored.
 			if (IsClearedReplay(replay, playEndData))
@@ -164,4 +159,3 @@ namespace Hitbloq.Managers
 		}
 	}
 }
-#endif
