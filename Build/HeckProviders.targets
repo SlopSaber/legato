@@ -15,6 +15,12 @@
     <EditorConfigFiles Include="$(LegatoSourceRoot)Providers\CustomJSONData\.editorconfig"
                        Condition="'$(LegatoEnableCustomJsonDataProviders)' == 'true'" />
   </ItemGroup>
+  <Target Name="LegatoCustomJsonLegacyReferences" BeforeTargets="ResolveAssemblyReferences" DependsOnTargets="LegatoConfigure">
+    <ItemGroup Condition="'$(LegatoTargetProfile)' == '1.29.0' AND '$(LegatoEnableCustomJsonDataProviders)' == 'true'">
+      <Reference Remove="AdditionalContentModel.Interfaces;DataModels;Tweening" />
+      <Reference Update="GameplayCore" Publicize="true" />
+    </ItemGroup>
+  </Target>
   <!-- Keep the suite's original version ordering while selecting it from Legato's target. -->
   <Target Name="LBSM_GetConfigurationInfo" DependsOnTargets="LegatoConfigure">
     <PropertyGroup>
