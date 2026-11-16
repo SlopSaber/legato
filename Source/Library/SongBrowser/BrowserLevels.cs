@@ -42,6 +42,36 @@ namespace Legato.SongBrowser {
 #else
             new LevelSelectionFlowCoordinator.State(category, pack, default(BeatmapKey), level);
 #endif
+        internal static int IndexOf(IReadOnlyList<BeatmapLevel> levels, System.Func<BeatmapLevel, bool> predicate) {
+            for(int i = 0; i < levels.Count; i++) if(predicate(levels[i])) return i;
+            return -1;
+        }
+        internal static IReadOnlyList<BeatmapLevel> TableLevels(LevelCollectionTableView table) =>
+#if BEAT_SABER_1_29_0
+            table._previewBeatmapLevels;
+#else
+            table._beatmapLevels;
+#endif
+        internal static BeatmapLevel DetailLevel(StandardLevelDetailView view) =>
+#if BEAT_SABER_1_29_0
+            view._level;
+#else
+            view._beatmapLevel;
+#endif
+        internal static BeatmapKey DetailKey(StandardLevelDetailView view) =>
+#if BEAT_SABER_1_29_0
+            view.selectedDifficultyBeatmap;
+#else
+            view.beatmapKey;
+#endif
+        internal static (float noteJumpMovementSpeed, float noteJumpStartBeatOffset) JumpDetails(BeatmapLevel level, BeatmapKey key) {
+#if BEAT_SABER_1_29_0
+            return (key?.noteJumpMovementSpeed ?? 0, key?.noteJumpStartBeatOffset ?? 0);
+#else
+            var data = Legato.BeatmapKeyExtensions.GetDifficultyBeatmapData(level, in key);
+            return (data?.noteJumpMovementSpeed ?? 0, data?.noteJumpStartBeatOffset ?? 0);
+#endif
+        }
         internal static string MapperNames(BeatmapLevel level) =>
 #if BEAT_SABER_1_29_0
             level.levelAuthorName;

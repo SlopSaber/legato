@@ -261,7 +261,7 @@ namespace BetterSongList.HarmonyPatches {
 			yield return null;
 			if(table == null || !table.isActiveAndEnabled || table != lastTable || (lastOutMapList?.Count ?? 0) == 0)
 				yield break;
-			var index = Math.Max(0, lastOutMapList.FindIndex(level => level.levelID == Config.Instance.LastSong) + (table._showLevelPackHeader ? 1 : 0));
+			var index = Math.Max(0, Legato.SongBrowser.BrowserLevels.IndexOf(lastOutMapList, level => level.levelID == Config.Instance.LastSong) + (table._showLevelPackHeader ? 1 : 0));
 			table._selectedRow = index;
 			table._tableView.SelectCellWithIdx(index, false);
 			table._tableView.ScrollToCellWithIdx(index, TableView.ScrollPositionType.Center, false);
