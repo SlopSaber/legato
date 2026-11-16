@@ -67,6 +67,8 @@
       </Reference>
       <Reference Include="UnityEngine.VRModule" HintPath="$(LegatoReferenceRoot)\Beat Saber_Data\Managed\UnityEngine.VRModule.dll" Private="false"
                  Condition="'$(LegatoEnablePortableRendering)' == 'true' AND '$(LegatoTargetProfile)' == '1.29.0' AND '@(Reference->WithMetadataValue('Identity', 'UnityEngine.VRModule'))' == ''" />
+      <Reference Include="Unity.RenderPipelines.Core.Runtime.Shared" HintPath="$(LegatoReferenceRoot)\Beat Saber_Data\Managed\Unity.RenderPipelines.Core.Runtime.Shared.dll" Private="false"
+                 Condition="'$(LegatoEnablePortableRendering)' == 'true' AND ('$(LegatoTargetProfile)' == '1.45.1' OR '$(LegatoTargetProfile)' == '1.45.3') AND '@(Reference->WithMetadataValue('Identity', 'Unity.RenderPipelines.Core.Runtime.Shared'))' == '' AND Exists('$(LegatoReferenceRoot)\Beat Saber_Data\Managed\Unity.RenderPipelines.Core.Runtime.Shared.dll')" />
       <Reference Remove="SongDataCore"
                  Condition="'$(LegatoSourceProfile)' == '1.29.0' AND !Exists('$(LegatoReferenceRoot)\Plugins\SongDataCore.dll') AND Exists('$(LegatoLibraryRoot)\SongDetailsCache.dll')" />
       <Reference Include="SongDetailsCache"

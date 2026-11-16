@@ -78,7 +78,7 @@ namespace Legato.Rendering
         [HarmonyPatch(typeof(ScriptableRenderer), "AddRenderPasses")]
         private static class RenderHook
         {
-            private static void Postfix(ScriptableRenderer __instance, ref RenderingData renderingData)
+            private static void Prefix(ScriptableRenderer __instance, ref RenderingData renderingData)
             {
                 if (renderingData.cameraData.camera.cameraType != CameraType.Game) return;
                 foreach (var registration in Registrations)
