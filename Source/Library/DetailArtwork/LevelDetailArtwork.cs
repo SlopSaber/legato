@@ -5,12 +5,7 @@ namespace Legato.Presentation
 {
     internal static class LevelDetailArtwork
     {
-        internal static async System.Threading.Tasks.Task<UnityEngine.Sprite> Cover(BeatmapLevel level) =>
-#if BEAT_SABER_1_29_0
-            await level.GetCoverImageAsync(System.Threading.CancellationToken.None);
-#else
-            await level.previewMediaData.GetCoverSpriteAsync();
-#endif
+        internal static System.Threading.Tasks.Task<UnityEngine.Sprite> Cover(BeatmapLevel level) => Beatmaps.LevelCover.Load(level);
 
         internal static readonly FieldAccessor<StandardLevelDetailViewController, StandardLevelDetailView>.Accessor DetailView = FieldAccessor<StandardLevelDetailViewController, StandardLevelDetailView>.GetAccessor("_standardLevelDetailView");
         internal static readonly FieldAccessor<StandardLevelDetailView, LevelBar>.Accessor LevelBar = FieldAccessor<StandardLevelDetailView, LevelBar>.GetAccessor("_levelBar");

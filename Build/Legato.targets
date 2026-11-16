@@ -361,6 +361,8 @@
                Condition="'$(LegatoEnableObjectDiscovery)' == 'true' AND '$(LegatoEnableUnityCompatibility)' != 'true'" />
       <Compile Include="$(LegatoSourceRoot)Library\BsmlAudio\**\*.cs"
                Condition="'$(LegatoEnableBsmlAudio)' == 'true'" />
+      <Compile Include="$(LegatoSourceRoot)Library\CoverLoading\**\*.cs"
+               Condition="'$(LegatoEnableCoverLoading)' == 'true' OR '$(LegatoEnableDetailArtwork)' == 'true'" />
       <Compile Include="$(LegatoSourceRoot)Library\DetailArtwork\**\*.cs"
                Condition="'$(LegatoEnableDetailArtwork)' == 'true'" />
       <Compile Include="$(LegatoSourceRoot)Library\BeatmapCopy\**\*.cs"
