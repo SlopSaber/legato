@@ -166,3 +166,17 @@ The suite previously defined `LATEST` unconditionally in its projects. The share
 The 1.29.1 SongCore provider adds variable NJS movement, per-object lane rotations, different arc tail rotations and CPU sampling for arbitrary light-color easing and strobe brightness/fade. Standard lighting keeps the native path. The provider compiles against native 1.29.1 and 1.46.0 references; gameplay, visual parity and interaction with other mods still require runtime confirmation.
 
 Older installations use available native environments. The 1.29.1 engine has no native float-FX target system, so FX metadata is retained but those effects do not execute. Newer environment assets are not included. The legacy buffered-color shader has a 24-entry history; simultaneous updates exceeding that capacity do not have full visual parity. These limits do not reject the map or rewrite its files.
+
+### Additional legacy adapters
+
+- `LegatoEnableOverridePersistenceProviders` supplies native KeepMyOverridesPls bindings, including legacy environment ScriptableObject identities and default/promotion hooks. Keep its configuration and installer in the consumer.
+- `LegatoEnableColorSchemes` enables named color construction with native constructor selection. Legacy white and boost fields are retained through cached accessors.
+- `LegatoEnableCounterGameplay` supplies actual scene keys, levels, player statistics, scoring kinds and tutorial-preview transitions. Enable native beatmap aliases, beatmap-key helpers and native type aliases alongside it. `LegatoEnableScreenDisplacement` selects the real native visual-settings dependency.
+- `LegatoUseLoaderJson` selects the installed BSIPA core JSON assembly for loader-facing JSON contracts. It requires the consumer's `BSIPA_ResolveLayoutReferences` target. Game-facing JSON APIs can require a separate assembly alias.
+- `LegatoEnableSongAudio` supplies native playing-state and seek-offset access. `LegatoEnableControllerInput` also supplies an injectable trigger reader backed by the old input manager or current platform helper.
+- `LegatoEnablePracticeBeatmaps` supplies a request-scoped practice context and map-text loading. Enable native beatmap aliases, `LegatoEnableBeatmapText` and `LegatoEnableV4Beatmaps`. Legacy v4 bookmark reads merge custom metadata and sample-based timing without expanding indexed gameplay objects.
+- `LegatoEnableJumpSpeedSelection` reads the actual selected difficulty and native default-speed policy. It uses the native alias and beatmap-key features.
+- `LegatoEnablePlatformAuthentication` supplies native user IDs and authentication proofs through the selected platform API. `LegatoEnableWebRequests` supplies JSON POST construction and network/protocol classification across Unity APIs.
+- `LegatoEnableEnvironmentFilters` adapts the native transformation arguments for legacy presets and current player settings. `LegatoEnableHitsoundLifecycle` selects effect-update and actual sound-spawn methods; native state aliases come from `LegatoEnableSongAudio`.
+
+These adapters embed into consumers. Preserve consumed package versions, rebuild for each selected game profile and confirm runtime behavior separately from compilation.
