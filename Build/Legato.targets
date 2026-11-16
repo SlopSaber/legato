@@ -361,6 +361,12 @@
                Condition="'$(LegatoEnableObjectDiscovery)' == 'true' AND '$(LegatoEnableUnityCompatibility)' != 'true'" />
       <Compile Include="$(LegatoSourceRoot)Library\BsmlAudio\**\*.cs"
                Condition="'$(LegatoEnableBsmlAudio)' == 'true'" />
+      <Compile Include="$(LegatoSourceRoot)Library\PlayerDataPersistence\**\*.cs"
+               Condition="'$(LegatoEnablePlayerDataPersistence)' == 'true'" />
+      <Compile Include="$(LegatoSourceRoot)Library\CustomLevelFolders\**\*.cs"
+               Condition="'$(LegatoEnableCustomLevelFolders)' == 'true'" />
+      <Compile Include="$(LegatoSourceRoot)Library\Beatmaps\SongCoreLoaderEvents.cs"
+               Condition="'$(LegatoEnableSongCoreEvents)' == 'true' AND '$(LegatoEnableSongCore)' != 'true'" />
       <Compile Include="$(LegatoSourceRoot)Library\CoverLoading\**\*.cs"
                Condition="'$(LegatoEnableCoverLoading)' == 'true' OR '$(LegatoEnableDetailArtwork)' == 'true'" />
       <Compile Include="$(LegatoSourceRoot)Library\DetailArtwork\**\*.cs"

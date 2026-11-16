@@ -43,7 +43,7 @@ namespace Legato
     {
         private readonly Action _callback;
 
-#if BEAT_SABER_1_29_0
+#if BEAT_SABER_1_29_0 && !LEGATO_NATIVE_BEATMAP_KEYS
         private readonly Action<SongCore.Loader, System.Collections.Concurrent.ConcurrentDictionary<string, CustomPreviewBeatmapLevel>> _handler;
 #else
         private readonly Action<SongCore.Loader, System.Collections.Concurrent.ConcurrentDictionary<string, BeatmapLevel>> _handler;
