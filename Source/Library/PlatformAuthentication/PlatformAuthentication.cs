@@ -63,7 +63,7 @@ namespace Legato.Platform {
 #endif
 #if BEAT_SABER_1_29_0
         private async Task<UserIdentity> ReadIdentity() {
-            UserInfo user = await _model.GetUserInfo();
+            UserInfo user = await _model.GetUserInfo().ConfigureAwait(true);
             AuthenticationPlatform platform = user.platform == UserInfo.Platform.Steam ? AuthenticationPlatform.Steam
                 : user.platform == UserInfo.Platform.Oculus ? AuthenticationPlatform.Meta : AuthenticationPlatform.Unknown;
             return new UserIdentity(platform, user.platformUserId, user.userName);
@@ -76,11 +76,11 @@ namespace Legato.Platform {
         }
 #endif
         internal async Task<UserCredentials> GetCredentials() {
-            UserIdentity identity = await GetIdentity();
+            UserIdentity identity = await GetIdentity().ConfigureAwait(true);
 #if BEAT_SABER_1_29_0
-            string proof = (await _model.GetUserAuthToken()).token;
+            string proof = (await _model.GetUserAuthToken().ConfigureAwait(true)).token;
 #else
-            string proof = await _model.user.GetAccessTokenAsync();
+            string proof = await _model.user.GetAccessTokenAsync().ConfigureAwait(true);
 #endif
             return new UserCredentials(identity.Platform, identity.UserId, proof);
         }

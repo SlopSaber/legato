@@ -57,12 +57,12 @@ namespace Legato.Beatmaps {
 #endif
         internal static async Task<BeatmapLevel> Load(BeatmapLevelsModel model, string levelId, CancellationToken token) {
 #if BEAT_SABER_1_29_0
-            var loaded = await model.GetBeatmapLevelAsync(levelId, token);
+            var loaded = await model.GetBeatmapLevelAsync(levelId, token).ConfigureAwait(true);
             if (loaded.isError) throw new InvalidOperationException("Failed to load beatmap level: " + levelId);
             return loaded.beatmapLevel;
 #else
             token.ThrowIfCancellationRequested();
-            return await Task.FromResult(model.GetBeatmapLevel(levelId));
+            return await Task.FromResult(model.GetBeatmapLevel(levelId)).ConfigureAwait(true);
 #endif
         }
         internal static IEnumerable<BeatmapKey> LoadedKeys(BeatmapLevel level) =>

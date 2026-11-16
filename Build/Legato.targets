@@ -367,6 +367,8 @@
                Condition="'$(LegatoEnableSteamAuthentication)' == 'true'" />
       <Compile Include="$(LegatoSourceRoot)Library\NativeLevelAccess\**\*.cs"
                Condition="'$(LegatoEnableNativeLevelAccess)' == 'true'" />
+      <Compile Include="$(LegatoSourceRoot)Library\NativeGameState\**\*.cs"
+               Condition="'$(LegatoEnableNativeGameState)' == 'true'" />
       <Compile Include="$(LegatoSourceRoot)Library\HitsoundLifecycle\**\*.cs"
                Condition="'$(LegatoEnableHitsoundLifecycle)' == 'true'" />
       <Compile Include="$(LegatoSourceRoot)Library\EnvironmentFilters\**\*.cs"

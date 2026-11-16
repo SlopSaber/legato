@@ -37,9 +37,9 @@ namespace Legato.Platform {
                 result._ticket = SteamUser.GetAuthTicketForWebApi(identity);
 #endif
                 if (result._ticket == HAuthTicket.Invalid) throw new InvalidOperationException("Steam did not issue a web authentication ticket.");
-                if (await Task.WhenAny(completion.Task, Task.Delay(timeout)) != completion.Task)
+                if (await Task.WhenAny(completion.Task, Task.Delay(timeout)).ConfigureAwait(true) != completion.Task)
                     throw new TimeoutException("Steam authentication ticket timed out.");
-                result.Token = await completion.Task;
+                result.Token = await completion.Task.ConfigureAwait(true);
                 return result;
             } catch {
                 result.Dispose();

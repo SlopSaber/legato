@@ -17,6 +17,7 @@
       <Reference Remove="UnityEngine.TextCoreFontEngineModule" Condition="'$(LegatoEnableFontGlyphs)' == 'true' AND !Exists('$(LegatoReferenceRoot)\Beat Saber_Data\Managed\UnityEngine.TextCoreFontEngineModule.dll')" />
     </ItemGroup>
     <ItemGroup Condition="'$(LegatoTargetProfile)' == '1.29.0'">
+      <Reference Include="Rendering" HintPath="$(LegatoReferenceRoot)\Beat Saber_Data\Managed\Rendering.dll" Private="false" Condition="'$(LegatoEnableNativeGameState)' == 'true' AND '@(Reference->WithMetadataValue('Identity', 'Rendering'))' == ''" />
       <_LegatoLegacyNetworkReference Include="@(Reference->WithMetadataValue('Identity', 'BGNetCore'))" />
       <Reference Remove="BGNetCore" />
       <Reference Include="BGNet" HintPath="$(LegatoReferenceRoot)\Beat Saber_Data\Managed\BGNet.dll" Private="false"
