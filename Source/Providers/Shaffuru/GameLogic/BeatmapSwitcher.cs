@@ -224,7 +224,13 @@ namespace Shaffuru.GameLogic {
 				// Update to the new maps stuffs
 				var replacementBeatmapBasicData = BeatmapLoader.GetDifficultyBeatmapData(replacementLevel, replacementKey);
 
-				var njs = replacementKey.difficulty.NoteJumpMovementSpeed(replacementBeatmapBasicData.noteJumpMovementSpeed, sceneSetupData.gameplayModifiers.fastNotes);
+				#if BEAT_SABER_1_29_0
+                var njs = replacementBeatmapBasicData.noteJumpMovementSpeed;
+                if (njs <= 0 || sceneSetupData.gameplayModifiers.fastNotes)
+                    njs = BeatmapDifficultyMethods.NoteJumpMovementSpeed(replacementKey.difficulty);
+#else
+                var njs = replacementKey.difficulty.NoteJumpMovementSpeed(replacementBeatmapBasicData.noteJumpMovementSpeed, sceneSetupData.gameplayModifiers.fastNotes);
+#endif
 
 				// This updates the spawnAheadTime amonguser things
 				UpdateBeatmapObjectSpawnControllerInitData(

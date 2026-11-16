@@ -6,7 +6,7 @@ namespace Legato.Beatmaps {
         internal static IEnumerable<BeatmapDifficulty> Standard(BeatmapLevel level) {
 #if BEAT_SABER_1_29_0
             return level.previewDifficultyBeatmapSets.Where(set => set.beatmapCharacteristic.serializedName == "Standard")
-                .SelectMany(set => set.difficulties);
+                .SelectMany(set => set.beatmapDifficulties);
 #else
             return StandardKeys(level).Select(key => key.difficulty);
 #endif
@@ -16,8 +16,17 @@ namespace Legato.Beatmaps {
             return ((IBeatmapLevel)level).beatmapLevelData.difficultyBeatmapSets
                 .Where(set => set.beatmapCharacteristic.serializedName == "Standard")
                 .SelectMany(set => set.difficultyBeatmaps);
-#else
+#elif BEAT_SABER_1_45_3
             return level.GetBeatmapKeys().Where(key => key.gameplayType == GameplayType.BeatSaber && key.characteristic == BeatmapCharacteristic.Standard);
+#else
+            return level.beatmapBasicData.Keys
+                .Where(pair =>
+#if BEAT_SABER_1_45_1
+                    pair.Item1 == BeatmapCharacteristic.Standard)
+#else
+                    pair.Item1.serializedName == "Standard")
+#endif
+                .Select(pair => new BeatmapKey(level.levelID, pair.Item1, pair.Item2));
 #endif
         }
     }
