@@ -280,6 +280,7 @@
                Condition="'$(LegatoEnableFlowNavigation)' == 'true'" />
       <Compile Include="$(LegatoSourceRoot)Providers\Shaffuru\**\*.cs" Condition="'$(LegatoEnableShaffuruProviders)' == 'true'" />
       <Compile Include="$(LegatoSourceRoot)Library\AudioSettings\**\*.cs" Condition="'$(LegatoEnableAudioSettings)' == 'true'" />
+      <Compile Include="$(LegatoSourceRoot)Library\JumpSelectionContext\**\*.cs" Condition="'$(LegatoEnableJumpSelectionContext)' == 'true'" />
       <Compile Include="$(LegatoSourceRoot)Library\RuntimeServices\**\*.cs"
                Condition="'$(LegatoEnableRuntimeServices)' == 'true'" />
       <Compile Include="$(LegatoSourceRoot)Library\TableSources\**\*.cs"
