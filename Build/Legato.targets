@@ -268,6 +268,8 @@
                Condition="'$(LegatoEnableBsmlSettings)' == 'true'" />
       <Compile Include="$(LegatoSourceRoot)Library\RendererLayers\**\*.cs"
                Condition="'$(LegatoEnableRendererLayers)' == 'true'" />
+      <Compile Include="$(LegatoSourceRoot)Library\Collections\**\*.cs"
+               Condition="'$(LegatoEnableCollectionPools)' == 'true'" />
       <Compile Include="$(LegatoSourceRoot)Library\Unity\ObjectDiscovery.cs"
                Condition="'$(LegatoEnableObjectDiscovery)' == 'true' AND '$(LegatoEnableUnityCompatibility)' != 'true'" />
       <Compile Include="$(LegatoSourceRoot)Library\BsmlAudio\**\*.cs"
@@ -333,7 +335,7 @@
       <Compile Include="$(LegatoSourceRoot)Library\Gameplay\OverrideEnvironmentSettingsFactory.cs"
                Condition="'$(LegatoEnableEnvironmentSettings)' == 'true' AND '$(LegatoEnableGameplay)' != 'true'" />
       <Compile Include="$(LegatoSourceRoot)Library\Tracking\**\*.cs"
-               Condition="'$(LegatoEnableSpatialTracking)' == 'true' OR '$(LegatoTargetProfile)' == '1.29.0'" />
+               Condition="'$(LegatoEnableSpatialTracking)' == 'true' OR ('$(LegatoEnableAutoAdapters)' != 'false' AND '$(LegatoEnableSpatialTracking)' != 'false' AND '$(LegatoTargetProfile)' == '1.29.0')" />
       <Compile Include="$(LegatoSourceRoot)ForwardPolyfills\**\Transitions\1.38.0-1.40.0\**\*.cs"
                Condition="'@(_LegatoDataModelsReference)' != '' AND '$(LegatoSourceOrder)' != '' AND '$(LegatoTargetOrder)' != '' AND $(LegatoSourceOrder) &lt;= 2 AND $(LegatoTargetOrder) &gt;= 3" />
       <Compile Include="$(LegatoSourceRoot)ForwardPolyfills\**\Transitions\1.40.0-1.42.0\**\*.cs"
@@ -386,7 +388,7 @@
       <Compile Include="$(LegatoSourceRoot)Library\Gameplay\GameplayMetadataProvider.cs"
                Condition="'$(LegatoEnableGameplay)' == 'true' AND ('$(LegatoEnableGameSettings)' == 'true' OR '$(LegatoTargetProfile)' == '1.29.0' OR '$(LegatoTargetProfile)' == '1.37.1' OR '$(LegatoTargetProfile)' == '1.38.0')" />
       <Compile Include="$(LegatoSourceRoot)Library\Rooms\**\*.cs"
-               Condition="'$(LegatoEnableGameSettings)' != 'false' AND ('$(LegatoEnableGameSettings)' == 'true' OR '$(LegatoTargetProfile)' == '1.29.0' OR ('$(LegatoTargetProfile)' == '1.38.0' AND '@(_LegatoDataModelsReference)' != ''))" />
+               Condition="'$(LegatoEnableGameSettings)' != 'false' AND ('$(LegatoEnableGameSettings)' == 'true' OR ('$(LegatoEnableAutoAdapters)' != 'false' AND ('$(LegatoTargetProfile)' == '1.29.0' OR ('$(LegatoTargetProfile)' == '1.38.0' AND '@(_LegatoDataModelsReference)' != ''))))" />
       <Compile Include="$(LegatoSourceRoot)Library\Platform\**\*.cs"
                Exclude="$(LegatoSourceRoot)**\Versions\**\*.cs"
                Condition="'$(LegatoEnablePlatform)' == 'true'" />
@@ -397,7 +399,7 @@
       <Compile Include="$(LegatoSourceRoot)Library\XR\XrDeviceDiscovery.cs"
                Condition="'$(LegatoEnableXR)' == 'true'" />
       <Compile Include="$(LegatoSourceRoot)Polyfills\GlobalNamespace\MainCamera\**\*.cs"
-               Condition="'$(LegatoTargetProfile)' == '1.29.0' OR '$(LegatoEnableSpatialTracking)' == 'true'" />
+               Condition="'$(LegatoEnableSpatialTracking)' == 'true' OR ('$(LegatoEnableAutoAdapters)' != 'false' AND '$(LegatoEnableSpatialTracking)' != 'false' AND '$(LegatoTargetProfile)' == '1.29.0')" />
       <Compile Include="$(LegatoSourceRoot)Polyfills\GlobalNamespace\OculusVRHelper\**\*.cs;$(LegatoSourceRoot)Polyfills\GlobalNamespace\PauseController\**\*.cs;$(LegatoSourceRoot)Polyfills\GlobalNamespace\UnityXRHelper\**\*.cs;$(LegatoSourceRoot)Polyfills\GlobalNamespace\UnityXRSystemState\**\*.cs;$(LegatoSourceRoot)Polyfills\GlobalNamespace\VariableMovementDataProvider\**\*.cs"
                Condition="'$(LegatoEnableHarmonyEvents)' == 'true'" />
     </ItemGroup>
