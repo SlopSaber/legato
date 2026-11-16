@@ -24,6 +24,7 @@ namespace SongCore.Hooks
         private static readonly ConditionalWeakTable<CustomPreviewBeatmapLevel, LevelContext> Levels = new();
         private static readonly ConditionalWeakTable<StandardLevelInfoSaveData, LevelContext> Metadata = new();
         private static readonly ConditionalWeakTable<BeatmapSaveData, V4LegacyProjection> Projections = new();
+        private static readonly ConditionalWeakTable<BeatmapSaveData, V4RelativeNjs> RelativeSpeeds = new();
         private static readonly AsyncLocal<DifficultyContext?> Loading = new();
         private static readonly AsyncLocal<V4LegacyProjection?> Converting = new();
         private readonly List<Hook> _hooks = new();
@@ -119,6 +120,8 @@ namespace SongCore.Hooks
                 (context.NativeDifficulty as CustomLevelInfoSaveData.DifficultyBeatmap)?.customData ?? new CustomData(),
                 (info as CustomLevelInfoSaveData)?.customData ?? new CustomData());
             Projections.Add(save, projection);
+            var relativeSpeed = new V4RelativeNjs(projection);
+            if (relativeSpeed.HasEvents) RelativeSpeeds.Add(save, relativeSpeed);
             V4LegacyProjection? previous = Converting.Value;
             try
             {
@@ -143,6 +146,9 @@ namespace SongCore.Hooks
 
         private float BeatToSeconds(Func<BeatmapDataLoader.BpmTimeProcessor, float, float> original, BeatmapDataLoader.BpmTimeProcessor processor, float beat) =>
             Converting.Value is V4LegacyProjection projection ? (float)projection.Tempo.BeatToSeconds(beat) : original(processor, beat);
+
+        internal static V4RelativeNjs? RelativeSpeedFor(IDifficultyBeatmap difficulty) =>
+            difficulty is global::CustomDifficultyBeatmap native && RelativeSpeeds.TryGetValue(native.beatmapSaveData, out var speed) ? speed : null;
 
         private sealed class LevelContext
         {
