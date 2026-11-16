@@ -32,6 +32,21 @@ namespace Legato.Rendering {
         }
     }
     internal static class CameraRendering {
+        internal static void ConfigureDesktop(Camera camera) {
+#if !BEAT_SABER_1_29_0
+            if (GraphicsSettings.currentRenderPipeline == null) return;
+            var data = camera.GetUniversalAdditionalCameraData();
+            data.renderType = CameraRenderType.Base;
+            data.allowXRRendering = false;
+            data.cameraStack?.Clear();
+#endif
+        }
+        internal static void SetDepthTexture(Camera camera) {
+#if !BEAT_SABER_1_29_0
+            if (camera.TryGetComponent<UniversalAdditionalCameraData>(out var data))
+                data.requiresDepthTexture = camera.depthTextureMode != DepthTextureMode.None;
+#endif
+        }
         internal static void Render(Camera camera, RenderTexture destination) {
 #if !BEAT_SABER_1_29_0
             if (GraphicsSettings.currentRenderPipeline != null) {
