@@ -1,0 +1,92 @@
+[
+  {
+    "original": "PublicMods\\Heck\\NoodleExtensions\\HeckImplementation\\FakeNotesJSON.cs",
+    "shared": "Source\\Providers\\NoodleExtensions\\HeckImplementation\\FakeNotesJSON.cs",
+    "sha256": "f6e9919b1072c3d0ed9f534aa9c9423736b502b1f1dfabf53eb7467152b78533"
+  },
+  {
+    "original": "PublicMods\\Heck\\NoodleExtensions\\Installers\\NoodlePlayerInstaller.cs",
+    "shared": "Source\\Providers\\NoodleExtensions\\Installers\\NoodlePlayerInstaller.cs",
+    "sha256": "66f1323462d0f31c8953e362e33538b86240c65089586b7c5b1133ecb219b634"
+  },
+  {
+    "original": "PublicMods\\Heck\\NoodleExtensions\\Managers\\NoodleMovementDataProvider.cs",
+    "shared": "Source\\Providers\\NoodleExtensions\\Managers\\NoodleMovementDataProvider.cs",
+    "sha256": "af2a39c2ff28986eb8820ebbacb560db097b3a2ce84e02df29889fd8ba86ab15"
+  },
+  {
+    "original": "PublicMods\\Heck\\NoodleExtensions\\Managers\\NoodlePlayerTransformManager.cs",
+    "shared": "Source\\Providers\\NoodleExtensions\\Managers\\NoodlePlayerTransformManager.cs",
+    "sha256": "d3edfc73026c08f13712465a9716968e24ec1885ed6c257aef8bc3350d46bf1d"
+  },
+  {
+    "original": "PublicMods\\Heck\\NoodleExtensions\\Managers\\SpawnDataManager.cs",
+    "shared": "Source\\Providers\\NoodleExtensions\\Managers\\SpawnDataManager.cs",
+    "sha256": "820c74d7b2d55ac145081b2f40f686fcdc58dd1514eb6dff898a4cb8815dde8c"
+  },
+  {
+    "original": "PublicMods\\Heck\\NoodleExtensions\\HarmonyPatches\\FakeNotes\\BeatmapDataFakeCount.cs",
+    "shared": "Source\\Providers\\NoodleExtensions\\HarmonyPatches\\FakeNotes\\BeatmapDataFakeCount.cs",
+    "sha256": "cc7f6cd080209e7ee82e62fda20c1afcbbe8f3bc5f718828389b482c5702c48f"
+  },
+  {
+    "original": "PublicMods\\Heck\\NoodleExtensions\\HarmonyPatches\\ObjectProcessing\\NoodledSpawnMovementData.cs",
+    "shared": "Source\\Providers\\NoodleExtensions\\HarmonyPatches\\ObjectProcessing\\NoodledSpawnMovementData.cs",
+    "sha256": "9283ff27ad52feec6882ab6899ce5a21d84525b734fdd3507be4bcb3278f280a"
+  },
+  {
+    "original": "PublicMods\\Heck\\NoodleExtensions\\HarmonyPatches\\ObjectProcessing\\ProcessNotesNoodleDataInTimeRow.cs",
+    "shared": "Source\\Providers\\NoodleExtensions\\HarmonyPatches\\ObjectProcessing\\ProcessNotesNoodleDataInTimeRow.cs",
+    "sha256": "ab2d75698df5d208e266e96e5920804ac14dcd9d80214c37015d365e41302466"
+  },
+  {
+    "original": "PublicMods\\Heck\\NoodleExtensions\\HarmonyPatches\\ObjectProcessing\\ReplaceMovementDataProvider.cs",
+    "shared": "Source\\Providers\\NoodleExtensions\\HarmonyPatches\\ObjectProcessing\\ReplaceMovementDataProvider.cs",
+    "sha256": "3e8fe5fd41c0290994763192f0f5c1168dbcbb4a5427c4d33b219d02fd6e7aa8"
+  },
+  {
+    "original": "PublicMods\\Heck\\NoodleExtensions\\HarmonyPatches\\Objects\\NoteInitNoodlifier.cs",
+    "shared": "Source\\Providers\\NoodleExtensions\\HarmonyPatches\\Objects\\NoteInitNoodlifier.cs",
+    "sha256": "a02009862495e8ad958ee7e9134e8668bab6347a6c7cd0517adb3f0b4cbd6507"
+  },
+  {
+    "original": "PublicMods\\Heck\\NoodleExtensions\\HarmonyPatches\\Objects\\NoteJumpNoodlifier.cs",
+    "shared": "Source\\Providers\\NoodleExtensions\\HarmonyPatches\\Objects\\NoteJumpNoodlifier.cs",
+    "sha256": "16c81e69924321bf0b9eccfb53220b28a008416f86a054f70e429e2d87d9ec59"
+  },
+  {
+    "original": "PublicMods\\Heck\\NoodleExtensions\\HarmonyPatches\\Objects\\NoteUpdateNoodlifier.cs",
+    "shared": "Source\\Providers\\NoodleExtensions\\HarmonyPatches\\Objects\\NoteUpdateNoodlifier.cs",
+    "sha256": "87995c8e41f14d0fff8aed2c674a29a7cffee6f5b41bdbd7b31d436431af2815"
+  },
+  {
+    "original": "PublicMods\\Heck\\NoodleExtensions\\HarmonyPatches\\Objects\\ObstacleInitNoodlifier.cs",
+    "shared": "Source\\Providers\\NoodleExtensions\\HarmonyPatches\\Objects\\ObstacleInitNoodlifier.cs",
+    "sha256": "6c41a39e65d3845d767290c130036635148560a2a0a4d60688af5fc702a59806"
+  },
+  {
+    "original": "PublicMods\\Heck\\NoodleExtensions\\HarmonyPatches\\Objects\\ObstacleUpdateNoodlifier.cs",
+    "shared": "Source\\Providers\\NoodleExtensions\\HarmonyPatches\\Objects\\ObstacleUpdateNoodlifier.cs",
+    "sha256": "ff737d37d82266093fd1c3bddfd15f585b2ad9f19bb5d908e293ae2b28bcd0a2"
+  },
+  {
+    "original": "PublicMods\\Heck\\NoodleExtensions\\HarmonyPatches\\Objects\\SliderInitNoodlifier.cs",
+    "shared": "Source\\Providers\\NoodleExtensions\\HarmonyPatches\\Objects\\SliderInitNoodlifier.cs",
+    "sha256": "2b0ae713e199158a256a19523f876d25467a7455c2e35999b990e3cb75735e16"
+  },
+  {
+    "original": "PublicMods\\Heck\\NoodleExtensions\\HarmonyPatches\\Objects\\SliderUpdateNoodlifier.cs",
+    "shared": "Source\\Providers\\NoodleExtensions\\HarmonyPatches\\Objects\\SliderUpdateNoodlifier.cs",
+    "sha256": "886aad318f27ea9be5eda3cf3b004fa0a7e2c2b745618dc3f91fd0931e8b1456"
+  },
+  {
+    "original": "PublicMods\\Heck\\NoodleExtensions\\HarmonyPatches\\SmallFixes\\InitializedSpawnMovementData.cs",
+    "shared": "Source\\Providers\\NoodleExtensions\\HarmonyPatches\\SmallFixes\\InitializedSpawnMovementData.cs",
+    "sha256": "96cbe06aad2164656d34911127f530866797442b1cb427889b7fbb0ffd1c8d33"
+  },
+  {
+    "original": "PublicMods\\Heck\\NoodleExtensions\\HarmonyPatches\\SmallFixes\\PlayerTransformsNoodlePatch.cs",
+    "shared": "Source\\Providers\\NoodleExtensions\\HarmonyPatches\\SmallFixes\\PlayerTransformsNoodlePatch.cs",
+    "sha256": "62c8f2ed65edb8fc287be8c734d9e3073fed9d8bc12ba99899a604ffbb074c5d"
+  }
+]

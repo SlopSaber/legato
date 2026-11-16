@@ -1,5 +1,7 @@
 <Project>
   <ItemGroup>
+    <EditorConfigFiles Include="$(LegatoSourceRoot)Providers\NoodleExtensions\.editorconfig"
+                       Condition="'$(LegatoEnableNoodleExtensionsProviders)' == 'true'" />
     <EditorConfigFiles Include="$(LegatoSourceRoot)Providers\Chroma\.editorconfig"
                        Condition="'$(LegatoEnableChromaProviders)' == 'true'" />
     <EditorConfigFiles Include="$(LegatoSourceRoot)Providers\Heck\.editorconfig"
