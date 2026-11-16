@@ -298,25 +298,7 @@ internal sealed class MapDownloadingManager : IDisposable, ITickable
             allExistingRepository._beatmapLevelIdToBeatmapLevelPackId[beatmapLevel.levelID] = beatmapLevelPack.packID;
 
             List<BeatmapKey> beatmapKeys = map.Keys.Select(
-                n =>
-                {
-                    if (!Enum.TryParse(n.Characteristic, true, out BeatmapCharacteristic characteristic))
-                    {
-                        characteristic = n.Characteristic.ToLowerInvariant() switch
-                        {
-                            "360degree" => BeatmapCharacteristic.Degree360,
-                            "90degree" => BeatmapCharacteristic.Degree90,
-                            _ => throw new InvalidOperationException(
-                                $"Failed to find characteristic: [{n.Characteristic}].")
-                        };
-                    }
-
-#if BEAT_SABER_1453
-                    return new BeatmapKey(beatmapLevel.levelID, GameplayType.BeatSaber, characteristic, (BeatmapDifficulty)n.Difficulty);
-#else
-                    return new BeatmapKey(beatmapLevel.levelID, characteristic, (BeatmapDifficulty)n.Difficulty);
-#endif
-                }).ToList();
+                n => Legato.Gameplay.SerializedBeatmapKey.Create(beatmapLevel.levelID, n.Characteristic, (BeatmapDifficulty)n.Difficulty)).ToList();
 #else
             CustomPreviewBeatmapLevel beatmapLevel;
             if (_songCoreLoader != null)
