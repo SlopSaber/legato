@@ -4,6 +4,32 @@ using UnityEngine;
 
 namespace Legato.Gameplay {
     internal static class ColorSchemeFactory {
+        internal static ColorScheme CreateNamed(
+            string colorSchemeId, string colorSchemeNameLocalizationKey, bool useNonLocalizedName,
+            string nonLocalizedName, bool isEditable, bool overrideNotes, Color saberAColor, Color saberBColor,
+            bool overrideLights, Color environmentColor0, Color environmentColor1, Color environmentColorW,
+            bool supportsEnvironmentColorBoost, Color environmentColor0Boost, Color environmentColor1Boost,
+            Color environmentColorWBoost, Color obstaclesColor) {
+#if BEAT_SABER_1_29_0
+            var scheme = new ColorScheme(colorSchemeId, colorSchemeNameLocalizationKey, useNonLocalizedName,
+                nonLocalizedName, isEditable, saberAColor, saberBColor, environmentColor0, environmentColor1,
+                supportsEnvironmentColorBoost, environmentColor0Boost, environmentColor1Boost, obstaclesColor);
+            IPA.Utilities.FieldAccessor<ColorScheme, Color>.Set(ref scheme, "_environmentColorW", environmentColorW);
+            IPA.Utilities.FieldAccessor<ColorScheme, Color>.Set(ref scheme, "_environmentColorWBoost", environmentColorWBoost);
+            return scheme;
+#elif BEAT_SABER_1_37_1 || BEAT_SABER_1_38_0
+            return new ColorScheme(colorSchemeId, colorSchemeNameLocalizationKey, useNonLocalizedName,
+                nonLocalizedName, isEditable, saberAColor, saberBColor, environmentColor0, environmentColor1,
+                environmentColorW, supportsEnvironmentColorBoost, environmentColor0Boost, environmentColor1Boost,
+                environmentColorWBoost, obstaclesColor);
+#else
+            return new ColorScheme(colorSchemeId, colorSchemeNameLocalizationKey, useNonLocalizedName,
+                nonLocalizedName, isEditable, overrideNotes, saberAColor, saberBColor, overrideLights,
+                environmentColor0, environmentColor1, environmentColorW, supportsEnvironmentColorBoost,
+                environmentColor0Boost, environmentColor1Boost, environmentColorWBoost, obstaclesColor);
+#endif
+        }
+
         internal static ColorScheme? Create(
             PlayerData playerData,
             Color? leftSaberColor,

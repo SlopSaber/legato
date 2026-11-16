@@ -1,6 +1,8 @@
 <Project>
   <Target Name="LegatoLegacyTypeReferences" BeforeTargets="ResolveAssemblyReferences" DependsOnTargets="LegatoConfigure">
     <ItemGroup>
+      <Reference Include="UnityEngine.VRModule" HintPath="$(LegatoReferenceRoot)\Beat Saber_Data\Managed\UnityEngine.VRModule.dll" Private="false"
+                 Condition="'$(LegatoEnableUnityCompatibility)' == 'true' AND Exists('$(LegatoReferenceRoot)\Beat Saber_Data\Managed\UnityEngine.VRModule.dll') AND '@(Reference->WithMetadataValue('Identity', 'UnityEngine.VRModule'))' == ''" />
       <Reference Remove="BGLib.Polyglot" Condition="'$(LegatoEnableLocalizationAliases)' == 'true' AND Exists('$(LegatoReferenceRoot)\Beat Saber_Data\Managed\Polyglot.dll')" />
       <Reference Include="Polyglot" HintPath="$(LegatoReferenceRoot)\Beat Saber_Data\Managed\Polyglot.dll" Private="false"
                  Condition="'$(LegatoEnableLocalizationAliases)' == 'true' AND Exists('$(LegatoReferenceRoot)\Beat Saber_Data\Managed\Polyglot.dll') AND '@(Reference->WithMetadataValue('Identity', 'Polyglot'))' == ''" />

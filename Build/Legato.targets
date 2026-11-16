@@ -380,6 +380,8 @@
                Condition="'$(LegatoEnableMenuButtons)' == 'true'" />
       <Compile Include="$(LegatoSourceRoot)Library\BeatmapText\**\*.cs"
                Condition="'$(LegatoEnableBeatmapText)' == 'true'" />
+      <Compile Include="$(LegatoSourceRoot)Library\Gameplay\ColorSchemeFactory.cs"
+               Condition="'$(LegatoEnableColorSchemes)' == 'true' AND '$(LegatoEnableGameplay)' != 'true'" />
       <Compile Include="$(LegatoSourceRoot)Library\Gameplay\OverrideEnvironmentSettingsFactory.cs"
                Condition="'$(LegatoEnableEnvironmentSettings)' == 'true' AND '$(LegatoEnableGameplay)' != 'true'" />
       <Compile Include="$(LegatoSourceRoot)Library\Tracking\**\*.cs"
