@@ -136,7 +136,7 @@
   </Target>
 
   <Target Name="LegatoAddBaseSources" BeforeTargets="CoreCompile" DependsOnTargets="LegatoConfigure">
-    <ItemGroup>
+    <ItemGroup Condition="'$(LegatoEnablePolyfills)' != 'false'">
       <Compile Include="$(LegatoSourceRoot)GlobalUsings.cs;$(LegatoSourceRoot)Library\Platform\Authentication\**\*.cs;$(LegatoSourceRoot)Library\Platform\Friends\**\*.cs;$(LegatoSourceRoot)Library\XR\Headset\**\*.cs;$(LegatoSourceRoot)Library\XR\InputFocus\**\*.cs" />
       <Compile Include="$(LegatoSourceRoot)Polyfills\**\*.cs" Exclude="$(LegatoSourceRoot)Polyfills\System\**\*.cs" />
       <Compile Include="$(LegatoSourceRoot)Polyfills\System\**\*.cs" />
@@ -193,7 +193,7 @@
       <_LegatoZenjectReference Include="@(ReferencePath->WithMetadataValue('Filename', 'Zenject'))" />
       <_LegatoHMLibReference Include="@(ReferencePath->WithMetadataValue('Filename', 'HMLib'))" />
     </ItemGroup>
-    <PropertyGroup>
+    <PropertyGroup Condition="'$(LegatoEnableAutoAdapters)' != 'false'">
       <LegatoEnableBSML Condition="'$(LegatoEnableBSML)' == '' AND '@(_LegatoBSMLReference)' != ''">true</LegatoEnableBSML>
       <LegatoEnableTextMeshPro Condition="'$(LegatoEnableTextMeshPro)' == '' AND '@(_LegatoTextMeshProReference)' != ''">true</LegatoEnableTextMeshPro>
       <LegatoEnableLeaderboardCore Condition="'$(LegatoEnableLeaderboardCore)' == '' AND '@(_LegatoLeaderboardCoreReference)' != ''">true</LegatoEnableLeaderboardCore>
