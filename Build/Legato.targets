@@ -17,6 +17,7 @@
   </PropertyGroup>
 
   <Import Project="$(MSBuildThisFileDirectory)ShaffuruProviders.targets" />
+  <Import Project="$(MSBuildThisFileDirectory)SiraLocalizerProviders.targets" />
   <Target Name="LegatoConfigure" BeforeTargets="PrepareForBuild">
     <ItemGroup>
       <_LegatoTargetVersion Include="@(LegatoGameVersion->WithMetadataValue('Identity', '$(LegatoTargetVersion)'))" />
@@ -281,6 +282,8 @@
       <Compile Include="$(LegatoSourceRoot)Providers\Shaffuru\**\*.cs" Condition="'$(LegatoEnableShaffuruProviders)' == 'true'" />
       <Compile Include="$(LegatoSourceRoot)Library\AudioSettings\**\*.cs" Condition="'$(LegatoEnableAudioSettings)' == 'true'" />
       <Compile Include="$(LegatoSourceRoot)Library\JumpSelectionContext\**\*.cs" Condition="'$(LegatoEnableJumpSelectionContext)' == 'true'" />
+      <Compile Include="$(LegatoSourceRoot)Providers\SiraLocalizer\**\*.cs" Condition="'$(LegatoEnableSiraLocalizerProviders)' == 'true'" />
+      <Compile Include="$(LegatoSourceRoot)Library\LocalizationAccess\**\*.cs" Condition="'$(LegatoEnableLocalizationAccess)' == 'true'" />
       <Compile Include="$(LegatoSourceRoot)Library\RuntimeServices\**\*.cs"
                Condition="'$(LegatoEnableRuntimeServices)' == 'true'" />
       <Compile Include="$(LegatoSourceRoot)Library\TableSources\**\*.cs"

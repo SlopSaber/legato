@@ -1,0 +1,5 @@
+<Project>
+  <ItemGroup Condition="'$(LegatoEnableSiraLocalizerProviders)' == 'true'">
+    <Compile Remove="HarmonyPatches\LocalizationLoader.cs;HarmonyPatches\LocalizationModel.cs;HarmonyPatches\LocalizationImporter.cs" />
+  </ItemGroup>
+</Project>

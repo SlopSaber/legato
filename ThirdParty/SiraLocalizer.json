@@ -1,0 +1,10 @@
+{
+  "source": "https://github.com/SlopSaber/SiraLocalizer",
+  "sourceHead": "78dff5d36bd5c049b7b6a4f437ead72019a501e8",
+  "license": "MIT",
+  "files": [
+    "HarmonyPatches/LocalizationLoader.cs",
+    "HarmonyPatches/LocalizationModel.cs",
+    "HarmonyPatches/LocalizationImporter.cs"
+  ]
+}

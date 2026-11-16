@@ -237,3 +237,5 @@ Environment access also exposes native scene names and list order. `LegatoEnable
 `LegatoEnableShaffuruProviders` selects the maintained synthetic-level, loading and spawn-update providers, preserving native custom JSON/v4 loading and current insertion logic. `LegatoEnableAudioSettings` supplies native audio latency. Native beatmap aliases also expose Standard difficulty enumeration without synthetic level wrappers.
 
 `LegatoEnableJumpSelectionContext` exposes native jump-movement initialization and the standard scene initializer, difficulty selection subscriptions, campaign selection and jump-speed/offset metadata. The native legacy movement type receives the same modifier policy as current movement providers. No jump-distance algorithm is supplied by this helper.
+
+`LegatoEnableLocalizationAccess` supplies native dictionary/import/language preferences and lifecycle access, including listener callbacks with the native interface signature. `LegatoEnableSiraLocalizerProviders` selects native startup, singleton and culture-correction hooks. Translation policy, cancellation and reload ownership remain in SiraLocalizer.
