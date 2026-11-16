@@ -24,6 +24,7 @@
     <None Include="README.md" Pack="true" PackagePath="\" />
     <None Include="LIBRARY.md" Pack="true" PackagePath="\" />
     <None Include="LICENSE" Pack="true" PackagePath="\" />
+    <None Include="ThirdParty\**\*" Pack="true" PackagePath="ThirdParty\%(RecursiveDir)%(Filename)%(Extension)" />
     <None Include="Build\Legato.props" Pack="true" PackagePath="build\LegatoBS.props" />
     <None Include="Build\Legato.Versions.props" Pack="true" PackagePath="build\Legato.Versions.props" />
     <None Include="Build\Legato.targets" Pack="true" PackagePath="build\LegatoBS.targets" />

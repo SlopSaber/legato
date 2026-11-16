@@ -40,7 +40,7 @@ This lists the small reusable APIs supplied by Legato. Transparent polyfills mir
 
 ## Optional adapters
 
-These APIs compile into the consumer. Enable only the features whose references and native API contracts the consumer supports. Package revisions through `0.1.2-local.65` contain the following additions; a consumer pinned to an earlier revision has only the APIs in that revision.
+These APIs compile into the consumer. Enable only the features whose references and native API contracts the consumer supports. Package revisions through `0.1.2-local.66` contain the following additions; a consumer pinned to an earlier revision has only the APIs in that revision.
 
 | Property | APIs and scope |
 | --- | --- |
@@ -122,3 +122,13 @@ For a static plugin manifest, also set `LegatoManifestFile` to the existing sour
 Changing the build target still requires selecting a supported Legato version and rebuilding/deploying each consumer. Build metadata integration does not establish runtime API compatibility or update dependency requirements automatically.
 
 For an existing external library manifest, set `LegatoEmbedManifest=false` and `LegatoManifestSidecar=true`. The prepared manifest is copied beside the target DLL as `$(AssemblyName).manifest`; custom packaging can also read the prepared `ManifestPath`. This preserves library assemblies without embedding plugin metadata.
+
+### Shared asset and legacy rendering compatibility
+
+`LegatoEnableAssetBundleLoading` supplies the Unity async asset loader and persistent-call sanitizer implementation. The runtime host owns activation of its Harmony patch; loading helpers do not install global patches themselves.
+
+`LegatoEnableLegacyShaderRendering` supplies shared ForwardBase detection/fallback and legacy lighting/opaque GrabTexture passes for the RenderGraph profiles. Lighting passes accept a pass name and an explicit restore-on-dispose policy, preserving permanent and scene-owned host lifetimes. Built-in profiles do not need the URP fallback. The opaque-texture approximation retains its existing limitation: it excludes earlier transparent objects.
+
+`LegatoEnableOpenXrRendering` supplies the existing OpenXR requested/current render-mode writes. The consumer supplies the publicized OpenXR reference and keeps configuration policy.
+
+`LegatoEnableAssetBundleHost` is enabled only in AssetBundleLoadingTools. Its existing public rendering type identities and internal global-patch classes compile into their original runtime assembly, preserving one host and avoiding duplicate global hooks. Other consumers use shared stateless helpers or the retained host API. Enable the loader, legacy shader and OpenXR features alongside it. Original source attribution is retained in `ThirdParty/AssetBundleLoadingTools.LICENSE.txt`.

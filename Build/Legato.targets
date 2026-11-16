@@ -292,6 +292,14 @@
                Condition="'$(LegatoEnableResultsCopy)' == 'true'" />
       <Compile Include="$(LegatoSourceRoot)Library\ColorOverrideAliases\**\*.cs"
                Condition="'$(LegatoEnableColorOverrideAlias)' == 'true'" />
+      <Compile Include="$(LegatoSourceRoot)Library\AssetBundles\**\*.cs"
+               Condition="'$(LegatoEnableAssetBundleLoading)' == 'true'" />
+      <Compile Include="$(LegatoSourceRoot)Library\LegacyShaderRendering\**\*.cs"
+               Condition="'$(LegatoEnableLegacyShaderRendering)' == 'true'" />
+      <Compile Include="$(LegatoSourceRoot)Library\OpenXrRendering\**\*.cs"
+               Condition="'$(LegatoEnableOpenXrRendering)' == 'true'" />
+      <Compile Include="$(LegatoSourceRoot)Library\AssetBundleHost\**\*.cs"
+               Condition="'$(LegatoEnableAssetBundleHost)' == 'true'" />
       <Compile Include="$(LegatoSourceRoot)Library\BsmlButtons\**\*.cs"
                Condition="'$(LegatoEnableMenuButtons)' == 'true'" />
       <Compile Include="$(LegatoSourceRoot)Library\BeatmapText\**\*.cs"
