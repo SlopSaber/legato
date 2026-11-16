@@ -1,3 +1,9 @@
+#if BEAT_SABER_1_29_0
+global using NativeAudioState = global::AudioTimeSyncController.State;
+#else
+global using NativeAudioState = global::IAudioTimeSource.State;
+#endif
+
 using IPA.Utilities;
 
 namespace Legato.Gameplay {
