@@ -16,6 +16,14 @@ namespace Legato.Unity {
             return null;
         }
 
+        internal static T FindFirstActive<T>() where T : UnityEngine.Object {
+#if BEAT_SABER_1_45_1 || BEAT_SABER_1_45_3
+            return UnityEngine.Object.FindFirstObjectByType<T>();
+#else
+            return UnityEngine.Object.FindObjectOfType<T>();
+#endif
+        }
+
         internal static UnityEngine.Object FindFirstActive(Type type) {
 #if BEAT_SABER_1_45_1 || BEAT_SABER_1_45_3
             return UnityEngine.Object.FindFirstObjectByType(type);
