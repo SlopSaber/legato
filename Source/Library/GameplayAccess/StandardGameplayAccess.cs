@@ -1,0 +1,26 @@
+using IPA.Utilities;
+using UnityEngine;
+
+namespace Legato.Gameplay {
+    internal static class StandardGameplayAccess {
+        internal static bool TryResolvePausedGameplay(PauseMenuManager owner, out StandardLevelGameplayManager manager) {
+            manager = null;
+            if (!owner || !owner.gameObject.activeInHierarchy || !owner.gameObject.scene.isLoaded) return false;
+            foreach (var candidate in UnityEngine.Resources.FindObjectsOfTypeAll<StandardLevelGameplayManager>()) {
+                if (!candidate || !candidate.isActiveAndEnabled || !candidate.gameObject.scene.isLoaded || candidate._initData == null ||
+                    candidate._gameState == StandardLevelGameplayManager.GameState.Finished ||
+                    candidate._gameState == StandardLevelGameplayManager.GameState.Failed) continue;
+                var controller = candidate._pauseController;
+                if (!controller || !controller.isActiveAndEnabled || !ReferenceEquals(controller._pauseMenuManager, owner)) continue;
+                if (manager != null) { manager = null; return false; }
+                manager = candidate;
+            }
+            return manager != null;
+        }
+
+        internal static void Fail(StandardLevelGameplayManager manager) {
+            manager._initData.SetField(nameof(manager._initData.continueGameplayWith0Energy), false);
+            manager.HandleGameEnergyDidReach0();
+        }
+    }
+}

@@ -116,6 +116,25 @@
     </ItemGroup>
   </Target>
 
+  <Target Name="LegatoPrepareManifest" BeforeTargets="BSMT_StartBSIPA;PrepareForBuild"
+          DependsOnTargets="LegatoConfigure" Condition="'$(LegatoManifestFile)' != ''">
+    <PropertyGroup>
+      <_LegatoManifestInput>$(MSBuildProjectDirectory)\$(LegatoManifestFile)</_LegatoManifestInput>
+      <_LegatoManifestOutput>$(IntermediateOutputPath)Legato\$(LegatoTargetVersion)\manifest.json</_LegatoManifestOutput>
+      <_LegatoManifestResourceName Condition="'$(LegatoManifestResourceName)' == ''">$(RootNamespace).manifest.json</_LegatoManifestResourceName>
+      <_LegatoManifestResourceName Condition="'$(LegatoManifestResourceName)' != ''">$(LegatoManifestResourceName)</_LegatoManifestResourceName>
+      <_LegatoManifestText>$([System.IO.File]::ReadAllText('$(_LegatoManifestInput)'))</_LegatoManifestText>
+      <_LegatoManifestText>$([System.Text.RegularExpressions.Regex]::Replace('$(_LegatoManifestText)', '&quot;gameVersion&quot;\s*:\s*&quot;[^&quot;]+&quot;', '&quot;gameVersion&quot;: &quot;$(LegatoTargetVersion)&quot;'))</_LegatoManifestText>
+      <ManifestPath>$(_LegatoManifestOutput)</ManifestPath>
+    </PropertyGroup>
+    <MakeDir Directories="$([System.IO.Path]::GetDirectoryName('$(_LegatoManifestOutput)'))" />
+    <WriteLinesToFile File="$(_LegatoManifestOutput)" Lines="$(_LegatoManifestText)" Overwrite="true" WriteOnlyWhenDifferent="true" Encoding="UTF-8" />
+    <ItemGroup>
+      <EmbeddedResource Remove="$(LegatoManifestFile);$(_LegatoManifestInput)" />
+      <EmbeddedResource Include="$(_LegatoManifestOutput)" LogicalName="$(_LegatoManifestResourceName)" />
+    </ItemGroup>
+  </Target>
+
   <Target Name="LegatoAddBaseSources" BeforeTargets="CoreCompile" DependsOnTargets="LegatoConfigure">
     <ItemGroup>
       <Compile Include="$(LegatoSourceRoot)GlobalUsings.cs;$(LegatoSourceRoot)Library\Platform\Authentication\**\*.cs;$(LegatoSourceRoot)Library\Platform\Friends\**\*.cs;$(LegatoSourceRoot)Library\XR\Headset\**\*.cs;$(LegatoSourceRoot)Library\XR\InputFocus\**\*.cs" />
@@ -207,6 +226,8 @@
                Condition="'$(LegatoEnableCameraEffects)' == 'true'" />
       <Compile Include="$(LegatoSourceRoot)Library\Performance\**\*.cs"
                Condition="'$(LegatoEnableGpuTiming)' == 'true'" />
+      <Compile Include="$(LegatoSourceRoot)Library\GameplayAccess\**\*.cs"
+               Condition="'$(LegatoEnableGameplayAccess)' == 'true'" />
       <Compile Include="$(LegatoSourceRoot)Library\Tracking\**\*.cs"
                Condition="'$(LegatoEnableSpatialTracking)' == 'true' OR '$(LegatoTargetProfile)' == '1.29.0'" />
       <Compile Include="$(LegatoSourceRoot)ForwardPolyfills\**\Transitions\1.38.0-1.40.0\**\*.cs"
