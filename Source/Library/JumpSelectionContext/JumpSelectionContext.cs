@@ -5,6 +5,13 @@ using HarmonyLib;
 
 namespace Legato.Gameplay {
     internal static class JumpSelectionContext {
+#if BEAT_SABER_1_29_0
+        internal const int SpeedParameterIndex = 1;
+        internal const int BpmParameterIndex = 2;
+#else
+        internal const int SpeedParameterIndex = 2;
+        internal const int BpmParameterIndex = 4;
+#endif
         internal static Type MovementType =>
 #if BEAT_SABER_1_29_0
             typeof(BeatmapObjectSpawnMovementData);
