@@ -9,6 +9,13 @@ namespace Legato.Unity
 {
     internal static class BsmlNativeAccess
     {
+#if BEAT_SABER_1_29_0
+        private static readonly System.Action<TextSlider> UpdateSliderVisuals =
+            (System.Action<TextSlider>)typeof(TextSlider).GetMethod("UpdateVisuals",
+                System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic)
+                .CreateDelegate(typeof(System.Action<TextSlider>));
+#endif
+
         internal static TextureCreationFlags CopyTextureFlags =>
 #if BEAT_SABER_1_29_0
             TextureCreationFlags.None;
@@ -33,7 +40,7 @@ namespace Legato.Unity
         internal static void RefreshSlider(RangeValuesTextSlider slider)
         {
 #if BEAT_SABER_1_29_0
-            slider.UpdateVisuals();
+            UpdateSliderVisuals(slider);
 #else
             slider.Refresh();
 #endif
