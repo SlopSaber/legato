@@ -182,6 +182,7 @@ namespace CustomJSONData.CustomBeatmap
             {
                 return SaveData2_6_0Converter.Convert2_6_0AndEarlier(path, beatmapCustomData, levelCustomData);
             }
+
             using StreamReader text = new(path);
             return DeserializeCore(text, beatmapCustomData, levelCustomData, version);
 #endif
@@ -206,225 +207,30 @@ namespace CustomJSONData.CustomBeatmap
             {
                 while (header.Read())
                 {
-                    if (header.TokenType != JsonToken.PropertyName || header.Depth != 1) continue;
+                    if (header.TokenType != JsonToken.PropertyName || header.Depth != 1)
+                    {
+                        continue;
+                    }
+
                     if (header.Value is "version" or "_version")
                     {
                         version = header.ReadAsString() ?? string.Empty;
                         break;
                     }
+
                     header.Skip();
                 }
             }
+
             if (!Version.TryParse(version, out Version? parsed) || parsed.Major != 3)
             {
                 throw new JsonSerializationException("Expected a v3 beatmap JSON document.");
             }
+
             return DeserializeCore(text, beatmapCustomData ?? new CustomData(), levelCustomData ?? new CustomData(), version);
 #endif
         }
 
-        private static Version3CustomBeatmapSaveData DeserializeCore(TextReader text
-#if PRE_V1_37_1
-            , CustomData beatmapCustomData, CustomData levelCustomData, string version
-#endif
-        )
-        {
-#if !PRE_V1_37_1
-            string version = string.Empty;
-#endif
-            // lets do this
-            List<_BpmChangeEventData> bpmEvents = new();
-            List<_RotationEventData> rotationEvents = new();
-            List<_ColorNoteData> colorNotes = new();
-            List<_BombNoteData> bombNotes = new();
-            List<_ObstacleData> obstacles = new();
-            List<_SliderData> sliders = new();
-            List<_BurstSliderData> burstSliders = new();
-            List<_WaypointData> waypoints = new();
-            List<_BasicEventData> basicBeatmapEvents = new();
-            List<_ColorBoostEventData> colorBoostBeatmapEvents = new();
-            List<_LightColorEventBoxGroup> lightColorEventBoxGroups = new();
-            List<_LightRotationEventBoxGroup> lightRotationEventBoxGroups = new();
-            List<LightTranslationEventBoxGroup> lightTranslationEventBoxGroups = new();
-#if !V1_29_1
-            List<FxEventBoxGroup> vfxEventBoxGroups = new();
-            FxEventsCollection? fxEventsCollection = null;
-#endif
-            List<_BasicEventTypesWithKeywords.BasicEventTypesForKeyword> basicEventTypesForKeyword = new();
-            bool useNormalEventsAsCompatibleEvents = default;
-            CustomData data = new();
-            List<CustomEventSaveData> customEvents = new();
-
-            using JsonTextReader reader = new(text);
-
-            object[] inputs =
-            {
-                reader,
-                bpmEvents,
-                rotationEvents,
-                colorNotes,
-                bombNotes,
-                obstacles,
-                sliders,
-                burstSliders,
-                waypoints,
-                basicBeatmapEvents,
-                colorBoostBeatmapEvents,
-                lightColorEventBoxGroups,
-                lightRotationEventBoxGroups,
-                lightTranslationEventBoxGroups,
-                basicEventTypesForKeyword,
-                useNormalEventsAsCompatibleEvents,
-                customEvents,
-#if PRE_V1_37_1
-                new SaveDataCustomDatas(beatmapCustomData, levelCustomData, data)
-#endif
-            };
-
-            while (reader.Read())
-            {
-                if (reader.TokenType == JsonToken.PropertyName)
-                {
-                    switch (reader.Value)
-                    {
-                        default:
-                            reader.Skip();
-                            break;
-
-                        case "version":
-                        case "_version":
-                            version = reader.ReadAsString() ?? version;
-                            break;
-
-                        case "bpmEvents":
-                            DeserializeBpmChangeArray(reader, bpmEvents);
-                            break;
-
-                        case "rotationEvents":
-                            DeserializeRotationArray(reader, rotationEvents);
-                            break;
-
-                        case "colorNotes":
-                            DeserializeColorNoteArray(reader, colorNotes);
-                            break;
-
-                        case "bombNotes":
-                            DeserializeBombNoteArray(reader, bombNotes);
-                            break;
-
-                        case "obstacles":
-                            DeserializeObstacleArray(reader, obstacles);
-                            break;
-
-                        case "sliders":
-                            DeserializeSliderArray(reader, sliders);
-                            break;
-
-                        case "burstSliders":
-                            DeserializeBurstSliderArray(reader, burstSliders);
-                            break;
-
-                        case "waypoints":
-                            DeserializeWaypointArray(reader, waypoints);
-                            break;
-
-                        case "basicBeatmapEvents":
-                            DeserializeBasicEventArray(reader, basicBeatmapEvents);
-                            break;
-
-                        case "colorBoostBeatmapEvents":
-                            DeserializeColorBoostArray(reader, colorBoostBeatmapEvents);
-                            break;
-
-                        case "lightColorEventBoxGroups":
-                            DeserializeLightColorEventBoxGroupArray(reader, lightColorEventBoxGroups);
-                            break;
-
-                        case "lightRotationEventBoxGroups":
-                            DeserializeLightRotationEventBoxGroupArray(reader, lightRotationEventBoxGroups);
-                            break;
-
-                        case "lightTranslationEventBoxGroups":
-                            DeserializeLightTranslationEventBoxGroupArray(reader, lightTranslationEventBoxGroups);
-                            break;
-
-#if !V1_29_1
-                        case "vfxEventBoxGroups":
-                            DeserializeFxEventBoxGroupArray(reader, vfxEventBoxGroups);
-                            break;
-
-                        case "_fxEventsCollection":
-                            fxEventsCollection = DeserializeFxEventCollection(reader);
-                            break;
-#endif
-
-                        case "basicEventTypesWithKeywords":
-                            reader.ReadObject(objectName =>
-                            {
-                                switch (objectName)
-                                {
-                                    case "d":
-                                        DeserializeBasicEventTypesForKeywordArray(reader, basicEventTypesForKeyword);
-
-                                        break;
-
-                                    default:
-                                        reader.Skip();
-                                        break;
-                                }
-                            });
-                            break;
-
-                        case "useNormalEventsAsCompatibleEvents":
-                            useNormalEventsAsCompatibleEvents = reader.ReadAsBoolean() ?? useNormalEventsAsCompatibleEvents;
-                            break;
-
-                        case _customData:
-                            reader.ReadToDictionary(data, propertyName =>
-                            {
-                                if (!propertyName.Equals("customEvents"))
-                                {
-                                    return CustomJSONDataDeserializer.Activate(inputs, propertyName);
-                                }
-
-                                DeserializeCustomEventArray(reader, customEvents);
-                                return false;
-                            });
-
-                            break;
-                    }
-                }
-            }
-
-            using ProfilerMarker.AutoScope sorting = _sortMarker.Auto();
-            return new Version3CustomBeatmapSaveData(
-                version,
-                bpmEvents.OrderBy(n => n).ToList(),
-                rotationEvents.OrderBy(n => n).ToList(),
-                colorNotes.OrderBy(n => n).ToList(),
-                bombNotes.OrderBy(n => n).ToList(),
-                obstacles.OrderBy(n => n).ToList(),
-                sliders.OrderBy(n => n).ToList(),
-                burstSliders.OrderBy(n => n).ToList(),
-                waypoints.OrderBy(n => n).ToList(),
-                basicBeatmapEvents.OrderBy(n => n).ToList(),
-                colorBoostBeatmapEvents.OrderBy(n => n).ToList(),
-                lightColorEventBoxGroups.OrderBy(n => n).ToList(),
-                lightRotationEventBoxGroups.OrderBy(n => n).ToList(),
-                lightTranslationEventBoxGroups.OrderBy(n => n).ToList(),
-#if !V1_29_1
-                vfxEventBoxGroups.OrderBy(n => n).ToList(),
-                fxEventsCollection ?? new FxEventsCollection(),
-#endif
-                new _BasicEventTypesWithKeywords(basicEventTypesForKeyword),
-                useNormalEventsAsCompatibleEvents,
-                customEvents.OrderBy(n => n).ToList(),
-#if PRE_V1_37_1
-                beatmapCustomData,
-                levelCustomData,
-#endif
-                data);
-        }
 
 #if PRE_V1_37_1
         public static string GetVersionFromPath(string path)
@@ -1773,6 +1579,213 @@ namespace CustomJSONData.CustomBeatmap
                     }
                 }).Finish(() => list.Add(new _BasicEventTypesWithKeywords.BasicEventTypesForKeyword(keyword, eventTypes)));
             });
+        }
+
+#if PRE_V1_37_1
+        private static Version3CustomBeatmapSaveData DeserializeCore(
+            TextReader text,
+            CustomData beatmapCustomData,
+            CustomData levelCustomData,
+            string version)
+#else
+        private static Version3CustomBeatmapSaveData DeserializeCore(TextReader text)
+#endif
+        {
+#if !PRE_V1_37_1
+            string version = string.Empty;
+#endif
+            // lets do this
+            List<_BpmChangeEventData> bpmEvents = new();
+            List<_RotationEventData> rotationEvents = new();
+            List<_ColorNoteData> colorNotes = new();
+            List<_BombNoteData> bombNotes = new();
+            List<_ObstacleData> obstacles = new();
+            List<_SliderData> sliders = new();
+            List<_BurstSliderData> burstSliders = new();
+            List<_WaypointData> waypoints = new();
+            List<_BasicEventData> basicBeatmapEvents = new();
+            List<_ColorBoostEventData> colorBoostBeatmapEvents = new();
+            List<_LightColorEventBoxGroup> lightColorEventBoxGroups = new();
+            List<_LightRotationEventBoxGroup> lightRotationEventBoxGroups = new();
+            List<LightTranslationEventBoxGroup> lightTranslationEventBoxGroups = new();
+#if !V1_29_1
+            List<FxEventBoxGroup> vfxEventBoxGroups = new();
+            FxEventsCollection? fxEventsCollection = null;
+#endif
+            List<_BasicEventTypesWithKeywords.BasicEventTypesForKeyword> basicEventTypesForKeyword = new();
+            bool useNormalEventsAsCompatibleEvents = default;
+            CustomData data = new();
+            List<CustomEventSaveData> customEvents = new();
+
+            using JsonTextReader reader = new(text);
+
+            object[] inputs =
+            {
+                reader,
+                bpmEvents,
+                rotationEvents,
+                colorNotes,
+                bombNotes,
+                obstacles,
+                sliders,
+                burstSliders,
+                waypoints,
+                basicBeatmapEvents,
+                colorBoostBeatmapEvents,
+                lightColorEventBoxGroups,
+                lightRotationEventBoxGroups,
+                lightTranslationEventBoxGroups,
+                basicEventTypesForKeyword,
+                useNormalEventsAsCompatibleEvents,
+                customEvents,
+#if PRE_V1_37_1
+                new SaveDataCustomDatas(beatmapCustomData, levelCustomData, data)
+#endif
+            };
+
+            while (reader.Read())
+            {
+                if (reader.TokenType == JsonToken.PropertyName)
+                {
+                    switch (reader.Value)
+                    {
+                        default:
+                            reader.Skip();
+                            break;
+
+                        case "version":
+                        case "_version":
+                            version = reader.ReadAsString() ?? version;
+                            break;
+
+                        case "bpmEvents":
+                            DeserializeBpmChangeArray(reader, bpmEvents);
+                            break;
+
+                        case "rotationEvents":
+                            DeserializeRotationArray(reader, rotationEvents);
+                            break;
+
+                        case "colorNotes":
+                            DeserializeColorNoteArray(reader, colorNotes);
+                            break;
+
+                        case "bombNotes":
+                            DeserializeBombNoteArray(reader, bombNotes);
+                            break;
+
+                        case "obstacles":
+                            DeserializeObstacleArray(reader, obstacles);
+                            break;
+
+                        case "sliders":
+                            DeserializeSliderArray(reader, sliders);
+                            break;
+
+                        case "burstSliders":
+                            DeserializeBurstSliderArray(reader, burstSliders);
+                            break;
+
+                        case "waypoints":
+                            DeserializeWaypointArray(reader, waypoints);
+                            break;
+
+                        case "basicBeatmapEvents":
+                            DeserializeBasicEventArray(reader, basicBeatmapEvents);
+                            break;
+
+                        case "colorBoostBeatmapEvents":
+                            DeserializeColorBoostArray(reader, colorBoostBeatmapEvents);
+                            break;
+
+                        case "lightColorEventBoxGroups":
+                            DeserializeLightColorEventBoxGroupArray(reader, lightColorEventBoxGroups);
+                            break;
+
+                        case "lightRotationEventBoxGroups":
+                            DeserializeLightRotationEventBoxGroupArray(reader, lightRotationEventBoxGroups);
+                            break;
+
+                        case "lightTranslationEventBoxGroups":
+                            DeserializeLightTranslationEventBoxGroupArray(reader, lightTranslationEventBoxGroups);
+                            break;
+
+#if !V1_29_1
+                        case "vfxEventBoxGroups":
+                            DeserializeFxEventBoxGroupArray(reader, vfxEventBoxGroups);
+                            break;
+
+                        case "_fxEventsCollection":
+                            fxEventsCollection = DeserializeFxEventCollection(reader);
+                            break;
+#endif
+
+                        case "basicEventTypesWithKeywords":
+                            reader.ReadObject(objectName =>
+                            {
+                                switch (objectName)
+                                {
+                                    case "d":
+                                        DeserializeBasicEventTypesForKeywordArray(reader, basicEventTypesForKeyword);
+
+                                        break;
+
+                                    default:
+                                        reader.Skip();
+                                        break;
+                                }
+                            });
+                            break;
+
+                        case "useNormalEventsAsCompatibleEvents":
+                            useNormalEventsAsCompatibleEvents = reader.ReadAsBoolean() ?? useNormalEventsAsCompatibleEvents;
+                            break;
+
+                        case _customData:
+                            reader.ReadToDictionary(data, propertyName =>
+                            {
+                                if (!propertyName.Equals("customEvents"))
+                                {
+                                    return CustomJSONDataDeserializer.Activate(inputs, propertyName);
+                                }
+
+                                DeserializeCustomEventArray(reader, customEvents);
+                                return false;
+                            });
+
+                            break;
+                    }
+                }
+            }
+
+            using ProfilerMarker.AutoScope sorting = _sortMarker.Auto();
+            return new Version3CustomBeatmapSaveData(
+                version,
+                bpmEvents.OrderBy(n => n).ToList(),
+                rotationEvents.OrderBy(n => n).ToList(),
+                colorNotes.OrderBy(n => n).ToList(),
+                bombNotes.OrderBy(n => n).ToList(),
+                obstacles.OrderBy(n => n).ToList(),
+                sliders.OrderBy(n => n).ToList(),
+                burstSliders.OrderBy(n => n).ToList(),
+                waypoints.OrderBy(n => n).ToList(),
+                basicBeatmapEvents.OrderBy(n => n).ToList(),
+                colorBoostBeatmapEvents.OrderBy(n => n).ToList(),
+                lightColorEventBoxGroups.OrderBy(n => n).ToList(),
+                lightRotationEventBoxGroups.OrderBy(n => n).ToList(),
+                lightTranslationEventBoxGroups.OrderBy(n => n).ToList(),
+#if !V1_29_1
+                vfxEventBoxGroups.OrderBy(n => n).ToList(),
+                fxEventsCollection ?? new FxEventsCollection(),
+#endif
+                new _BasicEventTypesWithKeywords(basicEventTypesForKeyword),
+                useNormalEventsAsCompatibleEvents,
+                customEvents.OrderBy(n => n).ToList(),
+#if PRE_V1_37_1
+                beatmapCustomData,
+                levelCustomData,
+#endif
+                data);
         }
 
         public readonly struct SaveDataCustomDatas
