@@ -287,3 +287,7 @@ Hitbloq providers discover the supported BSML/SongCore API names independently o
 `LegatoEnableSpawnData` creates native bombs and obstacles from semantic lane/layer/time/size values. Modern beat and rotation metadata default to zero; consumers retain action geometry and schedule policy.
 
 `LegatoEnableUiAudio` exposes the native UI click audio source: the legacy single source or the current indexed source. Playback and replacement policy remain consumer-owned.
+
+LegatoEnableAvatarAliases selects native avatar pose, visual and editor types. LegatoEnableNativeAudio selects the native audio settings object and exposes optional volume-fade diagnostics. LegatoEnableNativeMovement exposes the native movement object and half-jump duration. These adapters retain native component and binding identities.
+
+LegatoEnableOpenXrRuntime exposes runtime identification, eye-gaze capability and available loader initialization methods. The legacy profile has built-in XR without an OpenXR loader or OpenXR gaze feature; consumers can retain independent OSC tracking.

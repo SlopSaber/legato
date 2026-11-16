@@ -353,6 +353,16 @@
                Condition="'$(LegatoEnableMenuAudio)' == 'true'" />
       <Compile Include="$(LegatoSourceRoot)Library\UiAudio\**\*.cs"
                Condition="'$(LegatoEnableUiAudio)' == 'true'" />
+      <Compile Include="$(LegatoSourceRoot)Library\AvatarAliases\**\*.cs"
+               Condition="'$(LegatoEnableAvatarAliases)' == 'true'" />
+      <Compile Include="$(LegatoSourceRoot)Library\NativeAudio\**\*.cs"
+               Condition="'$(LegatoEnableNativeAudio)' == 'true'" />
+      <Compile Include="$(LegatoSourceRoot)Polyfills\GlobalNamespace\AudioManager\AudioManager.cs"
+               Condition="'$(LegatoEnableNativeAudio)' == 'true' AND '$(LegatoEnablePracticePlayback)' != 'true' AND '$(LegatoEnablePolyfills)' == 'false'" />
+      <Compile Include="$(LegatoSourceRoot)Library\NativeMovement\**\*.cs"
+               Condition="'$(LegatoEnableNativeMovement)' == 'true'" />
+      <Compile Include="$(LegatoSourceRoot)Library\OpenXrRuntime\**\*.cs"
+               Condition="'$(LegatoEnableOpenXrRuntime)' == 'true'" />
       <Compile Include="$(LegatoSourceRoot)Library\HitsoundLifecycle\**\*.cs"
                Condition="'$(LegatoEnableHitsoundLifecycle)' == 'true'" />
       <Compile Include="$(LegatoSourceRoot)Library\EnvironmentFilters\**\*.cs"
