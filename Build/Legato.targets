@@ -234,6 +234,8 @@
                Condition="'$(LegatoEnableMenuLayout)' == 'true'" />
       <Compile Include="$(LegatoSourceRoot)Library\NativeXr\**\*.cs"
                Condition="'$(LegatoEnablePosePrediction)' == 'true'" />
+      <Compile Include="$(LegatoSourceRoot)Library\Transitions\**\*.cs"
+               Condition="'$(LegatoEnableTransitions)' == 'true'" />
       <Compile Include="$(LegatoSourceRoot)Library\Gameplay\OverrideEnvironmentSettingsFactory.cs"
                Condition="'$(LegatoEnableEnvironmentSettings)' == 'true' AND '$(LegatoEnableGameplay)' != 'true'" />
       <Compile Include="$(LegatoSourceRoot)Library\Tracking\**\*.cs"
