@@ -40,7 +40,7 @@ This lists the small reusable APIs supplied by Legato. Transparent polyfills mir
 
 ## Optional adapters
 
-These APIs compile into the consumer. Enable only the features whose references and native API contracts the consumer supports. Package revisions through `0.1.2-local.59` contain the following additions; a consumer pinned to an earlier revision has only the APIs in that revision.
+These APIs compile into the consumer. Enable only the features whose references and native API contracts the consumer supports. Package revisions through `0.1.2-local.60` contain the following additions; a consumer pinned to an earlier revision has only the APIs in that revision.
 
 | Property | APIs and scope |
 | --- | --- |
@@ -108,3 +108,5 @@ The latest additions have consumer build evidence for 1.45.3 and 1.46.0. Earlier
 `ObjectDiscovery.FindAnyActive<T>` preserves an unsorted arbitrary active-object query on current profiles. `FindIncludingInactiveUnsorted<T>` includes inactive scene objects without replacing the query with loaded-asset discovery. Older API paths retain their native ordering; newly added paths require consumer build evidence before historical compatibility is claimed.
 
 Set `LegatoEnableReferenceShims=false` when a minimal consumer owns its complete reference list; this prevents automatic game-assembly additions and native type-name collisions. With automatic adapters disabled, completion-score reads/negation require `LegatoEnableResults=true` from local revision 59 onward. Earlier package revisions retain their original selection behavior. Reference-based default selection is unchanged.
+
+`BeatmapLevelCharacteristics.HasDifficulty` preserves native key enumeration on modern profiles, including the caller's original gameplay-type scope, and native data lookup on older profiles. `LegatoEnableColorOverrideAlias` supplies the compile-time `LegatoColorOverrideType` alias for the native color-override enum; it introduces no runtime wrapper or public type-identity change.
