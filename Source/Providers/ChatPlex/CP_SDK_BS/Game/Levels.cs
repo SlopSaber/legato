@@ -1,0 +1,764 @@
+using CP_SDK.Extensions;
+using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+using UnityEngine;
+using static PlayerSaveData;
+
+namespace CP_SDK_BS.Game
+{
+    /// <summary>
+    /// Level helper
+    /// </summary>
+    public class Levels
+    {
+        private static List<Action>                         m_ReloadSongsCallbacks = new List<Action>(10);
+
+        private static BeatmapCharacteristicCollection      m_BeatmapCharacteristicCollection;
+        private static BeatmapLevelsModel                   m_BeatmapLevelsModel;
+        private static CancellationTokenSource              m_GetLevelCancellationTokenSource;
+        private static CancellationTokenSource              m_GetLevelEntitlementStatusTokenSource;
+        private static MenuTransitionsHelper                m_MenuTransitionsHelper;
+        private static SimpleLevelStarter                   m_SimpleLevelStarter;
+        private static PlayerDataModel                      m_PlayerDataModel;
+
+        ////////////////////////////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////////////////////////////
+
+        /// <summary>
+        /// Get default pack cover
+        /// </summary>
+        /// <returns></returns>
+        public static Sprite GetDefaultPackCover()
+            => SongCore.Loader.defaultCoverImage;
+
+        ////////////////////////////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////////////////////////////
+
+        /// <summary>
+        /// Reload songs
+        /// </summary>
+        /// <param name="p_Full">Full reload?</param>
+        /// <param name="p_Callback">On finish callback</param>
+        public static void ReloadSongs(bool p_Full, Action p_Callback = null)
+        {
+            SongCore.Loader.SongsLoadedEvent -= ReloadSongs_Callback;
+            SongCore.Loader.SongsLoadedEvent += ReloadSongs_Callback;
+
+            if (p_Callback != null)
+            {
+                lock (m_ReloadSongsCallbacks)
+                    m_ReloadSongsCallbacks.Add(p_Callback);
+            }
+
+            CP_SDK.Unity.MTMainThreadInvoker.Enqueue(() => SongCore.Loader.Instance.RefreshSongs(p_Full));
+        }
+        /// <summary>
+        /// Reload songs callback
+        /// </summary>
+        private static void ReloadSongs_Callback(SongCore.Loader _, ConcurrentDictionary<string, BeatmapLevel> __)
+        {
+            SongCore.Loader.SongsLoadedEvent -= ReloadSongs_Callback;
+
+            CP_SDK.Unity.MTMainThreadInvoker.Enqueue(() =>
+            {
+                var l_Callbacks = null as List<Action>;
+                lock (m_ReloadSongsCallbacks)
+                {
+                    l_Callbacks = new List<Action>(m_ReloadSongsCallbacks);
+                    m_ReloadSongsCallbacks.Clear();
+                }
+
+                foreach (var l_Current in l_Callbacks)
+                    l_Current();
+            });
+        }
+        /// <summary>
+        /// Check for mapping capability
+        /// </summary>
+        /// <param name="p_Capability">Capability name</param>
+        /// <returns>True or false</returns>
+        public static bool HasMappingCapability(string p_Capability)
+        {
+            return SongCore.Collections.capabilities.Contains(p_Capability);
+        }
+
+        ////////////////////////////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////////////////////////////
+
+        /// <summary>
+        /// Sanitize a level ID for case matching
+        /// </summary>
+        /// <param name="p_LevelID">Input level ID</param>
+        /// <returns>Sanitized level ID</returns>
+        public static string SanitizeLevelID(string p_LevelID)
+        {
+            if (TryGetHashFromLevelID(p_LevelID, out var l_LevelHash))
+            {
+                /// Level hash is sanitized by TryGetHashFromLevelID
+                return $"custom_level_{l_LevelHash}";
+            }
+
+            return p_LevelID;
+        }
+        /// <summary>
+        /// Try get hash from level ID
+        /// </summary>
+        /// <param name="p_LevelID">Input level ID</param>
+        /// <param name="p_Hash">OUT hash</param>
+        /// <returns>true or false</returns>
+        public static bool TryGetHashFromLevelID(string p_LevelID, out string p_Hash)
+        {
+            p_Hash = string.Empty;
+            if (!LevelID_IsCustom(p_LevelID))
+                return false;
+
+            p_Hash = p_LevelID.Substring(13);
+            if (p_Hash.Length >= 40 && p_Hash.Substring(0, 40).IsOnlyHexSymbols())
+                p_Hash = p_Hash.Substring(0, 40).ToUpper();
+
+            return true;
+        }
+        /// <summary>
+        /// Try get level ID from hash
+        /// </summary>
+        /// <param name="p_Hash">Input hash</param>
+        /// <param name="p_LevelID">OUT level ID</param>
+        /// <returns>true or false</returns>
+        public static bool TryGetLevelIDFromHash(string p_Hash, out string p_LevelID)
+        {
+            p_LevelID = string.Empty;
+            if (string.IsNullOrEmpty(p_Hash) || p_Hash.Length != 40 /* TODO check for only hex*/)
+                return false;
+
+            p_LevelID = "custom_level_" + p_Hash.ToUpper();
+            return true;
+        }
+        /// <summary>
+        /// Is level ID a custom level ID
+        /// </summary>
+        /// <param name="p_LevelID">Input level ID</param>
+        /// <returns>true or false</returns>
+        public static bool LevelID_IsCustom(string p_LevelID)
+        {
+            if (p_LevelID == null || p_LevelID.Length < 13)
+                return false;
+
+            return p_LevelID.StartsWith("custom_level_", StringComparison.OrdinalIgnoreCase);
+        }
+
+        ////////////////////////////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////////////////////////////
+
+        /// <summary>
+        /// Try get BeatmapCharacteristicSO by serialized name
+        /// </summary>
+        /// <param name="p_SerializedName">Characteristic serialized name</param>
+        /// <param name="p_BeatmapCharacteristicSO">OUT BeatmapCharacteristicSO</param>
+        /// <returns>true or false</returns>
+        public static bool TryGetBeatmapCharacteristicSOBySerializedName(string p_SerializedName, out BeatmapCharacteristicSO p_BeatmapCharacteristicSO)
+        {
+            p_BeatmapCharacteristicSO = null;
+
+            var l_SanatizedSerializedName = SanitizeBeatmapCharacteristicSOSerializedName(p_SerializedName);
+            var l_Result                  = null as BeatmapCharacteristicSO;
+
+            if (m_BeatmapCharacteristicCollection == null)
+            {
+                var l_CollectionSO = Resources.FindObjectsOfTypeAll<BeatmapCharacteristicCollectionSO>().FirstOrDefault();
+                var l_AppSettings = Resources.FindObjectsOfTypeAll<AppStaticSettingsSO>().FirstOrDefault();
+                if (l_CollectionSO != null && l_AppSettings != null)
+                    m_BeatmapCharacteristicCollection = new BeatmapCharacteristicCollection(l_CollectionSO, l_AppSettings);
+            }
+
+            if (m_BeatmapCharacteristicCollection == null)
+            {
+                CP_SDK.ChatPlexSDK.Logger.Error("[CP_SDK_BS.Game][Levels.TryGetBeatmapCharacteristicSOBySerializedName] Invalid BeatmapCharacteristicCollection");
+                return false;
+            }
+
+            l_Result = m_BeatmapCharacteristicCollection.GetBeatmapCharacteristicBySerializedName(l_SanatizedSerializedName);
+
+            if (l_Result != null)
+                p_BeatmapCharacteristicSO = l_Result;
+
+            return l_Result != null;
+        }
+
+        public static Sprite GetBeatmapCharacteristicIcon(BeatmapCharacteristic p_Characteristic)
+        {
+            if (m_BeatmapCharacteristicCollection == null)
+                TryGetBeatmapCharacteristicSOBySerializedName(p_Characteristic.SerializedName(), out _);
+            return m_BeatmapCharacteristicCollection?.GetBeatmapCharacteristicIcon(p_Characteristic);
+        }
+        /// <summary>
+        /// Sanitize BeatmapCharacteristicSO serialized name
+        /// </summary>
+        /// <param name="p_SerializedName">Input serialized name</param>
+        /// <returns>Sanatized BeatmapCharacteristicSO serialized name or input</returns>
+        public static string SanitizeBeatmapCharacteristicSOSerializedName(string p_SerializedName)
+        {
+            if (        p_SerializedName.Equals("Standard",     StringComparison.OrdinalIgnoreCase))
+                return "Standard";
+            else if (   p_SerializedName.Equals("One Saber",    StringComparison.OrdinalIgnoreCase)
+                     || p_SerializedName.Equals("OneSaber",     StringComparison.OrdinalIgnoreCase))
+                return "OneSaber";
+            else if (   p_SerializedName.Equals("No Arrows",    StringComparison.OrdinalIgnoreCase)
+                     || p_SerializedName.Equals("NoArrows",     StringComparison.OrdinalIgnoreCase))
+                return "NoArrows";
+            else if (   p_SerializedName.Equals("360Degree",    StringComparison.OrdinalIgnoreCase))
+                return "360Degree";
+            else if (   p_SerializedName.Equals("Lawless",      StringComparison.OrdinalIgnoreCase))
+                return "Lawless";
+            else if (   p_SerializedName.Equals("90Degree",     StringComparison.OrdinalIgnoreCase))
+                return "90Degree";
+            else if (   p_SerializedName.Equals("LightShow",    StringComparison.OrdinalIgnoreCase)
+                     || p_SerializedName.Equals("Lightshow",    StringComparison.OrdinalIgnoreCase))
+                return "Lightshow";
+
+            return p_SerializedName;
+        }
+        /// <summary>
+        /// Get ordering value for a BeatmapCharacteristicSO
+        /// </summary>
+        /// <param name="p_CharacteristicName">Characteristic serialized name</param>
+        /// <returns>Sorting order or 1000</returns>
+        public static int GetBeatmapCharacteristicSOOrdering(string p_CharacteristicName)
+        {
+            var l_SerializedName = SanitizeBeatmapCharacteristicSOSerializedName(p_CharacteristicName);
+            if (TryGetBeatmapCharacteristicSOBySerializedName(l_SerializedName, out var l_CharacteristicSO))
+                return l_CharacteristicSO.sortingOrder;
+
+            return 1000;
+        }
+
+        ////////////////////////////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////////////////////////////
+
+        /// <summary>
+        /// BeatmapDifficulty serialized name to difficulty name
+        /// </summary>
+        /// <param name="p_BeatmapDifficultySerializedName">BeatmapDifficulty serialized name</param>
+        /// <returns>Difficulty name</returns>
+        public static string BeatmapDifficultySerializedNameToDifficultyName(string p_BeatmapDifficultySerializedName)
+        {
+            if (p_BeatmapDifficultySerializedName.Equals("easy", StringComparison.OrdinalIgnoreCase))
+                return "Easy";
+            else if (p_BeatmapDifficultySerializedName.Equals("normal", StringComparison.OrdinalIgnoreCase))
+                return "Normal";
+            else if (p_BeatmapDifficultySerializedName.Equals("hard", StringComparison.OrdinalIgnoreCase))
+                return "Hard";
+            else if (p_BeatmapDifficultySerializedName.Equals("expert", StringComparison.OrdinalIgnoreCase))
+                return "Expert";
+            else if (p_BeatmapDifficultySerializedName.Equals("expertplus", StringComparison.OrdinalIgnoreCase))
+                return "Expert+";
+
+            CP_SDK.ChatPlexSDK.Logger.Error($"[CP_SDK_BS.Game][Level.BeatmapDifficultySerializedNameToDifficultyName] Unknown serialized difficulty \"{p_BeatmapDifficultySerializedName}\", fall back to \"? Expert+ ?\"");
+
+            return "? Expert+ ?";
+        }
+        /// <summary>
+        /// BeatmapDifficulty serialized name to difficulty name short
+        /// </summary>
+        /// <param name="p_BeatmapDifficultySerializedName">BeatmapDifficulty serialized name</param>
+        /// <returns>Difficulty name short</returns>
+        public static string BeatmapDifficultySerializedNameToDifficultyNameShort(string p_BeatmapDifficultySerializedName)
+        {
+            if (p_BeatmapDifficultySerializedName.Equals("easy", StringComparison.OrdinalIgnoreCase))
+                return "E";
+            else if (p_BeatmapDifficultySerializedName.Equals("normal", StringComparison.OrdinalIgnoreCase))
+                return "N";
+            else if (p_BeatmapDifficultySerializedName.Equals("hard", StringComparison.OrdinalIgnoreCase))
+                return "H";
+            else if (p_BeatmapDifficultySerializedName.Equals("expert", StringComparison.OrdinalIgnoreCase))
+                return "Ex";
+            else if (p_BeatmapDifficultySerializedName.Equals("expertplus", StringComparison.OrdinalIgnoreCase))
+                return "Ex+";
+
+            CP_SDK.ChatPlexSDK.Logger.Error($"[CP_SDK_BS.Game][Level.BeatmapDifficultySerializedNameToDifficultyNameShort] Unknown serialized difficulty \"{p_BeatmapDifficultySerializedName}\", fall back to ExpertPlus");
+
+            return "E+";
+        }
+        /// <summary>
+        /// BeatmapDifficulty serialized name to BeatmapDifficulty
+        /// </summary>
+        /// <param name="p_BeatmapDifficultySerializedName">BeatmapDifficulty serialized name</param>
+        /// <returns>BeatmapDifficulty</returns>
+        public static BeatmapDifficulty BeatmapDifficultySerializedNameToBeatmapDifficulty(string p_BeatmapDifficultySerializedName)
+        {
+            if (p_BeatmapDifficultySerializedName.Equals("easy", StringComparison.OrdinalIgnoreCase))
+                return BeatmapDifficulty.Easy;
+            else if (p_BeatmapDifficultySerializedName.Equals("normal", StringComparison.OrdinalIgnoreCase))
+                return BeatmapDifficulty.Normal;
+            else if (p_BeatmapDifficultySerializedName.Equals("hard", StringComparison.OrdinalIgnoreCase))
+                return BeatmapDifficulty.Hard;
+            else if (p_BeatmapDifficultySerializedName.Equals("expert", StringComparison.OrdinalIgnoreCase))
+                return BeatmapDifficulty.Expert;
+            else if (p_BeatmapDifficultySerializedName.Equals("expertplus", StringComparison.OrdinalIgnoreCase))
+                return BeatmapDifficulty.ExpertPlus;
+
+            CP_SDK.ChatPlexSDK.Logger.Error($"[CP_SDK_BS.Game][Level.BeatmapDifficultySerializedNameToBeatmapDifficulty] Unknown serialized difficulty \"{p_BeatmapDifficultySerializedName}\", fall back to ExpertPlus");
+
+            return BeatmapDifficulty.ExpertPlus;
+        }
+
+        ////////////////////////////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////////////////////////////
+
+        /// <summary>
+        /// Own a DLC level by level ID
+        /// </summary>
+        /// <param name="p_LevelID">Level ID</param>
+        /// <returns></returns>
+        public static async Task<bool> OwnDLCLevelByLevelID(string p_LevelID)
+        {
+            if (LevelID_IsCustom(p_LevelID))
+                return true;
+
+            if (m_BeatmapLevelsModel == null)
+                m_BeatmapLevelsModel = Resources.FindObjectsOfTypeAll<MainFlowCoordinator>().FirstOrDefault(x => x._beatmapLevelsModel != null)?._beatmapLevelsModel;
+
+            if (m_BeatmapLevelsModel != null && m_BeatmapLevelsModel._entitlements != null)
+            {
+                m_GetLevelEntitlementStatusTokenSource?.Cancel();
+                m_GetLevelEntitlementStatusTokenSource = new CancellationTokenSource();
+
+                var l_Token = m_GetLevelEntitlementStatusTokenSource.Token;
+                return await m_BeatmapLevelsModel._entitlements.GetLevelEntitlementStatusAsync(p_LevelID, l_Token) == EntitlementStatus.Owned;
+            }
+            else
+                CP_SDK.ChatPlexSDK.Logger.Error("[CP_SDK_BS.Game][Level.OwnDLCLevelByLevelID] Invalid AdditionalContentModel");
+
+            return false;
+        }
+
+        ////////////////////////////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////////////////////////////
+
+        /// <summary>
+        /// Try to get BeatmapLevel by level ID
+        /// </summary>
+        /// <param name="p_LevelID">ID of the level</param>
+        /// <param name="p_BeatmapLevel">OUT Found BeatmapLevel or null</param>
+        /// <param name="silentFail">Should not log map not found error?</param>
+        /// <returns>true or false </returns>
+        public static bool TryGetBeatmapLevelForLevelID(string p_LevelID, out BeatmapLevel p_BeatmapLevel, bool silentFail = false)
+        {
+            p_BeatmapLevel = null;
+
+            var l_LevelID = SanitizeLevelID(p_LevelID);
+            if (LevelID_IsCustom(l_LevelID))
+            {
+                var l_Custom = SongCore.Loader.GetLevelById(l_LevelID);
+                if (l_Custom != null)
+                {
+                    p_BeatmapLevel = l_Custom;
+                    return true;
+                }
+            }
+
+            if (m_BeatmapLevelsModel == null)
+                m_BeatmapLevelsModel = Resources.FindObjectsOfTypeAll<MainFlowCoordinator>().FirstOrDefault(x => x._beatmapLevelsModel != null)?._beatmapLevelsModel;
+
+            if (m_BeatmapLevelsModel != null)
+            {
+                var l_Result = m_BeatmapLevelsModel.GetBeatmapLevel(l_LevelID);
+                if (l_Result != null)
+                {
+                    p_BeatmapLevel = l_Result;
+                    return true;
+                }
+
+                if (!silentFail)
+                    CP_SDK.ChatPlexSDK.Logger.Error("[CP_SDK_BS.Game][Level.TryGetBeatmapLevelForLevelID] GetBeatmapLevel failed");
+            }
+            else
+                CP_SDK.ChatPlexSDK.Logger.Error("[CP_SDK_BS.Game][Level.TryGetBeatmapLevelForLevelID] Invalid BeatmapLevelsModel");
+
+            return false;
+        }
+        /// <summary>
+        /// Try to get BeatmapLevel by Hash
+        /// </summary>
+        /// <param name="p_Hash">Hash of the level</param>
+        /// <param name="p_BeatmapLevel">OUT Found BeatmapLevel or null</param>
+        /// <param name="silentFail">Should not log map not found error?</param>
+        /// <returns>true or false </returns>
+        public static bool TryGetBeatmapLevelForHash(string p_Hash, out BeatmapLevel p_BeatmapLevel, bool silentFail = false)
+        {
+            p_BeatmapLevel = null;
+            if (!TryGetLevelIDFromHash(p_Hash, out var l_LevelID))
+                return false;
+
+            return TryGetBeatmapLevelForLevelID(l_LevelID, out p_BeatmapLevel, silentFail);
+        }
+
+        ////////////////////////////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////////////////////////////
+
+        /// <summary>
+        /// Check if a difficulty is present in a BeatmapLevel
+        /// </summary>
+        /// <param name="p_BeatmapLevel">Input beatmap level</param>
+        /// <param name="p_BeatmapCharacteristicSO">Desired BeatmapCharacteristicSO</param>
+        /// <param name="p_BeatmapDifficulty">Desired BeatmapDifficulty</param>
+        /// <returns>True or false</returns>
+        public static bool BeatmapLevel_HasDifficulty(BeatmapLevel p_BeatmapLevel, BeatmapCharacteristic p_BeatmapCharacteristic, BeatmapDifficulty p_BeatmapDifficulty)
+        {
+            if (p_BeatmapLevel == null)
+                return false;
+
+            return Legato.Beatmaps.BeatmapLevelCharacteristics.HasDifficulty(p_BeatmapLevel, p_BeatmapCharacteristic, p_BeatmapDifficulty);
+        }
+        /// <summary>
+        /// Try get a beatmap key from a BeatmapLevel
+        /// </summary>
+        /// <param name="p_BeatmapLevel">Input beatmap level</param>
+        /// <param name="p_BeatmapCharacteristicSO">Desired BeatmapCharacteristicSO</param>
+        /// <param name="p_BeatmapDifficulty">Desired BeatmapDifficulty</param>
+        /// <param name="p_BeatmapKey">Out beatmap key</param>
+        /// <returns>True or false</returns>
+        public static bool BeatmapLevel_TryGetBeatmapKey(BeatmapLevel p_BeatmapLevel, BeatmapCharacteristic p_BeatmapCharacteristic, BeatmapDifficulty p_BeatmapDifficulty, out BeatmapKey p_BeatmapKey)
+        {
+            p_BeatmapKey = default;
+            if (p_BeatmapLevel == null)
+                return false;
+
+            foreach (var l_BeatmapKey in p_BeatmapLevel.GetBeatmapKeys())
+            {
+                if (l_BeatmapKey.characteristic != p_BeatmapCharacteristic)
+                    continue;
+                if (l_BeatmapKey.difficulty != p_BeatmapDifficulty)
+                    continue;
+
+                p_BeatmapKey = l_BeatmapKey;
+                return true;
+            }
+
+            return false;
+        }
+        /// <summary>
+        /// Try get custom requirements for a BeatmapLevel->BeatmapCharacteristicSO->BeatmapDifficulty
+        /// </summary>
+        /// <param name="p_BeatmapLevel">Input beatmap level</param>
+        /// <param name="p_BeatmapCharacteristicSO">Desired BeatmapCharacteristicSO</param>
+        /// <param name="p_BeatmapDifficulty">Desired BeatmapDifficulty</param>
+        /// <param name="p_CustomRequirements">OUT custom requirements</param>
+        /// <returns>true or false</returns>
+        public static bool TryGetCustomRequirementsFor( BeatmapLevel            p_BeatmapLevel,
+                                                        BeatmapCharacteristic     p_BeatmapCharacteristic,
+                                                        BeatmapDifficulty       p_BeatmapDifficulty,
+                                                        out List<string>        p_CustomRequirements)
+        {
+            p_CustomRequirements = null;
+            if (p_BeatmapLevel == null)
+                return false;
+
+            if (!LevelID_IsCustom(p_BeatmapLevel.levelID)
+                || !TryGetHashFromLevelID(p_BeatmapLevel.levelID, out var l_LevelHash))
+                return false;
+
+            var l_SongData = SongCore.Collections.GetCustomLevelSongData(CustomLevelLoader.kCustomLevelPrefixId + l_LevelHash);
+            if (l_SongData == null)
+                return false;
+
+            var l_CustomData = l_SongData._difficulties.FirstOrDefault((x) =>
+            {
+                return x._difficulty == p_BeatmapDifficulty
+                        && x._beatmapCharacteristicName == p_BeatmapCharacteristic.SerializedName();
+            });
+
+            if (l_CustomData == null)
+                return false;
+
+            p_CustomRequirements = new List<string>(l_CustomData.additionalDifficultyData._requirements);
+
+            return true;
+        }
+
+        ////////////////////////////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////////////////////////////
+
+        /// <summary>
+        /// Try to load BeatmapLevel cover image async
+        /// </summary>
+        /// <param name="p_BeatmapLevel">Input BeatmapLevel</param>
+        /// <param name="p_Callback">Callback</param>
+        public static void TryLoadBeatmapLevelCoverAsync(BeatmapLevel p_BeatmapLevel, Action<bool, Sprite> p_Callback)
+        {
+            if (p_BeatmapLevel == null || p_BeatmapLevel.previewMediaData == null)
+            {
+                CP_SDK.Unity.MTMainThreadInvoker.Enqueue(() => p_Callback?.Invoke(false, GetDefaultPackCover()));
+                return;
+            }
+
+            var l_CoverTask = null as Task<Sprite>;
+            try
+            {
+                l_CoverTask = p_BeatmapLevel.previewMediaData.GetCoverSpriteAsync();
+                l_CoverTask.ContinueWith((x) =>
+                {
+                    if (x != null && x.IsCompleted && x.Result)
+                        CP_SDK.Unity.MTMainThreadInvoker.Enqueue(() => p_Callback?.Invoke(x.Result, x.Result));
+                    else
+                        CP_SDK.Unity.MTMainThreadInvoker.Enqueue(() => p_Callback?.Invoke(false, GetDefaultPackCover()));
+                });
+            }
+            catch (Exception l_Exception)
+            {
+                CP_SDK.ChatPlexSDK.Logger.Error($"[CP_SDK_BS.Game][Level.TryLoadBeatmapLevelCoverAsync] Error:");
+                CP_SDK.ChatPlexSDK.Logger.Error(l_Exception);
+
+                CP_SDK.Unity.MTMainThreadInvoker.Enqueue(() => p_Callback?.Invoke(false, GetDefaultPackCover()));
+                return;
+            }
+        }
+
+        ////////////////////////////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////////////////////////////
+
+        /// <summary>
+        /// Load a BeatmapLevelData by level ID
+        /// </summary>
+        /// <param name="p_LevelID">ID of the level</param>
+        /// <param name="p_LoadCallback">Load callback</param>
+        public static async Task LoadBeatmapLevelDataByLevelID(string p_LevelID, Action<BeatmapLevel, IBeatmapLevelData> p_LoadCallback)
+        {
+            await Task.Yield();
+
+            var l_LevelID = SanitizeLevelID(p_LevelID);
+            if (!TryGetBeatmapLevelForLevelID(l_LevelID, out var l_BeatmapLevel, silentFail: true))
+            {
+                p_LoadCallback(null, null);
+                return;
+            }
+
+            if (!LevelID_IsCustom(p_LevelID))
+            {
+                if (!await OwnDLCLevelByLevelID(p_LevelID).ConfigureAwait(false))
+                {
+                    p_LoadCallback(null, null);
+                    return; /// In the case of unowned DLC, just bail out and do nothing
+                }
+            }
+
+            var l_Result = await LoadIBeatmapLevelDataAsync(p_LevelID).ConfigureAwait(false);
+            if (l_Result != null && !(l_Result?.isError == true))
+                p_LoadCallback(l_BeatmapLevel, l_Result.Value.beatmapLevelData);
+            else
+                p_LoadCallback(null, null);
+        }
+        /// <summary>
+        /// Start a BeatmapLevel
+        /// </summary>
+        /// <param name="level">Loaded level</param>
+        /// <param name="characteristic">Beatmap game mode</param>
+        /// <param name="difficulty">Beatmap difficulty</param>
+        /// <param name="beatmapLevelData">Beatmap level data</param>
+        /// <param name="overrideEnvironmentSettings">Environment settings</param>
+        /// <param name="colorScheme">Color scheme</param>
+        /// <param name="colorOverrideType">Color scheme override type</param>
+        /// <param name="gameplayModifiers">Modifiers</param>
+        /// <param name="playerSettings">Player settings</param>
+        /// <param name="songFinishedCallback">Callback when the song is finished</param>
+        /// <param name="menuButtonText">Menu button text</param>
+        public static void StartBeatmapLevel(BeatmapLevel                            level,
+                                             BeatmapCharacteristic                   characteristic,
+                                             BeatmapDifficulty                       difficulty,
+                                             IBeatmapLevelData                       beatmapLevelData,
+                                             OverrideEnvironmentSettings             overrideEnvironmentSettings                                   = null,
+                                             ColorScheme                             colorScheme                                                   = null,
+                                             LegatoColorOverrideType?                 colorOverrideType                                             = null,
+                                             GameplayModifiers                       gameplayModifiers                                             = null,
+                                             PlayerSpecificSettings                  playerSettings                                                = null,
+                                             Action<StandardLevelScenesTransitionSetupDataSO, LevelCompletionResults> songFinishedCallback = null,
+                                             string                                  menuButtonText                                                = "Menu")
+        {
+            if (level == null)
+                return;
+
+            if (m_MenuTransitionsHelper == null)
+                m_MenuTransitionsHelper = Resources.FindObjectsOfTypeAll<MainFlowCoordinator>().FirstOrDefault()?._menuTransitionsHelper;
+
+            if (!m_SimpleLevelStarter)
+                m_SimpleLevelStarter = Resources.FindObjectsOfTypeAll<SimpleLevelStarter>().FirstOrDefault();
+
+            if (m_MenuTransitionsHelper != null && m_SimpleLevelStarter != null)
+            {
+                try
+                {
+                    Scoring.BeatLeader_ManualWarmUpSubmission();
+
+                    var l_BeatmapKey = level.GetBeatmapKeys().FirstOrDefault(x => x.characteristic == characteristic && x.difficulty == difficulty);
+                    var gameplayAdditionInfo = new GameplayAdditionalInformation(
+                        backButtonText: menuButtonText
+                    );
+
+                    m_MenuTransitionsHelper.StartStandardLevel(
+                        gameMode: Legato.GameModes.Solo,
+                        beatmapKey:                             in l_BeatmapKey,
+                        beatmapLevel:                           level,
+                        overrideEnvironmentSettings:            overrideEnvironmentSettings,
+                        playerOverrideColorScheme:              colorScheme,
+                        playerOverrideLightshowColors:          colorOverrideType == LegatoColorOverrideType.All ? true : false,
+                        gameplayModifiers:                      gameplayModifiers ?? new GameplayModifiers(),
+                        playerSpecificSettings:                 playerSettings ?? new PlayerSpecificSettings(),
+                        practiceSettings:                       null,
+                        environmentsListModel:                  m_SimpleLevelStarter._environmentsListModel,
+                        gameplayAdditionalInformation:          gameplayAdditionInfo,
+                        beforeSceneSwitchToGameplayCallback:    null,
+                        afterSceneSwitchToGameplayCallback:     null,
+                        levelFinishedCallback:                  songFinishedCallback,
+                        levelRestartedCallback:                 null,
+                        beatmapLevelData:                       null
+                    );
+                }
+                catch (Exception l_Exception)
+                {
+                    CP_SDK.ChatPlexSDK.Logger.Error($"[CP_SDK_BS.Game][Level.StartBeatmapLevel] Error:");
+                    CP_SDK.ChatPlexSDK.Logger.Error(l_Exception);
+                }
+            }
+            else
+                CP_SDK.ChatPlexSDK.Logger.Error("[CP_SDK_BS.Game][Level.StartBeatmapLevel] Invalid MenuTransitionsHelper");
+        }
+
+        ////////////////////////////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////////////////////////////
+
+        /// <summary>
+        /// Load IBeatmapLevelData from a level ID
+        /// </summary>
+        /// <param name="p_LevelID">Level ID</param>
+        /// <returns>LoadBeatmapLevelDataResult?</returns>
+#if BEAT_SABER_1_29_0
+        private struct LoadedLevelData {
+            internal bool isError;
+            internal IBeatmapLevelData beatmapLevelData;
+        }
+        private static async Task<LoadedLevelData?> LoadIBeatmapLevelDataAsync(string p_LevelID)
+#else
+        private static async Task<LoadBeatmapLevelDataResult?> LoadIBeatmapLevelDataAsync(string p_LevelID)
+#endif
+        {
+            if (m_BeatmapLevelsModel == null)
+                m_BeatmapLevelsModel = Resources.FindObjectsOfTypeAll<MainFlowCoordinator>().FirstOrDefault(x => x._beatmapLevelsModel != null)?._beatmapLevelsModel;
+
+            if (m_MenuTransitionsHelper == null)
+                m_MenuTransitionsHelper = Resources.FindObjectsOfTypeAll<MainFlowCoordinator>().FirstOrDefault()?._menuTransitionsHelper;
+
+            if (m_BeatmapLevelsModel != null)
+            {
+                m_GetLevelCancellationTokenSource?.Cancel();
+                m_GetLevelCancellationTokenSource = new CancellationTokenSource();
+
+                var l_Token = m_GetLevelCancellationTokenSource.Token;
+
+#if BEAT_SABER_1_29_0
+                LoadedLevelData? l_Result = null;
+#else
+                LoadBeatmapLevelDataResult? l_Result = null;
+#endif
+                try
+                {
+#if BEAT_SABER_1_29_0
+                    var loaded = await m_BeatmapLevelsModel.GetBeatmapLevelAsync(p_LevelID, l_Token).ConfigureAwait(false);
+                    l_Token.ThrowIfCancellationRequested();
+                    l_Result = new LoadedLevelData { isError = loaded.isError, beatmapLevelData = loaded.beatmapLevel?.beatmapLevelData };
+#else
+                    var l_BeatmapLevelDataVersion = await m_MenuTransitionsHelper._beatmapLevelsEntitlementModel.GetLevelDataVersionAsync(p_LevelID, l_Token);
+                    l_Token.ThrowIfCancellationRequested();
+                    l_Result = await m_BeatmapLevelsModel.LoadBeatmapLevelDataAsync(p_LevelID, l_BeatmapLevelDataVersion, l_Token).ConfigureAwait(false);
+#endif
+                }
+                catch (OperationCanceledException l_Exception)
+                {
+                    CP_SDK.ChatPlexSDK.Logger.Error($"[CP_SDK_BS.Game][Level.LoadIBeatmapLevelDataAsync] Error:");
+                    CP_SDK.ChatPlexSDK.Logger.Error(l_Exception);
+                }
+
+                if (l_Result?.isError == true || l_Result?.beatmapLevelData == null)
+                    return null; /// Null out entirely in case of error
+
+                return l_Result;
+            }
+            else
+                CP_SDK.ChatPlexSDK.Logger.Error("[CP_SDK_BS.Game][Level.LoadIBeatmapLevelDataAsync] Invalid BeatmapLevelsModel");
+
+            return null;
+        }
+
+        ////////////////////////////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////////////////////////////
+
+        /// <summary>
+        /// Get accuracy
+        /// </summary>
+        /// <param name="p_MaxScore">Max score</param>
+        /// <param name="p_Score">Result score</param>
+        /// <returns></returns>
+        public static float GetAccuracy(int p_MaxScore, int p_Score)
+        {
+            return (float)Math.Round(1.0 / (double)p_MaxScore * (double)p_Score, 4);
+        }
+
+        ////////////////////////////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////////////////////////////
+
+        /// <summary>
+        /// Get scores from local cache for a level id
+        /// </summary>
+        /// <param name="p_LevelID">Level ID</param>
+        /// <param name="p_HaveAnyScore">Have any score set</param>
+        /// <param name="p_HaveAllScores">Have all scores set</param>
+        /// <returns>Scores</returns>
+        public static Dictionary<BeatmapCharacteristic, List<(BeatmapDifficulty, int)>> GetScoresByLevelID(string p_LevelID, out bool p_HaveAnyScore, out bool p_HaveAllScores)
+        {
+            p_HaveAnyScore  = false;
+            p_HaveAllScores = true;
+
+            var l_Results = new Dictionary<BeatmapCharacteristic, List<(BeatmapDifficulty, int)>>();
+            if (m_PlayerDataModel == null || !m_PlayerDataModel)
+            {
+                m_PlayerDataModel = Resources.FindObjectsOfTypeAll<PlayerDataModel>().FirstOrDefault();
+
+                if (!m_PlayerDataModel)
+                {
+                    p_HaveAllScores = false;
+                    return l_Results;
+                }
+            }
+
+            var l_LevelID = SanitizeLevelID(p_LevelID);
+            if (!TryGetBeatmapLevelForLevelID(l_LevelID, out var l_BeatmapLevel, silentFail: true))
+            {
+                p_HaveAllScores = false;
+                return l_Results;
+            }
+
+            var l_PlayerData        = m_PlayerDataModel?._playerData;
+            var l_LevelStatsData    = l_PlayerData?.levelsStatsData;
+            foreach (var l_BeatmapKey in l_BeatmapLevel.GetBeatmapKeys())
+            {
+                if (!l_Results.ContainsKey(l_BeatmapKey.characteristic))
+                    l_Results.Add(l_BeatmapKey.characteristic, new List<(BeatmapDifficulty, int)>());
+
+                if (l_LevelStatsData.TryGetValue(l_BeatmapKey, out var l_PlayerLevelStatsData) && l_PlayerLevelStatsData.playCount > 0)
+                {
+                    p_HaveAnyScore = true;
+                    l_Results[l_BeatmapKey.characteristic].Add((l_BeatmapKey.difficulty, l_PlayerLevelStatsData.highScore));
+                }
+                else
+                {
+                    p_HaveAllScores = false;
+                    l_Results[l_BeatmapKey.characteristic].Add((l_BeatmapKey.difficulty, -1));
+                }
+            }
+
+            return l_Results;
+        }
+    }
+}

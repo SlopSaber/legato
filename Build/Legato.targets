@@ -505,4 +505,5 @@
   <Import Project="$(MSBuildThisFileDirectory)SiraHost.targets" Condition="'$(LegatoEnableSiraHost)' == 'true'" />
   <Import Project="$(MSBuildThisFileDirectory)BsmlHost.targets" Condition="'$(LegatoEnableBsmlHost)' == 'true'" />
   <Import Project="$(MSBuildThisFileDirectory)KeepOverrides.targets" Condition="'$(LegatoEnableOverridePersistenceProviders)' == 'true'" />
+  <Import Project="$(MSBuildThisFileDirectory)ChatPlexProviders.targets" Condition="'$(LegatoEnableChatPlexProviders)' == 'true'" />
 </Project>

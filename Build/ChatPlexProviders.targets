@@ -1,0 +1,12 @@
+<Project>
+  <Target Name="LegatoChatPlexSources" BeforeTargets="ResolveAssemblyReferences" DependsOnTargets="LegatoConfigure">
+    <ItemGroup>
+      <Compile Remove="Compatibility\LatestCompatibility.cs;CP_SDK_BS\Game\LevelData.cs;CP_SDK_BS\Game\Levels.cs;CP_SDK_BS\Game\Logic.cs;CP_SDK_BS\UI\LevelDetail.cs;CP_SDK_BS\UI\Patches\PVRPointer.cs" />
+      <Compile Include="$(LegatoSourceRoot)Providers\ChatPlex\**\*.cs" />
+    </ItemGroup>
+    <ItemGroup Condition="'$(LegatoTargetProfile)' == '1.29.0'">
+      <Reference Remove="PlatformUserModel;System.Data.DataSetExtensions;UnityEngine.TextCoreFontEngineModule" />
+      <Reference Include="UnityEngine.TextCoreModule" HintPath="$(LegatoReferenceRoot)\Beat Saber_Data\Managed\UnityEngine.TextCoreModule.dll" Private="false" />
+    </ItemGroup>
+  </Target>
+</Project>
