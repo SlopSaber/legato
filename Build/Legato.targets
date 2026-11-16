@@ -269,6 +269,8 @@
                Condition="'$(LegatoEnableCounterGameplay)' == 'true'" />
       <Compile Include="$(LegatoSourceRoot)Library\Unity\WebRequestCompatibility.cs"
                Condition="'$(LegatoEnableWebRequests)' == 'true' AND '$(LegatoEnableUnityCompatibility)' != 'true'" />
+      <Compile Include="$(LegatoSourceRoot)Library\MenuAudio\**\*.cs"
+               Condition="'$(LegatoEnableMenuAudio)' == 'true'" />
       <Compile Include="$(LegatoSourceRoot)Library\HitsoundLifecycle\**\*.cs"
                Condition="'$(LegatoEnableHitsoundLifecycle)' == 'true'" />
       <Compile Include="$(LegatoSourceRoot)Library\EnvironmentFilters\**\*.cs"
