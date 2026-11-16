@@ -28,6 +28,7 @@
       <LegatoSourceOrder>@(_LegatoSourceVersion->'%(Order)')</LegatoSourceOrder>
       <LegatoTargetDefine Condition="'$(LegatoTargetProfile)' != ''">BEAT_SABER_$([System.String]::Copy('$(LegatoTargetProfile)').Replace('.', '_'))</LegatoTargetDefine>
       <DefineConstants Condition="'$(LegatoTargetDefine)' != ''">$(DefineConstants);$(LegatoTargetDefine)</DefineConstants>
+      <DefineConstants Condition="'$(LegatoEnableNativeBeatmapAliases)' == 'true'">$(DefineConstants);LEGATO_NATIVE_BEATMAP_KEYS</DefineConstants>
       <LegatoUsesNativeRenderTiming>false</LegatoUsesNativeRenderTiming>
       <LegatoUsesNativeRenderTiming Condition="'$(LegatoTargetProfile)' == '1.45.1' OR '$(LegatoTargetProfile)' == '1.45.3'">true</LegatoUsesNativeRenderTiming>
     </PropertyGroup>
@@ -295,6 +296,8 @@
                Condition="'$(LegatoEnableJsonFiles)' == 'true'" />
       <Compile Include="$(LegatoSourceRoot)Library\MapFormats\**\*.cs"
                Condition="'$(LegatoEnableV4Beatmaps)' == 'true'" />
+      <Compile Include="$(LegatoSourceRoot)Library\NativeBeatmaps\**\*.cs"
+               Condition="'$(LegatoEnableNativeBeatmapAliases)' == 'true'" />
       <Compile Include="$(LegatoSourceRoot)Library\ControllerInput\**\*.cs"
                Condition="'$(LegatoEnableControllerInput)' == 'true'" />
       <Compile Include="$(LegatoSourceRoot)Providers\NalulunaUi\**\*.cs"
