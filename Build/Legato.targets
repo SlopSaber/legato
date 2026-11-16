@@ -275,6 +275,8 @@
                Condition="'$(LegatoEnableBsmlSettings)' == 'true'" />
       <Compile Include="$(LegatoSourceRoot)Library\RendererLayers\**\*.cs"
                Condition="'$(LegatoEnableRendererLayers)' == 'true'" />
+      <Compile Include="$(LegatoSourceRoot)Library\ControllerInput\**\*.cs"
+               Condition="'$(LegatoEnableControllerInput)' == 'true'" />
       <Compile Include="$(LegatoSourceRoot)Providers\NalulunaUi\**\*.cs"
                Condition="'$(LegatoEnableNalulunaUi)' == 'true'" />
       <Compile Include="$(LegatoSourceRoot)Library\MemoryCounters\**\*.cs"

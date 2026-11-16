@@ -1,7 +1,7 @@
 <Project>
   <Target Name="LegatoLegacyTypeReferences" BeforeTargets="ResolveAssemblyReferences" DependsOnTargets="LegatoConfigure">
     <ItemGroup Condition="'$(LegatoTargetProfile)' == '1.29.0'">
-      <Reference Remove="AdditionalContentModel.Interfaces;DataModels;BGLib.AppFlow;BeatSaber.Init;BeatSaber.ViewSystem;GameInit;Menu.ColorSettings;Menu.CommonLib" />
+      <Reference Remove="BeatSaber.Haptics;AdditionalContentModel.Interfaces;DataModels;BGLib.AppFlow;BeatSaber.Init;BeatSaber.ViewSystem;GameInit;Menu.ColorSettings;Menu.CommonLib" />
     </ItemGroup>
   </Target>
 </Project>
