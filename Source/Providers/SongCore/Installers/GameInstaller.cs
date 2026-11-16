@@ -12,6 +12,7 @@ namespace SongCore.Installers
 #if BEAT_SABER_1_29_0
             Container.BindInterfacesTo<V4GameHooks>().AsSingle();
             Container.BindInterfacesTo<V4MovementHooks>().AsSingle();
+            Container.BindInterfacesTo<V4LightingHooks>().AsSingle();
 #else
             Container.BindInterfacesTo<AllowNegativeVariableNoteJumpSpeedHook>().AsSingle();
 #endif

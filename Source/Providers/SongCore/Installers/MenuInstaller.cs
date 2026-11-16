@@ -18,6 +18,7 @@ namespace SongCore.Installers
             Container.BindInterfacesTo<BeatmapVersionDetectionHook>().AsSingle();
 #if BEAT_SABER_1_29_0
             Container.BindInterfacesTo<V4LoadingHooks>().AsSingle();
+            Container.BindInterfacesTo<V4LightingData>().AsSingle();
 #else
             Container.BindInterfacesTo<BeatmapJsonCacheHooks>().AsSingle();
 #endif

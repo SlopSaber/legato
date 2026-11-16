@@ -120,6 +120,7 @@ namespace SongCore.Hooks
                 (context.NativeDifficulty as CustomLevelInfoSaveData.DifficultyBeatmap)?.customData ?? new CustomData(),
                 (info as CustomLevelInfoSaveData)?.customData ?? new CustomData());
             Projections.Add(save, projection);
+            V4LightingData.Register(save, projection);
             var relativeSpeed = new V4RelativeNjs(projection);
             if (relativeSpeed.HasEvents) RelativeSpeeds.Add(save, relativeSpeed);
             V4LegacyProjection? previous = Converting.Value;
@@ -139,7 +140,9 @@ namespace SongCore.Hooks
             try
             {
                 Converting.Value = Projections.TryGetValue(save, out var projection) ? projection : null;
-                return original(save, difficulty, bpm, designatedEnvironment, environment, settings);
+                BeatmapData result = original(save, difficulty, bpm, designatedEnvironment, environment, settings);
+                if (projection != null) V4LightingData.ResolvePrevious(result);
+                return result;
             }
             finally { Converting.Value = previous; }
         }
@@ -149,6 +152,9 @@ namespace SongCore.Hooks
 
         internal static V4RelativeNjs? RelativeSpeedFor(IDifficultyBeatmap difficulty) =>
             difficulty is global::CustomDifficultyBeatmap native && RelativeSpeeds.TryGetValue(native.beatmapSaveData, out var speed) ? speed : null;
+
+        internal static bool IsV4(IDifficultyBeatmap difficulty) =>
+            difficulty is global::CustomDifficultyBeatmap native && Projections.TryGetValue(native.beatmapSaveData, out _);
 
         private sealed class LevelContext
         {
