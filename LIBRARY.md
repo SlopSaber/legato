@@ -253,3 +253,5 @@ Saber model helpers include native prefab/component creation and texture resizin
 `LegatoEnableLevelAudio` exposes native level audio providers, asset-bundle location/clip access, playback state and level selection. Legacy loads pass through the maintained game/SongCore level model, including custom/v4 loading. Unity bundle requests finish before cancellation is surfaced, preserving caller-owned bundle cleanup. Audio measurement, external playback and cache policy remain in consumers.
 
 `LevelAudioAccess.LoadDecodedFile` retains non-streaming file audio for PCM analysis. The legacy native media loader always enables streaming, so the helper owns a non-streaming Unity request and completes acquisition before returning the caller-owned clip. It does not alter player/desktop state.
+
+`LegatoEnableScoreEffects` finds the native flying-text preview resource through current addressables or real loaded legacy effects, preferring prefab assets. Missing optional menu resources return null; resource availability remains a runtime boundary.
