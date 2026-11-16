@@ -293,6 +293,8 @@
                Condition="'$(LegatoEnableJsonCompatibility)' == 'true'" />
       <Compile Include="$(LegatoSourceRoot)Library\JsonFiles\**\*.cs"
                Condition="'$(LegatoEnableJsonFiles)' == 'true'" />
+      <Compile Include="$(LegatoSourceRoot)Library\MapFormats\**\*.cs"
+               Condition="'$(LegatoEnableV4Beatmaps)' == 'true'" />
       <Compile Include="$(LegatoSourceRoot)Library\ControllerInput\**\*.cs"
                Condition="'$(LegatoEnableControllerInput)' == 'true'" />
       <Compile Include="$(LegatoSourceRoot)Providers\NalulunaUi\**\*.cs"

@@ -1,0 +1,8 @@
+{
+  "referenceRepository": "https://github.com/KivalEvan/BeatSaber-JSMap",
+  "referenceHead": "16edcba74dae5315fcc2499ce61bb87e4245f3f1",
+  "license": "MIT",
+  "referenceDate": "2026-11-16",
+  "sources": ["src/beatmap/schema/v4", "src/beatmap/schema/v3", "https://bsmg.wiki/mapping/map-format/"],
+  "implementation": "Managed indexed-document expansion and sample-based BPM-region readers. Native backend integration remains separate. No game implementation source is included."
+}
