@@ -236,6 +236,8 @@
                Condition="'$(LegatoEnablePosePrediction)' == 'true'" />
       <Compile Include="$(LegatoSourceRoot)Library\Transitions\**\*.cs"
                Condition="'$(LegatoEnableTransitions)' == 'true'" />
+      <Compile Include="$(LegatoSourceRoot)Library\LevelListBadges\**\*.cs"
+               Condition="'$(LegatoEnableLevelListBadges)' == 'true'" />
       <Compile Include="$(LegatoSourceRoot)Library\BeatmapText\**\*.cs"
                Condition="'$(LegatoEnableBeatmapText)' == 'true'" />
       <Compile Include="$(LegatoSourceRoot)Library\Gameplay\OverrideEnvironmentSettingsFactory.cs"
