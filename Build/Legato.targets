@@ -41,6 +41,8 @@
     </PropertyGroup>
     <Error Condition="'$(LegatoTargetProfile)' == ''" Text="Legato does not support Beat Saber $(LegatoTargetVersion)" />
     <Error Condition="'$(LegatoSourceProfile)' == ''" Text="Legato does not support source written for Beat Saber $(LegatoSourceVersion)" />
+    <Error Condition="'$(LegatoEnablePortableRendering)' == 'true' AND '$(LegatoTargetProfile)' != '1.29.0' AND '$(LegatoTargetProfile)' != '1.45.1' AND '$(LegatoTargetProfile)' != '1.45.3'"
+           Text="Portable camera passes currently support the built-in 1.29 and Unity 6 profiles only." />
   </Target>
 
   <Target Name="LegatoPrepareBuildMetadata" BeforeTargets="BeforeBuild;GenerateManifest;GenerateBSMLManifest;BSMT_StartBSIPA;BSMT_GenerateManifest;PrepareForBuild"
@@ -59,10 +61,12 @@
       <Reference Include="Colors" HintPath="$(LegatoReferenceRoot)\Beat Saber_Data\Managed\Colors.dll" Private="false"
                  Condition="'$(LegatoEnableBeatmapKeys)' == 'true' AND '@(Reference->WithMetadataValue('Identity', 'Colors'))' == '' AND Exists('$(LegatoReferenceRoot)\Beat Saber_Data\Managed\Colors.dll')" />
       <Reference Include="Unity.RenderPipelines.Core.Runtime;Unity.RenderPipelines.Universal.Runtime"
-                 Condition="'$(LegatoEnableCameraEffects)' == 'true' AND ('$(LegatoTargetProfile)' == '1.45.1' OR '$(LegatoTargetProfile)' == '1.45.3')">
+                 Condition="('$(LegatoEnableCameraEffects)' == 'true' OR '$(LegatoEnablePortableRendering)' == 'true') AND ('$(LegatoTargetProfile)' == '1.45.1' OR '$(LegatoTargetProfile)' == '1.45.3')">
         <HintPath>$(LegatoReferenceRoot)\Beat Saber_Data\Managed\%(Identity).dll</HintPath>
         <Private>false</Private>
       </Reference>
+      <Reference Include="UnityEngine.VRModule" HintPath="$(LegatoReferenceRoot)\Beat Saber_Data\Managed\UnityEngine.VRModule.dll" Private="false"
+                 Condition="'$(LegatoEnablePortableRendering)' == 'true' AND '$(LegatoTargetProfile)' == '1.29.0' AND '@(Reference->WithMetadataValue('Identity', 'UnityEngine.VRModule'))' == ''" />
       <Reference Remove="SongDataCore"
                  Condition="'$(LegatoSourceProfile)' == '1.29.0' AND !Exists('$(LegatoReferenceRoot)\Plugins\SongDataCore.dll') AND Exists('$(LegatoLibraryRoot)\SongDetailsCache.dll')" />
       <Reference Include="SongDetailsCache"
@@ -400,6 +404,8 @@
                Condition="'$(LegatoEnableLocalizationAliases)' == 'true' AND '$(LegatoEnableBsmlHost)' != 'true'" />
       <Compile Include="$(LegatoSourceRoot)Library\Rendering\**\*.cs"
                Condition="'$(LegatoEnableCameraEffects)' == 'true'" />
+      <Compile Include="$(LegatoSourceRoot)Library\PortableRendering\**\*.cs"
+               Condition="'$(LegatoEnablePortableRendering)' == 'true'" />
       <Compile Include="$(LegatoSourceRoot)Library\Performance\**\*.cs"
                Condition="'$(LegatoEnableGpuTiming)' == 'true'" />
       <Compile Include="$(LegatoSourceRoot)Library\GameplayAccess\**\*.cs"

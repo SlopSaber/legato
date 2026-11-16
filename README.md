@@ -90,6 +90,50 @@ The default editors are 2019.4.28f1 for game 1.29.0/1.29.1 and 6000.3.19f1 for g
 
 Keep one maintained source asset set with shared files or an export step feeding compatible asset projects. Project settings, packages, shader variants and script bindings must support each compiler and rendering pipeline. This runner does not downgrade a Unity project, decompile binary bundles, reconstruct missing shader source or implement unavailable engine features. Newer-only shaders still need an older-pipeline variant; that compatibility can be shared rather than copied into each mod. No legacy bundle or renderer compatibility is implied by successful packaging.
 
+### Backporting shader sources
+
+`LegatoBuildPortableShaders` builds one maintained shader source set for the built-in 1.29.0/1.29.1 renderer and
+the 1.46.0 URP renderer. It creates isolated, owned asset projects for the actual target compilers. Authoring projects
+and shader sources are never downgraded or rewritten. Use `LegatoBuildShaders=true` to run it during a managed build.
+
+```xml
+<LegatoPortableShaderSource Include="ShaderAssets/Assets" BundleName="my-shaders"
+    OutputDirectory="$(MSBuildProjectDirectory)/Assets/ShaderBundle/$(LegatoTargetVersion)"
+    PackageManifestPath="$(MSBuildProjectDirectory)/ShaderAssets/Packages/manifest.json" />
+```
+
+The maintained Unity 6 package manifest supplies the compatible URP dependencies for the modern asset project.
+The older generated project does not install URP. Source GUIDs and relative shader/include paths are preserved.
+The shared exporter compiles every shader for D3D11, retains instanced stereo variants and rejects compiler errors.
+Bundle engine headers, output freshness and hashes are checked by the shared asset builder. Select the matching
+bundle when embedding; a successfully built Unity 6 bundle cannot be loaded by Unity 2019.
+
+Legato maps the URP `Core.hlsl` and fullscreen `Blit.hlsl` include paths to its shared shader library. The built-in
+backend provides object/world/view/clip transforms, normals, camera/screen coordinates, 2D and eye-indexed array
+sampling, linear depth, full-screen triangles and the blit input contract. URP keeps its native implementations.
+On the built-in target, forward passes become `ForwardBase`; supported unlit `DepthOnly` geometry passes become
+`ShadowCaster` passes so Unity can draw them into its camera depth texture. This does not add lit shadow bias or
+light evaluation. The pipeline tag is removed only from generated copies. Unmapped pipeline includes and pass
+types fail the build; unsupported shader functions fail compilation. This is a source API adapter, not a converter
+for arbitrary compiled shaders, Shader Graphs, URP Lit, deferred lighting or renderer features.
+
+Enable `LegatoEnablePortableRendering=true` to compile `Legato.Rendering.CameraTexturePass` into a consumer.
+The caller registers an active predicate and depth texture/availability property names, optionally an output
+color texture name, caller-owned material array and downsample divisor. Dispose the registration before destroying
+its materials. The consumer must apply its assembly's Harmony patches for the modern renderer hook. Native Unity
+rendering references and Harmony are required; Legato adds the selected legacy VR module or modern render-pipeline
+references. The built-in implementation requests camera depth additively and leaves that shared camera flag enabled
+on disposal, because another effect can depend on the same flag.
+
+The same registration publishes native scene depth and an optional material chain over opaque scene color before
+transparents: RenderGraph on Unity 6, camera command buffers on Unity 2019. Eye-array descriptors and per-eye copying
+are retained; intermediate MSAA color resolves into single-sample targets. Published color is valid through that
+camera's transparent rendering. Command buffers are cached until target dimensions/layout change; temporary GPU
+targets are released after rendering. Depth availability resets at camera completion. This path does not include
+transparent scenery, UI-layer exclusion, arbitrary `ScriptableRenderPass` implementations or post-processing parity.
+Those features need an explicit shared backend rather than an opaque-only approximation. Builds establish compiler
+compatibility; headset eyes, image orientation, native bloom and rendering order still require runtime confirmation.
+
 ## Selecting a small adapter set
 
 For a consumer that needs only named adapters, set `LegatoEnableAutoAdapters` and `LegatoEnablePolyfills` to `false`, then enable the required features. This avoids compiling unrelated compatibility code. Existing consumers can keep automatic reference-based selection.

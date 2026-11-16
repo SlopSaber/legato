@@ -49,7 +49,11 @@ if ($log -eq $output -or $output -eq $editor -or $log -eq $editor) { throw 'Buil
 foreach ($path in @($project, $output, $log, $editor)) {
     if ($path.Contains('"')) { throw 'Build paths cannot contain quotes.' }
 }
-if (Test-Path -LiteralPath (Join-Path $project 'Temp/UnityLockfile')) { throw 'Asset project is already open; use an isolated asset checkout.' }
+$lockPath = Join-Path $project 'Temp/UnityLockfile'
+if (Test-Path -LiteralPath $lockPath) {
+    try { $lock = [IO.File]::Open($lockPath, 'Open', 'ReadWrite', 'None'); $lock.Dispose() }
+    catch { throw 'Asset project is already open; use an isolated asset checkout.' }
+}
 [IO.Directory]::CreateDirectory([IO.Path]::GetDirectoryName($log)) | Out-Null
 $before = [DateTime]::UtcNow
 $arguments = '-batchmode -nographics -quit -projectPath "' + $project + '" -executeMethod ' + $ExecuteMethod + ' -logFile "' + $log + '"'

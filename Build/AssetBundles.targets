@@ -2,6 +2,7 @@
   <Target Name="LegatoBuildAssetBundles" DependsOnTargets="LegatoConfigure">
     <PropertyGroup>
       <LegatoUnityEditorRoot Condition="'$(LegatoUnityEditorRoot)' == ''">$(UNITY_EDITOR_ROOT)</LegatoUnityEditorRoot>
+      <_LegatoAssetLogRoot>$([System.IO.Path]::Combine('$(MSBuildProjectDirectory)', '$(IntermediateOutputPath)', 'LegatoAssets', '$(LegatoTargetVersion)'))</_LegatoAssetLogRoot>
     </PropertyGroup>
     <ItemGroup>
       <_LegatoAssetProject Include="@(LegatoAssetProject)" Condition="'%(LegatoAssetProject.Profile)' == '$(LegatoTargetProfile)' OR '%(LegatoAssetProject.Profile)' == ''">
@@ -11,7 +12,16 @@
     </ItemGroup>
     <Error Condition="'@(_LegatoAssetProject)' == ''" Text="No source asset project is configured for this Legato profile." />
     <Error Condition="'$(LegatoUnityEditorRoot)' == ''" Text="Set LegatoUnityEditorRoot or UNITY_EDITOR_ROOT to the directory containing versioned Unity editors." />
-    <Exec WorkingDirectory="$(MSBuildProjectDirectory)" Command="pwsh -NoProfile -NonInteractive -File &quot;$(MSBuildThisFileDirectory)Build-AssetBundle.ps1&quot; -ProjectPath &quot;%(_LegatoAssetProject.FullPath)&quot; -TargetVersion &quot;$(LegatoTargetVersion)&quot; -UnityVersion &quot;%(_LegatoAssetProject.SelectedUnityVersion)&quot; -UnityEditorRoot &quot;$(LegatoUnityEditorRoot)&quot; -ExecuteMethod &quot;%(_LegatoAssetProject.ExecuteMethod)&quot; -OutputFile &quot;%(_LegatoAssetProject.OutputFile)&quot; -LogPath &quot;$(MSBuildProjectDirectory)/$(IntermediateOutputPath)LegatoAssets/$(LegatoTargetVersion)/%(_LegatoAssetProject.Filename).log&quot;" />
+    <Exec WorkingDirectory="$(MSBuildProjectDirectory)" Command="pwsh -NoProfile -NonInteractive -File &quot;$(MSBuildThisFileDirectory)Build-AssetBundle.ps1&quot; -ProjectPath &quot;%(_LegatoAssetProject.FullPath)&quot; -TargetVersion &quot;$(LegatoTargetVersion)&quot; -UnityVersion &quot;%(_LegatoAssetProject.SelectedUnityVersion)&quot; -UnityEditorRoot &quot;$(LegatoUnityEditorRoot)&quot; -ExecuteMethod &quot;%(_LegatoAssetProject.ExecuteMethod)&quot; -OutputFile &quot;%(_LegatoAssetProject.OutputFile)&quot; -LogPath &quot;$(_LegatoAssetLogRoot)/%(_LegatoAssetProject.Filename).log&quot;" />
   </Target>
   <Target Name="LegatoBuildAssetsBeforeEmbedding" BeforeTargets="AssignTargetPaths" DependsOnTargets="LegatoBuildAssetBundles" Condition="'$(LegatoBuildAssets)' == 'true'" />
+  <Target Name="LegatoBuildPortableShaders" DependsOnTargets="LegatoConfigure">
+    <PropertyGroup>
+      <LegatoUnityEditorRoot Condition="'$(LegatoUnityEditorRoot)' == ''">$(UNITY_EDITOR_ROOT)</LegatoUnityEditorRoot>
+      <_LegatoShaderWorkRoot>$([System.IO.Path]::Combine('$(MSBuildProjectDirectory)', '$(IntermediateOutputPath)', 'LegatoShaders', '$(LegatoTargetVersion)'))</_LegatoShaderWorkRoot>
+    </PropertyGroup>
+    <Error Condition="'@(LegatoPortableShaderSource)' == ''" Text="Configure LegatoPortableShaderSource before building portable shaders." />
+    <Exec WorkingDirectory="$(MSBuildProjectDirectory)" Command="pwsh -NoProfile -NonInteractive -File &quot;$(MSBuildThisFileDirectory)Build-PortableShaders.ps1&quot; -SourceDirectory &quot;%(LegatoPortableShaderSource.FullPath)&quot; -WorkspacePath &quot;$(_LegatoShaderWorkRoot)/%(LegatoPortableShaderSource.Filename)&quot; -TargetVersion &quot;$(LegatoTargetVersion)&quot; -BundleName &quot;%(LegatoPortableShaderSource.BundleName)&quot; -OutputDirectory &quot;%(LegatoPortableShaderSource.OutputDirectory)&quot; -PackageManifestPath &quot;%(LegatoPortableShaderSource.PackageManifestPath)&quot; -LogPath &quot;$(_LegatoShaderWorkRoot)/%(LegatoPortableShaderSource.Filename).log&quot; -UnityEditorRoot &quot;$(LegatoUnityEditorRoot)&quot;" />
+  </Target>
+  <Target Name="LegatoBuildPortableShadersBeforeEmbedding" BeforeTargets="AssignTargetPaths" DependsOnTargets="LegatoBuildPortableShaders" Condition="'$(LegatoBuildShaders)' == 'true'" />
 </Project>
