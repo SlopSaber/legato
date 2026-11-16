@@ -46,14 +46,13 @@ public class StartStandardLevelParameters
         Action<DiContainer>? afterSceneSwitchCallback,
 #endif
         Action<StandardLevelScenesTransitionSetupData, LevelCompletionResults>? levelFinishedCallback,
-        Action<LevelScenesTransitionSetupData, LevelCompletionResults>? levelRestartedCallback,
+        Action<LevelScenesTransitionSetupData, LevelCompletionResults>? levelRestartedCallback
 #if LATEST
-        IBeatmapLevelData? beatmapLevelData)
+        , IBeatmapLevelData? beatmapLevelData
 #elif !V1_29_1
-        RecordingToolManager.SetupData? recordingToolData)
-#else
-        )
+        , RecordingToolManager.SetupData? recordingToolData
 #endif
+        )
     {
         GameMode = gameMode;
 #if !PRE_V1_37_1
