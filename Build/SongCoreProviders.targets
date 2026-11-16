@@ -1,6 +1,10 @@
 <Project>
   <Target Name="LegatoSongCoreLegacyReferences" BeforeTargets="ResolveAssemblyReferences" DependsOnTargets="LegatoConfigure">
+    <PropertyGroup Condition="'$(LegatoTargetProfile)' == '1.29.0'">
+      <LegatoUseReferencePublicizeMetadata>true</LegatoUseReferencePublicizeMetadata>
+    </PropertyGroup>
     <ItemGroup Condition="'$(LegatoTargetProfile)' == '1.29.0'">
+      <Reference Update="HMUI" Publicize="true" />
       <Reference Remove="BGLib.DotnetExtension;BGLib.JsonExtension;BeatSaber.Destinations;MediaLoader;SegmentedControl;Tweening" />
       <Reference Include="CustomJSONData" HintPath="$(LegatoReferenceRoot)\Plugins\CustomJSONData.dll" Private="false" />
     </ItemGroup>

@@ -1,5 +1,6 @@
 #nullable enable
 using System;
+using System.Linq;
 using Newtonsoft.Json.Linq;
 
 namespace Legato.Beatmaps.Formats
@@ -38,6 +39,22 @@ namespace Legato.Beatmaps.Formats
                 ["useNormalEventsAsCompatibleEvents"] = Lightshow["useNormalEventsAsCompatibleEvents"]?.DeepClone() ?? new JValue(false),
                 ["customData"] = Gameplay["customData"]?.DeepClone() ?? new JObject()
             };
+            NormalizeNumbers(SaveData);
+        }
+
+        private static void NormalizeNumbers(JToken token)
+        {
+            foreach (JToken child in token.Children().ToArray())
+            {
+                if (child is JProperty property && property.Name == "customData") continue;
+                if (child is JValue number && number.Type == JTokenType.Float)
+                {
+                    double value = number.Value<double>();
+                    if (value >= long.MinValue && value < (double)long.MaxValue && value == Math.Truncate(value))
+                        number.Replace(new JValue((long)value));
+                }
+                else NormalizeNumbers(child);
+            }
         }
 
         // Keep expanded source data alongside the native projection. Native adapters consume

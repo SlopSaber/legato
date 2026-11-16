@@ -1,4 +1,5 @@
 using System;
+using IPA.Utilities;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -84,7 +85,12 @@ namespace SongCore.Hooks
 
             foreach (var sprite in _characteristicDetailsSprites.Values)
             {
+                #if BEAT_SABER_1_29_0
+                UnityEngine.Object.Destroy(sprite.texture);
                 UnityEngine.Object.Destroy(sprite);
+#else
+                SpriteAsyncLoader.DestroySprite(sprite);
+#endif
             }
         }
 
@@ -509,8 +515,16 @@ namespace SongCore.Hooks
                 ? currentColorScheme.obstaclesColor
                 : Utils.ColorFromMapColor(songDifficultyData._obstacleColor);
 
+#if BEAT_SABER_1_29_0
+            var scheme = new ColorScheme("SongCoreMapColorScheme", "SongCore Map Color Scheme", true, "SongCore Map Color Scheme", false,
+                saberLeft, saberRight, envLeft, envRight, envLeftBoost != default && envRightBoost != default, envLeftBoost, envRightBoost, obstacle);
+            scheme.SetField("_environmentColorW", envWhite);
+            scheme.SetField("_environmentColorWBoost", envWhiteBoost);
+            return scheme;
+#else
             return new ColorScheme("SongCoreMapColorScheme", "SongCore Map Color Scheme", true, "SongCore Map Color Scheme", false, true, saberLeft, saberRight, true,
                 envLeft, envRight, envWhite, envLeftBoost != default && envRightBoost != default, envLeftBoost, envRightBoost, envWhiteBoost, obstacle);
+#endif
         }
     }
 }

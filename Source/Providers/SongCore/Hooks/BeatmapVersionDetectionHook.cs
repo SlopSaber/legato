@@ -25,6 +25,19 @@ namespace SongCore.Hooks
             _getVersionHook.Dispose();
         }
 
+#if BEAT_SABER_1_29_0
+        private Version GetVersion(Func<string, Version> original, string data) => ParseVersion(data, Math.Min(50, data.Length)) ?? ParseVersion(data, data.Length) ?? new Version(0, 0, 0);
+
+        private static Version? ParseVersion(string data, int length)
+        {
+            int index = data.IndexOf(VersionSearchString, 0, length, StringComparison.Ordinal);
+            if (index < 0) return null;
+            int start = data.IndexOf('"', index + VersionSearchString.Length + 1);
+            if (start < 0 || start >= length) return null;
+            int end = data.IndexOf('"', start + 1);
+            return end >= 0 && end < length && Version.TryParse(data.Substring(start + 1, end - start - 1), out var version) ? version : null;
+        }
+#else
         private Version GetVersion(Func<string, Version> original, string data)
         {
             return ParseVersion(data.AsSpan(0, Math.Min(50, data.Length))) ?? ParseVersion(data.AsSpan()) ?? new Version(0, 0, 0);
@@ -51,5 +64,6 @@ namespace SongCore.Hooks
 
             return null;
         }
+#endif
     }
 }
