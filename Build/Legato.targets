@@ -264,6 +264,8 @@
                Condition="'$(LegatoEnableSaberDepth)' == 'true'" />
       <Compile Include="$(LegatoSourceRoot)Library\NumericText\**\*.cs"
                Condition="'$(LegatoEnableNumericText)' == 'true'" />
+      <Compile Include="$(LegatoSourceRoot)Library\ResultsCopy\**\*.cs"
+               Condition="'$(LegatoEnableResultsCopy)' == 'true'" />
       <Compile Include="$(LegatoSourceRoot)Library\BsmlButtons\**\*.cs"
                Condition="'$(LegatoEnableMenuButtons)' == 'true'" />
       <Compile Include="$(LegatoSourceRoot)Library\BeatmapText\**\*.cs"
