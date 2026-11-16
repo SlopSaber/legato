@@ -18,6 +18,14 @@ namespace Legato {
 #endif
         }
 
+        internal static bool Is360Degree(this BeatmapKey beatmapKey) {
+#if BEAT_SABER_1_29_0 || BEAT_SABER_1_37_1 || BEAT_SABER_1_38_0 || BEAT_SABER_1_40_0 || BEAT_SABER_1_42_0
+            return beatmapKey.beatmapCharacteristic?.serializedName == "360Degree";
+#else
+            return beatmapKey.characteristic == BeatmapCharacteristic.Degree360;
+#endif
+        }
+
         internal static bool CharacteristicMatches(this BeatmapKey beatmapKey, string name) {
 #if BEAT_SABER_1_29_0 || BEAT_SABER_1_37_1 || BEAT_SABER_1_38_0 || BEAT_SABER_1_40_0 || BEAT_SABER_1_42_0
             return name == beatmapKey.beatmapCharacteristic?.serializedName
