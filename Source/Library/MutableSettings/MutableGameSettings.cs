@@ -1,4 +1,5 @@
 using UnityEngine;
+using System.Linq;
 using Zenject;
 
 namespace Legato.Settings {
@@ -11,7 +12,7 @@ namespace Legato.Settings {
 #endif
         internal static void Initialize(DiContainer container) {
 #if BEAT_SABER_1_29_0
-            _settings = container.TryResolve<MainSettingsModelSO>();
+            _settings = container.TryResolve<MainSettingsModelSO>() ?? UnityEngine.Resources.FindObjectsOfTypeAll<MainSettingsModelSO>().FirstOrDefault();
 #else
             _settings = container.TryResolve<SettingsManager>();
             _applicator = container.TryResolve<SettingsApplicatorSO>();

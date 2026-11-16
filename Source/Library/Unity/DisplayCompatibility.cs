@@ -6,6 +6,14 @@ using UnityEngine.XR;
 
 namespace Legato.Unity {
     internal static class DisplayCompatibility {
+        internal static float HeadsetRefreshRate() {
+            var displays = new List<XRDisplaySubsystem>();
+            GetDisplays(displays);
+            foreach (var display in displays)
+                if (display.running && display.TryGetDisplayRefreshRate(out var rate) && rate > 0 && !float.IsInfinity(rate)) return rate;
+            return HasRunningDisplay(displays) ? LegacyRefreshRate : 0f;
+        }
+
         internal static double RefreshRate(Resolution resolution) =>
 #if BEAT_SABER_1_29_0 || BEAT_SABER_1_34_2
             resolution.refreshRate;
