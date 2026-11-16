@@ -269,6 +269,8 @@
                Condition="'$(LegatoEnableCounterGameplay)' == 'true'" />
       <Compile Include="$(LegatoSourceRoot)Library\Unity\WebRequestCompatibility.cs"
                Condition="'$(LegatoEnableWebRequests)' == 'true' AND '$(LegatoEnableUnityCompatibility)' != 'true'" />
+      <Compile Include="$(LegatoSourceRoot)Library\SongAudio\**\*.cs"
+               Condition="'$(LegatoEnableSongAudio)' == 'true'" />
       <Compile Include="$(LegatoSourceRoot)Library\ScreenDisplacement\**\*.cs"
                Condition="'$(LegatoEnableScreenDisplacement)' == 'true'" />
       <Compile Include="$(LegatoSourceRoot)Library\Unity\**\*.cs"
