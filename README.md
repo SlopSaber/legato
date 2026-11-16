@@ -97,3 +97,5 @@ Native suite providers can be embedded in their original plugin assemblies throu
 Beatmap-key helpers expose native characteristic sorting order. Counter gameplay supplies the scene note-jump beat offset, and `CompletionResultsAdapter.SoloLevel` extracts the real native level from solo completion arguments. These retain native legacy difficulties and current beatmap keys without adding synthetic game types.
 
 `LegatoEnablePracticePlayback` supplies native spawn-ahead timing and the existing native audio-manager type alias. Consumers retain speed, pitch correction, callback reset and seek ownership. Native type references omit the newer audio assembly on legacy profiles.
+
+`LegatoEnableCustomLevelMedia` resolves audio and cover paths from real legacy custom-level metadata or current file-system preview media. Enable native beatmap aliases. Cached native accessors preserve current private media fields, and unsupported preview wrappers return no path. Consumers retain playback, file policy and cancellation ownership.
