@@ -40,7 +40,7 @@ This lists the small reusable APIs supplied by Legato. Transparent polyfills mir
 
 ## Optional adapters
 
-These APIs compile into the consumer. Enable only the features whose references and native API contracts the consumer supports. Package revisions through `0.1.2-local.62` contain the following additions; a consumer pinned to an earlier revision has only the APIs in that revision.
+These APIs compile into the consumer. Enable only the features whose references and native API contracts the consumer supports. Package revisions through `0.1.2-local.63` contain the following additions; a consumer pinned to an earlier revision has only the APIs in that revision.
 
 | Property | APIs and scope |
 | --- | --- |
@@ -112,3 +112,11 @@ Set `LegatoEnableReferenceShims=false` when a minimal consumer owns its complete
 `BeatmapLevelCharacteristics.HasDifficulty` preserves native key enumeration on modern profiles, including the caller's original gameplay-type scope, and native data lookup on older profiles. `LegatoEnableColorOverrideAlias` supplies the compile-time `LegatoColorOverrideType` alias for the native color-override enum; it introduces no runtime wrapper or public type-identity change.
 
 `LegatoAliasBsmlReference=true` selects the `Bsml` assembly alias for BSML adapters and polyfills. Consumers must preserve that alias in the final compiler reference metadata when a publicizer replaces references. The anchored curved-text factory retains a native `CreateText` fallback for older BSML profiles.
+
+### Build metadata without API adapters
+
+Set `LegatoMetadataOnly=true` to validate the selected game profile and pass `LegatoTargetVersion` to an existing manifest generator through `GameVersion`. This mode adds no compatibility source, reference shims or publicizer inputs. Libraries can use profile validation without a plugin manifest.
+
+For a static plugin manifest, also set `LegatoManifestFile` to the existing source JSON and preserve its resource name with `LegatoManifestResourceName` where needed. Legato writes a target-specific intermediate copy with the selected `gameVersion`; the source JSON, plugin identity, plugin version, dependencies and other fields remain unchanged. Existing generated manifests must keep their generator instead of selecting a second static manifest. A conflicting global `GameVersion` fails the build.
+
+Changing the build target still requires selecting a supported Legato version and rebuilding/deploying each consumer. Build metadata integration does not establish runtime API compatibility or update dependency requirements automatically.

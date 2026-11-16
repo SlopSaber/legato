@@ -47,7 +47,7 @@ The same setup can be added by hand:
 | `1.45.1` | `1.45.1-1.45.2` |
 | `1.45.3` | `1.45.3; 1.46.0` |
 
-Local revisions through `0.1.2-local.62` include the 1.45.3 and 1.46.0 targets and the optional adapters listed in [LIBRARY.md](LIBRARY.md). The version table is a source-selection catalog; each consumer still needs a successful build against its actual game assemblies. It does not certify every adapter on every listed version.
+Local revisions through `0.1.2-local.63` include the 1.45.3 and 1.46.0 targets and the optional adapters listed in [LIBRARY.md](LIBRARY.md). The version table is a source-selection catalog; each consumer still needs a successful build against its actual game assemblies. It does not certify every adapter on every listed version.
 
 Legato source is embedded into each plugin. Updating this package alone does not update installed plugins: rebuild and redeploy each consumer. Private fields, Harmony targets, IL patterns, native hooks, dependency APIs and shader bundles can still need changes. Confirm behavior in the game after building.
 
@@ -75,3 +75,11 @@ Set `LegatoReferenceRoot` to the selected game directory and pass `LegatoTargetV
 Optional features include gameplay ownership, environment settings, menu layout/events, beatmap keys/text, native pose prediction, transition discovery, level-list badge bindings, pause-menu layout, BSML settings, Unity API compatibility, camera effects and GPU timing. Each feature requires the game or dependency references used by its source. See the library reference for property names and ownership requirements.
 
 Set `LegatoAliasBsmlReference=true` when the BSML assembly reference uses the `Bsml` alias. Shared BSML adapters and polyfills then resolve that explicit reference, keeping publicized embedded helper types out of the global reference scope. The default remains unaliased.
+
+### Build metadata without API adapters
+
+Set `LegatoMetadataOnly=true` to validate the selected game profile and pass `LegatoTargetVersion` to an existing manifest generator through `GameVersion`. This mode adds no compatibility source, reference shims or publicizer inputs. Libraries can use profile validation without a plugin manifest.
+
+For a static plugin manifest, also set `LegatoManifestFile` to the existing source JSON and preserve its resource name with `LegatoManifestResourceName` where needed. Legato writes a target-specific intermediate copy with the selected `gameVersion`; the source JSON, plugin identity, plugin version, dependencies and other fields remain unchanged. Existing generated manifests must keep their generator instead of selecting a second static manifest. A conflicting global `GameVersion` fails the build.
+
+Changing the build target still requires selecting a supported Legato version and rebuilding/deploying each consumer. Build metadata integration does not establish runtime API compatibility or update dependency requirements automatically.
