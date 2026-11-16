@@ -95,3 +95,5 @@ Native suite providers can be embedded in their original plugin assemblies throu
 `DifficultySelection.Level` reads the selected native preview from level navigation. It accompanies the statistics/selection module and does not resolve a synthetic legacy key. Tweaks55 providers also select native health completion, score overloads and wall colour entry points; current metadata coverage is 35 legacy and 29 modern hook contracts.
 
 Beatmap-key helpers expose native characteristic sorting order. Counter gameplay supplies the scene note-jump beat offset, and `CompletionResultsAdapter.SoloLevel` extracts the real native level from solo completion arguments. These retain native legacy difficulties and current beatmap keys without adding synthetic game types.
+
+`LegatoEnablePracticePlayback` supplies native spawn-ahead timing and the existing native audio-manager type alias. Consumers retain speed, pitch correction, callback reset and seek ownership. Native type references omit the newer audio assembly on legacy profiles.
