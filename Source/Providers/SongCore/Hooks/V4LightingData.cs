@@ -7,6 +7,7 @@ using System.Runtime.CompilerServices;
 using CustomJSONData.CustomBeatmap;
 using Legato.Beatmaps.Formats;
 using MonoMod.RuntimeDetour;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Zenject;
 using SaveData = BeatmapSaveDataVersion3.BeatmapSaveData;
@@ -34,7 +35,9 @@ namespace SongCore.Hooks
             if (groups.Length != save.lightColorEventBoxGroups.Count) throw new InvalidOperationException("The v4 color group projection changed ordering.");
             for (int group = 0; group < groups.Length; group++)
             {
-                JObject[] boxes = V4Documents.Objects(groups[group], "e").ToArray();
+                var savedGroup = save.lightColorEventBoxGroups[group];
+                int sourceGroup = savedGroup is ICustomData customGroup ? customGroup.customData.Get<int>("legatoV4SourceColorGroup") : group;
+                JObject[] boxes = V4Documents.Objects(groups[sourceGroup], "e").ToArray();
                 var savedBoxes = save.lightColorEventBoxGroups[group].eventBoxes;
                 if (boxes.Length != savedBoxes.Count) throw new InvalidOperationException("The v4 color box projection changed ordering.");
                 for (int box = 0; box < boxes.Length; box++)
@@ -45,8 +48,12 @@ namespace SongCore.Hooks
                         double ease = V4Documents.Number(data["e"], 0, "lightColorEvents.e");
                         if (Math.Truncate(ease) != ease || ease < int.MinValue || ease > int.MaxValue)
                             throw new System.IO.InvalidDataException("Invalid v4 light-color easing value.");
+                        JObject custom = data["customData"] is JObject shared ? (JObject)shared.DeepClone() : new JObject();
+                        if (value["customData"] is JObject referenceCustom)
+                            custom.Merge(referenceCustom, new JsonMergeSettings { MergeArrayHandling = MergeArrayHandling.Replace });
                         return new Metadata(BeatmapDataLoader.ConvertEaseType((SaveData.EaseType)(int)ease),
-                            (float)V4Documents.Number(data["sb"], 0, "lightColorEvents.sb"), V4Documents.Number(data["sf"], 0, "lightColorEvents.sf") != 0);
+                            (float)V4Documents.Number(data["sb"], 0, "lightColorEvents.sb"), V4Documents.Number(data["sf"], 0, "lightColorEvents.sf") != 0,
+                            custom.Count == 0 ? null : CustomData.FromJSON(custom.ToString(Formatting.None)));
                     }).ToArray();
                     if (events.Length != savedBoxes[box].lightColorBaseDataList.Count) throw new InvalidOperationException("The v4 color event projection changed ordering.");
                     Saved.Add(savedBoxes[box], events);
@@ -80,6 +87,7 @@ namespace SongCore.Hooks
                 {
                     var current = (LightColorBeatmapEventData)output[start + added];
                     CustomData custom = current is ICustomData customEvent ? customEvent.customData.Copy() : new CustomData();
+                    if (metadata.Custom != null) foreach (var pair in metadata.Custom) custom[pair.Key] = pair.Value;
                     output[start + added] = new Event(current, custom, metadata);
                 }
                 added++;
@@ -92,7 +100,7 @@ namespace SongCore.Hooks
                 if (item is Event current && (int)current.transitionType == 2)
                 {
                     var previous = current.previousSameTypeEventData as Event;
-                    current.Details = new Metadata(current.Details.Ease, previous?.Details.StrobeBrightness ?? 0, previous?.Details.StrobeFade ?? false);
+                    current.Details = new Metadata(current.Details.Ease, previous?.Details.StrobeBrightness ?? 0, previous?.Details.StrobeFade ?? false, current.Details.Custom);
                 }
         }
 
@@ -101,7 +109,9 @@ namespace SongCore.Hooks
             internal readonly EaseType Ease;
             internal readonly float StrobeBrightness;
             internal readonly bool StrobeFade;
-            internal Metadata(EaseType ease, float brightness, bool fade) { Ease = ease; StrobeBrightness = brightness; StrobeFade = fade; }
+            internal readonly CustomData? Custom;
+            internal Metadata(EaseType ease, float brightness, bool fade, CustomData? custom = null)
+            { Ease = ease; StrobeBrightness = brightness; StrobeFade = fade; Custom = custom; }
         }
 
         internal sealed class Event : LightColorBeatmapEventData, ICustomData

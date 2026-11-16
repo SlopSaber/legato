@@ -84,7 +84,7 @@ namespace SongCore.Hooks
 
         private void HandleBuffered(Action<BufferedLightColorGroupEffect, LightColorBeatmapEventData> original, BufferedLightColorGroupEffect effect, LightColorBeatmapEventData current)
         {
-            if (current is V4LightingData.Event)
+            if (current is V4LightingData.Event || _buffered.TryGetValue(effect, out _))
             {
                 Buffered state = _buffered.GetValue(effect, static value => new Buffered(value));
                 if (current.elementId >= 0 && current.elementId < state.Events.Length)
@@ -124,7 +124,7 @@ namespace SongCore.Hooks
 
         private static Color Sample(LightColorBeatmapEventData current, Func<EnvironmentColorType, bool, float, Color> getColor, bool boost, float bpm, float time, out bool animated)
         {
-            var from = (V4LightingData.Event)current;
+            var details = (current as V4LightingData.Event)?.Details;
             var next = current.nextSameTypeEventData as LightColorBeatmapEventData;
             var nextDetails = (next as V4LightingData.Event)?.Details;
             bool interpolate = next != null && (nextDetails?.Ease ?? ((int)next.transitionType == 1 ? EaseType.Linear : EaseType.None)) != EaseType.None;
@@ -134,7 +134,7 @@ namespace SongCore.Hooks
             Color color = getColor(current.colorType, boost, current.brightness);
             float frequency = current.strobeBeatFrequency * bpm / 60f;
             float toFrequency = frequency;
-            float brightness = from.Details.StrobeBrightness;
+            float brightness = details?.StrobeBrightness ?? 0;
             if (interpolate)
             {
                 float eased = Interpolation.Interpolate(progress, nextDetails?.Ease ?? EaseType.Linear);
@@ -147,7 +147,7 @@ namespace SongCore.Hooks
             {
                 float phase = (frequency * elapsed + (toFrequency - frequency) * (duration <= 0 ? 0 : elapsed * elapsed / (2f * duration))) % 1f;
                 Color low = color; low.a = brightness;
-                if (from.Details.StrobeFade)
+                if (details?.StrobeFade == true)
                 {
                     float wave = 1f - Mathf.Abs(phase * 2f - 1f);
                     color = Color.LerpUnclamped(color, low, Easing.InOutCubic(wave));

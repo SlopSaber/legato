@@ -185,10 +185,12 @@ namespace Legato.Beatmaps.Formats
                     }
                     boxes.Add(projected);
                 }
+                JObject custom = group["customData"] is JObject originalCustom ? (JObject)originalCustom.DeepClone() : new JObject();
+                if (kind == 1) custom["legatoV4SourceColorGroup"] = result.Count;
                 result.Add(new JObject
                 {
                     ["b"] = Number(group, "b"), ["g"] = Number(group, "g"), ["e"] = boxes,
-                    ["customData"] = group["customData"]?.DeepClone() ?? new JObject()
+                    ["customData"] = custom
                 });
             }
             return result;
