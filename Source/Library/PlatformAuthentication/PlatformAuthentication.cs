@@ -12,23 +12,6 @@ using OculusStudios.Platform.Core;
 #endif
 
 namespace Legato.Platform {
-    internal enum AuthenticationPlatform { Unknown, Steam, Meta }
-
-    internal sealed class UserIdentity {
-        internal readonly AuthenticationPlatform Platform;
-        internal readonly string UserId;
-        internal readonly string DisplayName;
-        internal UserIdentity(AuthenticationPlatform platform, string userId, string displayName = "") { Platform = platform; UserId = userId; DisplayName = displayName; }
-    }
-
-    internal sealed class UserCredentials {
-        internal readonly AuthenticationPlatform Platform;
-        internal readonly string UserId, Proof;
-        internal UserCredentials(AuthenticationPlatform platform, string userId, string proof) {
-            Platform = platform; UserId = userId; Proof = proof;
-        }
-    }
-
     internal sealed class PlatformAuthentication {
         private readonly NativePlatformService _model;
         private Task<UserIdentity>? _identityTask;
@@ -38,7 +21,7 @@ namespace Legato.Platform {
         internal Task<UserIdentity> GetIdentity() {
             if (_identityTask == null || _identityTask.IsFaulted || _identityTask.IsCanceled ||
                 (_identityTask.Status == TaskStatus.RanToCompletion &&
-                 (string.IsNullOrEmpty(_identityTask.Result.UserId) || _identityTask.Result.UserId == "0")))
+                 (string.IsNullOrEmpty(_identityTask.Result.UserId) || string.Equals(_identityTask.Result.UserId, "0", System.StringComparison.Ordinal))))
                 _identityTask = ReadIdentity();
             return _identityTask;
         }

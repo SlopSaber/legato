@@ -47,7 +47,7 @@ namespace Legato.Unity {
             if (!typeof(Component).IsAssignableFrom(typeof(T)) && typeof(T) != typeof(GameObject))
                 return UnityEngine.Object.FindObjectsOfType<T>();
             return UnityEngine.Resources.FindObjectsOfTypeAll<T>()
-                .Where(value => (value.hideFlags & HideFlags.DontSave) == 0 &&
+                .Where(value => (value.hideFlags & HideFlags.DontSave) == HideFlags.None &&
                     (value is Component component ? component.gameObject.scene.IsValid() :
                      value is GameObject gameObject && gameObject.scene.IsValid()))
                 .OrderBy(value => value.GetInstanceID()).ToArray();

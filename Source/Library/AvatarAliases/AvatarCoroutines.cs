@@ -1,5 +1,8 @@
 using System.Collections;
 using UnityEngine;
+#if !BEAT_SABER_1_29_0
+using BeatSaber.BeatAvatarAdapter.AvatarEditor;
+#endif
 
 namespace Legato.Avatars {
     internal static class AvatarCoroutines {

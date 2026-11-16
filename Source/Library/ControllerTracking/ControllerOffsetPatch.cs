@@ -5,7 +5,7 @@ using UnityEngine.XR;
 
 namespace Legato.XR {
     internal static class ControllerOffsetPatch {
-        private static Func<bool> _useNative;
+        private static Func<bool> _useNative = static () => true;
         internal static void Apply(Harmony harmony, Func<bool> useNative) {
             _useNative = useNative;
             var target = AccessTools.Method(typeof(VRController), "TryGetControllerOffset",
