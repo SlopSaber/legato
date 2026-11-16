@@ -275,6 +275,8 @@
                Condition="'$(LegatoEnableBsmlSettings)' == 'true'" />
       <Compile Include="$(LegatoSourceRoot)Library\RendererLayers\**\*.cs"
                Condition="'$(LegatoEnableRendererLayers)' == 'true'" />
+      <Compile Include="$(LegatoSourceRoot)Library\LightRegistry\**\*.cs"
+               Condition="'$(LegatoEnableLightRegistry)' == 'true'" />
       <Compile Include="$(LegatoSourceRoot)Providers\Synapse\**\*.cs"
                Condition="'$(LegatoEnableSynapseProviders)' == 'true'" />
       <Compile Include="$(LegatoSourceRoot)Library\JsonCompatibility\**\*.cs"

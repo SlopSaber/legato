@@ -27,10 +27,9 @@ internal class ChromaSettingsUI : IInitializable, IDisposable
     [UIValue("environmentoptions")]
     private List<object?> _environmentOptions;
 
-    // i wish nico backported the bsml updates :(
     private ChromaSettingsUI(
         Config config,
-#if !V1_29_1
+#if LEGATO_BSML_CURRENT || !V1_29_1
         GameplaySetup gameplaySetup,
 #endif
         SavedEnvironmentLoader savedEnvironmentLoader,
@@ -41,7 +40,7 @@ internal class ChromaSettingsUI : IInitializable, IDisposable
 #endif
     {
         _config = config;
-#if !V1_29_1
+#if LEGATO_BSML_CURRENT || !V1_29_1
         _gameplaySetup = gameplaySetup;
 #else
         _gameplaySetup = GameplaySetup.instance;

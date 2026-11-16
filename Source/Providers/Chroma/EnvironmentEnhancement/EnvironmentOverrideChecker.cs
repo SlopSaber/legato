@@ -104,6 +104,6 @@ internal class EnvironmentOverrideChecker
 #else
         string sceneName = environmentInfo.sceneInfo.sceneName;
 #endif
-        return _gameScenesManager.IsSceneInStack(sceneName);
+        return Legato.Lighting.EnvironmentSceneAccess.ContainsScene(_gameScenesManager, sceneName);
     }
 }

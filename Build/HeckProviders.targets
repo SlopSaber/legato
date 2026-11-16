@@ -25,7 +25,7 @@
   </Target>
   <Target Name="LegatoSuiteLegacyReferences" BeforeTargets="ResolveAssemblyReferences" DependsOnTargets="LegatoConfigure">
     <ItemGroup Condition="'$(LegatoTargetProfile)' == '1.29.0' AND ('$(LegatoEnableHeckProviders)' == 'true' OR '$(LegatoEnableChromaProviders)' == 'true' OR '$(LegatoEnableNoodleExtensionsProviders)' == 'true' OR '$(LegatoEnableVivifyProviders)' == 'true')">
-      <Reference Remove="AdditionalContentModel.Interfaces;BGLib.AppFlow;BGLib.DotnetExtension;BGLib.JsonExtension;BGLib.SaveDataCore;BGLib.UnityExtension;BGNetCore;BeatSaber.GameSettings;BeatSaber.Multiplayer.Core;BeatSaber.Settings;BeatSaber.ViewSystem;DataModels;MediaLoader" />
+      <Reference Remove="AdditionalContentModel.Interfaces;BGLib.AppFlow;BGLib.DotnetExtension;BGLib.JsonExtension;BGLib.SaveDataCore;BGLib.UnityExtension;BGNetCore;BeatSaber.GameSettings;BeatSaber.Multiplayer.Core;BeatSaber.Settings;BeatSaber.ViewSystem;DataModels;MediaLoader;Tweening" />
     </ItemGroup>
   </Target>
   <!-- Keep the suite's original version ordering while selecting it from Legato's target. -->
