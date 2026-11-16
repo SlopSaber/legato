@@ -137,9 +137,9 @@ namespace MappingExtensions.HarmonyPatches
     internal static class RotationTimeProcessorSpawnRotationForEventValuePatch
     {
 #if BEAT_SABER_1_29_0
-        private static void Postfix(ref float __result, int index)
+        private static void Postfix(ref float __result, int __0)
 #else
-        private static void Postfix(ref int __result, int index)
+        private static void Postfix(ref int __result, int __0)
 #endif
         {
             if (BS_Utils.Plugin.LevelData.IsSet &&
@@ -148,9 +148,9 @@ namespace MappingExtensions.HarmonyPatches
                 return;
             }
 
-            if (index is >= 1000 and <= 1720)
+            if (__0 is >= 1000 and <= 1720)
             {
-                __result = index - 1360;
+                __result = __0 - 1360;
             }
         }
     }

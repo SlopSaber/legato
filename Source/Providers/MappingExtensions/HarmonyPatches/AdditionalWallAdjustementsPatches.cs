@@ -88,9 +88,9 @@ namespace MappingExtensions.HarmonyPatches
 #endif
     internal static class BeatmapDataLoaderObstacleConverterGetHeightForObstacleTypePatch
     {
-        private static void Postfix(ref int __result, MappingObstacleType obstacleType)
+        private static void Postfix(ref int __result, MappingObstacleType __0)
         {
-            if (!LegacyObstacleTypeEncoding.TryDecode((int)obstacleType, out var decodedType))
+            if (!LegacyObstacleTypeEncoding.TryDecode((int)__0, out var decodedType))
             {
                 return;
             }
@@ -106,9 +106,9 @@ namespace MappingExtensions.HarmonyPatches
 #endif
     internal static class BeatmapDataLoaderObstacleConverterGetLayerForObstacleTypePatch
     {
-        private static void Postfix(ref int __result, MappingObstacleType obstacleType)
+        private static void Postfix(ref int __result, MappingObstacleType __0)
         {
-            if (!LegacyObstacleTypeEncoding.TryDecode((int)obstacleType, out var decodedType))
+            if (!LegacyObstacleTypeEncoding.TryDecode((int)__0, out var decodedType))
             {
                 return;
             }

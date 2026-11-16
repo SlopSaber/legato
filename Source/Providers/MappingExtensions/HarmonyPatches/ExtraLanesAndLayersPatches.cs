@@ -28,11 +28,11 @@ namespace MappingExtensions.HarmonyPatches
 #endif
     internal static class BeatmapTypeConvertersConvertNoteLineLayerPatch
     {
-        private static void Postfix(ref NoteLineLayer __result, int layer)
+        private static void Postfix(ref NoteLineLayer __result, int __0)
         {
-            if (layer is > 2 or < 0)
+            if (__0 is > 2 or < 0)
             {
-                __result = (NoteLineLayer)layer;
+                __result = (NoteLineLayer)__0;
             }
         }
     }
@@ -41,11 +41,11 @@ namespace MappingExtensions.HarmonyPatches
     [HarmonyPatch(typeof(BeatmapTypeConverters), nameof(BeatmapTypeConverters.ConvertNoteLineLayer), typeof(BeatmapSaveDataCommon.NoteLineLayer))]
     internal static class BeatmapTypeConvertersConvertNoteLineLayerPatch2
     {
-        private static void Postfix(ref NoteLineLayer __result, BeatmapSaveDataCommon.NoteLineLayer layer)
+        private static void Postfix(ref NoteLineLayer __result, BeatmapSaveDataCommon.NoteLineLayer __0)
         {
-            if ((int)layer is > 2 or < 0)
+            if ((int)__0 is > 2 or < 0)
             {
-                __result = (NoteLineLayer)layer;
+                __result = (NoteLineLayer)__0;
             }
         }
     }
@@ -68,6 +68,15 @@ namespace MappingExtensions.HarmonyPatches
                     new CodeInstruction(OpCodes.Ldc_I4_3),
                     new CodeInstruction(OpCodes.Call, AccessTools.Method(typeof(UnityEngine.Mathf), nameof(UnityEngine.Mathf.Clamp), new[] { typeof(int), typeof(int), typeof(int) })))
                 .InstructionEnumeration();
+        }
+
+        private static bool ArcHeadOverlapsChainTail(SliderData head, SliderData tail) {
+#if BEAT_SABER_1_29_0
+            return head.sliderType == SliderData.Type.Normal && tail.sliderType == SliderData.Type.Burst
+                && head.headLineIndex == tail.tailLineIndex && head.headLineLayer == tail.tailLineLayer;
+#else
+            return BeatmapObjectsInTimeRowProcessor.SliderHeadPositionOverlapsWithBurstTail(head, tail);
+#endif
         }
 
         // TODO: Make this less compiler-generated garbage.
@@ -133,14 +142,14 @@ namespace MappingExtensions.HarmonyPatches
             {
                 foreach (SliderData sliderData3 in enumerable2)
                 {
-                    if (sliderData2 != sliderData3 && BeatmapObjectsInTimeRowProcessor.SliderHeadPositionOverlapsWithBurstTail(sliderData2, sliderData3))
+                    if (sliderData2 != sliderData3 && ArcHeadOverlapsChainTail(sliderData2, sliderData3))
                     {
                         sliderData2.SetHeadBeforeJumpLineLayer(sliderData3.tailBeforeJumpLineLayer);
                     }
                 }
                 foreach (BeatmapObjectsInTimeRowProcessor.SliderTailData sliderTailData in enumerable3)
                 {
-                    if (BeatmapObjectsInTimeRowProcessor.SliderHeadPositionOverlapsWithBurstTail(sliderData2, sliderTailData.slider))
+                    if (ArcHeadOverlapsChainTail(sliderData2, sliderTailData.slider))
                     {
                         sliderData2.SetHeadBeforeJumpLineLayer(sliderTailData.slider.tailBeforeJumpLineLayer);
                     }
