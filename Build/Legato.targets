@@ -250,6 +250,8 @@
                Condition="'$(LegatoEnableBsmlAudio)' == 'true'" />
       <Compile Include="$(LegatoSourceRoot)Library\DetailArtwork\**\*.cs"
                Condition="'$(LegatoEnableDetailArtwork)' == 'true'" />
+      <Compile Include="$(LegatoSourceRoot)Library\BeatmapCopy\**\*.cs"
+               Condition="'$(LegatoEnableBeatmapDataCopy)' == 'true'" />
       <Compile Include="$(LegatoSourceRoot)Library\BeatmapText\**\*.cs"
                Condition="'$(LegatoEnableBeatmapText)' == 'true'" />
       <Compile Include="$(LegatoSourceRoot)Library\Gameplay\OverrideEnvironmentSettingsFactory.cs"
