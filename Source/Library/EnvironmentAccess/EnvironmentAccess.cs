@@ -3,6 +3,18 @@ using System.Linq;
 
 namespace Legato.Rendering {
     internal static class EnvironmentAccess {
+        internal static EnvironmentInfoSO FromLoader(CustomLevelLoader loader, string name) =>
+#if BEAT_SABER_1_29_0
+            loader._environmentSceneInfoCollection.GetEnvironmentInfoBySerializedName(name) ?? loader._defaultEnvironmentInfo;
+#else
+            loader._environmentsListModel.GetEnvironmentInfoBySerializedNameSafe(name);
+#endif
+        internal static EnvironmentInfoSO Active(GameplayCoreSceneSetupData scene) =>
+#if BEAT_SABER_1_29_0
+            scene.environmentInfo;
+#else
+            scene.targetEnvironmentInfo;
+#endif
         internal static EnvironmentsListModel CreateList() =>
 #if BEAT_SABER_1_29_0
             UnityEngine.Resources.FindObjectsOfTypeAll<EnvironmentsListModel>().FirstOrDefault()
