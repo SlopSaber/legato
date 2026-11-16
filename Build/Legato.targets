@@ -363,6 +363,10 @@
                Condition="'$(LegatoEnableNativeMovement)' == 'true'" />
       <Compile Include="$(LegatoSourceRoot)Library\OpenXrRuntime\**\*.cs"
                Condition="'$(LegatoEnableOpenXrRuntime)' == 'true'" />
+      <Compile Include="$(LegatoSourceRoot)Library\SteamAuthentication\**\*.cs"
+               Condition="'$(LegatoEnableSteamAuthentication)' == 'true'" />
+      <Compile Include="$(LegatoSourceRoot)Library\NativeLevelAccess\**\*.cs"
+               Condition="'$(LegatoEnableNativeLevelAccess)' == 'true'" />
       <Compile Include="$(LegatoSourceRoot)Library\HitsoundLifecycle\**\*.cs"
                Condition="'$(LegatoEnableHitsoundLifecycle)' == 'true'" />
       <Compile Include="$(LegatoSourceRoot)Library\EnvironmentFilters\**\*.cs"

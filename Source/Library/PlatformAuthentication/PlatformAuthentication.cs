@@ -33,6 +33,7 @@ namespace Legato.Platform {
         private readonly NativePlatformService _model;
         private Task<UserIdentity>? _identityTask;
         internal PlatformAuthentication(NativePlatformService model) => _model = model;
+        internal bool Available => _model != null;
         internal UserIdentity? Identity => _identityTask?.Status == TaskStatus.RanToCompletion ? _identityTask.Result : null;
         internal Task<UserIdentity> GetIdentity() {
             if (_identityTask == null || _identityTask.IsFaulted || _identityTask.IsCanceled ||

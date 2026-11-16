@@ -291,3 +291,7 @@ Hitbloq providers discover the supported BSML/SongCore API names independently o
 LegatoEnableAvatarAliases selects native avatar pose, visual and editor types. LegatoEnableNativeAudio selects the native audio settings object and exposes optional volume-fade diagnostics. LegatoEnableNativeMovement exposes the native movement object and half-jump duration. These adapters retain native component and binding identities.
 
 LegatoEnableOpenXrRuntime exposes runtime identification, eye-gaze capability and available loader initialization methods. The legacy profile has built-in XR without an OpenXR loader or OpenXR gaze feature; consumers can retain independent OSC tracking.
+
+LegatoEnableSteamAuthentication leases a web API ticket until server verification finishes. Current profiles use the native managed API. Windows x64 legacy profiles request SteamUser023 from the existing Steam client and use its documented SDK vtable contract, retaining the installed game DLL and callback pump. Session tickets are never substituted. Creation and disposal must run on the Steam main thread.
+
+LegatoEnableNativeLevelAccess exposes typed key identity, characteristic, validity, mapper metadata and native level loading. Legacy difficulty enumeration requires a loaded native IBeatmapLevel; preview data is never presented as loaded gameplay data. Enable native beatmap aliases and legacy type names with this feature.
