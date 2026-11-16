@@ -18,6 +18,13 @@ namespace Legato {
             key.IsValid();
 #endif
 
+        internal static bool IsCustomLevel(this BeatmapLevel? level) =>
+#if BEAT_SABER_1_29_0
+            level?.levelID.StartsWith("custom_level_", System.StringComparison.Ordinal) == true;
+#else
+            level != null && !level.hasPrecalculatedData;
+#endif
+
         internal static string FirstMapperName(this BeatmapLevel level) =>
 #if BEAT_SABER_1_29_0
             level?.levelAuthorName ?? string.Empty;
