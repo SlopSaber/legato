@@ -5,6 +5,7 @@ global using LocalizedTextMeshProUGUI = Polyglot.LocalizedTextMeshProUGUI;
 global using ILocalize = Polyglot.ILocalize;
 #else
 global using Localization = BGLib.Polyglot.Localization;
+global using LocalizationAsyncInstaller = BGLib.Polyglot.LocalizationAsyncInstaller;
 global using LocalizationModel = BGLib.Polyglot.LocalizationModel;
 global using LocalizedTextMeshProUGUI = BGLib.Polyglot.LocalizedTextMeshProUGUI;
 global using ILocalize = BGLib.Polyglot.ILocalize;

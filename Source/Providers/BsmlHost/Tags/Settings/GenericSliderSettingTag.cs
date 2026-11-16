@@ -2,7 +2,6 @@ using System.Collections.Generic;
 using System.Linq;
 using BeatSaberMarkupLanguage.Components;
 using BeatSaberMarkupLanguage.Components.Settings;
-using Legato.LocalizationSupport;
 #if !BEAT_SABER_1_29_0
 using BeatSaber.GameSettings;
 #endif

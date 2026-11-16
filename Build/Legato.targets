@@ -380,7 +380,7 @@
       <Compile Include="$(LegatoSourceRoot)Library\Gameplay\GameplayMetadataProvider.cs"
                Condition="'$(LegatoEnableGameplay)' == 'true' AND ('$(LegatoEnableGameSettings)' == 'true' OR '$(LegatoTargetProfile)' == '1.29.0' OR '$(LegatoTargetProfile)' == '1.37.1' OR '$(LegatoTargetProfile)' == '1.38.0')" />
       <Compile Include="$(LegatoSourceRoot)Library\Rooms\**\*.cs"
-               Condition="'$(LegatoEnableGameSettings)' == 'true' OR '$(LegatoTargetProfile)' == '1.29.0' OR ('$(LegatoTargetProfile)' == '1.38.0' AND '@(_LegatoDataModelsReference)' != '')" />
+               Condition="'$(LegatoEnableGameSettings)' != 'false' AND ('$(LegatoEnableGameSettings)' == 'true' OR '$(LegatoTargetProfile)' == '1.29.0' OR ('$(LegatoTargetProfile)' == '1.38.0' AND '@(_LegatoDataModelsReference)' != ''))" />
       <Compile Include="$(LegatoSourceRoot)Library\Platform\**\*.cs"
                Exclude="$(LegatoSourceRoot)**\Versions\**\*.cs"
                Condition="'$(LegatoEnablePlatform)' == 'true'" />
