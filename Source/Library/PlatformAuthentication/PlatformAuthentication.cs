@@ -32,7 +32,13 @@ namespace Legato.Platform {
         private Task<UserIdentity>? _identityTask;
         internal PlatformAuthentication(NativePlatformService model) => _model = model;
         internal UserIdentity? Identity => _identityTask?.Status == TaskStatus.RanToCompletion ? _identityTask.Result : null;
-        internal Task<UserIdentity> GetIdentity() => _identityTask ??= ReadIdentity();
+        internal Task<UserIdentity> GetIdentity() {
+            if (_identityTask == null || _identityTask.IsFaulted || _identityTask.IsCanceled ||
+                (_identityTask.Status == TaskStatus.RanToCompletion &&
+                 (string.IsNullOrEmpty(_identityTask.Result.UserId) || _identityTask.Result.UserId == "0")))
+                _identityTask = ReadIdentity();
+            return _identityTask;
+        }
 
         internal static PlatformAuthentication FromLeaderboards(PlatformLeaderboardsModel model) => new PlatformAuthentication(
 #if BEAT_SABER_1_29_0
@@ -40,19 +46,20 @@ namespace Legato.Platform {
 #else
             model.GetField<NativePlatformService, PlatformLeaderboardsModel>("_platform"));
 #endif
-        private async Task<UserIdentity> ReadIdentity() {
 #if BEAT_SABER_1_29_0
+        private async Task<UserIdentity> ReadIdentity() {
             UserInfo user = await _model.GetUserInfo();
             AuthenticationPlatform platform = user.platform == UserInfo.Platform.Steam ? AuthenticationPlatform.Steam
                 : user.platform == UserInfo.Platform.Oculus ? AuthenticationPlatform.Meta : AuthenticationPlatform.Unknown;
             return new UserIdentity(platform, user.platformUserId);
+        }
 #else
-            await Task.CompletedTask;
+        private Task<UserIdentity> ReadIdentity() {
             AuthenticationPlatform platform = _model.vendor == Vendor.Valve ? AuthenticationPlatform.Steam
                 : _model.vendor == Vendor.Meta ? AuthenticationPlatform.Meta : AuthenticationPlatform.Unknown;
-            return new UserIdentity(platform, _model.user?.userId.ToString() ?? string.Empty);
-#endif
+            return Task.FromResult(new UserIdentity(platform, _model.user?.userId.ToString() ?? string.Empty));
         }
+#endif
         internal async Task<UserCredentials> GetCredentials() {
             UserIdentity identity = await GetIdentity();
 #if BEAT_SABER_1_29_0
