@@ -1,4 +1,3 @@
-#if !BEAT_SABER_1_29_0
 using System;
 using MonoMod.RuntimeDetour;
 using Zenject;
@@ -25,9 +24,12 @@ namespace SongCore.Hooks
         private void BindBeatmapLevel(Action<GameplayCoreInstaller> original, GameplayCoreInstaller instance)
         {
             original(instance);
+#if BEAT_SABER_1_29_0
+            instance.Container.Bind<BeatmapLevel>().FromInstance(instance._sceneSetupData.difficultyBeatmap.level).AsSingle();
+            instance.Container.Bind<IDifficultyBeatmap>().FromInstance(instance._sceneSetupData.difficultyBeatmap).AsSingle();
+#else
             instance.Container.Bind<BeatmapLevel>().FromInstance(instance._sceneSetupData.beatmapLevel).AsSingle();
+#endif
         }
     }
 }
-
-#endif

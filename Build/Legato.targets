@@ -458,6 +458,7 @@
 
   <Import Project="$(MSBuildThisFileDirectory)HeckProviders.targets" Condition="'$(LegatoEnableHeckProfiles)' == 'true'" />
   <Import Project="$(MSBuildThisFileDirectory)HitbloqProviders.targets" Condition="'$(LegatoEnableHitbloqProviders)' == 'true'" />
+  <Import Project="$(MSBuildThisFileDirectory)SongCoreProviders.targets" Condition="'$(LegatoEnableSongCoreProviders)' == 'true'" />
   <Import Project="$(MSBuildThisFileDirectory)SynapseProviders.targets" Condition="'$(LegatoEnableSynapseProviders)' == 'true'" />
   <Import Project="$(MSBuildThisFileDirectory)ReactiveHost.targets" Condition="'$(LegatoEnableReactiveHost)' == 'true'" />
   <Import Project="$(MSBuildThisFileDirectory)NativeTypeAliases.targets" Condition="'$(LegatoEnableNativeTypeAliases)' == 'true' OR '$(LegatoEnableAssetBundleHost)' == 'true' OR '$(LegatoEnableRendererLayers)' == 'true'" />

@@ -35,7 +35,11 @@ namespace SongCore.Hooks
         private Task<NativePackCollection?> SuppressReload(Func<BeatmapLevelsModel, CancellationToken, Task<NativePackCollection?>> original, BeatmapLevelsModel instance, CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
+            #if BEAT_SABER_1_29_0
             return Task.FromResult<NativePackCollection?>(Loader.CustomLevelsRepository);
+#else
+            return Task.FromResult<NativePackCollection?>(null);
+#endif
         }
 
         private void SetPacksAndRefreshUI(Action<LevelFilteringNavigationController> original, LevelFilteringNavigationController instance)

@@ -9,6 +9,7 @@ using IPA.Utilities;
 using IPA.Utilities.Async;
 using Legato.Beatmaps.Formats;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using SongCore.Data;
 using SongCore.UI;
 using SongCore.Utilities;

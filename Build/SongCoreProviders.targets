@@ -1,0 +1,8 @@
+<Project>
+  <Target Name="LegatoSongCoreLegacyReferences" BeforeTargets="ResolveAssemblyReferences" DependsOnTargets="LegatoConfigure">
+    <ItemGroup Condition="'$(LegatoTargetProfile)' == '1.29.0'">
+      <Reference Remove="BGLib.DotnetExtension;BGLib.JsonExtension;BeatSaber.Destinations;MediaLoader;SegmentedControl;Tweening" />
+      <Reference Include="CustomJSONData" HintPath="$(LegatoReferenceRoot)\Plugins\CustomJSONData.dll" Private="false" />
+    </ItemGroup>
+  </Target>
+</Project>

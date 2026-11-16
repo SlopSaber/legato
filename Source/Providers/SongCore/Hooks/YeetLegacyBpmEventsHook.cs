@@ -22,7 +22,11 @@ namespace SongCore.Hooks
 
         public void Initialize()
         {
+#if BEAT_SABER_1_29_0
+            _convertBeatmapSaveDataPreV2_5_0InlineHook = new ILHook(typeof(BeatmapSaveDataVersion2_6_0AndEarlier.BeatmapSaveData).GetMethod(nameof(BeatmapSaveDataVersion2_6_0AndEarlier.BeatmapSaveData.ConvertBeatmapSaveDataPreV2_5_0))!, ctx =>
+#else
             _convertBeatmapSaveDataPreV2_5_0InlineHook = new ILHook(typeof(BeatmapSaveDataVersion2_6_0AndEarlier.BeatmapSaveData).GetMethod(nameof(BeatmapSaveDataVersion2_6_0AndEarlier.BeatmapSaveData.ConvertBeatmapSaveDataPreV2_5_0Inline))!, ctx =>
+#endif
             {
                 var cursor = new ILCursor(ctx);
                 ILLabel? target = null;
@@ -30,7 +34,7 @@ namespace SongCore.Hooks
                     MoveType.Before,
                     i => i.MatchLdloc(out _),
                     i => i.MatchCallvirt(out _),
-                    i => i.MatchLdcI4(out var eventType) && eventType == (int)BeatmapEventType.LegacyBpmEventType,
+                    i => i.MatchLdcI4(out var eventType) && eventType == 10,
                     i => i.MatchBneUn(out target));
                 cursor.Emit(OpCodes.Br_S, target!);
             }, true);

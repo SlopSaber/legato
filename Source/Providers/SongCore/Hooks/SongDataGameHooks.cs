@@ -58,7 +58,11 @@ namespace SongCore.Hooks
 
         private void ForceOneSaber(Action<SaberManager> original, SaberManager instance)
         {
+#if BEAT_SABER_1_29_0
+            instance._initData = new SaberManager.InitData(_oneSaber, instance._initData.oneSaberType);
+#else
             Accessors.SaberManagerInitDataAccessor(ref instance) = new SaberManager.InitData(_oneSaber, instance._initData.oneSaberType);
+#endif
             original(instance);
         }
     }

@@ -1,4 +1,3 @@
-#if !BEAT_SABER_1_29_0
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -459,5 +458,3 @@ namespace SongCore.Hooks
         }
     }
 }
-
-#endif

@@ -1,4 +1,3 @@
-#if !BEAT_SABER_1_29_0
 using System;
 using MonoMod.RuntimeDetour;
 using Zenject;
@@ -22,15 +21,13 @@ namespace SongCore.Hooks
             _refreshAvailabilityAsyncHook.Dispose();
         }
 
-        private static void HideDownloadIcon(Action<AnnotatedBeatmapLevelCollectionCell, IEntitlementModel> original, AnnotatedBeatmapLevelCollectionCell instance, IEntitlementModel entitlementModel)
+        private static void HideDownloadIcon(Action<AnnotatedBeatmapLevelCollectionCell, NativeEntitlements> original, AnnotatedBeatmapLevelCollectionCell instance, NativeEntitlements entitlementModel)
         {
             original(instance, entitlementModel);
-            if (instance._beatmapLevelPack.packID.StartsWith(CustomLevelLoader.kCustomLevelPackPrefixId, StringComparison.Ordinal))
+            if (SongCoreNative.PackId(instance).StartsWith(CustomLevelLoader.kCustomLevelPackPrefixId, StringComparison.Ordinal))
             {
                 instance.SetDownloadIconVisible(false);
             }
         }
     }
 }
-
-#endif

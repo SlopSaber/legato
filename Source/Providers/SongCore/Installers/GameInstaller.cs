@@ -1,0 +1,17 @@
+using SongCore.Hooks;
+using Zenject;
+
+namespace SongCore.Installers
+{
+    internal class GameInstaller : Installer
+    {
+        public override void InstallBindings()
+        {
+            Container.BindInterfacesTo<SongDataGameHooks>().AsSingle();
+            Container.BindInterfacesTo<DisableSubmissionHooks>().AsSingle();
+#if !BEAT_SABER_1_29_0
+            Container.BindInterfacesTo<AllowNegativeVariableNoteJumpSpeedHook>().AsSingle();
+#endif
+        }
+    }
+}

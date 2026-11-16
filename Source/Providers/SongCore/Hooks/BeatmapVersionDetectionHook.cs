@@ -1,4 +1,3 @@
-#if !BEAT_SABER_1_29_0
 using System;
 using MonoMod.RuntimeDetour;
 using Zenject;
@@ -28,7 +27,7 @@ namespace SongCore.Hooks
 
         private Version GetVersion(Func<string, Version> original, string data)
         {
-            return ParseVersion(data.AsSpan(0, 50)) ?? ParseVersion(data.AsSpan()) ?? BeatmapSaveDataHelpers.noVersion;
+            return ParseVersion(data.AsSpan(0, Math.Min(50, data.Length))) ?? ParseVersion(data.AsSpan()) ?? new Version(0, 0, 0);
         }
 
         private Version? ParseVersion(ReadOnlySpan<char> span)
@@ -54,5 +53,3 @@ namespace SongCore.Hooks
         }
     }
 }
-
-#endif
