@@ -1,0 +1,90 @@
+﻿using System.Linq;
+using CustomJSONData.CustomBeatmap;
+using JetBrains.Annotations;
+
+namespace CustomJSONData
+{
+    public static class DictionaryExtensions
+    {
+#if !PRE_V1_37_1
+        [PublicAPI]
+        public static CustomData GetBeatmapCustomData(this IBeatmapLevelData beatmapLevelData, in BeatmapKey beatmapKey)
+        {
+            // ReSharper disable once InvertIf
+            if (beatmapLevelData is CustomFileBeatmapLevelData customFileBeatmapLevelData)
+            {
+                FileDifficultyBeatmap? fileDifficultyBeatmap =
+                    customFileBeatmapLevelData.GetDifficultyBeatmap(beatmapKey);
+                if (fileDifficultyBeatmap is CustomFileDifficultyBeatmap customFileDifficultyBeatmap)
+                {
+                    return customFileDifficultyBeatmap.customData;
+                }
+            }
+
+            return new CustomData();
+        }
+
+        [PublicAPI]
+        public static CustomData GetLevelCustomData(this IBeatmapLevelData beatmapLevelData)
+        {
+            return beatmapLevelData is CustomFileBeatmapLevelData customFileBeatmapLevelData
+                ? customFileBeatmapLevelData.customData : new CustomData();
+        }
+
+        [PublicAPI]
+        public static CustomData GetBeatmapCustomData(this BeatmapLevel beatmapLevel, in BeatmapKey beatmapKey)
+        {
+            BeatmapBasicData? beatmapBasicData =
+#if BEAT_SABER_1453
+                beatmapLevel.GetDifficultyBeatmapData(in beatmapKey);
+#else
+                beatmapLevel.GetDifficultyBeatmapData(beatmapKey.characteristic, beatmapKey.difficulty);
+#endif
+            if (beatmapBasicData is CustomBeatmapBasicData customBeatmapBasicData)
+            {
+                return customBeatmapBasicData.beatmapCustomData;
+            }
+
+            return new CustomData();
+        }
+
+        [PublicAPI]
+        public static CustomData GetLevelCustomData(this BeatmapLevel beatmapLevel)
+        {
+            // a lil jank but w/e
+#if BEAT_SABER_1453
+            BeatmapBasicData? beatmapBasicData = beatmapLevel.gameplayTypeBeatmapBasicData.Values.FirstOrDefault();
+#else
+            BeatmapBasicData? beatmapBasicData = beatmapLevel.beatmapBasicData.Values.FirstOrDefault();
+#endif
+            if (beatmapBasicData is CustomBeatmapBasicData customBeatmapBasicData)
+            {
+                return customBeatmapBasicData.levelCustomData;
+            }
+
+            return new CustomData();
+        }
+#else
+        [PublicAPI]
+        public static Version3CustomBeatmapSaveData? GetBeatmapSaveData(this IDifficultyBeatmap difficultyBeatmap)
+        {
+            return difficultyBeatmap is CustomDifficultyBeatmap { beatmapSaveData: Version3CustomBeatmapSaveData customBeatmapSaveData }
+                ? customBeatmapSaveData : null;
+        }
+
+        [PublicAPI]
+        public static CustomData GetBeatmapCustomData(this IDifficultyBeatmap difficultyBeatmap)
+        {
+            return difficultyBeatmap is CustomDifficultyBeatmap { beatmapSaveData: Version3CustomBeatmapSaveData customBeatmapSaveData }
+                ? customBeatmapSaveData.beatmapCustomData : new CustomData();
+        }
+
+        [PublicAPI]
+        public static CustomData GetLevelCustomData(this IDifficultyBeatmap difficultyBeatmap)
+        {
+            return difficultyBeatmap is CustomDifficultyBeatmap { beatmapSaveData: Version3CustomBeatmapSaveData customBeatmapSaveData }
+                ? customBeatmapSaveData.levelCustomData : new CustomData();
+        }
+#endif
+    }
+}

@@ -27,6 +27,7 @@
     <None Include="ThirdParty\**\*" Pack="true" PackagePath="ThirdParty\%(RecursiveDir)%(Filename)%(Extension)" />
     <None Include="Build\Legato.props" Pack="true" PackagePath="build\LegatoBS.props" />
     <None Include="Build\Legato.Versions.props" Pack="true" PackagePath="build\Legato.Versions.props" />
+    <None Include="Build\HeckProviders.targets" Pack="true" PackagePath="build\HeckProviders.targets" />
     <None Include="Build\Legato.targets" Pack="true" PackagePath="build\LegatoBS.targets" />
     <None Include="Source\**\*.cs" Pack="true" PackagePath="build\Source\%(RecursiveDir)%(Filename)%(Extension)" />
   </ItemGroup>

@@ -1,0 +1,22 @@
+<Project>
+  <!-- Keep the suite's original version ordering while selecting it from Legato's target. -->
+  <Target Name="LBSM_GetConfigurationInfo" DependsOnTargets="LegatoConfigure">
+    <PropertyGroup>
+      <_LegatoHeckConfiguration>Release-$(LegatoTargetVersion)</_LegatoHeckConfiguration>
+      <_LegatoHeckConfiguration Condition="$(Configuration.StartsWith('Debug'))">Debug-$(LegatoTargetVersion)</_LegatoHeckConfiguration>
+      <_LegatoHeckConfigurations>$(Configurations)</_LegatoHeckConfigurations>
+      <_LegatoHeckConfigurations Condition="!$([System.String]::Copy(';$(Configurations);').Contains(';$(_LegatoHeckConfiguration);'))">$(Configurations);$(_LegatoHeckConfiguration)</_LegatoHeckConfigurations>
+    </PropertyGroup>
+    <GetConfigurationInfo AllConfigurations="$(_LegatoHeckConfigurations)" Configuration="$(_LegatoHeckConfiguration)">
+      <Output TaskParameter="Constants" PropertyName="GeneratedConstants" />
+      <Output TaskParameter="GameVersion" PropertyName="GeneratedGameVersion" />
+    </GetConfigurationInfo>
+    <PropertyGroup>
+      <DefineConstants>$([System.Text.RegularExpressions.Regex]::Replace('$(DefineConstants)', '\b(?:(?:PRE_|POST_)?V\d+_\d+_\d+|LATEST|BEAT_SABER_1453|BEAT_SABER_1460)\b', ''));$(GeneratedConstants)</DefineConstants>
+      <DefineConstants Condition="'$(LegatoTargetProfile)' == '1.45.3'">$(DefineConstants);BEAT_SABER_1453</DefineConstants>
+      <DefineConstants Condition="$([MSBuild]::VersionGreaterThanOrEquals('$(LegatoTargetVersion)', '1.46.0'))">$(DefineConstants);BEAT_SABER_1460</DefineConstants>
+      <GameVersion>$(LegatoTargetVersion)</GameVersion>
+    </PropertyGroup>
+    <Message Text="Legato Heck profile: $(LegatoTargetVersion); $(GeneratedConstants)" Importance="high" />
+  </Target>
+</Project>

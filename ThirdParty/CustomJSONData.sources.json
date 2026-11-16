@@ -1,0 +1,152 @@
+[
+  {
+    "original": "PublicMods\\CustomJSONData\\CustomJSONData\\CustomBeatmap\\Converters1_34_2AndEarlier.cs",
+    "shared": "Source\\Providers\\CustomJSONData\\CustomBeatmap\\Converters1_34_2AndEarlier.cs",
+    "sha256": "4652b83e3e652e05842b838258592a5439d8f8b0bcd01c45b3cc2146e2a1ba40"
+  },
+  {
+    "original": "PublicMods\\CustomJSONData\\CustomJSONData\\CustomBeatmap\\CustomBeatmapData.cs",
+    "shared": "Source\\Providers\\CustomJSONData\\CustomBeatmap\\CustomBeatmapData.cs",
+    "sha256": "33cc5b8da604f20e188c9bcacbf2a29d47774dd74b53a0c495faf48a5058760b"
+  },
+  {
+    "original": "PublicMods\\CustomJSONData\\CustomJSONData\\CustomBeatmap\\CustomBeatmapLevel.cs",
+    "shared": "Source\\Providers\\CustomJSONData\\CustomBeatmap\\CustomBeatmapLevel.cs",
+    "sha256": "eabd1533871b7531ac136cac953312fd24cf48849fb6fe576e7fb9af8e53f6ef"
+  },
+  {
+    "original": "PublicMods\\CustomJSONData\\CustomJSONData\\Utils\\DictionaryExtensions.cs",
+    "shared": "Source\\Providers\\CustomJSONData\\Utils\\DictionaryExtensions.cs",
+    "sha256": "f76bc5b2d3d15afd31014540ddb2ee292e1c14aa1400b5d5771cd31d49504b6e"
+  },
+  {
+    "original": "PublicMods\\CustomJSONData\\CustomJSONData\\CustomBeatmap\\EventData\\CustomLightColorBeatmapEventData.cs",
+    "shared": "Source\\Providers\\CustomJSONData\\CustomBeatmap\\EventData\\CustomLightColorBeatmapEventData.cs",
+    "sha256": "afc6adbd06fe2e7873a0cb909498a3227f3dc7f775d38578cac52f5239d9ff2d"
+  },
+  {
+    "original": "PublicMods\\CustomJSONData\\CustomJSONData\\CustomBeatmap\\EventData\\CustomSpawnRotationBeatmapEventdata.cs",
+    "shared": "Source\\Providers\\CustomJSONData\\CustomBeatmap\\EventData\\CustomSpawnRotationBeatmapEventdata.cs",
+    "sha256": "fef74f340d9634ba8a8d7eb51fd4e425b08810d97ec2fe54736b53796ade5924"
+  },
+  {
+    "original": "PublicMods\\CustomJSONData\\CustomJSONData\\CustomBeatmap\\ObjectData\\CustomNoteData.cs",
+    "shared": "Source\\Providers\\CustomJSONData\\CustomBeatmap\\ObjectData\\CustomNoteData.cs",
+    "sha256": "ac5a0314728e30f2b7210a0145f1e13b6eb408d6b35990c6c56ffa2df47ab879"
+  },
+  {
+    "original": "PublicMods\\CustomJSONData\\CustomJSONData\\CustomBeatmap\\ObjectData\\CustomObstacleData.cs",
+    "shared": "Source\\Providers\\CustomJSONData\\CustomBeatmap\\ObjectData\\CustomObstacleData.cs",
+    "sha256": "9c987482c4f22c672d4acb8a32ced84cfdd63e495f251a6495e064bef47b866a"
+  },
+  {
+    "original": "PublicMods\\CustomJSONData\\CustomJSONData\\CustomBeatmap\\ObjectData\\CustomSliderData.cs",
+    "shared": "Source\\Providers\\CustomJSONData\\CustomBeatmap\\ObjectData\\CustomSliderData.cs",
+    "sha256": "26b4449ff993895815524ccdfda81f123476e9c20ee9a6dda903ac165e6d7f9f"
+  },
+  {
+    "original": "PublicMods\\CustomJSONData\\CustomJSONData\\CustomBeatmap\\ObjectData\\CustomWaypointData.cs",
+    "shared": "Source\\Providers\\CustomJSONData\\CustomBeatmap\\ObjectData\\CustomWaypointData.cs",
+    "sha256": "ed170416dda1f40aabc0b411f6f23724f4b454ec3c7d165ff4d8c52e423e918e"
+  },
+  {
+    "original": "PublicMods\\CustomJSONData\\CustomJSONData\\CustomBeatmap\\SaveData\\CustomFileBeatmapLevelData.cs",
+    "shared": "Source\\Providers\\CustomJSONData\\CustomBeatmap\\SaveData\\CustomFileBeatmapLevelData.cs",
+    "sha256": "747099c503c493cb0c14746e6daf3ed8d5d583ecff76e86d8daf840b6dd29d1c"
+  },
+  {
+    "original": "PublicMods\\CustomJSONData\\CustomJSONData\\CustomBeatmap\\SaveData\\CustomLevelInfoSaveData.cs",
+    "shared": "Source\\Providers\\CustomJSONData\\CustomBeatmap\\SaveData\\CustomLevelInfoSaveData.cs",
+    "sha256": "cf3fb114988d6f31c4dd5a2b92c22fb758020ef820231086a34fbd60b05f9a8f"
+  },
+  {
+    "original": "PublicMods\\CustomJSONData\\CustomJSONData\\CustomBeatmap\\SaveData\\SaveData2_6_0Converter.cs",
+    "shared": "Source\\Providers\\CustomJSONData\\CustomBeatmap\\SaveData\\SaveData2_6_0Converter.cs",
+    "sha256": "9600e0391db9fddf6f2ce67eb1d5c38d67216168336cf939a6b5b5834f695e20"
+  },
+  {
+    "original": "PublicMods\\CustomJSONData\\CustomJSONData\\CustomBeatmap\\SaveData\\Version2_6_0AndEarlierCustomBeatmapSaveData.cs",
+    "shared": "Source\\Providers\\CustomJSONData\\CustomBeatmap\\SaveData\\Version2_6_0AndEarlierCustomBeatmapSaveData.cs",
+    "sha256": "96746722d7dd36cac3373be9fb19dfc627d98ed6e790cd3e2f4c9415c3c90bfe"
+  },
+  {
+    "original": "PublicMods\\CustomJSONData\\CustomJSONData\\CustomBeatmap\\SaveData\\Version3CustomBeatmapSaveData.cs",
+    "shared": "Source\\Providers\\CustomJSONData\\CustomBeatmap\\SaveData\\Version3CustomBeatmapSaveData.cs",
+    "sha256": "8ad5d3cc488cfe3312b6f6db4e64c0aa16c82c323efe11aa7b77622fa2f0d473"
+  },
+  {
+    "original": "PublicMods\\CustomJSONData\\CustomJSONData\\CustomBeatmap\\SaveData\\Version3CustomBeatmapSaveDataItems.cs",
+    "shared": "Source\\Providers\\CustomJSONData\\CustomBeatmap\\SaveData\\Version3CustomBeatmapSaveDataItems.cs",
+    "sha256": "c8145231bed1d3793e17fe7af3728fcbaf1c3f11b16a144a990e2883ad48ea1e"
+  },
+  {
+    "original": "PublicMods\\CustomJSONData\\CustomJSONData\\HarmonyPatches\\BeatmapDataTransformHelper\\StrobeFilterCustomify.cs",
+    "shared": "Source\\Providers\\CustomJSONData\\HarmonyPatches\\BeatmapDataTransformHelper\\StrobeFilterCustomify.cs",
+    "sha256": "fff02ddbce5669b16dd6b964b2347cfb7c0bef98f21e15412d9fee8c8734ba2c"
+  },
+  {
+    "original": "PublicMods\\CustomJSONData\\CustomJSONData\\HarmonyPatches\\CustomBeatmapData\\BeatmapDataLoader1_34_2AndEarlierCustomify.cs",
+    "shared": "Source\\Providers\\CustomJSONData\\HarmonyPatches\\CustomBeatmapData\\BeatmapDataLoader1_34_2AndEarlierCustomify.cs",
+    "sha256": "2426d56763657188f2f38a31d0876101af850b5c07d6b0b52585182316efc3f7"
+  },
+  {
+    "original": "PublicMods\\CustomJSONData\\CustomJSONData\\HarmonyPatches\\CustomBeatmapData\\BeatmapDataLoaderLevelInfoInjector.cs",
+    "shared": "Source\\Providers\\CustomJSONData\\HarmonyPatches\\CustomBeatmapData\\BeatmapDataLoaderLevelInfoInjector.cs",
+    "sha256": "34242e208febc9508a4eae65bae88f3a463e815768d13f660e2462b6fd65722e"
+  },
+  {
+    "original": "PublicMods\\CustomJSONData\\CustomJSONData\\HarmonyPatches\\CustomBeatmapData\\BeatmapDataLoaderLevelInfoInjectorAsync.cs",
+    "shared": "Source\\Providers\\CustomJSONData\\HarmonyPatches\\CustomBeatmapData\\BeatmapDataLoaderLevelInfoInjectorAsync.cs",
+    "sha256": "38949b392bab0595caffa0cb80f948746899702eb8802a537a528259c9666f82"
+  },
+  {
+    "original": "PublicMods\\CustomJSONData\\CustomJSONData\\HarmonyPatches\\CustomBeatmapData\\BeatmapDataLoaderV2_6_0AndEarlierCustomify.cs",
+    "shared": "Source\\Providers\\CustomJSONData\\HarmonyPatches\\CustomBeatmapData\\BeatmapDataLoaderV2_6_0AndEarlierCustomify.cs",
+    "sha256": "506275fa9f00dbbb0ce9ee54a4aecaae2ccf5944aeff9090b427a04fa83bd1cc"
+  },
+  {
+    "original": "PublicMods\\CustomJSONData\\CustomJSONData\\HarmonyPatches\\CustomBeatmapData\\BeatmapDataLoaderV3Customify.cs",
+    "shared": "Source\\Providers\\CustomJSONData\\HarmonyPatches\\CustomBeatmapData\\BeatmapDataLoaderV3Customify.cs",
+    "sha256": "3060df3bedc2b7df57a8bb975359861b597daefbbef4a1ac690731cd22fb9680"
+  },
+  {
+    "original": "PublicMods\\CustomJSONData\\CustomJSONData\\HarmonyPatches\\CustomBeatmapData\\BurstSliderSpawnerCustomify.cs",
+    "shared": "Source\\Providers\\CustomJSONData\\HarmonyPatches\\CustomBeatmapData\\BurstSliderSpawnerCustomify.cs",
+    "sha256": "e140c6da7178760b7200cde0727fbe5dd972a1ebfb5fb2969baf686de9065868"
+  },
+  {
+    "original": "PublicMods\\CustomJSONData\\CustomJSONData\\HarmonyPatches\\CustomBeatmapData\\CallbackCustomTypeGetter.cs",
+    "shared": "Source\\Providers\\CustomJSONData\\HarmonyPatches\\CustomBeatmapData\\CallbackCustomTypeGetter.cs",
+    "sha256": "d07d72541b5fe6ae44ee689fac70ee1941edbbeb9ec13e6455a15989c034b0d0"
+  },
+  {
+    "original": "PublicMods\\CustomJSONData\\CustomJSONData\\HarmonyPatches\\CustomBeatmapData\\ConvertersCustomify.cs",
+    "shared": "Source\\Providers\\CustomJSONData\\HarmonyPatches\\CustomBeatmapData\\ConvertersCustomify.cs",
+    "sha256": "369cc728cade3022db5c8eefb19a8d6b084eeb9e73972c3f573da82f79528362"
+  },
+  {
+    "original": "PublicMods\\CustomJSONData\\CustomJSONData\\HarmonyPatches\\CustomBeatmapData\\CustomLevelLoaderCustomify.cs",
+    "shared": "Source\\Providers\\CustomJSONData\\HarmonyPatches\\CustomBeatmapData\\CustomLevelLoaderCustomify.cs",
+    "sha256": "897ecb68127c57e8876aea2e10ff72ed3f1fc2262fc9994df14cab71e1d67b43"
+  },
+  {
+    "original": "PublicMods\\CustomJSONData\\CustomJSONData\\HarmonyPatches\\CustomBeatmapData\\CustomLevelLoaderRedirect.cs",
+    "shared": "Source\\Providers\\CustomJSONData\\HarmonyPatches\\CustomBeatmapData\\CustomLevelLoaderRedirect.cs",
+    "sha256": "9bab73c6bdbbafbce02ebe75961c44d41abe4a26e84263c39399cd0ba086a9bf"
+  },
+  {
+    "original": "PublicMods\\CustomJSONData\\CustomJSONData\\HarmonyPatches\\CustomBeatmapData\\DefaultEnvironmentEventsCustomify.cs",
+    "shared": "Source\\Providers\\CustomJSONData\\HarmonyPatches\\CustomBeatmapData\\DefaultEnvironmentEventsCustomify.cs",
+    "sha256": "c7695ae225d5028d898cf5d1f496ba41558e3d14e5fe4a2db6c2e16871c761f4"
+  },
+  {
+    "original": "PublicMods\\CustomJSONData\\CustomJSONData\\HarmonyPatches\\CustomBeatmapData\\FixV2_6_0AndEarlierDefaultEnvironmentEvents.cs",
+    "shared": "Source\\Providers\\CustomJSONData\\HarmonyPatches\\CustomBeatmapData\\FixV2_6_0AndEarlierDefaultEnvironmentEvents.cs",
+    "sha256": "d050c102c6501bc9ea6d6d0016b3042d17fcda9998f99662ec3fb216a5592c10"
+  },
+  {
+    "original": "PublicMods\\CustomJSONData\\CustomJSONData\\HarmonyPatches\\CustomEventCallback\\CustomEventValidator.cs",
+    "shared": "Source\\Providers\\CustomJSONData\\HarmonyPatches\\CustomEventCallback\\CustomEventValidator.cs",
+    "sha256": "96a95e23f0e7c2d345210cf44f9ce97a407c7aa1daa6805d1e32576ae16fd697"
+  }
+]
