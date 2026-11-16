@@ -298,8 +298,12 @@
                Condition="'$(LegatoEnableChromaProviders)' == 'true'" />
       <Compile Include="$(LegatoSourceRoot)Providers\NoodleExtensions\**\*.cs"
                Condition="'$(LegatoEnableNoodleExtensionsProviders)' == 'true'" />
+      <Compile Include="$(LegatoSourceRoot)Providers\Vivify\**\*.cs"
+               Condition="'$(LegatoEnableVivifyProviders)' == 'true'" />
       <Compile Include="$(LegatoSourceRoot)Providers\CustomJSONData\**\*.cs"
                Condition="'$(LegatoEnableCustomJsonDataProviders)' == 'true'" />
+      <Compile Include="$(LegatoSourceRoot)Library\BundleShaderMetadata\**\*.cs"
+               Condition="'$(LegatoEnableBundleShaderMetadata)' == 'true'" />
       <Compile Include="$(LegatoSourceRoot)Library\SaberModels\**\*.cs"
                Condition="'$(LegatoEnableSaberModels)' == 'true'" />
       <Compile Include="$(LegatoSourceRoot)Library\AssetBundles\**\*.cs"

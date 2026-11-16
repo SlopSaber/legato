@@ -1,5 +1,9 @@
 <Project>
   <ItemGroup>
+    <EditorConfigFiles Include="$(LegatoSourceRoot)Library\BundleShaderMetadata\.editorconfig"
+                       Condition="'$(LegatoEnableBundleShaderMetadata)' == 'true'" />
+    <EditorConfigFiles Include="$(LegatoSourceRoot)Providers\Vivify\.editorconfig"
+                       Condition="'$(LegatoEnableVivifyProviders)' == 'true'" />
     <EditorConfigFiles Include="$(LegatoSourceRoot)Providers\NoodleExtensions\.editorconfig"
                        Condition="'$(LegatoEnableNoodleExtensionsProviders)' == 'true'" />
     <EditorConfigFiles Include="$(LegatoSourceRoot)Providers\Chroma\.editorconfig"

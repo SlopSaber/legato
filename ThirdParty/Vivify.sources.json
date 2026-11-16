@@ -1,0 +1,132 @@
+[
+  {
+    "original": "PublicMods\\Vivify\\Vivify\\VivifyController.cs",
+    "shared": "Source\\Providers\\Vivify\\VivifyController.cs",
+    "sha256": "ddb8639c5ec96a7f2dbad337db62b3e48a04f8f6cd3c1689bb907e7a924f092c"
+  },
+  {
+    "original": "PublicMods\\Vivify\\Vivify\\Controllers\\AssetBundleDownloadViewController.cs",
+    "shared": "Source\\Providers\\Vivify\\Controllers\\AssetBundleDownloadViewController.cs",
+    "sha256": "f371078cc55055268f8578e080e5fbefc72a40911226eedbb9df2a31002e0f12"
+  },
+  {
+    "original": "PublicMods\\Vivify\\Vivify\\Controllers\\CameraPropertyController.cs",
+    "shared": "Source\\Providers\\Vivify\\Controllers\\CameraPropertyController.cs",
+    "sha256": "514a02a99cc33a849c495fb7ac78a21f1a4de9cb447b5bb59d7ec594b162dd5c"
+  },
+  {
+    "original": "PublicMods\\Vivify\\Vivify\\Controllers\\MultipassKeywordController.cs",
+    "shared": "Source\\Providers\\Vivify\\Controllers\\MultipassKeywordController.cs",
+    "sha256": "6b355c0d7ef17ba9f579b7afd63fc20c2aac6d8df801d69eb971432f0f78e2df"
+  },
+  {
+    "original": "PublicMods\\Vivify\\Vivify\\Events\\InstantiatePrefab.cs",
+    "shared": "Source\\Providers\\Vivify\\Events\\InstantiatePrefab.cs",
+    "sha256": "4d65f04008c5c64a8a7783c1c159c93f42f6bb77bd1224d99e480ca45d901544"
+  },
+  {
+    "original": "PublicMods\\Vivify\\Vivify\\HarmonyPatches\\AddComponentsToCamera.cs",
+    "shared": "Source\\Providers\\Vivify\\HarmonyPatches\\AddComponentsToCamera.cs",
+    "sha256": "3d4f4efaec5127bdc95fd43871c3f559f5226b58d463277ae8dbcf6667e4a101"
+  },
+  {
+    "original": "PublicMods\\Vivify\\Vivify\\HarmonyPatches\\IndexMirrorByHash.cs",
+    "shared": "Source\\Providers\\Vivify\\HarmonyPatches\\IndexMirrorByHash.cs",
+    "sha256": "77c7aedde07da9b82e5e4c8f0c34a68b2caeff1281a59aa31760fb27fa34cab7"
+  },
+  {
+    "original": "PublicMods\\Vivify\\Vivify\\HarmonyPatches\\LegacyShaderRendering.cs",
+    "shared": "Source\\Providers\\Vivify\\HarmonyPatches\\LegacyShaderRendering.cs",
+    "sha256": "9dd57ca35c30a8e4628c8ad4bf62cd725ab84cd8d1a32c3163023be160652212"
+  },
+  {
+    "original": "PublicMods\\Vivify\\Vivify\\HarmonyPatches\\UrpCameraEffects.cs",
+    "shared": "Source\\Providers\\Vivify\\HarmonyPatches\\UrpCameraEffects.cs",
+    "sha256": "09a5e531c97d65efa1c4357a368b0eeccef344de0f766ca1ee93dd821a9a33ef"
+  },
+  {
+    "original": "PublicMods\\Vivify\\Vivify\\Installers\\VivifyPlayerInstaller.cs",
+    "shared": "Source\\Providers\\Vivify\\Installers\\VivifyPlayerInstaller.cs",
+    "sha256": "b45ff36882d8a4d359b971608e2b3c78e2309349a7406a8e0bf797bb28cd8f33"
+  },
+  {
+    "original": "PublicMods\\Vivify\\Vivify\\Managers\\AssetBundleManager.cs",
+    "shared": "Source\\Providers\\Vivify\\Managers\\AssetBundleManager.cs",
+    "sha256": "d0f4650a063f2f73003314f30f94cb8127cd3268e770772a78d1568abca2bd25"
+  },
+  {
+    "original": "PublicMods\\Vivify\\Vivify\\Managers\\DepthShaderManager.cs",
+    "shared": "Source\\Providers\\Vivify\\Managers\\DepthShaderManager.cs",
+    "sha256": "c65c26ec728399a244eb63df05366c8da1f46925e8504d07f1565e5faf3e8ebc"
+  },
+  {
+    "original": "PublicMods\\Vivify\\Vivify\\Managers\\LegacyTextCompatibility.cs",
+    "shared": "Source\\Providers\\Vivify\\Managers\\LegacyTextCompatibility.cs",
+    "sha256": "698f7fededb7fe44e4031625c0f5b9f7201087738db173d85799403cd567b1bd"
+  },
+  {
+    "original": "PublicMods\\Vivify\\Vivify\\ObjectPrefab\\FollowedSaberTrail.cs",
+    "shared": "Source\\Providers\\Vivify\\ObjectPrefab\\FollowedSaberTrail.cs",
+    "sha256": "395f2e02510bf1bacfd0ddfeb11654f7db0b72d8d52dde18eb9d4243e3f7e200"
+  },
+  {
+    "original": "PublicMods\\Vivify\\Vivify\\PostProcessing\\LegacyExtraPasses.cs",
+    "shared": "Source\\Providers\\Vivify\\PostProcessing\\LegacyExtraPasses.cs",
+    "sha256": "e672b44662b8a789decda7bb973d4c7c00745cd84e9d5120a687854cd7d93cee"
+  },
+  {
+    "original": "PublicMods\\Vivify\\Vivify\\PostProcessing\\LegacyExtraPassRenderPass.cs",
+    "shared": "Source\\Providers\\Vivify\\PostProcessing\\LegacyExtraPassRenderPass.cs",
+    "sha256": "f7914c5359faac6b0c28909c0644fdd1760b0d969c29561b798a415cff6f87a7"
+  },
+  {
+    "original": "PublicMods\\Vivify\\Vivify\\PostProcessing\\LegacyGrabPasses.cs",
+    "shared": "Source\\Providers\\Vivify\\PostProcessing\\LegacyGrabPasses.cs",
+    "sha256": "f3fbec2e2ad89cdcd00f0792b9f2e78f17b12a787b9eaf6c716b02fc6cd8a5aa"
+  },
+  {
+    "original": "PublicMods\\Vivify\\Vivify\\PostProcessing\\LegacyGrabTexturePass.cs",
+    "shared": "Source\\Providers\\Vivify\\PostProcessing\\LegacyGrabTexturePass.cs",
+    "sha256": "8c3c7e5ce55bea4bb8887ab6b7b343e29898360d61d4795e74e8aecb8568b50b"
+  },
+  {
+    "original": "PublicMods\\Vivify\\Vivify\\PostProcessing\\LegacyLightingPass.cs",
+    "shared": "Source\\Providers\\Vivify\\PostProcessing\\LegacyLightingPass.cs",
+    "sha256": "8d24960d9b8b0f3efe26da0d05f43dcdf795e9ab41e8abb86a2f06a4ae57b700"
+  },
+  {
+    "original": "PublicMods\\Vivify\\Vivify\\PostProcessing\\SecondaryCameraController.cs",
+    "shared": "Source\\Providers\\Vivify\\PostProcessing\\SecondaryCameraController.cs",
+    "sha256": "c74af6f322850e988ba257ef31a4904079f5512da73270024660010d6b7e55e9"
+  },
+  {
+    "original": "PublicMods\\Vivify\\Vivify\\PostProcessing\\UrpPostProcessingPass.cs",
+    "shared": "Source\\Providers\\Vivify\\PostProcessing\\UrpPostProcessingPass.cs",
+    "sha256": "08f3f1f92440b28923c82985e35f800832474b5c2d9305723bf3a11b511b7440"
+  },
+  {
+    "original": "PublicMods\\Vivify\\Vivify\\Settings\\SettingsMenu.cs",
+    "shared": "Source\\Providers\\Vivify\\Settings\\SettingsMenu.cs",
+    "sha256": "9f1f9028043bf39faf5230209079c7c2ffba54a2e12f702f7466103b51d47dde"
+  },
+  {
+    "original": "PublicMods\\Vivify\\Vivify\\Controllers\\Sync\\VideoPlayerSyncController.cs",
+    "shared": "Source\\Providers\\Vivify\\Controllers\\Sync\\VideoPlayerSyncController.cs",
+    "sha256": "4ca5b9dd7502f6eb6da676ba11aaa5ba63c3cab313f3a59ea8faff3952dc0665"
+  },
+  {
+    "original": "PublicMods\\Vivify\\Vivify\\ObjectPrefab\\Hijackers\\MpbControllerHijacker.cs",
+    "shared": "Source\\Providers\\Vivify\\ObjectPrefab\\Hijackers\\MpbControllerHijacker.cs",
+    "sha256": "89e4542a9441244a3486e1a748b508ae8d8c5864c0acfaec3e40733fd5a91486"
+  },
+  {
+    "original": "PublicMods\\Vivify\\Vivify\\ObjectPrefab\\Hijackers\\SaberTrailHijacker.cs",
+    "shared": "Source\\Providers\\Vivify\\ObjectPrefab\\Hijackers\\SaberTrailHijacker.cs",
+    "sha256": "47820436e523887fdba743fdef83cbec0c75a64761180c228290cae92df3891f"
+  },
+  {
+    "original": "PublicMods\\Vivify\\Vivify\\ObjectPrefab\\Managers\\NotePrefabManager.cs",
+    "shared": "Source\\Providers\\Vivify\\ObjectPrefab\\Managers\\NotePrefabManager.cs",
+    "sha256": "fc642da4991381b6a124e0d9738361561c95436cb34ad33d51032fbd692819ca"
+  }
+]
