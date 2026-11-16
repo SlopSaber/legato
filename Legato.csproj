@@ -29,6 +29,7 @@
     <None Include="Build\Legato.Versions.props" Pack="true" PackagePath="build\Legato.Versions.props" />
     <None Include="Build\HeckProviders.targets" Pack="true" PackagePath="build\HeckProviders.targets" />
     <None Include="Build\Legato.targets" Pack="true" PackagePath="build\LegatoBS.targets" />
+    <None Include="Source\**\.editorconfig" Pack="true" PackagePath="build\Source\%(RecursiveDir).editorconfig" />
     <None Include="Source\**\*.cs" Pack="true" PackagePath="build\Source\%(RecursiveDir)%(Filename)%(Extension)" />
   </ItemGroup>
 </Project>

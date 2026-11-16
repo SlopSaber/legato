@@ -1,4 +1,8 @@
 <Project>
+  <ItemGroup>
+    <EditorConfigFiles Include="$(LegatoSourceRoot)Providers\CustomJSONData\.editorconfig"
+                       Condition="'$(LegatoEnableCustomJsonDataProviders)' == 'true'" />
+  </ItemGroup>
   <!-- Keep the suite's original version ordering while selecting it from Legato's target. -->
   <Target Name="LBSM_GetConfigurationInfo" DependsOnTargets="LegatoConfigure">
     <PropertyGroup>
