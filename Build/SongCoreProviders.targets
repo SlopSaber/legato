@@ -9,6 +9,7 @@
       </Reference>
       <Reference Remove="BGLib.DotnetExtension;BGLib.JsonExtension;BeatSaber.Destinations;MediaLoader;SegmentedControl;Tweening" />
       <Reference Include="CustomJSONData" HintPath="$(LegatoReferenceRoot)\Plugins\CustomJSONData.dll" Private="false" />
+      <Reference Include="HMRendering" HintPath="$(LegatoReferenceRoot)\Beat Saber_Data\Managed\HMRendering.dll" Private="false" />
     </ItemGroup>
   </Target>
 </Project>
