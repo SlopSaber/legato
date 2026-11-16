@@ -42,6 +42,7 @@
     </PropertyGroup>
     <Error Condition="'$(GameVersion)' != '$(LegatoTargetVersion)'"
            Text="GameVersion and LegatoTargetVersion must select the same game version." />
+    <Message Importance="High" Text="Legato metadata profile: $(LegatoTargetVersion) ($(LegatoTargetProfile))" />
   </Target>
 
   <Target Name="LegatoAddRequiredReferences" BeforeTargets="ResolveAssemblyReferences" DependsOnTargets="LegatoConfigure"
@@ -147,8 +148,15 @@
     <WriteLinesToFile File="$(_LegatoManifestOutput)" Lines="$(_LegatoManifestText)" Overwrite="true" WriteOnlyWhenDifferent="true" Encoding="UTF-8" />
     <ItemGroup>
       <EmbeddedResource Remove="$(LegatoManifestFile);$(_LegatoManifestInput)" />
-      <EmbeddedResource Include="$(_LegatoManifestOutput)" LogicalName="$(_LegatoManifestResourceName)" />
+      <EmbeddedResource Include="$(_LegatoManifestOutput)" LogicalName="$(_LegatoManifestResourceName)"
+                        Condition="'$(LegatoEmbedManifest)' != 'false'" />
     </ItemGroup>
+  </Target>
+
+  <Target Name="LegatoCopyManifestSidecar" AfterTargets="Build"
+          Condition="'$(LegatoManifestSidecar)' == 'true' AND '$(LegatoManifestFile)' != ''">
+    <Copy SourceFiles="$(_LegatoManifestOutput)" DestinationFiles="$(TargetDir)$(AssemblyName).manifest"
+          SkipUnchangedFiles="true" />
   </Target>
 
   <Target Name="LegatoAddBaseSources" BeforeTargets="CoreCompile" DependsOnTargets="LegatoConfigure"
