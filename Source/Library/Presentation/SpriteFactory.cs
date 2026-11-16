@@ -1,9 +1,17 @@
+#if LEGATO_BSML_ALIASED
+extern alias Bsml;
+#endif
+
 #nullable enable
 
 #if BEAT_SABER_1_45_1 || BEAT_SABER_1_45_3
 using System;
 #endif
+#if LEGATO_BSML_ALIASED
+using Bsml::BeatSaberMarkupLanguage;
+#else
 using BeatSaberMarkupLanguage;
+#endif
 using UnityEngine;
 
 namespace Legato.Presentation {

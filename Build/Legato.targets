@@ -12,6 +12,10 @@
     <LegatoLibraryRoot Condition="Exists('$(LegatoReferenceRoot)\IPA\Pending\Libraries')">$(LegatoReferenceRoot)\IPA\Pending\Libraries</LegatoLibraryRoot>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(LegatoAliasBsmlReference)' == 'true'">
+    <DefineConstants>$(DefineConstants);LEGATO_BSML_ALIASED</DefineConstants>
+  </PropertyGroup>
+
   <Target Name="LegatoConfigure" BeforeTargets="PrepareForBuild">
     <ItemGroup>
       <_LegatoTargetVersion Include="@(LegatoGameVersion->WithMetadataValue('Identity', '$(LegatoTargetVersion)'))" />

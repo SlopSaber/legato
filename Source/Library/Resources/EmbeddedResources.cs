@@ -1,6 +1,14 @@
+#if LEGATO_BSML_ALIASED
+extern alias Bsml;
+#endif
+
 #nullable enable
 
+#if LEGATO_BSML_ALIASED
+using Bsml::BeatSaberMarkupLanguage;
+#else
 using BeatSaberMarkupLanguage;
+#endif
 using System.Reflection;
 
 namespace Legato.Resources {

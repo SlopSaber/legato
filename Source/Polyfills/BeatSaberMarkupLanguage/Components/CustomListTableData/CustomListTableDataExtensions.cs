@@ -1,12 +1,24 @@
+#if LEGATO_BSML_ALIASED
+extern alias Bsml;
+#endif
+
 #nullable enable
 
+#if LEGATO_BSML_ALIASED
+using Bsml::BeatSaberMarkupLanguage.Components;
+#else
 using BeatSaberMarkupLanguage.Components;
+#endif
 using HMUI;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
 using UnityEngine;
+#if LEGATO_BSML_ALIASED
+using static Bsml::BeatSaberMarkupLanguage.Components.CustomListTableData;
+#else
 using static BeatSaberMarkupLanguage.Components.CustomListTableData;
+#endif
 
 namespace Legato {
     internal static class CustomListTableDataExtensions {

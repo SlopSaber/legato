@@ -1,7 +1,15 @@
+#if LEGATO_BSML_ALIASED
+extern alias Bsml;
+#endif
+
 #nullable enable
 
 using TMPro;
+#if LEGATO_BSML_ALIASED
+using Bsml::BeatSaberMarkupLanguage;
+#else
 using BeatSaberMarkupLanguage;
+#endif
 
 namespace Legato.Presentation {
     internal static class BsmlTextCompatibility {

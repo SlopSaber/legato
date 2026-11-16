@@ -73,3 +73,5 @@ For a consumer that needs only named adapters, set `LegatoEnableAutoAdapters` an
 Set `LegatoReferenceRoot` to the selected game directory and pass `LegatoTargetVersion` explicitly. Keep per-target output paths so a historical build cannot overwrite the selected target. A static manifest can opt into `LegatoManifestFile`; the generated resource changes `gameVersion` while preserving the original manifest. Projects with their own manifest generator should retain that generator.
 
 Optional features include gameplay ownership, environment settings, menu layout/events, beatmap keys/text, native pose prediction, transition discovery, level-list badge bindings, pause-menu layout, BSML settings, Unity API compatibility, camera effects and GPU timing. Each feature requires the game or dependency references used by its source. See the library reference for property names and ownership requirements.
+
+Set `LegatoAliasBsmlReference=true` when the BSML assembly reference uses the `Bsml` alias. Shared BSML adapters and polyfills then resolve that explicit reference, keeping publicized embedded helper types out of the global reference scope. The default remains unaliased.

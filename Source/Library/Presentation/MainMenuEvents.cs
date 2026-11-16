@@ -1,7 +1,15 @@
+#if LEGATO_BSML_ALIASED
+extern alias Bsml;
+#endif
+
 #nullable enable
 
 using System;
+#if LEGATO_BSML_ALIASED
+using Bsml::BeatSaberMarkupLanguage.Util;
+#else
 using BeatSaberMarkupLanguage.Util;
+#endif
 
 namespace Legato.Presentation {
     internal static class MainMenuEvents {
