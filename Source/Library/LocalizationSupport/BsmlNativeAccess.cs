@@ -62,7 +62,7 @@ namespace Legato.Unity
 #endif
         }
 
-        internal static TextMeshProUGUI GetTextComponent(TMP_SubMeshUI mesh) =>
+        internal static TMP_Text GetTextComponent(TMP_SubMeshUI mesh) =>
 #if BEAT_SABER_1_29_0
             mesh.m_TextComponent;
 #else
