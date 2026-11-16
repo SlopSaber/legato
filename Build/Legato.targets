@@ -292,6 +292,8 @@
                Condition="'$(LegatoEnableResultsCopy)' == 'true'" />
       <Compile Include="$(LegatoSourceRoot)Library\ColorOverrideAliases\**\*.cs"
                Condition="'$(LegatoEnableColorOverrideAlias)' == 'true'" />
+      <Compile Include="$(LegatoSourceRoot)Providers\Heck\**\*.cs"
+               Condition="'$(LegatoEnableHeckProviders)' == 'true'" />
       <Compile Include="$(LegatoSourceRoot)Providers\CustomJSONData\**\*.cs"
                Condition="'$(LegatoEnableCustomJsonDataProviders)' == 'true'" />
       <Compile Include="$(LegatoSourceRoot)Library\SaberModels\**\*.cs"

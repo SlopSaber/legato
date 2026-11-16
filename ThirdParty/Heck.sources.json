@@ -1,0 +1,127 @@
+[
+  {
+    "original": "PublicMods\\Heck\\Heck\\Extras\\NullableAttributes.cs",
+    "shared": "Source\\Providers\\Heck\\Extras\\NullableAttributes.cs",
+    "sha256": "ccb9411360c6dbea62a9f05cac55ad144ad5347617fc4beec8a1f371df3e9234"
+  },
+  {
+    "original": "PublicMods\\Heck\\Heck\\HarmonyPatches\\BurstSliderDataRegisterer.cs",
+    "shared": "Source\\Providers\\Heck\\HarmonyPatches\\BurstSliderDataRegisterer.cs",
+    "sha256": "059a2f01d8b3b8f2caf50a821244af3062ed4528ec69d34694f1e45cb26e0697"
+  },
+  {
+    "original": "PublicMods\\Heck\\Heck\\HarmonyPatches\\PatchedPlayerInstaller.cs",
+    "shared": "Source\\Providers\\Heck\\HarmonyPatches\\PatchedPlayerInstaller.cs",
+    "sha256": "0f06c3a60853ffa90638f3df222e76f7ca4eb2015a9aad2d51e9bc2953b593ee"
+  },
+  {
+    "original": "PublicMods\\Heck\\Heck\\HarmonyPatches\\PerformancePresetOverride.cs",
+    "shared": "Source\\Providers\\Heck\\HarmonyPatches\\PerformancePresetOverride.cs",
+    "sha256": "283518f59af982454867fbd4daeff861c3c7d0e5e0aa93532431a8947f3e4548"
+  },
+  {
+    "original": "PublicMods\\Heck\\Heck\\HarmonyPatches\\PlayViewInterrupter.cs",
+    "shared": "Source\\Providers\\Heck\\HarmonyPatches\\PlayViewInterrupter.cs",
+    "sha256": "5029ac4cd3991a48c0b6a52a032f447289c3f7ff6007fecfbbc50b55283ff669"
+  },
+  {
+    "original": "PublicMods\\Heck\\Heck\\Installers\\HeckAppInstaller.cs",
+    "shared": "Source\\Providers\\Heck\\Installers\\HeckAppInstaller.cs",
+    "sha256": "ad68762e4f94fc78324e8f915160e019d9dd4809064d5deda010c5c8b1354432"
+  },
+  {
+    "original": "PublicMods\\Heck\\Heck\\ReLoad\\MenuReLoad.cs",
+    "shared": "Source\\Providers\\Heck\\ReLoad\\MenuReLoad.cs",
+    "sha256": "9887e6b10b0b475af807336bd45ab062dad28633c31d7ec0ed44afa628100087"
+  },
+  {
+    "original": "PublicMods\\Heck\\Heck\\ReLoad\\ReLoader.cs",
+    "shared": "Source\\Providers\\Heck\\ReLoad\\ReLoader.cs",
+    "sha256": "37822d883bd89025a0900f79ac215ef7febf8bada7950fc42823f7db6bbfa9d5"
+  },
+  {
+    "original": "PublicMods\\Heck\\Heck\\ReLoad\\ReLoaderLoader.cs",
+    "shared": "Source\\Providers\\Heck\\ReLoad\\ReLoaderLoader.cs",
+    "sha256": "b4cfca383bdac2f597ab5908cd404f864729458872bebf129cb73e31d65cdaac"
+  },
+  {
+    "original": "PublicMods\\Heck\\Heck\\ReLoad\\RestartReLoad.cs",
+    "shared": "Source\\Providers\\Heck\\ReLoad\\RestartReLoad.cs",
+    "sha256": "50b2a9b1fa73becfe2e56e15833ad511d5eafdc9a995a0b852bfbb5a605aef5c"
+  },
+  {
+    "original": "PublicMods\\Heck\\Heck\\Services\\Capability.cs",
+    "shared": "Source\\Providers\\Heck\\Services\\Capability.cs",
+    "sha256": "c12ece60889547342c76c305b964f670ec50a6a2e40b3de0f69450386217b6b6"
+  },
+  {
+    "original": "PublicMods\\Heck\\Heck\\SettingsSetter\\SettingsSetterViewController.cs",
+    "shared": "Source\\Providers\\Heck\\SettingsSetter\\SettingsSetterViewController.cs",
+    "sha256": "ca3dda17612be7efb4da20c164369ea89158b0ec621f8d217fb130a8047576eb"
+  },
+  {
+    "original": "PublicMods\\Heck\\Heck\\HarmonyPatches\\ModuleActivator\\MiscModuleActivator.cs",
+    "shared": "Source\\Providers\\Heck\\HarmonyPatches\\ModuleActivator\\MiscModuleActivator.cs",
+    "sha256": "a851da14aa625ae26ea58d9b3aef4e1dd3501977b6801775682007fa2a1f1f13"
+  },
+  {
+    "original": "PublicMods\\Heck\\Heck\\HarmonyPatches\\ModuleActivator\\MissionModuleActivator.cs",
+    "shared": "Source\\Providers\\Heck\\HarmonyPatches\\ModuleActivator\\MissionModuleActivator.cs",
+    "sha256": "2fc6c0d4026720ddb3804165ce931cf00e898c0232ed41e4e4e5a6121370d64c"
+  },
+  {
+    "original": "PublicMods\\Heck\\Heck\\HarmonyPatches\\ModuleActivator\\SceneTransitionModuleActivatorV1_34_2AndEarlier.cs",
+    "shared": "Source\\Providers\\Heck\\HarmonyPatches\\ModuleActivator\\SceneTransitionModuleActivatorV1_34_2AndEarlier.cs",
+    "sha256": "03149f1880fbd3a0f5b13b5fdbf5026a149ffa523c22116fb27c6be3a4b25330"
+  },
+  {
+    "original": "PublicMods\\Heck\\Heck\\HarmonyPatches\\ModuleActivator\\StandardModuleActivator.cs",
+    "shared": "Source\\Providers\\Heck\\HarmonyPatches\\ModuleActivator\\StandardModuleActivator.cs",
+    "sha256": "3e93038d6980595eafc577951d76032df3b7d86a78c794e80007796aea09cdc9"
+  },
+  {
+    "original": "PublicMods\\Heck\\Heck\\HarmonyPatches\\UntransformedData\\UntransformedDataSaver.cs",
+    "shared": "Source\\Providers\\Heck\\HarmonyPatches\\UntransformedData\\UntransformedDataSaver.cs",
+    "sha256": "dd60ff9f44a88cd59b0218f4acd4979853f67d27aedc165df07b06108292ffc1"
+  },
+  {
+    "original": "PublicMods\\Heck\\Heck\\HarmonyPatches\\UntransformedData\\UntransformedDataSaver1_34_2AndEarlier.cs",
+    "shared": "Source\\Providers\\Heck\\HarmonyPatches\\UntransformedData\\UntransformedDataSaver1_34_2AndEarlier.cs",
+    "sha256": "765f5318c4db2f2eb21f72919ba8913e1181520940f10ddc3c603272622d5b82"
+  },
+  {
+    "original": "PublicMods\\Heck\\Heck\\HarmonyPatches\\UntransformedData\\UntransformedDataSaverCtorRedirect.cs",
+    "shared": "Source\\Providers\\Heck\\HarmonyPatches\\UntransformedData\\UntransformedDataSaverCtorRedirect.cs",
+    "sha256": "27e69a5d456c1cd8ab659790c2cb79231f3a9bb67eb29b3c0694e4e354f8b830"
+  },
+  {
+    "original": "PublicMods\\Heck\\Heck\\HeckImplementation\\BaseProviders\\MovementDataBaseProvider.cs",
+    "shared": "Source\\Providers\\Heck\\HeckImplementation\\BaseProviders\\MovementDataBaseProvider.cs",
+    "sha256": "ca6a28645a6a7ca65dba73e0fc01364208440ed55455173aa5d0d6c2d0cb5448"
+  },
+  {
+    "original": "PublicMods\\Heck\\Heck\\Services\\Deserialize\\DeserializerManager.cs",
+    "shared": "Source\\Providers\\Heck\\Services\\Deserialize\\DeserializerManager.cs",
+    "sha256": "7979f61730602a468aa08dc2873f59e421761fb30dad170bfae32ba68b6bf2f4"
+  },
+  {
+    "original": "PublicMods\\Heck\\Heck\\Services\\Module\\ModuleManager.cs",
+    "shared": "Source\\Providers\\Heck\\Services\\Module\\ModuleManager.cs",
+    "sha256": "5df6ddd3e357b01ffd4c4d8940ff4dc6eff2deaed74952c7ca7e0197c4488279"
+  },
+  {
+    "original": "PublicMods\\Heck\\Heck\\Services\\PlayView\\PlayViewManager.cs",
+    "shared": "Source\\Providers\\Heck\\Services\\PlayView\\PlayViewManager.cs",
+    "sha256": "e4b0b04634793774bb8544e0352d38c06d13b27f50853c74260e2433c5ef7eed"
+  },
+  {
+    "original": "PublicMods\\Heck\\Heck\\Services\\PlayView\\StartMultiplayerLevelParameters.cs",
+    "shared": "Source\\Providers\\Heck\\Services\\PlayView\\StartMultiplayerLevelParameters.cs",
+    "sha256": "bac662299a1e4e8903e7f1830b6875d439e13fe59ee6cd2964d55313282906df"
+  },
+  {
+    "original": "PublicMods\\Heck\\Heck\\Services\\PlayView\\StartStandardLevelParameters.cs",
+    "shared": "Source\\Providers\\Heck\\Services\\PlayView\\StartStandardLevelParameters.cs",
+    "sha256": "78f8e27c03f6290f8de0d1954ba6fcaada7a1937010045debb2e5be1d7617b48"
+  }
+]
