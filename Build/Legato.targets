@@ -269,6 +269,10 @@
                Condition="'$(LegatoEnablePosePrediction)' == 'true'" />
       <Compile Include="$(LegatoSourceRoot)Library\Transitions\**\*.cs"
                Condition="'$(LegatoEnableTransitions)' == 'true'" />
+      <Compile Include="$(LegatoSourceRoot)Library\SceneEvents\**\*.cs"
+               Condition="'$(LegatoEnableSceneEvents)' == 'true'" />
+      <Compile Include="$(LegatoSourceRoot)Library\MirrorSettings\**\*.cs"
+               Condition="'$(LegatoEnableMirrorSettings)' == 'true'" />
       <Compile Include="$(LegatoSourceRoot)Library\LevelListBadges\**\*.cs"
                Condition="'$(LegatoEnableLevelListBadges)' == 'true'" />
       <Compile Include="$(LegatoSourceRoot)Library\PauseMenu\**\*.cs"
