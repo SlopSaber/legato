@@ -16,6 +16,7 @@
     <DefineConstants>$(DefineConstants);LEGATO_BSML_ALIASED</DefineConstants>
   </PropertyGroup>
 
+  <Import Project="$(MSBuildThisFileDirectory)ShaffuruProviders.targets" />
   <Target Name="LegatoConfigure" BeforeTargets="PrepareForBuild">
     <ItemGroup>
       <_LegatoTargetVersion Include="@(LegatoGameVersion->WithMetadataValue('Identity', '$(LegatoTargetVersion)'))" />
@@ -277,6 +278,8 @@
                Condition="'$(LegatoEnableComponentBindings)' == 'true'" />
       <Compile Include="$(LegatoSourceRoot)Library\FlowNavigation\**\*.cs"
                Condition="'$(LegatoEnableFlowNavigation)' == 'true'" />
+      <Compile Include="$(LegatoSourceRoot)Providers\Shaffuru\**\*.cs" Condition="'$(LegatoEnableShaffuruProviders)' == 'true'" />
+      <Compile Include="$(LegatoSourceRoot)Library\AudioSettings\**\*.cs" Condition="'$(LegatoEnableAudioSettings)' == 'true'" />
       <Compile Include="$(LegatoSourceRoot)Library\RuntimeServices\**\*.cs"
                Condition="'$(LegatoEnableRuntimeServices)' == 'true'" />
       <Compile Include="$(LegatoSourceRoot)Library\TableSources\**\*.cs"

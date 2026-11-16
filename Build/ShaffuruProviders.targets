@@ -1,0 +1,5 @@
+<Project>
+  <ItemGroup Condition="'$(LegatoEnableShaffuruProviders)' == 'true'">
+    <Compile Remove="MenuLogic\Anlasser.cs;GameLogic\BeatmapLoader.cs;GameLogic\BeatmapSwitcher.cs" />
+  </ItemGroup>
+</Project>

@@ -1,0 +1,11 @@
+{
+  "source": "https://github.com/SlopSaber/BeatSaber_Shaffuru",
+  "sourceHead": "04760dac9e6bd39c740bed55d0d06b45dfce12a4",
+  "license": "MIT",
+  "files": [
+    "MenuLogic/Anlasser.cs",
+    "GameLogic/BeatmapLoader.cs",
+    "GameLogic/BeatmapSwitcher.cs"
+  ],
+  "note": "Current provider sources retain queue, map generation and live insertion behavior. Native legacy API references were checked against selected assemblies; prior native adapters were consulted as reference only."
+}
