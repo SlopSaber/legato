@@ -1,4 +1,4 @@
-#if BEAT_SABER_1_45_1 || BEAT_SABER_1_45_3
+#if BEAT_SABER_1_29_0 || BEAT_SABER_1_45_1 || BEAT_SABER_1_45_3
 using System;
 using System.Runtime.InteropServices;
 

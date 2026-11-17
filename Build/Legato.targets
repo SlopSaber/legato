@@ -37,7 +37,7 @@
       <LegatoHasDefaultInterfaceMethods Condition="'$(LegatoTargetProfile)' != '1.29.0' AND '$(LegatoTargetProfile)' != ''">true</LegatoHasDefaultInterfaceMethods>
       <DefineConstants Condition="'$(LegatoHasDefaultInterfaceMethods)' == 'true'">$(DefineConstants);LEGATO_DEFAULT_INTERFACE_METHODS</DefineConstants>
       <LegatoUsesNativeRenderTiming>false</LegatoUsesNativeRenderTiming>
-      <LegatoUsesNativeRenderTiming Condition="'$(LegatoTargetProfile)' == '1.45.1' OR '$(LegatoTargetProfile)' == '1.45.3'">true</LegatoUsesNativeRenderTiming>
+      <LegatoUsesNativeRenderTiming Condition="'$(LegatoTargetProfile)' == '1.29.0' OR '$(LegatoTargetProfile)' == '1.45.1' OR '$(LegatoTargetProfile)' == '1.45.3'">true</LegatoUsesNativeRenderTiming>
     </PropertyGroup>
     <Error Condition="'$(LegatoTargetProfile)' == ''" Text="Legato does not support Beat Saber $(LegatoTargetVersion)" />
     <Error Condition="'$(LegatoSourceProfile)' == ''" Text="Legato does not support source written for Beat Saber $(LegatoSourceVersion)" />

@@ -1,4 +1,4 @@
-#if BEAT_SABER_1_45_1 || BEAT_SABER_1_45_3
+#if BEAT_SABER_1_29_0 || BEAT_SABER_1_45_1 || BEAT_SABER_1_45_3
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -26,15 +26,21 @@ internal sealed class NativeGpuTiming : IDisposable
     private const string Library = "NalulunaFps.NativeGpuTiming";
     private const int BeginFrame = 1, BeginScope = 2, EndScope = 3, EndFrame = 4, Stop = 5;
     private static NativeGpuTiming _active;
+#if !BEAT_SABER_1_29_0
     private static readonly MethodInfo SubmitMethod = AccessTools.Method(typeof(ScriptableRenderContext), "Submit");
     private static readonly MethodInfo EndScopeMethod = AccessTools.Method(typeof(NativeGpuTiming), nameof(BeforeSubmit));
+#else
+    private int _cameraDepth;
+#endif
     private MonoBehaviour _owner;
     private Harmony _harmony;
     private Coroutine _finishCoroutine;
     private Texture2D _probe;
     private CommandBuffer _markers;
     private IntPtr _eventCallback;
+#if !BEAT_SABER_1_29_0
     private ScriptableRenderContext _scopeContext;
+#endif
     private bool _started, _failed, _nativeLoaded, _frameOpen, _scopeOpen;
     private int _lastFrame = -1, _lastStatus = -1;
     private bool _reportedSample;
@@ -103,8 +109,12 @@ internal sealed class NativeGpuTiming : IDisposable
             _eventCallback = GetRenderEventFunc();
             if (_eventCallback == IntPtr.Zero) throw new InvalidOperationException("Native render callback unavailable");
             _owner = owner;
-            _markers = new CommandBuffer { name = "NalulunaFps GPU timestamp" };
             CreateProbe();
+#if BEAT_SABER_1_29_0
+            Camera.onPreRender += BeforeLegacyCamera;
+            Camera.onPostRender += AfterLegacyCamera;
+#else
+            _markers = new CommandBuffer { name = "NalulunaFps GPU timestamp" };
             Type pipeline = AccessTools.TypeByName("UnityEngine.Rendering.Universal.UniversalRenderPipeline");
             if (pipeline == null) throw new InvalidOperationException("URP rendering pipeline type unavailable");
             MethodInfo graph = AccessTools.GetDeclaredMethods(pipeline).Single(method => method.Name == "RecordAndExecuteRenderGraph");
@@ -115,11 +125,18 @@ internal sealed class NativeGpuTiming : IDisposable
             // Submit's small managed wrapper can already be inlined. Insert
             // our end marker at its actual call site in URP instead.
             _harmony.Patch(camera, transpiler: new HarmonyMethod(typeof(NativeGpuTiming), nameof(InsertEndScope)));
+#endif
             _active = this;
             _started = true;
+#if !BEAT_SABER_1_29_0
             RenderPipelineManager.beginContextRendering += OnBeginContext;
+#endif
             _finishCoroutine = owner.StartCoroutine(FinishFrames());
+#if BEAT_SABER_1_29_0
+            _debug("Native D3D11 GPU timing attached to built-in camera rendering; nested cameras share their outer scope, asynchronous query reads.");
+#else
             _debug("Native D3D11 GPU timing attached to URP RenderGraph and camera submission; eight pending frames, 32 camera scopes per frame, asynchronous query reads.");
+#endif
         }
         catch (Exception exception)
         {
@@ -142,13 +159,44 @@ internal sealed class NativeGpuTiming : IDisposable
         SetSourceTexture(resource);
     }
 
-    private void OnBeginContext(ScriptableRenderContext context, List<Camera> cameras)
+#if BEAT_SABER_1_29_0
+    private void BeforeLegacyCamera(Camera camera)
+    {
+        if (!_started || _failed) return;
+        BeginRenderingFrame();
+        if (_failed || _cameraDepth++ != 0) return;
+        try
+        {
+            GL.IssuePluginEvent(_eventCallback, BeginScope);
+            _scopeOpen = true;
+        }
+        catch (Exception exception) { Fail(exception); }
+    }
+
+    private void AfterLegacyCamera(Camera camera)
+    {
+        if (!_started || _failed || !_scopeOpen || _cameraDepth <= 0 || --_cameraDepth != 0) return;
+        try
+        {
+            GL.IssuePluginEvent(_eventCallback, EndScope);
+            _scopeOpen = false;
+        }
+        catch (Exception exception) { Fail(exception); }
+    }
+#else
+    private void OnBeginContext(ScriptableRenderContext context, List<Camera> cameras) => BeginRenderingFrame();
+#endif
+
+    private void BeginRenderingFrame()
     {
         if (!_started || _failed || _lastFrame == Time.frameCount) return;
         try
         {
             _lastFrame = Time.frameCount;
             _frameOpen = true;
+#if BEAT_SABER_1_29_0
+            _cameraDepth = 0;
+#endif
             GL.IssuePluginEvent(_eventCallback, BeginFrame);
         }
         catch (Exception exception) { Fail(exception); }
@@ -168,6 +216,7 @@ internal sealed class NativeGpuTiming : IDisposable
         }
     }
 
+#if !BEAT_SABER_1_29_0
     private static void BeforeRenderGraph(ScriptableRenderContext __1) => _active?.StartScope(__1);
 
     private void StartScope(ScriptableRenderContext context)
@@ -223,6 +272,7 @@ internal sealed class NativeGpuTiming : IDisposable
         }
         if (inserted != 1) throw new InvalidOperationException("Expected one URP camera submission; found " + inserted);
     }
+#endif
 
     private void Fail(Exception exception)
     {
@@ -245,7 +295,13 @@ internal sealed class NativeGpuTiming : IDisposable
     public void Dispose()
     {
         _started = false;
+#if BEAT_SABER_1_29_0
+        Camera.onPreRender -= BeforeLegacyCamera;
+        Camera.onPostRender -= AfterLegacyCamera;
+        _cameraDepth = 0;
+#else
         RenderPipelineManager.beginContextRendering -= OnBeginContext;
+#endif
         if (ReferenceEquals(_active, this)) _active = null;
         if (_finishCoroutine != null && _owner != null) _owner.StopCoroutine(_finishCoroutine);
         _finishCoroutine = null;
