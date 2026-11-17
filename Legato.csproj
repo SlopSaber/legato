@@ -31,6 +31,7 @@
     <None Include="Build\Build-AssetBundle.ps1" Pack="true" PackagePath="build\Build-AssetBundle.ps1" />
     <None Include="Build\Build-PortableShaders.ps1" Pack="true" PackagePath="build\Build-PortableShaders.ps1" />
     <None Include="ShaderLibrary\**\*.hlsl" Pack="true" PackagePath="ShaderLibrary\%(RecursiveDir)%(Filename)%(Extension)" />
+    <None Include="ShaderLibrary\**\*.cginc" Pack="true" PackagePath="ShaderLibrary\%(RecursiveDir)%(Filename)%(Extension)" />
     <None Include="AssetBuild\**\*.cs" Pack="true" PackagePath="AssetBuild\%(RecursiveDir)%(Filename)%(Extension)" />
     <None Include="Build\Legato.Versions.props" Pack="true" PackagePath="build\Legato.Versions.props" />
     <None Include="Build\BsUtilsHost.targets" Pack="true" PackagePath="build\BsUtilsHost.targets" />

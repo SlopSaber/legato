@@ -1,4 +1,13 @@
 <Project>
+  <Target Name="LegatoSelectProfileAssetBundles" BeforeTargets="AssignTargetPaths" DependsOnTargets="LegatoConfigure" Condition="'@(LegatoAssetBundle)' != ''">
+    <ItemGroup>
+      <_LegatoProfileAsset Include="@(LegatoAssetBundle)" Condition="'%(LegatoAssetBundle.Profile)' == '$(LegatoTargetProfile)'" />
+      <EmbeddedResource Remove="@(_LegatoProfileAsset->'%(OriginalResource)')" />
+      <EmbeddedResource Include="@(_LegatoProfileAsset)" LogicalName="%(_LegatoProfileAsset.LogicalName)" />
+    </ItemGroup>
+    <Error Condition="'@(_LegatoProfileAsset)' != '' AND !Exists('%(_LegatoProfileAsset.Identity)')"
+           Text="Build the native asset source for profile $(LegatoTargetProfile) before embedding %(_LegatoProfileAsset.Identity)." />
+  </Target>
   <Target Name="LegatoBuildAssetBundles" DependsOnTargets="LegatoConfigure">
     <PropertyGroup>
       <LegatoUnityEditorRoot Condition="'$(LegatoUnityEditorRoot)' == ''">$(UNITY_EDITOR_ROOT)</LegatoUnityEditorRoot>
