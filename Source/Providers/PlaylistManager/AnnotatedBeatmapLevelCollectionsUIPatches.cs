@@ -5,7 +5,7 @@ using SiraUtil.Affinity;
 using UnityEngine;
 
 namespace PlaylistManager.AffinityPatches {
-    internal class AnnotatedBeatmapLevelCollectionsUIPatches : IAffinity {
+    internal class AnnotatedBeatmapLevelCollectionsUIPatches : IAffinity, IDisposable {
         private const int VisibleColumns = 5;
         private const int MaximumRows = 5;
         private readonly SelectLevelCategoryViewController _categoryViewController;
@@ -15,6 +15,7 @@ namespace PlaylistManager.AffinityPatches {
         private HorizontalGeometry _contentGeometry;
         private bool _customSongs;
         private bool _layoutApplied;
+        private bool _placementPending;
         private int _columns;
         private float _viewportLeft;
 
@@ -61,6 +62,7 @@ namespace PlaylistManager.AffinityPatches {
             if (!Owns(__instance)) return;
             SetHorizontalPosition(__instance);
             PositionCollapsedViewport(__instance._viewportTransform);
+            SchedulePlacement();
         }
 
         [AffinityPatch(typeof(AnnotatedBeatmapLevelCollectionsGridViewAnimator), nameof(AnnotatedBeatmapLevelCollectionsGridViewAnimator.ScrollToRowIdxInstant))]
@@ -73,6 +75,8 @@ namespace PlaylistManager.AffinityPatches {
         [AffinityPostfix]
         private void ExpandViewport(AnnotatedBeatmapLevelCollectionsGridViewAnimator __instance, bool animated) {
             if (!Owns(__instance)) return;
+            if (_placementPending) PositionCollapsedViewport(__instance._viewportTransform, rebuildLayout: true);
+            CancelPlacement();
             SetTweenTargets(__instance, (_columns * 2 - VisibleColumns) * _collectionsGrid._cellWidth, animated);
         }
 
@@ -91,6 +95,7 @@ namespace PlaylistManager.AffinityPatches {
             if (!_layoutApplied) ApplyLayout();
             var animator = _collectionsGrid._animator;
             animator.AnimateClose(_collectionsGrid._selectedCellIndex / _columns, false);
+            SchedulePlacement();
         }
 
         [AffinityPatch(typeof(AnnotatedBeatmapLevelCollectionsViewController), nameof(AnnotatedBeatmapLevelCollectionsViewController.DidDeactivate))]
@@ -100,6 +105,7 @@ namespace PlaylistManager.AffinityPatches {
         }
 
         private void RestoreLayout() {
+            CancelPlacement();
             if (!_layoutApplied || _collectionsGrid == null) return;
             _layoutApplied = false;
             var animator = _collectionsGrid._animator;
@@ -111,14 +117,39 @@ namespace PlaylistManager.AffinityPatches {
         private bool Owns(AnnotatedBeatmapLevelCollectionsGridViewAnimator animator) =>
             _layoutApplied && _collectionsGrid != null && animator == _collectionsGrid._animator;
 
-        private void PositionCollapsedViewport(RectTransform viewport) {
+        private void SchedulePlacement() {
+            if (_placementPending) return;
+            _placementPending = true;
+            Canvas.willRenderCanvases += PlaceWhenControlsAreReady;
+        }
+
+        private void CancelPlacement() {
+            if (!_placementPending) return;
+            _placementPending = false;
+            Canvas.willRenderCanvases -= PlaceWhenControlsAreReady;
+        }
+
+        private void PlaceWhenControlsAreReady() {
+            if (!_layoutApplied || _collectionsGrid == null) {
+                CancelPlacement();
+                return;
+            }
+            if (_collectionsGrid.isActiveAndEnabled && PositionCollapsedViewport(_collectionsGrid._animator._viewportTransform, rebuildLayout: true))
+                CancelPlacement();
+        }
+
+        public void Dispose() => CancelPlacement();
+
+        private bool PositionCollapsedViewport(RectTransform viewport, bool rebuildLayout = false) {
             var cell = _collectionsGrid._cellWidth * viewport.localScale.x;
             var halfWidth = VisibleColumns * cell / 2f;
             var position = viewport.localPosition;
             position.x = _viewportLeft + halfWidth;
-            if (_playlistButtons.TryGetActionLeftEdge(viewport.parent, out var actionsLeft))
+            var buttonsReady = _playlistButtons.TryGetActionLeftEdge(viewport.parent, out var actionsLeft, rebuildLayout);
+            if (buttonsReady)
                 position.x = actionsLeft - halfWidth - cell * 0.08f;
             viewport.localPosition = position;
+            return buttonsReady;
         }
 
         private float ContentXOffset() {
