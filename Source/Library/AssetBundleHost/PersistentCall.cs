@@ -12,6 +12,9 @@ namespace AssetBundleLoadingTools.Patches
     [HarmonyPatch]
     internal class PersistentCall_OnAfterDeserialize
     {
+        [HarmonyPrepare]
+        public static bool Prepare() => PersistentCallSanitizer.Required;
+
         [HarmonyPriority(Priority.Last)]
         public static void Postfix(object __instance)
         {
