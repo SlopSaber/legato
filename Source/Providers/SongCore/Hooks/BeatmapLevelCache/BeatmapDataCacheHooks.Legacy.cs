@@ -148,7 +148,8 @@ namespace SongCore.Hooks.BeatmapLevelCache
 
             if (standardLevelDetailViewController != null)
             {
-                Assert.That(standardLevelDetailViewController.beatmapLevel == _beatmapLevelCache.BeatmapLevel);
+                // The loaded level is a separate object, and is null while the preview is loading.
+                Assert.That(standardLevelDetailViewController._previewBeatmapLevel == _beatmapLevelCache.BeatmapLevel);
             }
 
             await InvokeEventAsync(standardLevelDetailViewController, contentType, _eventProxyHooks.StandardLevelDetailViewControllerDidChangeContentDelegate!, _cancellationToken);
