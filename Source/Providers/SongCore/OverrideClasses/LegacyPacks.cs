@@ -15,7 +15,7 @@ namespace SongCore.OverrideClasses
                 CreateCover(coverImage), coverImage ?? Loader.defaultCoverImage, new CustomBeatmapLevelCollection(Array.Empty<CustomPreviewBeatmapLevel>()))
         {
             _levels = new MutableCollection(beatmapLevels);
-            this.SetField("<beatmapLevelCollection>k__BackingField", (IBeatmapLevelCollection)_levels);
+            ((CustomBeatmapLevelPack)this).SetField("<beatmapLevelCollection>k__BackingField", (IBeatmapLevelCollection)_levels);
         }
 
         private static Sprite CreateCover(Sprite? cover)
