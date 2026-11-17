@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Runtime.CompilerServices;
 using CustomJSONData.CustomBeatmap;
 using Legato.Beatmaps.Formats;
@@ -23,7 +24,8 @@ namespace SongCore.Hooks
 
         public void Initialize()
         {
-            _convert = new Hook(typeof(BeatmapDataLoader.LightColorEventBoxConvertor).GetMethod(nameof(BeatmapDataLoader.LightColorEventBoxConvertor.Convert))!, ConvertBox, true);
+            _convert = new Hook(typeof(BeatmapDataLoader.LightColorEventBoxConvertor).GetMethod(nameof(BeatmapDataLoader.LightColorEventBoxConvertor.Convert),
+                BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.DeclaredOnly)!, ConvertBox, true);
             _unpack = new Hook(typeof(LightColorBeatmapEventDataBox).GetMethod(nameof(LightColorBeatmapEventDataBox.Unpack))!, UnpackBox, true);
         }
 
