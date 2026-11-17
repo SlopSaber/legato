@@ -80,7 +80,7 @@ public class CustomSaberTrail : SaberTrail
     }
     
 #if BEAT_SABER_1_29_0
-    private void Awake()
+    private new void Awake()
     {
         // TrailFactory creates and assigns the renderer after component construction.
     }
