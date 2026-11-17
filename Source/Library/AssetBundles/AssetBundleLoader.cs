@@ -20,6 +20,7 @@ namespace Legato.Assets
         /// <returns>The task object representing the asynchronous operation.</returns>
         public static async Task<AssetBundle?> LoadFromFileAsync(string path, Action<string>? warning = null)
         {
+            if (!AssetBundleCompatibility.IsSupported(path, warning)) return null;
             TaskCompletionSource<AssetBundle> taskCompletionSource = new();
             var bundleRequest = AssetBundle.LoadFromFileAsync(path);
             bundleRequest.completed += delegate 
@@ -40,6 +41,7 @@ namespace Legato.Assets
         /// <returns>The task object representing the asynchronous operation.</returns>
         public static async Task<AssetBundle?> LoadFromMemoryAsync(byte[] binary, Action<string>? warning = null)
         {
+            if (!AssetBundleCompatibility.IsSupported(binary, warning)) return null;
             TaskCompletionSource<AssetBundle> taskCompletionSource = new();
             var bundleRequest = AssetBundle.LoadFromMemoryAsync(binary);
             bundleRequest.completed += delegate
@@ -60,6 +62,7 @@ namespace Legato.Assets
         /// <returns>The task object representing the asynchronous operation.</returns>
         public static async Task<AssetBundle?> LoadFromStreamAsync(Stream stream, Action<string>? warning = null)
         {
+            if (!AssetBundleCompatibility.IsSupported(stream, warning)) return null;
             TaskCompletionSource<AssetBundle> taskCompletionSource = new();
             var bundleRequest = AssetBundle.LoadFromStreamAsync(stream);
             bundleRequest.completed += delegate
