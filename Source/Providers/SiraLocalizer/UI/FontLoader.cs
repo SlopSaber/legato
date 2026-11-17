@@ -40,7 +40,16 @@ namespace SiraLocalizer.UI
         private readonly List<TMP_FontAsset> _createdFontAssets = [];
         private readonly HashSet<TMP_FontAsset> _processedFontAssets = [];
 
+#if BEAT_SABER_1_29_0
+        private TMP_FontAsset _tekoBoldFontAsset;
+        internal TMP_FontAsset tekoBoldFontAsset {
+            get => _tekoBoldFontAsset != null ? _tekoBoldFontAsset
+                : _tekoBoldFontAsset = Legato.Assets.FontResources.RequireLoadedBold();
+            private set => _tekoBoldFontAsset = value;
+        }
+#else
         internal TMP_FontAsset tekoBoldFontAsset { get; private set; }
+#endif
 
         public FontLoader(SiraLog logger)
         {

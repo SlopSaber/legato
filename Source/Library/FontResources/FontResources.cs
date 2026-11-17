@@ -21,16 +21,20 @@ namespace Legato.Assets {
 #endif
 
 #if BEAT_SABER_1_29_0
+        internal static TMP_FontAsset RequireLoadedBold() => FindLoadedBold()
+            ?? throw new InvalidOperationException("The native Teko bold font is not loaded.");
+
+        private static TMP_FontAsset FindLoadedBold() => Resources.FindObjectsOfTypeAll<TMP_FontAsset>()
+            .FirstOrDefault(font => font.name == "Teko-Bold SDF");
+
         private static async Task<TMP_FontAsset> WaitForNativeBoldAsync(CancellationToken cancellationToken) {
             cancellationToken.ThrowIfCancellationRequested();
-            TMP_FontAsset Find() => Resources.FindObjectsOfTypeAll<TMP_FontAsset>()
-                .FirstOrDefault(font => font.name == "Teko-Bold SDF");
-            var loaded = Find();
+            var loaded = FindLoadedBold();
             if (loaded != null) return loaded;
 
             var completion = new TaskCompletionSource<TMP_FontAsset>(TaskCreationOptions.RunContinuationsAsynchronously);
             void OnSceneLoaded(Scene _, LoadSceneMode __) {
-                var font = Find();
+                var font = FindLoadedBold();
                 if (font != null) completion.TrySetResult(font);
             }
             SceneManager.sceneLoaded += OnSceneLoaded;
