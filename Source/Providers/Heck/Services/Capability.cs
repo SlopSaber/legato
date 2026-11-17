@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Reflection;
-using HarmonyLib;
 
 namespace Heck;
 
@@ -21,22 +20,25 @@ public class Capability
             return;
         }
 
-        _initialized = true;
         Type? collections = Type.GetType("SongCore.Collections, SongCore");
         if (collections == null)
         {
+            _initialized = true;
             return;
         }
 
-        MethodInfo register = AccessTools.Method(collections, "RegisterCapability");
-        _register = (Action<string>)Delegate.CreateDelegate(typeof(Action<string>), register);
-#if !PRE_V1_37_1
-        // random rename in 1.37.0 songcore
-        MethodInfo deregister = AccessTools.Method(collections, "DeregisterCapability");
-#else
-        MethodInfo deregister = AccessTools.Method(collections, "DeregisterizeCapability");
-#endif
-        _deregister = (Action<string>)Delegate.CreateDelegate(typeof(Action<string>), deregister);
+        const BindingFlags flags = BindingFlags.Public | BindingFlags.Static;
+        Type[] signature = { typeof(string) };
+        MethodInfo register = collections.GetMethod("RegisterCapability", flags, null, signature, null)
+            ?? throw new MissingMethodException(collections.FullName, "RegisterCapability(string)");
+        MethodInfo deregister = collections.GetMethod("DeregisterCapability", flags, null, signature, null)
+            ?? collections.GetMethod("DeregisterizeCapability", flags, null, signature, null)
+            ?? throw new MissingMethodException(collections.FullName, "DeregisterCapability(string)");
+        var registerAction = (Action<string>)Delegate.CreateDelegate(typeof(Action<string>), register);
+        var deregisterAction = (Action<string>)Delegate.CreateDelegate(typeof(Action<string>), deregister);
+        _register = registerAction;
+        _deregister = deregisterAction;
+        _initialized = true;
     }
 
     public void Deregister()
