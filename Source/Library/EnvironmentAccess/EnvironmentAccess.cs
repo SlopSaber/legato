@@ -1,11 +1,18 @@
 using System;
 using System.Linq;
+using System.Reflection;
 
 namespace Legato.Rendering {
     internal static class EnvironmentAccess {
+#if BEAT_SABER_1_29_0
+        private static readonly MethodInfo LoadEnvironment = typeof(CustomLevelLoader).GetMethod(
+            "LoadEnvironmentInfo", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic,
+            null, new[] { typeof(string), typeof(bool) }, null)
+            ?? throw new MissingMethodException(typeof(CustomLevelLoader).FullName, "LoadEnvironmentInfo");
+#endif
         internal static EnvironmentInfoSO FromLoader(CustomLevelLoader loader, string name) =>
 #if BEAT_SABER_1_29_0
-            loader.LoadEnvironmentInfo(name, false);
+            (EnvironmentInfoSO)LoadEnvironment.Invoke(loader, new object[] { name, false });
 #else
             loader._environmentsListModel.GetEnvironmentInfoBySerializedNameSafe(name);
 #endif
