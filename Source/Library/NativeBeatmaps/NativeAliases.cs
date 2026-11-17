@@ -1,4 +1,5 @@
 #if BEAT_SABER_1_29_0
+global using NativeLevelServiceInject = global::Zenject.InjectOptionalAttribute;
 global using BeatmapLevel = global::IPreviewBeatmapLevel;
 global using BeatmapKey = global::IDifficultyBeatmap;
 global using NativeSongPack = global::IBeatmapLevelPack;
@@ -10,6 +11,7 @@ global using IEnvironmentInfo = global::EnvironmentInfoSO;
 global using SpriteAsyncLoader = global::CachedMediaAsyncLoader;
 
 #else
+global using NativeLevelServiceInject = global::Zenject.InjectAttribute;
 global using NativeSongPack = global::BeatmapLevelPack;
 global using NativeSongCollection = global::BeatmapLevelPack;
 #endif
