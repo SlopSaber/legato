@@ -60,6 +60,11 @@ foreach ($file in $files) {
         $content = $content.Replace('Packages/com.unity.render-pipelines.core/Runtime/Utilities/Blit.hlsl', 'Assets/Legato/Blit.hlsl')
         if (!$urp) {
             $content = $content.Replace('"UnityUI.cginc"', '"Assets/Legato/UnityUICompatibility.cginc"')
+            if ($content.Contains('TMPro_Properties.cginc')) {
+                # Standard TMP SDF shaders moved signed font scale from UV2.y to UV0.w.
+                $content = $content.Replace('step(input.texcoord0.w,', 'step(input.texcoord1.y,')
+                $content = $content.Replace('abs(input.texcoord0.w)', 'abs(input.texcoord1.y)')
+            }
             if ($content -match 'Packages/com\.unity\.render-pipelines\.') {
                 throw "Unsupported pipeline include in $relative. Add an explicit shared adapter before backporting this shader."
             }
