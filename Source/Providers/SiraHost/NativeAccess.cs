@@ -7,6 +7,14 @@ namespace Legato.Sira
 {
     internal static class NativeAccess
     {
+        internal static bool MatchesInstaller(Type expected, Type actual)
+        {
+#if BEAT_SABER_1_29_0
+            if (expected == typeof(AppInit)) return expected.IsAssignableFrom(actual);
+#endif
+            return expected == actual;
+        }
+
 #if BEAT_SABER_1_29_0
         private static readonly Action<FlowCoordinator, ViewController?, ViewController.AnimationType> SetBottomScreen =
             (Action<FlowCoordinator, ViewController?, ViewController.AnimationType>)Delegate.CreateDelegate(
