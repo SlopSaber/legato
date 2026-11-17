@@ -19,6 +19,7 @@ internal class SongCoreLoader : IInitializable
 #if PRE_V1_37_1
     private MethodInfo _loadSongAndAddToDictionaries = null!;
     private MethodInfo _loadCustomLevelSongData = null!;
+    private MethodInfo? _loadBackportedLevel;
 #else
 #pragma warning disable SA1214
     private readonly CustomLevelLoader _customLevelLoader;
@@ -48,8 +49,14 @@ internal class SongCoreLoader : IInitializable
         _loaderInstanceField = instanceField;
 
 #if PRE_V1_37_1
-        _loadSongAndAddToDictionaries = AccessTools.Method(loaderType, "LoadSongAndAddToDictionaries");
-        _loadCustomLevelSongData = AccessTools.Method(loaderType, "LoadCustomLevelSongData");
+        _loadBackportedLevel = loaderType.GetMethod("LoadCustomLevel", BindingFlags.Public | BindingFlags.Static);
+        if (_loadBackportedLevel == null)
+        {
+            _loadSongAndAddToDictionaries = loaderType.GetMethod("LoadSongAndAddToDictionaries", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
+                ?? throw new MissingMethodException(loaderType.FullName, "LoadSongAndAddToDictionaries");
+            _loadCustomLevelSongData = loaderType.GetMethod("LoadCustomLevelSongData", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
+                ?? throw new MissingMethodException(loaderType.FullName, "LoadCustomLevelSongData");
+        }
 #else
         _loadCustomLevel = AccessTools.Method(loaderType, "LoadCustomLevel");
         FieldInfo loadedBeatmapSaveDataField = loaderType.GetField(
@@ -66,6 +73,14 @@ internal class SongCoreLoader : IInitializable
     // needed for other mods like BeatTogether/Camera2
     internal CustomPreviewBeatmapLevel Load(string songPath)
     {
+        if (_loadBackportedLevel != null)
+        {
+            object result = _loadBackportedLevel.Invoke(null, [songPath, null]) ??
+                throw new InvalidOperationException("SongCore error: failed to load.");
+            return result.GetType().GetField("Item2")?.GetValue(result) as CustomPreviewBeatmapLevel ??
+                throw new InvalidOperationException("SongCore error: failed to get the native preview level.");
+        }
+
         object loader = Loader;
 
         object? songData = _loadCustomLevelSongData.Invoke(loader, [songPath]);
