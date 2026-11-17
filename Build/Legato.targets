@@ -83,6 +83,10 @@
         <HintPath>$(LegatoReferenceRoot)\Beat Saber_Data\Managed\BGLib.Polyglot.dll</HintPath>
         <Private>false</Private>
       </Reference>
+      <Reference Include="UnityEngine.SceneManagementModule" Condition="'$(LegatoEnableSaberModels)' == 'true' AND '$(LegatoTargetProfile)' == '1.29.0' AND '@(Reference->WithMetadataValue('Identity', 'UnityEngine.SceneManagementModule'))' == ''">
+        <HintPath>$(LegatoReferenceRoot)\Beat Saber_Data\Managed\UnityEngine.SceneManagementModule.dll</HintPath>
+        <Private>false</Private>
+      </Reference>
       <Reference Include="DataModels" Condition="'@(Reference->WithMetadataValue('Identity', 'DataModels'))' == '' AND Exists('$(LegatoReferenceRoot)\Beat Saber_Data\Managed\DataModels.dll')">
         <HintPath>$(LegatoReferenceRoot)\Beat Saber_Data\Managed\DataModels.dll</HintPath>
         <Private>false</Private>

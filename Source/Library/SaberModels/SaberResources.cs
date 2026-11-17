@@ -2,7 +2,9 @@ using System;
 using System.Linq;
 using UnityEngine;
 using Zenject;
-#if !BEAT_SABER_1_29_0
+#if BEAT_SABER_1_29_0
+using UnityEngine.SceneManagement;
+#else
 using static BGLib.UnityExtension.AddressablesExtensions;
 #endif
 using Object = UnityEngine.Object;
@@ -13,6 +15,15 @@ internal sealed class SaberResourceCache
 {
     private GameObject? model;
     private SaberTrailRenderer? renderer;
+
+    internal SaberResourceCache() => SaberResources.ObserveAssets();
+
+    internal bool TryGetModel(out GameObject prefab)
+    {
+        if (model == null && SaberResources.TryLoadModel(out var loaded)) model = loaded;
+        prefab = model!;
+        return prefab != null;
+    }
 
     internal GameObject Model => model != null ? model : model = SaberResources.LoadModel();
 
@@ -30,6 +41,27 @@ internal sealed class SaberResourceCache
 
 internal static class SaberResources
 {
+#if BEAT_SABER_1_29_0
+    private static GameObject? nativeModel;
+    private static bool observingAssets;
+#endif
+
+    internal static void ObserveAssets()
+    {
+#if BEAT_SABER_1_29_0
+        if (observingAssets) return;
+        observingAssets = true;
+        SceneManager.sceneLoaded += CaptureNativeModel;
+#endif
+    }
+
+#if BEAT_SABER_1_29_0
+    private static void CaptureNativeModel(Scene scene, LoadSceneMode mode)
+    {
+        if (nativeModel == null) TryLoadModel(out _);
+    }
+#endif
+
     internal static SaberTrailRenderer LoadTrailRenderer() =>
 #if BEAT_SABER_1_29_0
         LoadModel().GetComponent<SaberTrail>()._trailRendererPrefab;
@@ -38,15 +70,25 @@ internal static class SaberResources
 #endif
 
     internal static GameObject LoadModel() =>
+        TryLoadModel(out var model) ? model : throw ResourceException;
+
+    internal static bool TryLoadModel(out GameObject model)
+    {
 #if BEAT_SABER_1_29_0
-        Resources.FindObjectsOfTypeAll<SaberModelController>()
-            .Where(model => model.name == "BasicSaberModel" || model.name == "BasicSaberModel(Clone)")
-            .OrderBy(model => model.gameObject.scene.IsValid())
-            .Select(model => model.gameObject).FirstOrDefault() ?? throw ResourceException;
+        // Hold the gameplay asset for later menu previews without loading another scene.
+        if (nativeModel == null)
+        {
+            nativeModel = Resources.FindObjectsOfTypeAll<SaberModelController>()
+                .Where(candidate => candidate.name == "BasicSaberModel" || candidate.name == "BasicSaberModel(Clone)")
+                .OrderBy(candidate => candidate.gameObject.scene.IsValid())
+                .Select(candidate => candidate.gameObject).FirstOrDefault();
+        }
+        model = nativeModel!;
 #else
-        LoadContent<GameObject>("Assets/Prefabs/Sabers/BasicSaberModel.prefab").FirstOrDefault()
-        ?? throw ResourceException;
+        model = LoadContent<GameObject>("Assets/Prefabs/Sabers/BasicSaberModel.prefab").FirstOrDefault()!;
 #endif
+        return model != null;
+    }
 
     internal static SaberTrailRenderer InstantiateRenderer(DiContainer container, SaberTrailRenderer prefab) =>
 #if BEAT_SABER_1_29_0
