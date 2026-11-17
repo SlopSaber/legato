@@ -12,6 +12,9 @@ namespace Legato.Sira
 #if BEAT_SABER_1_29_0
             if (!container.HasBinding<MainSettingsModelSO>())
                 container.Bind<MainSettingsModelSO>().FromInstance(FindMainSettings()).AsSingle();
+            if (!container.HasBinding<ColorSchemesSettings>())
+                container.Bind<ColorSchemesSettings>().FromMethod(context =>
+                    context.Container.Resolve<PlayerDataModel>().playerData.colorSchemesSettings).AsSingle();
             if (!container.HasBinding<EnvironmentsListSO>())
                 container.Bind<EnvironmentsListSO>().FromMethod(context =>
                     (EnvironmentsListSO)EnvironmentCatalog.GetValue(context.Container.Resolve<CustomLevelLoader>())!)
