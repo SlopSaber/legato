@@ -59,6 +59,7 @@ foreach ($file in $files) {
         $content = $content.Replace('Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl', 'Assets/Legato/Core.hlsl')
         $content = $content.Replace('Packages/com.unity.render-pipelines.core/Runtime/Utilities/Blit.hlsl', 'Assets/Legato/Blit.hlsl')
         if (!$urp) {
+            $content = $content.Replace('"UnityUI.cginc"', '"Assets/Legato/UnityUICompatibility.cginc"')
             if ($content -match 'Packages/com\.unity\.render-pipelines\.') {
                 throw "Unsupported pipeline include in $relative. Add an explicit shared adapter before backporting this shader."
             }
@@ -75,7 +76,7 @@ foreach ($file in $files) {
     $prepared['Assets/Content/' + $relative] = $content
 }
 $legato = Split-Path $PSScriptRoot -Parent
-foreach ($name in 'Core.hlsl','Blit.hlsl') { $prepared['Assets/Legato/' + $name] = [IO.File]::ReadAllText((Join-Path $legato ('ShaderLibrary/' + $name))) }
+foreach ($name in 'Core.hlsl','Blit.hlsl','UnityUICompatibility.cginc') { $prepared['Assets/Legato/' + $name] = [IO.File]::ReadAllText((Join-Path $legato ('ShaderLibrary/' + $name))) }
 $prepared['Assets/Legato/Pipeline.hlsl'] = '#define LEGATO_URP ' + [int]$urp + "`n"
 $prepared['Assets/Editor/BuildPortableShaders.cs'] = [IO.File]::ReadAllText((Join-Path $legato 'AssetBuild/Editor/BuildPortableShaders.cs'))
 $prepared['ProjectSettings/ProjectVersion.txt'] = "m_EditorVersion: $unityVersion`n"
