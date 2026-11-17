@@ -10,6 +10,8 @@ namespace Legato.Sira
         internal static void BindNativeServices(Zenject.DiContainer container)
         {
 #if BEAT_SABER_1_29_0
+            if (!container.HasBinding<MainSettingsModelSO>())
+                container.Bind<MainSettingsModelSO>().FromMethod(_ => FindMainSettings()).AsSingle();
             if (!container.HasBinding<EnvironmentsListSO>())
                 container.Bind<EnvironmentsListSO>().FromMethod(context =>
                     (EnvironmentsListSO)EnvironmentCatalog.GetValue(context.Container.Resolve<CustomLevelLoader>())!)
@@ -26,6 +28,18 @@ namespace Legato.Sira
         }
 
 #if BEAT_SABER_1_29_0
+        private static readonly FieldInfo MainSettings = typeof(MainSystemInit).GetField(
+            "_mainSettingsModel", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
+            ?? throw new MissingFieldException(typeof(MainSystemInit).FullName, "_mainSettingsModel");
+
+        private static MainSettingsModelSO FindMainSettings()
+        {
+            foreach (var initializer in UnityEngine.Resources.FindObjectsOfTypeAll<MainSystemInit>())
+                if (initializer.gameObject.scene.IsValid()
+                    && MainSettings.GetValue(initializer) is MainSettingsModelSO settings) return settings;
+            throw new InvalidOperationException("The native application settings are not loaded.");
+        }
+
         private static readonly FieldInfo EnvironmentCatalog = typeof(CustomLevelLoader).GetField(
             "_environmentSceneInfoCollection", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
             ?? throw new MissingFieldException(typeof(CustomLevelLoader).FullName, "_environmentSceneInfoCollection");
