@@ -97,7 +97,19 @@ namespace Legato.LocalizationSupport {
     internal sealed class LanguagePreferences {
 #if BEAT_SABER_1_29_0
         private readonly MainSettingsModelSO _settings;
-        public LanguagePreferences(MainSettingsModelSO settings) { _settings = settings; }
+        private static readonly FieldInfo MainSettings = typeof(MainSystemInit).GetField(
+            "_mainSettingsModel", BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public)
+            ?? throw new MissingFieldException(typeof(MainSystemInit).FullName, "_mainSettingsModel");
+
+        public LanguagePreferences() {
+            // Legacy settings are owned by the native initializer, not bound in its container.
+            foreach (var initializer in Resources.FindObjectsOfTypeAll<MainSystemInit>()) {
+                if (!initializer.gameObject.scene.IsValid()) continue;
+                _settings = (MainSettingsModelSO)MainSettings.GetValue(initializer);
+                if (_settings != null) return;
+            }
+            throw new InvalidOperationException("The native application settings are not loaded.");
+        }
         internal LocalizationLanguage Selected => _settings.language.value;
 #else
         private readonly SettingsManager _settings;
