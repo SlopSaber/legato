@@ -2,7 +2,8 @@ using IPA.Utilities;
 
 namespace Legato.UI {
     internal static class NativeLevelSelection {
-        internal static System.Reflection.MethodInfo CloseCollectionMethod => HarmonyLib.AccessTools.DeclaredMethod(typeof(AnnotatedBeatmapLevelCollectionsGridView), "CloseLevelCollection");
+        internal static System.Reflection.MethodInfo CloseCollectionMethod => typeof(AnnotatedBeatmapLevelCollectionsGridView).GetMethod("CloseLevelCollection",
+            System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.DeclaredOnly);
         internal static void PlayPreview(LevelCollectionViewController view, BeatmapLevel level, System.Threading.CancellationToken token) {
 #if BEAT_SABER_1_29_0
             token.ThrowIfCancellationRequested();
