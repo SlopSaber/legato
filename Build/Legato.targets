@@ -448,6 +448,8 @@
                Condition="'$(LegatoEnableSegmentedControlContainers)' == 'true'" />
       <Compile Include="$(LegatoSourceRoot)Library\LevelServiceInjection\**\*.cs"
                Condition="'$(LegatoEnableLevelServiceInjection)' == 'true'" />
+      <Compile Include="$(LegatoSourceRoot)Library\LegacyLayoutRepair\**\*.cs"
+               Condition="'$(LegatoEnableLegacyLayoutRepair)' == 'true'" />
       <Compile Include="$(LegatoSourceRoot)Providers\SongCore\**\*.cs"
                Condition="'$(LegatoEnableSongCoreProviders)' == 'true'" />
       <Compile Include="$(LegatoSourceRoot)Library\JsonCompatibility\**\*.cs"
