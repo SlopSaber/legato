@@ -9,7 +9,7 @@ using Zenject;
 
 namespace Vivify.HarmonyPatches;
 
-internal class AddComponentsToCamera : IAffinity
+internal class AddComponentsToCamera : IAffinity, IInitializable
 {
     private readonly SiraLog _log;
     private readonly DiContainer _container;
@@ -23,8 +23,16 @@ internal class AddComponentsToCamera : IAffinity
         _container = container;
     }
 
+    public void Initialize()
+    {
+        foreach (MainEffectController controller in Legato.Rendering.CameraEffectsLifecycle.ExistingControllers())
+        {
+            AddComponents(controller);
+        }
+    }
+
     [AffinityPostfix]
-    [AffinityPatch(typeof(MainEffectController), "get_container")]
+    [AffinityPatch(typeof(MainEffectController), Legato.Rendering.CameraEffectsLifecycle.AttachMethod)]
     private void AddComponents(MainEffectController __instance)
     {
         GameObject gameObject = __instance.gameObject;
