@@ -1,20 +1,33 @@
+using System;
+using System.Reflection;
 using HMUI;
 using IPA.Utilities;
 
 namespace Legato.UI {
     internal static class ScrollViewAccess {
+#if BEAT_SABER_1_29_0
+        private static readonly Func<TableView, ScrollView> GetScrollView = Getter<ScrollView>("scrollView");
+#else
+        private static readonly Func<TableView, float> GetPaddingStart = Getter<float>("paddingStart");
+#endif
+
+        private static Func<TableView, T> Getter<T>(string property) =>
+            (Func<TableView, T>)Delegate.CreateDelegate(typeof(Func<TableView, T>),
+                typeof(TableView).GetProperty(property, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
+                    ?.GetGetMethod(true) ?? throw new MissingMemberException(typeof(TableView).FullName, property));
+
         internal static void ScrollToTop(TableView table, bool animated) {
 #if BEAT_SABER_1_29_0
-            table.scrollView.ScrollTo(0, animated);
+            GetScrollView(table).ScrollTo(0, animated);
 #else
             table.ScrollToPosition(0, animated);
 #endif
         }
         internal static void ScrollToBottom(TableView table, bool animated) {
 #if BEAT_SABER_1_29_0
-            table.scrollView.ScrollToEnd(animated);
+            GetScrollView(table).ScrollToEnd(animated);
 #else
-            table.ScrollToPosition(table.dataSource.NumberOfCells() * (table.cellSize + table.spacing) + table.paddingStart, animated);
+            table.ScrollToPosition(table.dataSource.NumberOfCells() * (table.cellSize + table.spacing) + GetPaddingStart(table), animated);
 #endif
         }
         internal static void RefreshButtons(ScrollView view) =>
