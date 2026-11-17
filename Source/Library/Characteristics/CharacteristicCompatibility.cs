@@ -8,6 +8,13 @@ using UnityEngine;
 
 namespace Legato.Compatibility {
     internal static class CharacteristicCompatibility {
+        internal static string SerializedName(NativeBeatmapCharacteristic characteristic) =>
+#if BEAT_SABER_1_45_1 || BEAT_SABER_1_45_3
+            characteristic.SerializedName();
+#else
+            characteristic.serializedName;
+#endif
+
 #if BEAT_SABER_1_45_1 || BEAT_SABER_1_45_3
         private static BeatmapCharacteristicCollectionSO? _collection;
         private static readonly Dictionary<BeatmapCharacteristic, BeatmapCharacteristicSO> _assets = new();

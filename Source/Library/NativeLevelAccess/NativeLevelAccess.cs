@@ -13,11 +13,7 @@ namespace Legato.Beatmaps {
             level.allMappers;
 #endif
         internal static string SerializedName(NativeBeatmapCharacteristic characteristic) =>
-#if BEAT_SABER_1_29_0
-            characteristic.serializedName;
-#else
-            characteristic.SerializedName();
-#endif
+            Legato.Compatibility.CharacteristicCompatibility.SerializedName(characteristic);
         internal static IEnumerable<BeatmapDifficulty> Difficulties(BeatmapLevel level, NativeBeatmapCharacteristic characteristic) =>
 #if BEAT_SABER_1_29_0
             level.previewDifficultyBeatmapSets.Where(set => set.beatmapCharacteristic == characteristic).SelectMany(set => set.beatmapDifficulties);
