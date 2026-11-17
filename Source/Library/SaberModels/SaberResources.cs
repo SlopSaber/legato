@@ -27,6 +27,32 @@ internal sealed class SaberResourceCache
 
     internal GameObject Model => model != null ? model : model = SaberResources.LoadModel();
 
+    internal GameObject CreateDefaultModel(string name)
+    {
+#if BEAT_SABER_1_29_0
+        if (!TryGetModel(out var prefab)) return NativeSaberFallback.CreateModel(name);
+        return SaberResources.CreateModel(prefab, name);
+#else
+        return SaberResources.CreateModel(Model, name);
+#endif
+    }
+
+    internal Material GetDefaultTrailMaterial(bool shared)
+    {
+#if BEAT_SABER_1_29_0
+        if (!TryGetModel(out _)) return NativeSaberFallback.TrailMaterial;
+#endif
+        return SaberTrailAccess.GetMaterial(Renderer, shared);
+    }
+
+    internal SaberTrailRenderer CreateTrailRenderer(DiContainer container)
+    {
+#if BEAT_SABER_1_29_0
+        if (!TryGetModel(out _)) return NativeSaberFallback.CreateTrailRenderer();
+#endif
+        return SaberResources.InstantiateRenderer(container, Renderer);
+    }
+
     internal SaberTrailRenderer Renderer
     {
         get
@@ -44,6 +70,7 @@ internal static class SaberResources
 #if BEAT_SABER_1_29_0
     private static GameObject? nativeModel;
     private static bool observingAssets;
+    private static int lastNativeLookupFrame = -1;
 #endif
 
     internal static void ObserveAssets()
@@ -58,6 +85,7 @@ internal static class SaberResources
 #if BEAT_SABER_1_29_0
     private static void CaptureNativeModel(Scene scene, LoadSceneMode mode)
     {
+        lastNativeLookupFrame = -1;
         if (nativeModel == null) TryLoadModel(out _);
     }
 #endif
@@ -76,12 +104,13 @@ internal static class SaberResources
     {
 #if BEAT_SABER_1_29_0
         // Hold the gameplay asset for later menu previews without loading another scene.
-        if (nativeModel == null)
+        if (nativeModel == null && lastNativeLookupFrame != Time.frameCount)
         {
-            nativeModel = Resources.FindObjectsOfTypeAll<SaberModelController>()
-                .Where(candidate => candidate.name == "BasicSaberModel" || candidate.name == "BasicSaberModel(Clone)")
-                .OrderBy(candidate => candidate.gameObject.scene.IsValid())
-                .Select(candidate => candidate.gameObject).FirstOrDefault();
+            lastNativeLookupFrame = Time.frameCount;
+            var candidate = Resources.FindObjectsOfTypeAll<SaberModelController>()
+                .FirstOrDefault(controller => controller.name == "BasicSaberModel" && !controller.gameObject.scene.IsValid());
+            if (candidate != null && candidate.GetComponent<SaberTrail>()?._trailRendererPrefab != null)
+                nativeModel = candidate.gameObject;
         }
         model = nativeModel!;
 #else
@@ -105,6 +134,13 @@ internal static class SaberResources
         foreach (var glow in model.GetComponentsInChildren<SetSaberFakeGlowColor>()) glow.enabled = false;
         model.GetComponent<SaberTrail>().enabled = false;
         return model;
+    }
+
+    internal static void SetFallbackModelColor(GameObject model, Color color)
+    {
+#if BEAT_SABER_1_29_0
+        if (model.TryGetComponent<NativeSaberFallbackColor>(out var fallback)) fallback.SetColor(color);
+#endif
     }
 
 #if !BEAT_SABER_1_29_0
