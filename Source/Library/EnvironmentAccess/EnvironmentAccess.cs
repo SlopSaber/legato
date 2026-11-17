@@ -5,7 +5,7 @@ namespace Legato.Rendering {
     internal static class EnvironmentAccess {
         internal static EnvironmentInfoSO FromLoader(CustomLevelLoader loader, string name) =>
 #if BEAT_SABER_1_29_0
-            loader._environmentSceneInfoCollection.GetEnvironmentInfoBySerializedName(name) ?? loader._defaultEnvironmentInfo;
+            loader.LoadEnvironmentInfo(name, false);
 #else
             loader._environmentsListModel.GetEnvironmentInfoBySerializedNameSafe(name);
 #endif
