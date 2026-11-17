@@ -442,6 +442,8 @@
                Condition="'$(LegatoEnableSynapseProviders)' == 'true'" />
       <Compile Include="$(LegatoSourceRoot)Library\CameraEffectsLifecycle\**\*.cs"
                Condition="'$(LegatoEnableSynapseProviders)' == 'true' OR '$(LegatoEnableVivifyProviders)' == 'true'" />
+      <Compile Include="$(LegatoSourceRoot)Library\MenuEnvironmentColors\**\*.cs"
+               Condition="'$(LegatoEnableMenuEnvironmentColors)' == 'true'" />
       <Compile Include="$(LegatoSourceRoot)Library\SegmentedControlContainers\**\*.cs"
                Condition="'$(LegatoEnableSegmentedControlContainers)' == 'true'" />
       <Compile Include="$(LegatoSourceRoot)Providers\SongCore\**\*.cs"
