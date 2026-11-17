@@ -3,6 +3,9 @@ using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 using Steamworks;
+#if BEAT_SABER_1_29_0
+using UnityEngine;
+#endif
 
 namespace Legato.Platform {
     internal sealed class SteamWebTicket : IDisposable {
@@ -39,6 +42,9 @@ namespace Legato.Platform {
                 result._ticket = SteamUser.GetAuthTicketForWebApi(identity);
 #endif
                 if (result._ticket == HAuthTicket.Invalid) throw new InvalidOperationException("Steam did not issue a web authentication ticket.");
+#if BEAT_SABER_1_29_0
+                Application.quitting += result.Dispose;
+#endif
                 using var timeoutCancellation = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
                 var completed = await Task.WhenAny(completion.Task, Task.Delay(timeout, timeoutCancellation.Token)).ConfigureAwait(true);
                 cancellationToken.ThrowIfCancellationRequested();
@@ -62,13 +68,19 @@ namespace Legato.Platform {
         }
 
         public void Dispose() {
-            if (_ticket == HAuthTicket.Invalid) return;
+            var ticket = _ticket;
+            if (ticket == HAuthTicket.Invalid) return;
+            _ticket = HAuthTicket.Invalid;
+#if BEAT_SABER_1_29_0
+            Application.quitting -= Dispose;
+            // Steamworks.NET keeps its cached interface after the game's SteamManager shuts down.
+            var steamManager = SteamManager.s_instance;
+            if (steamManager == null || !steamManager.m_bInitialized) return;
+#endif
             try {
-                SteamUser.CancelAuthTicket(_ticket);
+                SteamUser.CancelAuthTicket(ticket);
             } catch (InvalidOperationException exception) when (exception.Message == "Steamworks is not initialized.") {
                 // Steam invalidates outstanding tickets before its shutdown callback.
-            } finally {
-                _ticket = HAuthTicket.Invalid;
             }
         }
 
