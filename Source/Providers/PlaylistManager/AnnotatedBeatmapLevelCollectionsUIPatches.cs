@@ -60,7 +60,9 @@ namespace PlaylistManager.AffinityPatches {
             FixHorizontalAnchors(viewport);
             var oldWidth = viewport.rect.width;
             var position = viewport.localPosition;
-            var left = position.x - oldWidth * viewport.pivot.x * viewport.localScale.x;
+            // Reserve the native category-control slot before the five playlist slots.
+            var left = position.x - oldWidth * viewport.pivot.x * viewport.localScale.x
+                + __instance._cellWidth * viewport.localScale.x;
             viewport.pivot = new Vector2(0.5f, viewport.pivot.y);
             viewport.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, VisibleColumns * __instance._cellWidth);
             position.x = left + viewport.rect.width * viewport.pivot.x * viewport.localScale.x;
