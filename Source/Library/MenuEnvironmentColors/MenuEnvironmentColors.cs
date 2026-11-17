@@ -10,6 +10,20 @@ namespace Legato.Rendering
         private static readonly FieldInfo Scheme = typeof(EnvironmentColorManager).GetField(
             "_colorScheme", BindingFlags.Instance | BindingFlags.NonPublic);
 
+        internal static ScriptableObject CloneSetting(ScriptableObject source)
+        {
+            var clone = Object.Instantiate(source);
+            for (var type = source.GetType(); type != null; type = type.BaseType)
+            {
+                if (!type.IsGenericType || type.GetGenericTypeDefinition() != typeof(ObservableVariableSO<>)) continue;
+                // Unity cloning omits the observable's nonserialized live value and event subscribers.
+                var value = type.GetField("_value", BindingFlags.Instance | BindingFlags.NonPublic);
+                value.SetValue(clone, value.GetValue(source));
+                break;
+            }
+            return clone;
+        }
+
         internal static GameObject Bind(DiContainer container, ColorScheme scheme)
         {
             // Only palette getters are needed; native lifecycle methods write shared color assets.
