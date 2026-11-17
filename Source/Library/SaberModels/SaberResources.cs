@@ -9,6 +9,25 @@ using Object = UnityEngine.Object;
 
 namespace Legato.Models;
 
+internal sealed class SaberResourceCache
+{
+    private GameObject? model;
+    private SaberTrailRenderer? renderer;
+
+    internal GameObject Model => model != null ? model : model = SaberResources.LoadModel();
+
+    internal SaberTrailRenderer Renderer
+    {
+        get
+        {
+            if (renderer != null) return renderer;
+            var loaded = SaberResources.LoadTrailRenderer();
+            SaberTrailAccess.InitializeRenderer(loaded);
+            return renderer = loaded;
+        }
+    }
+}
+
 internal static class SaberResources
 {
     internal static SaberTrailRenderer LoadTrailRenderer() =>
