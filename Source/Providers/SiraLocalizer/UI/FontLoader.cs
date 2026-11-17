@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Threading;
 using System.Threading.Tasks;
 using SiraLocalizer.Utilities;
 using SiraUtil.Logging;
@@ -30,6 +31,10 @@ namespace SiraLocalizer.UI
         ];
 
         private readonly SiraLog _logger;
+#if BEAT_SABER_1_29_0
+        private readonly CancellationTokenSource _nativeFontLoadCancellation = new();
+        private readonly CancellationToken _nativeFontLoadToken;
+#endif
 
         private readonly List<TMP_FontAsset> _fallbackFontAssets = [];
         private readonly List<TMP_FontAsset> _createdFontAssets = [];
@@ -40,6 +45,9 @@ namespace SiraLocalizer.UI
         public FontLoader(SiraLog logger)
         {
             _logger = logger;
+#if BEAT_SABER_1_29_0
+            _nativeFontLoadToken = _nativeFontLoadCancellation.Token;
+#endif
         }
 
         public async void Initialize()
@@ -50,6 +58,9 @@ namespace SiraLocalizer.UI
             {
                 await LoadFontAssetsAsync();
             }
+#if BEAT_SABER_1_29_0
+            catch (OperationCanceledException) when (_nativeFontLoadToken.IsCancellationRequested) { }
+#endif
             catch (Exception ex)
             {
                 _logger.Error(ex);
@@ -58,6 +69,11 @@ namespace SiraLocalizer.UI
 
         public void Dispose()
         {
+#if BEAT_SABER_1_29_0
+            if (_nativeFontLoadToken.IsCancellationRequested) return;
+            _nativeFontLoadCancellation.Cancel();
+            _nativeFontLoadCancellation.Dispose();
+#endif
             SceneManager.sceneLoaded -= OnSceneLoaded;
 
             foreach (TMP_FontAsset fontAsset in _processedFontAssets)
@@ -90,22 +106,33 @@ namespace SiraLocalizer.UI
         {
             _logger.Info($"Loading fonts");
 
+#if BEAT_SABER_1_29_0
+            await LoadTekoBoldAsync();
+            _nativeFontLoadToken.ThrowIfCancellationRequested();
+            await LoadFallbackFontsAsync();
+#else
             await Task.WhenAll(LoadFallbackFontsAsync(), LoadTekoBoldAsync());
+#endif
 
             ApplyFallbackFonts();
         }
 
         private async Task LoadTekoBoldAsync()
         {
-            tekoBoldFontAsset = await Legato.Assets.FontResources.LoadBoldAsync();
+            tekoBoldFontAsset = await Legato.Assets.FontResources.LoadBoldAsync(
+#if BEAT_SABER_1_29_0
+                _nativeFontLoadToken
+#endif
+            );
         }
 
         private async Task LoadFallbackFontsAsync()
         {
 #if BEAT_SABER_1_29_0
+            var nativeSdfMaterial = Legato.Assets.FontResources.NativeSdfMaterial;
             foreach (string fontName in kFontReplacementStrategies.SelectMany(strategy => strategy.fontNamesToAdd).Distinct()) {
                 var font = Legato.Assets.PortableFonts.Load(Assembly.GetExecutingAssembly(),
-                    "SiraLocalizer.Resources.PortableFonts.", fontName, Legato.Assets.FontResources.NativeSdfMaterial);
+                    "SiraLocalizer.Resources.PortableFonts.", fontName, nativeSdfMaterial);
                 _fallbackFontAssets.Add(font);
             }
             await Task.CompletedTask;

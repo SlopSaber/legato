@@ -1,24 +1,56 @@
 using System;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Experimental.Rendering;
 #if !BEAT_SABER_1_29_0
 using UnityEngine.AddressableAssets;
+#else
+using UnityEngine.SceneManagement;
 #endif
 
 namespace Legato.Assets {
     internal static class FontResources {
-        internal static Task<TMP_FontAsset> LoadBoldAsync() =>
+        internal static Task<TMP_FontAsset> LoadBoldAsync(CancellationToken cancellationToken = default) =>
 #if BEAT_SABER_1_29_0
-            Task.FromResult(Resources.FindObjectsOfTypeAll<TMP_FontAsset>().FirstOrDefault(font => font.name == "Teko-Bold SDF")
-                ?? throw new InvalidOperationException("The native Teko bold font is not loaded."));
+            WaitForNativeBoldAsync(cancellationToken);
 #else
             Addressables.LoadAssetAsync<TMP_FontAsset>("Assets/Visuals/Fonts/Teko-Bold/Teko-Bold SDF.asset").Task;
 #endif
+
+#if BEAT_SABER_1_29_0
+        private static async Task<TMP_FontAsset> WaitForNativeBoldAsync(CancellationToken cancellationToken) {
+            cancellationToken.ThrowIfCancellationRequested();
+            TMP_FontAsset Find() => Resources.FindObjectsOfTypeAll<TMP_FontAsset>()
+                .FirstOrDefault(font => font.name == "Teko-Bold SDF");
+            var loaded = Find();
+            if (loaded != null) return loaded;
+
+            var completion = new TaskCompletionSource<TMP_FontAsset>(TaskCreationOptions.RunContinuationsAsynchronously);
+            void OnSceneLoaded(Scene _, LoadSceneMode __) {
+                var font = Find();
+                if (font != null) completion.TrySetResult(font);
+            }
+            SceneManager.sceneLoaded += OnSceneLoaded;
+            try {
+                using (cancellationToken.Register(() => {
+                    SceneManager.sceneLoaded -= OnSceneLoaded;
+                    completion.TrySetCanceled();
+                })) {
+                    OnSceneLoaded(default, default);
+                    return await completion.Task;
+                }
+            }
+            finally { SceneManager.sceneLoaded -= OnSceneLoaded; }
+        }
+#endif
+
         internal static Material NativeSdfMaterial => (Resources.FindObjectsOfTypeAll<TMP_FontAsset>()
-            .FirstOrDefault(font => font.name == "Teko-Medium SDF") ?? TMP_Settings.defaultFontAsset).material;
+            .FirstOrDefault(font => font.name == "Teko-Medium SDF")
+            ?? Resources.FindObjectsOfTypeAll<TMP_FontAsset>().FirstOrDefault(font => font.name == "Teko-Bold SDF")
+            ?? TMP_Settings.defaultFontAsset).material;
         internal static TextureCreationFlags CopyTextureFlags =>
 #if BEAT_SABER_1_29_0
             TextureCreationFlags.None;

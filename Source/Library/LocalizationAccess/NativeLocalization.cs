@@ -37,7 +37,7 @@ namespace Legato.LocalizationSupport {
         }
         internal static void ImportFiles() {
 #if BEAT_SABER_1_29_0
-            LocalizationImporter.ImportFromFiles(Localization.Instance);
+            LocalizationImporter.Initialize();
 #else
             LocalizationImporter.ImportFromFiles(InputFiles);
 #endif
