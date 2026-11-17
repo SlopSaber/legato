@@ -89,7 +89,9 @@ namespace CP_SDK_BS.Game
             {
                 foreach (var model in Resources.FindObjectsOfTypeAll<PlatformLeaderboardsModel>())
                 {
-                    var identity = Legato.Platform.PlatformAuthentication.FromLeaderboards(model).GetIdentity();
+                    var authentication = Legato.Platform.PlatformAuthentication.FromLeaderboards(model);
+                    if (!authentication.Available) continue;
+                    var identity = authentication.GetIdentity();
                     if (identity.Status == System.Threading.Tasks.TaskStatus.RanToCompletion)
                         SetIdentity(identity.Result);
                     else

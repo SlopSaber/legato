@@ -19,6 +19,7 @@ namespace Legato.Platform {
         internal bool Available => _model != null;
         internal async Task<global::UserInfo?> GetGameUserInfo(CancellationToken token) {
             token.ThrowIfCancellationRequested();
+            if (!Available) return null;
 #if BEAT_SABER_1_29_0
             var user = await _model.GetUserInfo().ConfigureAwait(true);
             token.ThrowIfCancellationRequested();
@@ -35,6 +36,7 @@ namespace Legato.Platform {
         }
         internal UserIdentity? Identity => _identityTask?.Status == TaskStatus.RanToCompletion ? _identityTask.Result : null;
         internal Task<UserIdentity> GetIdentity() {
+            if (!Available) return Task.FromResult(new UserIdentity(AuthenticationPlatform.Unknown, string.Empty, string.Empty));
             if (_identityTask == null || _identityTask.IsFaulted || _identityTask.IsCanceled ||
                 (_identityTask.Status == TaskStatus.RanToCompletion &&
                  (string.IsNullOrEmpty(_identityTask.Result.UserId) || string.Equals(_identityTask.Result.UserId, "0", System.StringComparison.Ordinal))))
@@ -63,6 +65,7 @@ namespace Legato.Platform {
 #if BEAT_SABER_1_29_0
         private async Task<UserIdentity> ReadIdentity() {
             UserInfo user = await _model.GetUserInfo().ConfigureAwait(true);
+            if (user == null) return new UserIdentity(AuthenticationPlatform.Unknown, string.Empty, string.Empty);
             AuthenticationPlatform platform = user.platform == UserInfo.Platform.Steam ? AuthenticationPlatform.Steam
                 : user.platform == UserInfo.Platform.Oculus ? AuthenticationPlatform.Meta : AuthenticationPlatform.Unknown;
             return new UserIdentity(platform, user.platformUserId, user.userName);
