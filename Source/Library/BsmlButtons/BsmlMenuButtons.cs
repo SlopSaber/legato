@@ -3,6 +3,7 @@ extern alias Bsml;
 #endif
 
 #nullable enable
+using System.Collections.Generic;
 #if LEGATO_BSML_ALIASED
 using Bsml::BeatSaberMarkupLanguage.MenuButtons;
 #else
@@ -11,7 +12,18 @@ using BeatSaberMarkupLanguage.MenuButtons;
 
 namespace Legato.Presentation {
     internal static class BsmlMenuButtons {
-        internal static void Register(MenuButton button) => MenuButtons.Instance.RegisterButton(button);
-        internal static void Unregister(MenuButton button) => MenuButtons.Instance.UnregisterButton(button);
+        private static readonly Dictionary<MenuButton, MenuButtons> Owners = new();
+
+        internal static void Register(MenuButton button) {
+            var owner = MenuButtons.Instance;
+            owner.RegisterButton(button);
+            Owners[button] = owner;
+        }
+
+        internal static void Unregister(MenuButton button) {
+            if (!Owners.TryGetValue(button, out var owner)) return;
+            owner.UnregisterButton(button);
+            Owners.Remove(button);
+        }
     }
 }
