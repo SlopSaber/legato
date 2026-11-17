@@ -13,6 +13,8 @@ namespace PlaylistManager.AffinityPatches {
         private Vector2 _gridPosition;
         private Vector2 _screenSize;
         private bool _expanded;
+        private float _extraWidth;
+        private bool _screenExpanded;
         private AnnotatedBeatmapLevelCollectionsUIPatches(MainFlowCoordinator mainFlowCoordinator, SelectLevelCategoryViewController selectLevelCategoryViewController) {
             _mainFlowCoordinator = mainFlowCoordinator;
             _selectLevelCategoryViewController = selectLevelCategoryViewController;
@@ -33,23 +35,39 @@ namespace PlaylistManager.AffinityPatches {
                 grid._columnCount = Math.Max(Mathf.CeilToInt((annotatedBeatmapLevelCollections?.Count ?? 0) / 5f), _originalColumnCount);
                 var extra = (grid._columnCount - _originalColumnCount) * __instance._cellWidth;
                 rect.sizeDelta = new Vector2(_gridSize.x + extra, _gridSize.y);
-                rect.anchoredPosition = new Vector2(_gridPosition.x - extra / 2, _gridPosition.y);
-                screen.sizeDelta = new Vector2(_screenSize.x + extra * 2, _screenSize.y);
+                rect.anchoredPosition = _gridPosition;
+                _extraWidth = extra;
                 _expanded = true;
             } else {
                 grid._columnCount = _originalColumnCount;
                 rect.sizeDelta = _gridSize;
                 rect.anchoredPosition = _gridPosition;
-                if (_expanded) screen.sizeDelta = _screenSize;
+                RestoreScreenSize();
                 _expanded = false;
+                _extraWidth = 0;
             }
+        }
+        [AffinityPatch(typeof(AnnotatedBeatmapLevelCollectionsGridViewAnimator), nameof(AnnotatedBeatmapLevelCollectionsGridViewAnimator.AnimateOpen))]
+        [AffinityPrefix]
+        private void ExpandScreenSize() {
+            if (!_expanded) return;
+            var category = (RectTransform)_selectLevelCategoryViewController.transform;
+            if (category.anchorMin.x != 0.5f || category.anchorMax.x != 0.5f) {
+                var position = category.localPosition;
+                category.anchorMin = new Vector2(0.5f, category.anchorMin.y);
+                category.anchorMax = new Vector2(0.5f, category.anchorMax.y);
+                category.localPosition = position;
+            }
+            ((RectTransform)_mainFlowCoordinator._screenSystem.mainScreen.transform).sizeDelta =
+                new Vector2(_screenSize.x + _extraWidth * 2, _screenSize.y);
+            _screenExpanded = true;
         }
         [AffinityPatch(typeof(AnnotatedBeatmapLevelCollectionsGridViewAnimator), nameof(AnnotatedBeatmapLevelCollectionsGridViewAnimator.AnimateClose))]
         [AffinityPostfix]
         private void RestoreScreenSize() {
-            if (!_expanded) return;
+            if (!_screenExpanded) return;
             ((RectTransform)_mainFlowCoordinator._screenSystem.mainScreen.transform).sizeDelta = _screenSize;
-            _expanded = false;
+            _screenExpanded = false;
         }
     }
 }
