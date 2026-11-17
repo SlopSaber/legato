@@ -75,9 +75,9 @@ internal class SongCoreLoader : IInitializable
     {
         if (_loadBackportedLevel != null)
         {
-            object result = _loadBackportedLevel.Invoke(null, [songPath, null]) ??
+            object backportedResult = _loadBackportedLevel.Invoke(null, [songPath, null]) ??
                 throw new InvalidOperationException("SongCore error: failed to load.");
-            return result.GetType().GetField("Item2")?.GetValue(result) as CustomPreviewBeatmapLevel ??
+            return backportedResult.GetType().GetField("Item2")?.GetValue(backportedResult) as CustomPreviewBeatmapLevel ??
                 throw new InvalidOperationException("SongCore error: failed to get the native preview level.");
         }
 
