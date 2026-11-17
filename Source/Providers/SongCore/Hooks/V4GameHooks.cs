@@ -1,6 +1,7 @@
 #if BEAT_SABER_1_29_0
 #nullable enable
 using System;
+using System.Linq;
 using System.Reflection;
 using CustomJSONData.CustomBeatmap;
 using Mono.Cecil.Cil;
@@ -28,9 +29,12 @@ namespace SongCore.Hooks
             {
                 var cursor = new ILCursor(context);
                 cursor.GotoNext(MoveType.Before, instruction => instruction.MatchCallvirt<PathsHolder>(nameof(PathsHolder.UpdateVertexPathByBezierPath)));
+                // Detour bodies can include the instance as an explicit leading parameter.
+                var jumpSpeed = context.Method.Parameters.Single(parameter =>
+                    parameter.Name == "jumpSpeed" && parameter.ParameterType.FullName == "System.Single");
                 cursor.Emit(OpCodes.Ldarg_0);
                 cursor.Emit(OpCodes.Ldarg_1);
-                cursor.Emit(OpCodes.Ldarg_S, context.Method.Parameters[3]);
+                cursor.Emit(OpCodes.Ldarg, jumpSpeed);
                 cursor.EmitDelegate<Action<SliderMeshController, SliderData, float>>(RotateSliderPath);
             }, true);
         }
