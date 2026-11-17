@@ -6,6 +6,10 @@ using HarmonyLib;
 
 namespace Legato.Gameplay {
     internal static class TransitionMethods {
+        internal static bool SupportsGarbageCollectionControl(MethodBase? method) => method != null && method.GetParameters().Any(parameter =>
+            parameter.Name == "canTriggerGarbageCollector" &&
+            (parameter.ParameterType == typeof(bool) || parameter.ParameterType == typeof(bool).MakeByRefType()));
+
         internal static MethodInfo? StandardLevelWithBeatmapData() => typeof(MenuTransitionsHelper).GetMethods()
 #if BEAT_SABER_1_29_0
             .Where(method => method.Name == nameof(MenuTransitionsHelper.StartStandardLevel)
