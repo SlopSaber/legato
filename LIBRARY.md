@@ -4,6 +4,7 @@ This lists the small reusable APIs supplied by Legato. Transparent polyfills mir
 
 | Area | API | Purpose |
 | --- | --- | --- |
+| Optional types | `OptionalTypes.Resolve` / `FindLoaded` (`LegatoEnableTypeDiscovery`) | Cache loaded assemblies and resolve available game/library types without requesting absent optional DLLs; available files still use the normal assembly loader |
 | Rendering | `CameraTexturePass` (`LegatoEnablePortableRendering`) | Register disposable native-depth publication and optional opaque-color material chains across built-in Unity 2019 and Unity 6 RenderGraph; see README for timing, ownership and unsupported features |
 | Shader builds | `LegatoBuildPortableShaders`, `ShaderLibrary/Core.hlsl`, `ShaderLibrary/Blit.hlsl` | Compile maintained URP-style shader sources for the selected renderer using shared transforms, texture/stereo/depth sampling and fullscreen-blit APIs |
 | Beatmaps | `BeatmapLevelsModel.GetLoadedBeatmapLevels()` | Enumerate loaded levels |
