@@ -8,28 +8,18 @@ namespace PlaylistManager.AffinityPatches {
     internal class AnnotatedBeatmapLevelCollectionsUIPatches : IAffinity {
         private const int VisibleColumns = 5;
         private const int MaximumRows = 5;
-        private readonly MainFlowCoordinator _mainFlowCoordinator;
-        private readonly AnnotatedBeatmapLevelCollectionsViewController _collectionsViewController;
         private readonly SelectLevelCategoryViewController _categoryViewController;
         private readonly PlaylistManager.UI.PlaylistViewButtonsController _playlistButtons;
         private AnnotatedBeatmapLevelCollectionsGridView _collectionsGrid;
         private HorizontalGeometry _viewportGeometry;
         private HorizontalGeometry _contentGeometry;
-        private HorizontalGeometry _viewGeometry;
-        private HorizontalGeometry _categoryGeometry;
-        private Vector2 _screenSize;
-        private bool _captured;
         private bool _customSongs;
-        private bool _screenExpanded;
+        private bool _layoutApplied;
         private int _columns;
         private float _viewportLeft;
 
-        private AnnotatedBeatmapLevelCollectionsUIPatches(MainFlowCoordinator mainFlowCoordinator,
-            AnnotatedBeatmapLevelCollectionsViewController annotatedBeatmapLevelCollectionsViewController,
-            SelectLevelCategoryViewController selectLevelCategoryViewController,
+        private AnnotatedBeatmapLevelCollectionsUIPatches(SelectLevelCategoryViewController selectLevelCategoryViewController,
             PlaylistManager.UI.PlaylistViewButtonsController playlistButtons) {
-            _mainFlowCoordinator = mainFlowCoordinator;
-            _collectionsViewController = annotatedBeatmapLevelCollectionsViewController;
             _categoryViewController = selectLevelCategoryViewController;
             _playlistButtons = playlistButtons;
         }
@@ -38,39 +28,31 @@ namespace PlaylistManager.AffinityPatches {
         [AffinityPrefix]
         private void ResizeGrid(AnnotatedBeatmapLevelCollectionsGridView __instance,
             IReadOnlyList<NativeSongCollection> annotatedBeatmapLevelCollections) {
+            RestoreLayout();
             _collectionsGrid = __instance;
-            var animator = __instance._animator;
-            var view = (RectTransform)_collectionsViewController.transform;
-            var category = (RectTransform)_categoryViewController.transform;
-            if (!_captured) {
-                _viewportGeometry = new HorizontalGeometry(animator._viewportTransform);
-                _contentGeometry = new HorizontalGeometry(animator._contentTransform);
-                _viewGeometry = new HorizontalGeometry(view);
-                _categoryGeometry = new HorizontalGeometry(category);
-                _captured = true;
-            }
-            RestoreScreenSize();
-            _viewGeometry.Restore(view);
-            _categoryGeometry.Restore(category);
-            _viewportGeometry.Restore(animator._viewportTransform);
-            _contentGeometry.Restore(animator._contentTransform);
             _customSongs = _categoryViewController.selectedLevelCategory == SelectLevelCategoryViewController.LevelCategory.CustomSongs;
             if (!_customSongs) return;
 
             _columns = Math.Max(VisibleColumns, Mathf.CeilToInt((annotatedBeatmapLevelCollections?.Count ?? 0) / (float)MaximumRows));
-            FixHorizontalAnchors(view);
-            FixHorizontalAnchors(category);
+            ApplyLayout();
+        }
+
+        private void ApplyLayout() {
+            var animator = _collectionsGrid._animator;
             var viewport = animator._viewportTransform;
+            _viewportGeometry = new HorizontalGeometry(viewport);
+            _contentGeometry = new HorizontalGeometry(animator._contentTransform);
+            _layoutApplied = true;
             FixHorizontalAnchors(viewport);
             _viewportLeft = viewport.localPosition.x - viewport.rect.width * viewport.pivot.x * viewport.localScale.x;
             viewport.pivot = new Vector2(0.5f, viewport.pivot.y);
-            viewport.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, VisibleColumns * __instance._cellWidth);
+            viewport.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, VisibleColumns * _collectionsGrid._cellWidth);
             PositionCollapsedViewport(viewport);
 
             // GridView.ReloadData derives its columns from content width on this native API.
             FixHorizontalAnchors(animator._contentTransform);
             animator._contentTransform.pivot = new Vector2(0.5f, animator._contentTransform.pivot.y);
-            animator._contentTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, _columns * __instance._cellWidth);
+            animator._contentTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, _columns * _collectionsGrid._cellWidth);
         }
 
         [AffinityPatch(typeof(AnnotatedBeatmapLevelCollectionsGridViewAnimator), nameof(AnnotatedBeatmapLevelCollectionsGridViewAnimator.Init))]
@@ -92,10 +74,6 @@ namespace PlaylistManager.AffinityPatches {
         private void ExpandViewport(AnnotatedBeatmapLevelCollectionsGridViewAnimator __instance, bool animated) {
             if (!Owns(__instance)) return;
             SetTweenTargets(__instance, (_columns * 2 - VisibleColumns) * _collectionsGrid._cellWidth, animated);
-            var screen = (RectTransform)_mainFlowCoordinator._screenSystem.mainScreen.transform;
-            if (!_screenExpanded) _screenSize = screen.sizeDelta;
-            screen.sizeDelta = new Vector2(_screenSize.x + Math.Max(0, _columns - VisibleColumns) * _collectionsGrid._cellWidth * 2, _screenSize.y);
-            _screenExpanded = true;
         }
 
         [AffinityPatch(typeof(AnnotatedBeatmapLevelCollectionsGridViewAnimator), nameof(AnnotatedBeatmapLevelCollectionsGridViewAnimator.AnimateClose))]
@@ -103,28 +81,43 @@ namespace PlaylistManager.AffinityPatches {
         private void CollapseViewport(AnnotatedBeatmapLevelCollectionsGridViewAnimator __instance, bool animated) {
             if (!Owns(__instance)) return;
             SetTweenTargets(__instance, VisibleColumns * _collectionsGrid._cellWidth, animated);
-            RestoreScreenSize();
             PositionCollapsedViewport(__instance._viewportTransform);
+        }
+
+        [AffinityPatch(typeof(AnnotatedBeatmapLevelCollectionsViewController), nameof(AnnotatedBeatmapLevelCollectionsViewController.DidActivate))]
+        [AffinityPostfix]
+        private void RestoreCollapsedViewport(AnnotatedBeatmapLevelCollectionsViewController __instance) {
+            if (!_customSongs || _collectionsGrid == null || _collectionsGrid != __instance._annotatedBeatmapLevelCollectionsGridView) return;
+            if (!_layoutApplied) ApplyLayout();
+            var animator = _collectionsGrid._animator;
+            animator.AnimateClose(_collectionsGrid._selectedCellIndex / _columns, false);
         }
 
         [AffinityPatch(typeof(AnnotatedBeatmapLevelCollectionsViewController), nameof(AnnotatedBeatmapLevelCollectionsViewController.DidDeactivate))]
         [AffinityPrefix]
-        private void RestoreScreenSize() {
-            if (!_screenExpanded) return;
-            ((RectTransform)_mainFlowCoordinator._screenSystem.mainScreen.transform).sizeDelta = _screenSize;
-            _screenExpanded = false;
+        private void ReleaseViewport(AnnotatedBeatmapLevelCollectionsViewController __instance) {
+            if (_collectionsGrid != null && _collectionsGrid == __instance._annotatedBeatmapLevelCollectionsGridView) RestoreLayout();
+        }
+
+        private void RestoreLayout() {
+            if (!_layoutApplied || _collectionsGrid == null) return;
+            _layoutApplied = false;
+            var animator = _collectionsGrid._animator;
+            animator.AnimateClose(Math.Max(0, _collectionsGrid._selectedCellIndex) / _columns, false);
+            _viewportGeometry.Restore(animator._viewportTransform);
+            _contentGeometry.Restore(animator._contentTransform);
         }
 
         private bool Owns(AnnotatedBeatmapLevelCollectionsGridViewAnimator animator) =>
-            _customSongs && _collectionsGrid != null && animator == _collectionsGrid._animator;
+            _layoutApplied && _collectionsGrid != null && animator == _collectionsGrid._animator;
 
         private void PositionCollapsedViewport(RectTransform viewport) {
             var cell = _collectionsGrid._cellWidth * viewport.localScale.x;
             var halfWidth = VisibleColumns * cell / 2f;
             var position = viewport.localPosition;
-            position.x = _viewportLeft + cell / 2f + halfWidth;
+            position.x = _viewportLeft + halfWidth;
             if (_playlistButtons.TryGetActionLeftEdge(viewport.parent, out var actionsLeft))
-                position.x = Mathf.Min(position.x, actionsLeft - halfWidth - cell * 0.08f);
+                position.x = actionsLeft - halfWidth - cell * 0.08f;
             viewport.localPosition = position;
         }
 
