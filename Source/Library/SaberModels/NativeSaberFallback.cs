@@ -7,6 +7,7 @@ internal static class NativeSaberFallback
 {
     private static Material? modelMaterial;
     private static Material? trailMaterial;
+    private static Mesh? partMesh;
 
     internal static Material TrailMaterial
     {
@@ -54,18 +55,32 @@ internal static class NativeSaberFallback
 
     private static MeshRenderer CreatePart(Transform parent, string name, Vector3 scale, float center)
     {
-        var part = GameObject.CreatePrimitive(PrimitiveType.Cube);
-        part.name = name;
+        var part = new GameObject(name);
         part.transform.SetParent(parent, false);
         part.transform.localPosition = new Vector3(0f, 0f, center);
         part.transform.localScale = scale;
-        var collider = part.GetComponent<Collider>();
-        collider.enabled = false;
-        Object.Destroy(collider);
-        var renderer = part.GetComponent<MeshRenderer>();
+        if (partMesh == null) partMesh = CreatePartMesh();
+        part.AddComponent<MeshFilter>().sharedMesh = partMesh;
+        var renderer = part.AddComponent<MeshRenderer>();
         if (modelMaterial == null) modelMaterial = CreateMaterial("Fallback saber model");
         renderer.sharedMaterial = modelMaterial;
         return renderer;
+    }
+
+    private static Mesh CreatePartMesh()
+    {
+        const float h = 0.5f;
+        var mesh = new Mesh
+        {
+            name = "Fallback saber part",
+            hideFlags = HideFlags.HideAndDontSave,
+            vertices = [new(-h, -h, -h), new(h, -h, -h), new(h, h, -h), new(-h, h, -h),
+                        new(-h, -h, h), new(h, -h, h), new(h, h, h), new(-h, h, h)],
+            triangles = [0, 2, 1, 0, 3, 2, 4, 5, 6, 4, 6, 7, 0, 4, 7, 0, 7, 3,
+                         1, 2, 6, 1, 6, 5, 0, 1, 5, 0, 5, 4, 3, 7, 6, 3, 6, 2]
+        };
+        mesh.UploadMeshData(true);
+        return mesh;
     }
 
     private static Material CreateMaterial(string name) => new(Shader.Find("Sprites/Default"))
