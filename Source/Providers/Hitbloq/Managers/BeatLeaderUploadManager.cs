@@ -48,7 +48,7 @@ namespace Hitbloq.Managers
 
 		private bool TrySubscribeNewUploadEvent()
 		{
-			var uploadRequestType = Type.GetType("BeatLeader.API.UploadReplayRequest, BeatLeader", false);
+			var uploadRequestType = Legato.Reflection.OptionalTypes.FindLoaded("BeatLeader.API.UploadReplayRequest", "BeatLeader");
 			_newUploadStateChangedEvent = uploadRequestType?.GetEvent("StateChangedEvent", BindingFlags.Public | BindingFlags.Static);
 			if (_newUploadStateChangedEvent?.EventHandlerType == null)
 			{
@@ -62,7 +62,7 @@ namespace Hitbloq.Managers
 
 		private bool TrySubscribeLegacyUploadEvent()
 		{
-			var scoreUtilType = Type.GetType("BeatLeader.Utils.ScoreUtil, BeatLeader", false);
+			var scoreUtilType = Legato.Reflection.OptionalTypes.FindLoaded("BeatLeader.Utils.ScoreUtil", "BeatLeader");
 			_legacyReplayUploadStartedField = scoreUtilType?.GetField("ReplayUploadStartedEvent", BindingFlags.Public | BindingFlags.Static);
 			var eventHandlerType = _legacyReplayUploadStartedField?.FieldType;
 			if (eventHandlerType == null)
