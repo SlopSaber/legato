@@ -9,12 +9,16 @@ namespace Legato.Rendering {
             "LoadEnvironmentInfo", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic,
             null, new[] { typeof(string), typeof(bool) }, null)
             ?? throw new MissingMethodException(typeof(CustomLevelLoader).FullName, "LoadEnvironmentInfo");
+#else
+        private static readonly FieldInfo Environments = typeof(CustomLevelLoader).GetField(
+            "_environmentsListModel", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
+            ?? throw new MissingFieldException(typeof(CustomLevelLoader).FullName, "_environmentsListModel");
 #endif
         internal static EnvironmentInfoSO FromLoader(CustomLevelLoader loader, string name) =>
 #if BEAT_SABER_1_29_0
             (EnvironmentInfoSO)LoadEnvironment.Invoke(loader, new object[] { name, false });
 #else
-            loader._environmentsListModel.GetEnvironmentInfoBySerializedNameSafe(name);
+            ((EnvironmentsListModel)Environments.GetValue(loader)).GetEnvironmentInfoBySerializedNameSafe(name);
 #endif
         internal static EnvironmentInfoSO Active(GameplayCoreSceneSetupData scene) =>
 #if BEAT_SABER_1_29_0
