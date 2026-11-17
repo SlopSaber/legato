@@ -7,6 +7,16 @@ namespace Legato.Sira
 {
     internal static class NativeAccess
     {
+        internal static void BindNativeServices(Zenject.DiContainer container)
+        {
+#if BEAT_SABER_1_29_0
+            if (!container.HasBinding<EnvironmentsListSO>())
+                container.Bind<EnvironmentsListSO>().FromMethod(context =>
+                    (EnvironmentsListSO)EnvironmentCatalog.GetValue(context.Container.Resolve<CustomLevelLoader>())!)
+                    .AsSingle();
+#endif
+        }
+
         internal static bool MatchesInstaller(Type expected, Type actual)
         {
 #if BEAT_SABER_1_29_0
@@ -16,6 +26,10 @@ namespace Legato.Sira
         }
 
 #if BEAT_SABER_1_29_0
+        private static readonly FieldInfo EnvironmentCatalog = typeof(CustomLevelLoader).GetField(
+            "_environmentSceneInfoCollection", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
+            ?? throw new MissingFieldException(typeof(CustomLevelLoader).FullName, "_environmentSceneInfoCollection");
+
         private static readonly Action<FlowCoordinator, ViewController?, ViewController.AnimationType> SetBottomScreen =
             (Action<FlowCoordinator, ViewController?, ViewController.AnimationType>)Delegate.CreateDelegate(
                 typeof(Action<FlowCoordinator, ViewController?, ViewController.AnimationType>),
