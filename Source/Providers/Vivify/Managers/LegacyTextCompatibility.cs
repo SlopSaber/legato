@@ -1,9 +1,13 @@
 #if BEAT_SABER_1453
+using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Text;
 using JetBrains.Annotations;
 using SiraUtil.Logging;
 using TMPro;
 using UnityEngine;
+using Object = UnityEngine.Object;
 
 namespace Vivify.Managers;
 
@@ -13,12 +17,22 @@ namespace Vivify.Managers;
 internal sealed class LegacyTextCompatibility
 {
     private const string DistanceFieldShader = "TextMeshPro/Distance Field";
+    private const string MobileDistanceFieldShader = "TextMeshPro/Mobile/Distance Field";
+    private const string NativeDistanceFieldFont = "Assets/Visuals/Fonts/Test Fallback Fonts/NotoSansKR-Medium SDF.asset";
+    private const string NativeMobileDistanceFieldFont = "Assets/Visuals/Fonts/Teko-Bold/Teko-Bold SDF.asset";
 
     [UsedImplicitly]
     private LegacyTextCompatibility(AssetBundleManager assetBundleManager, SiraLog log)
     {
         int repaired = 0;
+        bool legacyBundle = IsPreUnity6Bundle(assetBundleManager.BundlePath);
         List<TMP_Text> texts = [];
+        List<TMP_SubMesh> subMeshes = [];
+        List<TMP_SubMeshUI> uiSubMeshes = [];
+        HashSet<TMP_FontAsset> visitedFonts = [];
+        HashSet<Material> visitedMaterials = [];
+        Dictionary<string, Shader?> nativeShaders = new(StringComparer.Ordinal);
+        int updatedShaders = 0;
         foreach (Object asset in assetBundleManager.Assets)
         {
             switch (asset)
@@ -27,6 +41,11 @@ internal sealed class LegacyTextCompatibility
                     if (EnsureFontMaterial(font))
                     {
                         repaired++;
+                    }
+
+                    if (legacyBundle)
+                    {
+                        UpdateFontShaders(font);
                     }
 
                     break;
@@ -39,6 +58,27 @@ internal sealed class LegacyTextCompatibility
                         {
                             repaired++;
                         }
+
+                        if (legacyBundle)
+                        {
+                            UpdateFontShaders(text.font);
+                            UpdateShader(text.fontSharedMaterial);
+                        }
+                    }
+
+                    if (legacyBundle && texts.Count > 0)
+                    {
+                        prefab.GetComponentsInChildren(true, subMeshes);
+                        foreach (TMP_SubMesh subMesh in subMeshes)
+                        {
+                            UpdateShader(subMesh.sharedMaterial);
+                        }
+
+                        prefab.GetComponentsInChildren(true, uiSubMeshes);
+                        foreach (TMP_SubMeshUI subMesh in uiSubMeshes)
+                        {
+                            UpdateShader(subMesh.sharedMaterial);
+                        }
                     }
 
                     break;
@@ -48,6 +88,66 @@ internal sealed class LegacyTextCompatibility
         if (repaired > 0)
         {
             log.Info($"Restored {repaired} missing TextMeshPro material(s) in bundled assets.");
+        }
+
+        if (updatedShaders > 0)
+        {
+            log.Info($"Updated {updatedShaders} bundled TextMeshPro material(s) for the current glyph UV layout.");
+        }
+
+        void UpdateFontShaders(TMP_FontAsset? font)
+        {
+            if (font == null || !visitedFonts.Add(font))
+            {
+                return;
+            }
+
+            UpdateShader(font.material);
+            if (font.fallbackFontAssetTable != null)
+            {
+                foreach (TMP_FontAsset fallback in font.fallbackFontAssetTable)
+                {
+                    UpdateFontShaders(fallback);
+                }
+            }
+        }
+
+        void UpdateShader(Material? material)
+        {
+            if (material == null || material.shader == null || !visitedMaterials.Add(material))
+            {
+                return;
+            }
+
+            Shader original = material.shader;
+            string name = original.name;
+            if (name != DistanceFieldShader && name != MobileDistanceFieldShader)
+            {
+                return;
+            }
+
+            if (!nativeShaders.TryGetValue(name, out Shader? nativeShader))
+            {
+                nativeShader = FindNativeShader(name);
+                nativeShaders.Add(name, nativeShader);
+                if (nativeShader == null)
+                {
+                    log.Warn($"Could not find the game shader [{name}] for bundled TextMeshPro materials.");
+                }
+            }
+
+            if (nativeShader == null || nativeShader == original)
+            {
+                return;
+            }
+
+            // Keep the authored atlas, settings and material identity for TMP and map events.
+            int renderQueue = material.rawRenderQueue;
+            string[] keywords = material.shaderKeywords;
+            material.shader = nativeShader;
+            material.shaderKeywords = keywords;
+            material.renderQueue = renderQueue;
+            updatedShaders++;
         }
     }
 
@@ -77,6 +177,59 @@ internal sealed class LegacyTextCompatibility
         }
 
         return disabled;
+    }
+
+    private static bool IsPreUnity6Bundle(string? path)
+    {
+        if (path == null || !File.Exists(path))
+        {
+            return false;
+        }
+
+        try
+        {
+            using BinaryReader reader = new(File.OpenRead(path));
+
+            // UnityFS signature and binary format version occupy the first 12 bytes.
+            byte[] header = reader.ReadBytes(128);
+            if (header.Length <= 12 || Encoding.ASCII.GetString(header, 0, 8) != "UnityFS\0")
+            {
+                return false;
+            }
+
+            string[] fields = Encoding.ASCII.GetString(header, 12, header.Length - 12).Split('\0');
+            int separator = fields.Length > 1 ? fields[1].IndexOf('.') : -1;
+            return separator > 0 && int.TryParse(fields[1].Substring(0, separator), out int major) && major < 6000;
+        }
+        catch (IOException)
+        {
+            return false;
+        }
+        catch (UnauthorizedAccessException)
+        {
+            return false;
+        }
+    }
+
+    private static Shader? FindNativeShader(string name)
+    {
+        string fontPath = name == DistanceFieldShader ? NativeDistanceFieldFont : NativeMobileDistanceFieldFont;
+        foreach (AssetBundle bundle in AssetBundle.GetAllLoadedAssetBundles())
+        {
+            if (!bundle.Contains(NativeMobileDistanceFieldFont) || !bundle.Contains(fontPath))
+            {
+                continue;
+            }
+
+            // The map and the game can both have a shader named this way.
+            Shader? shader = bundle.LoadAsset<TMP_FontAsset>(fontPath)?.material?.shader;
+            if (shader != null && shader.name == name && shader.isSupported)
+            {
+                return shader;
+            }
+        }
+
+        return null;
     }
 
     private static bool EnsureTextMaterial(TMP_Text text)
