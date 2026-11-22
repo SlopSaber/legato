@@ -420,6 +420,8 @@
                Condition="'$(LegatoEnablePosePrediction)' == 'true'" />
       <Compile Include="$(LegatoSourceRoot)Library\Transitions\**\*.cs"
                Condition="'$(LegatoEnableTransitions)' == 'true'" />
+      <Compile Include="$(LegatoSourceRoot)Library\HealthWarningStartup\HealthWarningStartup.cs"
+               Condition="'$(LegatoEnableHealthWarningStartup)' == 'true'" />
       <Compile Include="$(LegatoSourceRoot)Library\SceneEvents\**\*.cs"
                Condition="'$(LegatoEnableSceneEvents)' == 'true'" />
       <Compile Include="$(LegatoSourceRoot)Library\MirrorSettings\**\*.cs"
