@@ -71,7 +71,7 @@
       <LegatoUsesBuiltInRendering Condition="'$(_LegatoApiVersion)' != '' AND $([MSBuild]::VersionLessThan('$(_LegatoApiVersion)', '1.41.1'))">true</LegatoUsesBuiltInRendering>
       <DefineConstants Condition="'$(LegatoUsesBuiltInRendering)' == 'true'">$(DefineConstants);LEGATO_BUILT_IN_RENDERING</DefineConstants>
       <DefineConstants Condition="'$(_LegatoApiVersion)' != '' AND $([MSBuild]::VersionGreaterThanOrEquals('$(_LegatoApiVersion)', '1.41.1'))">$(DefineConstants);LEGATO_LOCALIZATION_REMOVE_LISTENER</DefineConstants>
-      <DefineConstants Condition="'$(_LegatoApiVersion)' != '' AND $([MSBuild]::VersionGreaterThanOrEquals('$(_LegatoApiVersion)', '1.45.1'))">$(DefineConstants);LEGATO_XR_APP_FOCUS_QUERY</DefineConstants>
+      <DefineConstants Condition="'$(_LegatoApiVersion)' != '' AND $([MSBuild]::VersionGreaterThanOrEquals('$(_LegatoApiVersion)', '1.45.1'))">$(DefineConstants);LEGATO_XR_APP_FOCUS_QUERY;LEGATO_XR_URP_RENDER_SCALE</DefineConstants>
       <DefineConstants Condition="'$(_LegatoApiVersion)' != '' AND $([MSBuild]::VersionLessThan('$(_LegatoApiVersion)', '1.41.1'))">$(DefineConstants);LEGATO_CHARACTERISTIC_NAME_PROPERTY;LEGATO_LEGACY_SCENE_NAMES;LEGATO_PLATFORM_USER_MODEL;LEGATO_GAMEPLAY_WITHOUT_ADDITIONAL_INFORMATION;LEGATO_BURN_MARKS_START</DefineConstants>
       <DefineConstants Condition="'$(_LegatoApiVersion)' != '' AND $([MSBuild]::VersionLessThan('$(_LegatoApiVersion)', '1.41.1'))">$(DefineConstants);LEGATO_MIXER_MUSIC_PITCH</DefineConstants>
       <DefineConstants Condition="'$(_LegatoApiVersion)' != '' AND $([MSBuild]::VersionGreaterThanOrEquals('$(_LegatoApiVersion)', '1.41.1'))">$(DefineConstants);LEGATO_BEATMAP_LOAD_ERROR_MESSAGE</DefineConstants>
