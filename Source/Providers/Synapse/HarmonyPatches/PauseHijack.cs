@@ -87,7 +87,7 @@ internal class PauseHijack : IAffinity, IInitializable
     }
 
     [AffinityPostfix]
-#if BEAT_SABER_1_29_0
+#if !LEGATO_ENUM_PAUSE_STATE
     [AffinityPatch(typeof(PauseController), nameof(PauseController.HandlePauseMenuManagerDidPressContinueButton))]
 #else
     [AffinityPatch(typeof(PauseController), nameof(PauseController.HandlePauseMenuManagerDidStartResumeAnimation))]

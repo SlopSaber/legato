@@ -1,7 +1,7 @@
 namespace Legato.Gameplay {
     internal static class PracticePlayback {
         internal static float SpawnAheadTime(BeatmapObjectSpawnController controller) =>
-#if BEAT_SABER_1_29_0
+#if !LEGATO_VARIABLE_MOVEMENT_DATA
             controller._beatmapObjectSpawnMovementData.spawnAheadTime;
 #else
             controller._variableMovementDataProvider.spawnAheadTime;

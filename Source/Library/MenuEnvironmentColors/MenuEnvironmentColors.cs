@@ -1,4 +1,4 @@
-#if BEAT_SABER_1_29_0
+#if !LEGATO_ENVIRONMENT_COLOR_PROVIDER
 using System.Reflection;
 using UnityEngine;
 using Zenject;
@@ -10,6 +10,7 @@ namespace Legato.Rendering
         private static readonly FieldInfo Scheme = typeof(EnvironmentColorManager).GetField(
             "_colorScheme", BindingFlags.Instance | BindingFlags.NonPublic);
 
+#if BEAT_SABER_1_29_0
         internal static ScriptableObject CloneSetting(ScriptableObject source)
         {
             var clone = Object.Instantiate(source);
@@ -23,6 +24,7 @@ namespace Legato.Rendering
             }
             return clone;
         }
+#endif
 
         internal static GameObject Bind(DiContainer container, ColorScheme scheme)
         {

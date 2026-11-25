@@ -21,7 +21,7 @@ namespace Legato.Rendering {
             ((EnvironmentsListModel)Environments.GetValue(loader)).GetEnvironmentInfoBySerializedNameSafe(name);
 #endif
         internal static EnvironmentInfoSO Active(GameplayCoreSceneSetupData scene) =>
-#if BEAT_SABER_1_29_0
+#if LEGATO_SINGLE_BEATMAP_ENVIRONMENT
             scene.environmentInfo;
 #else
             scene.targetEnvironmentInfo;
@@ -35,7 +35,7 @@ namespace Legato.Rendering {
 #endif
 
         internal static string SceneName(EnvironmentInfoSO info) =>
-#if BEAT_SABER_1_29_0
+#if LEGATO_LEGACY_SCENE_NAMES
             info.sceneInfo.sceneName;
 #else
             info.environmentSceneName;
@@ -49,7 +49,7 @@ namespace Legato.Rendering {
 #endif
 
         internal static EnvironmentInfoSO Original(GameplayCoreSceneSetupData scene) =>
-#if BEAT_SABER_1_29_0
+#if LEGATO_SINGLE_BEATMAP_ENVIRONMENT
             scene.environmentInfo;
 #else
             scene.originalEnvironmentInfo;
