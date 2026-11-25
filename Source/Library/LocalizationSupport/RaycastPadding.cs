@@ -1,6 +1,6 @@
 using UnityEngine;
 using UnityEngine.UI;
-#if BEAT_SABER_1_29_0
+#if BEAT_SABER_1_29_0 || LEGATO_HMUI_LEGACY_GRAPHICS
 using System.Collections.Generic;
 #endif
 
@@ -11,7 +11,7 @@ namespace Legato.Unity
     /// </summary>
     internal static class RaycastPadding
     {
-#if BEAT_SABER_1_29_0
+#if BEAT_SABER_1_29_0 || LEGATO_HMUI_LEGACY_GRAPHICS
         private static readonly Dictionary<int, Vector4> Paddings = new();
 #endif
 
@@ -22,7 +22,7 @@ namespace Legato.Unity
         /// <param name="padding">Padding for the four edges.</param>
         internal static void Set(Graphic graphic, Vector4 padding)
         {
-#if BEAT_SABER_1_29_0
+#if BEAT_SABER_1_29_0 || LEGATO_HMUI_LEGACY_GRAPHICS
             int id = graphic.rectTransform.GetInstanceID();
             Paddings[id] = padding;
             PaddingLifetime lifetime = graphic.GetComponent<PaddingLifetime>();
@@ -37,7 +37,7 @@ namespace Legato.Unity
 #endif
         }
 
-#if BEAT_SABER_1_29_0
+#if BEAT_SABER_1_29_0 || LEGATO_HMUI_LEGACY_GRAPHICS
         /// <summary>
         /// Tests a screen position against the rectangle's configured bounds.
         /// </summary>
@@ -47,9 +47,25 @@ namespace Legato.Unity
         /// <returns>Whether the position is inside those bounds.</returns>
         internal static bool Contains(RectTransform rect, Vector2 screenPoint, Camera camera)
         {
+#if LEGATO_HMUI_LEGACY_GRAPHICS
+            if (!Paddings.TryGetValue(rect.GetInstanceID(), out Vector4 padding))
+            {
+                return RectTransformUtility.RectangleContainsScreenPoint(rect, screenPoint, camera);
+            }
+
+            if (!RectTransformUtility.ScreenPointToLocalPointInRectangle(rect, screenPoint, camera, out Vector2 localPoint))
+            {
+                return false;
+            }
+
+            Rect bounds = rect.rect;
+            return localPoint.x >= bounds.xMin + padding.x && localPoint.x <= bounds.xMax - padding.z &&
+                localPoint.y >= bounds.yMin + padding.y && localPoint.y <= bounds.yMax - padding.w;
+#else
             return Paddings.TryGetValue(rect.GetInstanceID(), out Vector4 padding)
                 ? RectTransformUtility.RectangleContainsScreenPoint(rect, screenPoint, camera, padding)
                 : RectTransformUtility.RectangleContainsScreenPoint(rect, screenPoint, camera);
+#endif
         }
 
         private sealed class PaddingLifetime : MonoBehaviour

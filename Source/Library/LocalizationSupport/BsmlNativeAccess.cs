@@ -12,7 +12,7 @@ namespace Legato.Unity
     /// </summary>
     internal static class BsmlNativeAccess
     {
-#if BEAT_SABER_1_29_0 || BEAT_SABER_1_37_1
+#if BEAT_SABER_1_29_0 || BEAT_SABER_1_37_1 || LEGATO_HMUI_LEGACY_GRAPHICS
         private static readonly System.Action<TextSlider> UpdateSliderVisuals =
             (System.Action<TextSlider>)typeof(TextSlider).GetMethod(
                 "UpdateVisuals",
@@ -24,7 +24,7 @@ namespace Legato.Unity
         /// Gets the engine flags for textures that will receive copied pixels.
         /// </summary>
         internal static TextureCreationFlags CopyTextureFlags =>
-#if BEAT_SABER_1_29_0 || BEAT_SABER_1_37_1
+#if BEAT_SABER_1_29_0 || BEAT_SABER_1_37_1 || LEGATO_HMUI_LEGACY_GRAPHICS
             TextureCreationFlags.None;
 #else
             TextureCreationFlags.DontInitializePixels | TextureCreationFlags.DontUploadUponCreate;
@@ -36,7 +36,7 @@ namespace Legato.Unity
         /// <param name="pointer">The active VR pointer.</param>
         /// <returns>The selected controller.</returns>
         internal static VRController SelectedController(VRPointer pointer) =>
-#if BEAT_SABER_1_29_0
+#if BEAT_SABER_1_29_0 || LEGATO_HMUI_ACTIVATION_ENUMS
             pointer.vrController;
 #else
             pointer.lastSelectedVrController;
@@ -48,7 +48,7 @@ namespace Legato.Unity
         /// <param name="controller">The VR controller.</param>
         /// <returns>The current vertical axis value.</returns>
         internal static float VerticalAxis(VRController controller) =>
-#if BEAT_SABER_1_29_0
+#if BEAT_SABER_1_29_0 || LEGATO_HMUI_ACTIVATION_ENUMS
             controller.verticalAxisValue;
 #else
             controller.thumbstick.y;
@@ -60,7 +60,7 @@ namespace Legato.Unity
         /// <param name="slider">The slider to refresh.</param>
         internal static void RefreshSlider(RangeValuesTextSlider slider)
         {
-#if BEAT_SABER_1_29_0 || BEAT_SABER_1_37_1
+#if BEAT_SABER_1_29_0 || BEAT_SABER_1_37_1 || LEGATO_HMUI_LEGACY_GRAPHICS
             UpdateSliderVisuals(slider);
 #else
             slider.Refresh();
@@ -73,7 +73,7 @@ namespace Legato.Unity
         /// <param name="request">The completed request.</param>
         /// <returns>Whether the request succeeded.</returns>
         internal static bool WebRequestSucceeded(UnityWebRequest request) =>
-#if BEAT_SABER_1_29_0
+#if BEAT_SABER_1_29_0 || LEGATO_HMUI_ACTIVATION_ENUMS
             !request.isNetworkError && !request.isHttpError;
 #else
             request.result == UnityWebRequest.Result.Success;
@@ -86,7 +86,7 @@ namespace Legato.Unity
         /// <param name="destination">The material to update.</param>
         internal static void CopyKeywords(Material source, Material destination)
         {
-#if BEAT_SABER_1_29_0
+#if BEAT_SABER_1_29_0 || LEGATO_HMUI_LEGACY_GRAPHICS
             destination.shaderKeywords = source.shaderKeywords;
 #else
             destination.enabledKeywords = source.enabledKeywords;
@@ -99,7 +99,7 @@ namespace Legato.Unity
         /// <param name="mesh">The native text submesh.</param>
         /// <returns>The owning text component.</returns>
         internal static TMP_Text GetTextComponent(TMP_SubMeshUI mesh) =>
-#if BEAT_SABER_1_29_0
+#if BEAT_SABER_1_29_0 || LEGATO_HMUI_PLAIN_TMP
             mesh.m_TextComponent;
 #else
             mesh.textComponent;

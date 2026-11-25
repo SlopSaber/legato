@@ -10,6 +10,13 @@ namespace BeatSaberMarkupLanguage.Components
     /// </summary>
     internal static class LegacyTable
     {
+        /// <summary>
+        /// Creates the inactive native table and its layout container.
+        /// </summary>
+        /// <param name="parent">The parent layout.</param>
+        /// <param name="name">The table object name.</param>
+        /// <param name="table">The native table whose data source will be assigned.</param>
+        /// <returns>The layout container.</returns>
         internal static GameObject Create(Transform parent, string name, out TableView table)
         {
             GameObject container = new(name + "Container", typeof(RectTransform), typeof(LayoutElement)) { layer = 5 };
@@ -29,6 +36,13 @@ namespace BeatSaberMarkupLanguage.Components
             return container;
         }
 
+        /// <summary>
+        /// Copies the native paging buttons and indicator before the table activates.
+        /// </summary>
+        /// <param name="table">The table controlled by the paging buttons.</param>
+        /// <param name="parent">The layout that owns the scroll bar.</param>
+        /// <param name="template">The native scroll bar template.</param>
+        /// <returns>The indicator that tracks the native scrolling position.</returns>
         internal static VerticalScrollIndicator AttachScrollBar(TableView table, Transform parent, TextPageScrollView template)
         {
             TextPageScrollView clone = Object.Instantiate(template);
@@ -43,6 +57,11 @@ namespace BeatSaberMarkupLanguage.Components
             return indicator;
         }
 
+        /// <summary>
+        /// Activates and loads the table once its direction and data source are set.
+        /// </summary>
+        /// <param name="table">The table to load.</param>
+        /// <param name="indicator">The optional scroll indicator.</param>
         internal static void Activate(TableView table, VerticalScrollIndicator indicator)
         {
             ScrollRect scrollRect = table.GetComponent<ScrollRect>();
