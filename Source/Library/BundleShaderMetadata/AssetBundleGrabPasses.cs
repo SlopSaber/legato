@@ -453,88 +453,6 @@ internal static class AssetBundleGrabPasses
         return repaired;
     }
 
-    private sealed class LegacyWrappingEdit(int treeStart, int field)
-    {
-        private const string OldName = "m_enableWordWrapping";
-        private const string NewName = "m_TextWrappingMode";
-        private readonly List<(int Offset, byte Value)> _values = [];
-
-        internal static LegacyWrappingEdit? TryCreate(int treeStart, Node[] nodes)
-        {
-            if (nodes.Length == 0)
-            {
-                return null;
-            }
-
-            int field = FindChild(nodes, 0, OldName);
-            if (field < 0 || nodes[field].ByteSize != 1 || (nodes[field].MetaFlag & AlignFlag) == 0 ||
-                nodes[field].Type is not ("UInt8" or "bool") || FindChild(nodes, 0, NewName) >= 0)
-            {
-                return null;
-            }
-
-            int text = FindChild(nodes, 0, "m_text");
-            int font = FindChild(nodes, 0, "m_fontAsset");
-            return text >= 0 && nodes[text].Type == "string" && font >= 0 &&
-                   nodes[font].Type is "PPtr<$TMP_FontAsset>" or "PPtr<TMP_FontAsset>"
-                ? new LegacyWrappingEdit(treeStart, field)
-                : null;
-        }
-
-        internal bool TryCollect(Reader reader, Node[] nodes, int objectEnd)
-        {
-            for (int child = 1; child < field; child = NextSibling(nodes, child))
-            {
-                Skip(reader, nodes, child);
-            }
-
-            int offset = reader.Position;
-            if (offset % sizeof(int) != 0 || offset > objectEnd - sizeof(int) || reader.Data[offset] > 1)
-            {
-                return false;
-            }
-
-            _values.Add((offset, reader.Data[offset]));
-            return true;
-        }
-
-        internal int Apply(byte[] file, bool bigEndian, int nodeCount)
-        {
-            if (_values.Count == 0)
-            {
-                return 0;
-            }
-
-            const int nodeSize = 32;
-            int nodeStart = treeStart + (2 * sizeof(int)) + (field * nodeSize);
-            int stringStart = treeStart + (2 * sizeof(int)) + (nodeCount * nodeSize);
-            Reader writer = new(file, bigEndian) { Position = nodeStart + 8 };
-            int nameOffset = writer.Int32();
-            if (nameOffset < 0)
-            {
-                return 0;
-            }
-
-            // The aligned bool already occupies four bytes. No object lengths or references move.
-            writer.Position = nodeStart + 4;
-            int intType = CommonStrings.IndexOf("\0int\0", StringComparison.Ordinal) + 1;
-            writer.WriteInt32(int.MinValue | intType);
-            writer.Position = nodeStart + 12;
-            writer.WriteInt32(sizeof(int));
-            writer.Position = nodeStart + 20;
-            writer.WriteInt32(AlignFlag);
-            Array.Clear(file, stringStart + nameOffset, OldName.Length + 1);
-            Encoding.ASCII.GetBytes(NewName, 0, NewName.Length, file, stringStart + nameOffset);
-            foreach ((int offset, byte value) in _values)
-            {
-                writer.Position = offset;
-                writer.WriteInt32(value);
-            }
-
-            return _values.Count;
-        }
-    }
-
     private static bool TagNativeGrabDraw(byte[] file, bool bigEndian, Dictionary<string, object?> shader)
     {
         if (Get(shader, "m_Name") is not string name ||
@@ -963,6 +881,88 @@ internal static class AssetBundleGrabPasses
         internal readonly int Start = start;
         internal readonly int End = end;
         internal readonly string Mode = mode;
+    }
+
+    private sealed class LegacyWrappingEdit(int treeStart, int field)
+    {
+        private const string OldName = "m_enableWordWrapping";
+        private const string NewName = "m_TextWrappingMode";
+        private readonly List<(int Offset, byte Value)> _values = [];
+
+        internal static LegacyWrappingEdit? TryCreate(int treeStart, Node[] nodes)
+        {
+            if (nodes.Length == 0)
+            {
+                return null;
+            }
+
+            int field = FindChild(nodes, 0, OldName);
+            if (field < 0 || nodes[field].ByteSize != 1 || (nodes[field].MetaFlag & AlignFlag) == 0 ||
+                nodes[field].Type is not ("UInt8" or "bool") || FindChild(nodes, 0, NewName) >= 0)
+            {
+                return null;
+            }
+
+            int text = FindChild(nodes, 0, "m_text");
+            int font = FindChild(nodes, 0, "m_fontAsset");
+            return text >= 0 && nodes[text].Type == "string" && font >= 0 &&
+                   nodes[font].Type is "PPtr<$TMP_FontAsset>" or "PPtr<TMP_FontAsset>"
+                ? new LegacyWrappingEdit(treeStart, field)
+                : null;
+        }
+
+        internal bool TryCollect(Reader reader, Node[] nodes, int objectEnd)
+        {
+            for (int child = 1; child < field; child = NextSibling(nodes, child))
+            {
+                Skip(reader, nodes, child);
+            }
+
+            int offset = reader.Position;
+            if (offset % sizeof(int) != 0 || offset > objectEnd - sizeof(int) || reader.Data[offset] > 1)
+            {
+                return false;
+            }
+
+            _values.Add((offset, reader.Data[offset]));
+            return true;
+        }
+
+        internal int Apply(byte[] file, bool bigEndian, int nodeCount)
+        {
+            if (_values.Count == 0)
+            {
+                return 0;
+            }
+
+            const int nodeSize = 32;
+            int nodeStart = treeStart + (2 * sizeof(int)) + (field * nodeSize);
+            int stringStart = treeStart + (2 * sizeof(int)) + (nodeCount * nodeSize);
+            Reader writer = new(file, bigEndian) { Position = nodeStart + 8 };
+            int nameOffset = writer.Int32();
+            if (nameOffset < 0)
+            {
+                return 0;
+            }
+
+            // The aligned bool already occupies four bytes. No object lengths or references move.
+            writer.Position = nodeStart + 4;
+            int intType = CommonStrings.IndexOf("\0int\0", StringComparison.Ordinal) + 1;
+            writer.WriteInt32(int.MinValue | intType);
+            writer.Position = nodeStart + 12;
+            writer.WriteInt32(sizeof(int));
+            writer.Position = nodeStart + 20;
+            writer.WriteInt32(AlignFlag);
+            Array.Clear(file, stringStart + nameOffset, OldName.Length + 1);
+            Encoding.ASCII.GetBytes(NewName, 0, NewName.Length, file, stringStart + nameOffset);
+            foreach ((int offset, byte value) in _values)
+            {
+                writer.Position = offset;
+                writer.WriteInt32(value);
+            }
+
+            return _values.Count;
+        }
     }
 
     private readonly struct Node
