@@ -18,17 +18,19 @@ namespace Legato.Unity
 #else
             controller.thumbstick.y;
 #endif
-#if BEAT_SABER_1_29_0
+#if LEGATO_QUERY_CONTROLLER_POSE
         private static readonly FieldAccessor<VRController, IVRPlatformHelper>.Accessor Platform =
             FieldAccessor<VRController, IVRPlatformHelper>.GetAccessor("_vrPlatformHelper");
+#endif
+#if LEGATO_PRIVATE_POINTER_CURSOR
         private static readonly FieldAccessor<VRPointer, Transform>.Accessor Cursor =
             FieldAccessor<VRPointer, Transform>.GetAccessor("_cursorTransform");
 #endif
 
         internal static bool PoseIsValid(VRController controller)
         {
-#if BEAT_SABER_1_29_0
-            return Platform(ref controller).GetNodePose(controller.node, controller.nodeIdx, out _, out _);
+#if LEGATO_QUERY_CONTROLLER_POSE
+            return Platform(ref controller)?.GetNodePose(controller.node, controller.nodeIdx, out _, out _) == true;
 #else
             return controller.poseValid;
 #endif
@@ -45,7 +47,7 @@ namespace Legato.Unity
 
         internal static Transform PointerCursor(VRPointer pointer)
         {
-#if BEAT_SABER_1_29_0
+#if LEGATO_PRIVATE_POINTER_CURSOR
             return Cursor(ref pointer);
 #else
             return pointer.cursorTransform;

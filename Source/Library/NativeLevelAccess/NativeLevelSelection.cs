@@ -14,7 +14,7 @@ namespace Legato.UI {
         }
         internal static bool SelectCharacteristic(BeatmapCharacteristicSegmentedControlController view, NativeBeatmapCharacteristic characteristic) {
             if (view.selectedBeatmapCharacteristic == characteristic) return true;
-#if BEAT_SABER_1_29_0
+#if LEGATO_LEGACY_AVAILABLE_CHARACTERISTICS_FIELD
             int index = view._beatmapCharacteristics.IndexOf(characteristic);
 #else
             int index = view._currentlyAvailableBeatmapCharacteristics.IndexOf(characteristic);

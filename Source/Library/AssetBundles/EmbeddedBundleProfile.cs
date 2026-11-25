@@ -9,7 +9,7 @@ namespace Legato.Assets
     {
         internal static string Select(string legacy, string current)
         {
-#if BEAT_SABER_1_29_0
+#if LEGATO_BUILT_IN_RENDERING
             return legacy;
 #else
             return current;

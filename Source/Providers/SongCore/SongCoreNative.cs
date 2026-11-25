@@ -48,7 +48,7 @@ namespace SongCore
             model.GetEnvironmentInfoBySerializedNameSafe(name);
 #endif
         internal static List<BeatmapCharacteristic> AvailableCharacteristics(BeatmapCharacteristicSegmentedControlController controller) =>
-#if LEGATO_UNTYPED_SCENE_TRANSITIONS
+#if LEGATO_LEGACY_AVAILABLE_CHARACTERISTICS_FIELD
             controller._beatmapCharacteristics;
 #else
             controller._currentlyAvailableBeatmapCharacteristics;

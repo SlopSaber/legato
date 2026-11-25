@@ -19,7 +19,7 @@ namespace Legato.UI {
             args[0] == null || ((IReadOnlyList<BeatmapLevel>)args[0]).Count == 0;
 #endif
         internal const LevelPackDetailViewController.ContentType NonBuyable =
-#if BEAT_SABER_1_29_0
+#if LEGATO_PACK_CONTENT_WITHOUT_PURCHASE_OPTIONS
             LevelPackDetailViewController.ContentType.Owned;
 #else
             LevelPackDetailViewController.ContentType.NonBuyable;
@@ -44,7 +44,7 @@ namespace Legato.UI {
             collection.packName;
 #endif
         internal static Vector2 CellSize(GridView grid) =>
-#if BEAT_SABER_1_29_0
+#if BEAT_SABER_1_29_0 || LEGATO_FIXED_TABLE_CELL_SIZE
             new Vector2(grid._dataSource.GetCellWidth(), grid._dataSource.GetCellHeight());
 #else
             new Vector2(grid._dataSource.cellWidth, grid._dataSource.cellHeight);
@@ -69,7 +69,7 @@ namespace Legato.UI {
             view.beatmapKey;
 #endif
         internal static string CharacteristicName(BeatmapCharacteristic characteristic) =>
-#if BEAT_SABER_1_29_0
+#if LEGATO_CHARACTERISTIC_NAME_PROPERTY
             characteristic.serializedName;
 #else
             characteristic.SerializedName();

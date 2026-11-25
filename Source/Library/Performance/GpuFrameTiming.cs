@@ -40,20 +40,15 @@ namespace Legato.Performance {
 
         internal float ReadEngineTiming() {
 #if !BEAT_SABER_1_29_0 && !BEAT_SABER_1_45_1 && !BEAT_SABER_1_45_3
-            if (
-#if BEAT_SABER_1_29_0
-                true
-#else
-                UnityEngine.FrameTimingManager.IsFeatureEnabled()
+#if !LEGATO_LEGACY_FRAME_TIMING
+            if (!UnityEngine.FrameTimingManager.IsFeatureEnabled()) return float.NaN;
 #endif
-            ) {
-                UnityEngine.FrameTimingManager.CaptureFrameTimings();
-                if (UnityEngine.FrameTimingManager.GetLatestTimings(1, _timings) > 0 && FrameTimestamp(_timings[0]) != _lastFrameTimestamp) {
-                    FrameTiming timing = _timings[0];
-                    _lastFrameTimestamp = FrameTimestamp(timing);
-                    float gpu = (float)timing.gpuFrameTime;
-                    if (Valid(gpu)) return gpu;
-                }
+            UnityEngine.FrameTimingManager.CaptureFrameTimings();
+            if (UnityEngine.FrameTimingManager.GetLatestTimings(1, _timings) > 0 && FrameTimestamp(_timings[0]) != _lastFrameTimestamp) {
+                FrameTiming timing = _timings[0];
+                _lastFrameTimestamp = FrameTimestamp(timing);
+                float gpu = (float)timing.gpuFrameTime;
+                if (Valid(gpu)) return gpu;
             }
 #endif
             return float.NaN;
@@ -83,7 +78,7 @@ namespace Legato.Performance {
         private static bool Finite(float value) => !float.IsNaN(value) && !float.IsInfinity(value);
 #if !BEAT_SABER_1_29_0 && !BEAT_SABER_1_45_1 && !BEAT_SABER_1_45_3
         private static ulong FrameTimestamp(FrameTiming timing) =>
-#if BEAT_SABER_1_29_0
+#if LEGATO_LEGACY_FRAME_TIMING
             timing.cpuTimeFrameComplete;
 #else
             timing.frameStartTimestamp;

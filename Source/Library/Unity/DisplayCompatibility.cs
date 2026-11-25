@@ -15,7 +15,7 @@ namespace Legato.Unity {
         }
 
         internal static double RefreshRate(Resolution resolution) =>
-#if BEAT_SABER_1_29_0 || BEAT_SABER_1_34_2
+#if LEGATO_INTEGER_REFRESH_RATE
             resolution.refreshRate;
 #else
             resolution.refreshRateRatio.value;

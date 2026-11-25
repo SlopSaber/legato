@@ -41,9 +41,17 @@
       <_LegatoUsesDifficultyBeatmaps Condition="'$(_LegatoPolyfillProfile)' == '1.29.0' OR '$(_LegatoCoreApi)' == 'LegacyPreview'">true</_LegatoUsesDifficultyBeatmaps>
       <LegatoTargetDefine Condition="'$(LegatoTargetProfile)' != ''">BEAT_SABER_$([System.String]::Copy('$(LegatoTargetProfile)').Replace('.', '_'))</LegatoTargetDefine>
       <DefineConstants Condition="'$(LegatoTargetDefine)' != ''">$(DefineConstants);$(LegatoTargetDefine);@(_LegatoTargetVersion->'%(Constants)')</DefineConstants>
-      <DefineConstants Condition="'$(_LegatoApiVersion)' != '' AND $([MSBuild]::VersionLessThan('$(_LegatoApiVersion)', '1.37.4'))">$(DefineConstants);LEGATO_UNTYPED_SCENE_TRANSITIONS</DefineConstants>
-      <DefineConstants Condition="'$(_LegatoApiVersion)' != '' AND $([MSBuild]::VersionLessThan('$(_LegatoApiVersion)', '1.41.1'))">$(DefineConstants);LEGATO_CHARACTERISTIC_NAME_PROPERTY;LEGATO_LEGACY_SCENE_NAMES</DefineConstants>
+      <DefineConstants Condition="'$(_LegatoApiVersion)' != '' AND $([MSBuild]::VersionLessThan('$(_LegatoApiVersion)', '1.37.2'))">$(DefineConstants);LEGATO_INTEGER_REFRESH_RATE;LEGATO_LEGACY_FRAME_TIMING</DefineConstants>
+      <DefineConstants Condition="'$(_LegatoApiVersion)' != '' AND $([MSBuild]::VersionLessThan('$(_LegatoApiVersion)', '1.37.3'))">$(DefineConstants);LEGATO_PACK_CONTENT_WITHOUT_PURCHASE_OPTIONS</DefineConstants>
+      <DefineConstants Condition="'$(_LegatoApiVersion)' != '' AND $([MSBuild]::VersionLessThan('$(_LegatoApiVersion)', '1.37.4'))">$(DefineConstants);LEGATO_UNTYPED_SCENE_TRANSITIONS;LEGATO_LEGACY_AVAILABLE_CHARACTERISTICS_FIELD;LEGATO_PRIVATE_POINTER_CURSOR</DefineConstants>
+      <DefineConstants Condition="'$(_LegatoApiVersion)' != '' AND $([MSBuild]::VersionLessThan('$(_LegatoApiVersion)', '1.38.0'))">$(DefineConstants);LEGATO_CANCELLABLE_COVER_LOADING</DefineConstants>
+      <DefineConstants Condition="'$(_LegatoApiVersion)' != '' AND $([MSBuild]::VersionLessThan('$(_LegatoApiVersion)', '1.39.0'))">$(DefineConstants);LEGATO_PRIVATE_SONG_START_TIME</DefineConstants>
+      <DefineConstants Condition="'$(_LegatoApiVersion)' != '' AND $([MSBuild]::VersionLessThan('$(_LegatoApiVersion)', '1.40.2'))">$(DefineConstants);LEGATO_QUERY_CONTROLLER_POSE</DefineConstants>
+      <DefineConstants Condition="'$(_LegatoApiVersion)' != '' AND $([MSBuild]::VersionLessThan('$(_LegatoApiVersion)', '1.40.4'))">$(DefineConstants);LEGATO_MONOBEHAVIOUR_INTERACTABLE</DefineConstants>
+      <DefineConstants Condition="'$(_LegatoApiVersion)' != '' AND $([MSBuild]::VersionLessThan('$(_LegatoApiVersion)', '1.40.11'))">$(DefineConstants);LEGATO_SYNC_CONTROLLER_AUDIO_STATE</DefineConstants>
+      <DefineConstants Condition="'$(_LegatoApiVersion)' != '' AND $([MSBuild]::VersionLessThan('$(_LegatoApiVersion)', '1.41.1'))">$(DefineConstants);LEGATO_CHARACTERISTIC_NAME_PROPERTY;LEGATO_LEGACY_SCENE_NAMES;LEGATO_BUILT_IN_RENDERING</DefineConstants>
       <DefineConstants Condition="'$(_LegatoApiVersion)' != '' AND $([MSBuild]::VersionLessThan('$(_LegatoApiVersion)', '1.44.2'))">$(DefineConstants);LEGATO_SCRIPTABLE_CHARACTERISTICS;LEGATO_SCRIPTABLE_SCENE_TRANSITIONS</DefineConstants>
+      <DefineConstants Condition="'$(LegatoTargetOrder)' != '' AND $(LegatoTargetOrder) &gt;= 1 AND $(LegatoTargetOrder) &lt; 4">$(DefineConstants);LEGATO_PC_APP_INIT</DefineConstants>
       <DefineConstants Condition="'$(LegatoTargetOrder)' != '' AND $(LegatoTargetOrder) &gt;= 4">$(DefineConstants);LEGATO_NATIVE_ZENJECT_COMPONENT_BINDER</DefineConstants>
       <DefineConstants Condition="'$(_LegatoUsesDifficultyBeatmaps)' == 'true'">$(DefineConstants);LEGATO_DIFFICULTY_BEATMAPS</DefineConstants>
       <DefineConstants Condition="'$(_LegatoCoreApi)' != ''">$(DefineConstants);LEGATO_HISTORICAL_GAME</DefineConstants>

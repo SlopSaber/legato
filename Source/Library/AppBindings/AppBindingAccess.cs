@@ -1,8 +1,10 @@
 using System.Reflection;
 using HarmonyLib;
 using Zenject;
-#if !BEAT_SABER_1_29_0
-using BGLib.AppFlow;
+#if LEGATO_PC_APP_INIT
+using NativeAppInstaller = global::PCAppInit;
+#elif !BEAT_SABER_1_29_0
+using NativeAppInstaller = global::BeatSaberInit;
 #endif
 
 namespace Legato.Injection {
@@ -11,14 +13,14 @@ namespace Legato.Injection {
 #if BEAT_SABER_1_29_0
             typeof(MainSystemInit),
 #else
-            typeof(BeatSaberInit),
+            typeof(NativeAppInstaller),
 #endif
             "InstallBindings");
         internal static DiContainer Container(object instance, object[] arguments) =>
 #if BEAT_SABER_1_29_0
             (DiContainer)arguments[0];
 #else
-            ((BeatSaberInit)instance).Container;
+            ((NativeAppInstaller)instance).Container;
 #endif
     }
 }

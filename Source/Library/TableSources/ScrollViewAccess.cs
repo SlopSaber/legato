@@ -5,7 +5,7 @@ using IPA.Utilities;
 
 namespace Legato.UI {
     internal static class ScrollViewAccess {
-#if BEAT_SABER_1_29_0
+#if BEAT_SABER_1_29_0 || LEGATO_FIXED_TABLE_CELL_SIZE
         private static readonly Func<TableView, ScrollView> GetScrollView = Getter<ScrollView>("scrollView");
 #else
         private static readonly Func<TableView, float> GetPaddingStart = Getter<float>("paddingStart");
@@ -17,14 +17,14 @@ namespace Legato.UI {
                     ?.GetGetMethod(true) ?? throw new MissingMemberException(typeof(TableView).FullName, property));
 
         internal static void ScrollToTop(TableView table, bool animated) {
-#if BEAT_SABER_1_29_0
+#if BEAT_SABER_1_29_0 || LEGATO_FIXED_TABLE_CELL_SIZE
             GetScrollView(table).ScrollTo(0, animated);
 #else
             table.ScrollToPosition(0, animated);
 #endif
         }
         internal static void ScrollToBottom(TableView table, bool animated) {
-#if BEAT_SABER_1_29_0
+#if BEAT_SABER_1_29_0 || LEGATO_FIXED_TABLE_CELL_SIZE
             GetScrollView(table).ScrollToEnd(animated);
 #else
             table.ScrollToPosition(table.dataSource.NumberOfCells() * (table.cellSize + table.spacing) + GetPaddingStart(table), animated);

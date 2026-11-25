@@ -6,7 +6,7 @@ namespace Legato.Gameplay
     {
         internal static Delegate Started(Action<float> callback)
         {
-#if BEAT_SABER_1_29_0
+#if LEGATO_UNTYPED_SCENE_TRANSITIONS
             return callback;
 #else
             return new Action<GameScenesManager.SceneTransitionType, float>((type, progress) => callback(progress));
