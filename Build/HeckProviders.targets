@@ -51,6 +51,7 @@
     <PropertyGroup>
       <_LegatoHeckCodeVersion>$(LegatoTargetVersion)</_LegatoHeckCodeVersion>
       <_LegatoHeckCodeVersion Condition="'$(LegatoTargetProfile)' == '1.29.0'">1.29.1</_LegatoHeckCodeVersion>
+      <_LegatoHeckCodeVersion Condition="'$(LegatoTargetProfile)' == '1.40.0' AND '$(LegatoEnableHeckProviders)' == 'true' AND $([MSBuild]::VersionLessThanOrEquals('$(_LegatoApiVersion)', '1.40.8'))">1.40.8</_LegatoHeckCodeVersion>
       <_LegatoHeckConfiguration>Release-$(_LegatoHeckCodeVersion)</_LegatoHeckConfiguration>
       <_LegatoHeckConfiguration Condition="$(Configuration.StartsWith('Debug'))">Debug-$(_LegatoHeckCodeVersion)</_LegatoHeckConfiguration>
       <_LegatoHeckConfigurations>$(Configurations)</_LegatoHeckConfigurations>
@@ -62,7 +63,8 @@
     </GetConfigurationInfo>
     <PropertyGroup>
       <DefineConstants>$([System.Text.RegularExpressions.Regex]::Replace('$(DefineConstants)', '\b(?:(?:PRE_|POST_)?V\d+_\d+_\d+|LATEST|BEAT_SABER_1453|BEAT_SABER_1460)\b', ''));$(GeneratedConstants)</DefineConstants>
-      <DefineConstants Condition="$(LegatoTargetOrder) &gt;= 3">$(DefineConstants);LATEST;LEGATO_BEATMAP_OBJECT_ROTATION</DefineConstants>
+      <DefineConstants Condition="$(LegatoTargetOrder) &gt;= 3">$(DefineConstants);LEGATO_BEATMAP_OBJECT_ROTATION</DefineConstants>
+      <DefineConstants Condition="$(LegatoTargetOrder) &gt;= 4 OR ($(LegatoTargetOrder) &gt;= 3 AND '$(LegatoEnableHeckProviders)' != 'true')">$(DefineConstants);LATEST</DefineConstants>
       <DefineConstants Condition="$(LegatoTargetOrder) &gt;= 2">$(DefineConstants);LEGATO_BEATMAP_OBJECT_BEAT</DefineConstants>
       <DefineConstants Condition="'$(LegatoTargetProfile)' == '1.45.3'">$(DefineConstants);BEAT_SABER_1453</DefineConstants>
       <DefineConstants Condition="$([MSBuild]::VersionGreaterThanOrEquals('$(LegatoTargetVersion)', '1.46.0'))">$(DefineConstants);BEAT_SABER_1460</DefineConstants>

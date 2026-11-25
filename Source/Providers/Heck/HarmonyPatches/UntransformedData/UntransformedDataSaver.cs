@@ -42,14 +42,14 @@ public class HeckGameplayCoreSceneSetupData : GameplayCoreSceneSetupData
 #if !LATEST
             original.useTestNoteCutSoundEffects,
 #endif
-#if !PRE_V1_40_8
+#if !LEGATO_SINGLE_BEATMAP_ENVIRONMENT
             original.targetEnvironmentInfo,
             original.originalEnvironmentInfo,
 #else
             original.environmentInfo,
 #endif
             original.colorScheme,
-#if !PRE_V1_40_8
+#if !LEGATO_SINGLE_BEATMAP_ENVIRONMENT
             original._settingsManager,
 #elif LEGATO_APPLY_PERFORMANCE_PRESET
             original._performancePreset,
@@ -60,6 +60,10 @@ public class HeckGameplayCoreSceneSetupData : GameplayCoreSceneSetupData
             original._enableBeatmapDataCaching,
 #if LEGATO_APPLY_PERFORMANCE_PRESET
             original._allowNullBeatmapLevelData,
+            original.recordingToolData)
+#elif LEGATO_GAMEPLAY_WITHOUT_ADDITIONAL_INFORMATION
+            original._allowNullBeatmapLevelData,
+            original.environmentsListModel,
             original.recordingToolData)
 #else
             original.environmentsListModel,
