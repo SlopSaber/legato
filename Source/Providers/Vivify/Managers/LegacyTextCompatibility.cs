@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using JetBrains.Annotations;
+using Legato.Rendering;
 using SiraUtil.Logging;
 using TMPro;
 using UnityEngine;
@@ -20,6 +21,7 @@ internal sealed class LegacyTextCompatibility
     private const string MobileDistanceFieldShader = "TextMeshPro/Mobile/Distance Field";
     private const string NativeDistanceFieldFont = "Assets/Visuals/Fonts/Test Fallback Fonts/NotoSansKR-Medium SDF.asset";
     private const string NativeMobileDistanceFieldFont = "Assets/Visuals/Fonts/Teko-Bold/Teko-Bold SDF.asset";
+    private static readonly int _colorMaskProperty = Shader.PropertyToID("_ColorMask");
 
     [UsedImplicitly]
     private LegacyTextCompatibility(AssetBundleManager assetBundleManager, SiraLog log)
@@ -144,7 +146,13 @@ internal sealed class LegacyTextCompatibility
             // Keep the authored atlas, settings and material identity for TMP and map events.
             int renderQueue = material.rawRenderQueue;
             string[] keywords = material.shaderKeywords;
+            int? colorMask = AssetBundleGrabPasses.GetFixedTextColorMask(original);
             material.shader = nativeShader;
+            if (colorMask is int fixedColorMask && material.HasProperty(_colorMaskProperty))
+            {
+                material.SetInt(_colorMaskProperty, fixedColorMask);
+            }
+
             material.shaderKeywords = keywords;
             material.renderQueue = renderQueue;
             updatedShaders++;
