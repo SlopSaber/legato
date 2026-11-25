@@ -1,4 +1,4 @@
-﻿#if BEAT_SABER_1453
+﻿#if !PRE_V1_37_1
 using System.Threading.Tasks;
 using CustomJSONData.CustomBeatmap;
 using HarmonyLib;
@@ -8,65 +8,7 @@ namespace CustomJSONData.HarmonyPatches
     [HarmonyPatch(typeof(BeatmapDataLoader), nameof(BeatmapDataLoader.LoadBeatmapDataAsync))]
     internal static class BeatmapDataLoaderLevelInfoInjectorAsync
     {
-        [HarmonyPostfix]
-        private static void InjectCustomData(ref Task<IReadonlyBeatmapData> __result, IBeatmapLevelData beatmapLevelData, BeatmapKey beatmapKey)
-        {
-            __result = InjectCustomDataAsync(__result, beatmapLevelData, beatmapKey);
-        }
-
-        private static async Task<IReadonlyBeatmapData> InjectCustomDataAsync(Task<IReadonlyBeatmapData> task, IBeatmapLevelData beatmapLevelData, BeatmapKey beatmapKey)
-        {
-            IReadonlyBeatmapData result = await task;
-            if (beatmapLevelData is CustomFileBeatmapLevelData fileBeatmapLevelData && result is CustomBeatmapData beatmapData)
-            {
-                beatmapData.levelCustomData = fileBeatmapLevelData.customData;
-                if (fileBeatmapLevelData.GetDifficultyBeatmap(beatmapKey) is CustomFileDifficultyBeatmap difficultyBeatmap)
-                {
-                    beatmapData.beatmapCustomData = difficultyBeatmap.customData;
-                }
-            }
-
-            return result;
-        }
-    }
-}
-#else
-#if !PRE_V1_37_1
-using System;
-using System.Collections.Generic;
-using System.Reflection;
-using System.Reflection.Emit;
-using System.Runtime.CompilerServices;
-using CustomJSONData.CustomBeatmap;
-using HarmonyLib;
-using JetBrains.Annotations;
-
-namespace CustomJSONData.HarmonyPatches
-{
-    [HarmonyPatch]
-    internal static class BeatmapDataLoaderLevelInfoInjectorAsync
-    {
-        private static readonly Type _stateMachineType = GetStateMachineType();
-
-        private static readonly FieldInfo _beatmapLevelData = AccessTools.Field(_stateMachineType, "beatmapLevelData");
-        private static readonly FieldInfo _beatmapKey = AccessTools.Field(_stateMachineType, "beatmapKey");
-
-        private static readonly MethodInfo _injectCustomData =
-            AccessTools.Method(typeof(BeatmapDataLoaderLevelInfoInjectorAsync), nameof(InjectCustomData));
-
-        private static Type GetStateMachineType()
-        {
-            MethodInfo target = AccessTools.Method(typeof(BeatmapDataLoader), "LoadBeatmapDataAsync");
-            AsyncStateMachineAttribute? stateMachineAttr = target.GetCustomAttribute<AsyncStateMachineAttribute>();
-            if (stateMachineAttr is null)
-            {
-                throw new InvalidOperationException();
-            }
-
-            return stateMachineAttr.StateMachineType;
-        }
-
-        private static void InjectCustomData(IBeatmapLevelData beatmapLevelData, BeatmapKey beatmapKey, IReadonlyBeatmapData result)
+        internal static void AttachCustomData(IReadonlyBeatmapData result, IBeatmapLevelData beatmapLevelData, BeatmapKey beatmapKey)
         {
             if (beatmapLevelData is not CustomFileBeatmapLevelData fileBeatmapLevelData ||
                 result is not CustomBeatmapData beatmapData)
@@ -82,33 +24,18 @@ namespace CustomJSONData.HarmonyPatches
             }
         }
 
-        [UsedImplicitly]
-        [HarmonyTargetMethod]
-        private static MethodBase TargetMethod()
+        [HarmonyPostfix]
+        private static void InjectCustomData(ref Task<IReadonlyBeatmapData> __result, IBeatmapLevelData beatmapLevelData, BeatmapKey beatmapKey)
         {
-            return AccessTools.Method(_stateMachineType, "MoveNext");
+            __result = InjectCustomDataAsync(__result, beatmapLevelData, beatmapKey);
         }
 
-        [UsedImplicitly]
-        [HarmonyTranspiler]
-        private static IEnumerable<CodeInstruction> InjectCustomDataAsyncTranspiler(IEnumerable<CodeInstruction> instructions)
+        private static async Task<IReadonlyBeatmapData> InjectCustomDataAsync(Task<IReadonlyBeatmapData> task, IBeatmapLevelData beatmapLevelData, BeatmapKey beatmapKey)
         {
-            return new CodeMatcher(instructions)
-                .End()
-                .MatchBack(
-                    false,
-                    new CodeMatch(OpCodes.Stloc_1))
-                .InsertAndAdvance(
-                    new CodeInstruction(OpCodes.Ldarg_0),
-                    new CodeInstruction(OpCodes.Ldfld, _beatmapLevelData),
-                    new CodeInstruction(OpCodes.Ldarg_0),
-                    new CodeInstruction(OpCodes.Ldfld, _beatmapKey),
-                    new CodeInstruction(OpCodes.Ldloc_1),
-                    new CodeInstruction(OpCodes.Call, _injectCustomData))
-                .InstructionEnumeration();
+            IReadonlyBeatmapData result = await task;
+            AttachCustomData(result, beatmapLevelData, beatmapKey);
+            return result;
         }
     }
 }
-#endif
-
 #endif

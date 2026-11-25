@@ -5,7 +5,7 @@ using System.Reflection.Emit;
 using BeatmapSaveDataCommon;
 using CustomJSONData.CustomBeatmap;
 using HarmonyLib;
-#if LATEST
+#if BEAT_SABER_1_38_0 || LATEST
 using UnityEngine;
 #endif
 
@@ -37,7 +37,7 @@ namespace CustomJSONData.HarmonyPatches
         private static readonly ConstructorInfo _bpmEventCtor = AccessTools.FirstConstructor(typeof(BPMChangeBeatmapEventData), _ => true);
         private static readonly ConstructorInfo _customBpmEventCtor = AccessTools.FirstConstructor(typeof(CustomBPMChangeBeatmapEventData), _ => true);
 
-#if !LATEST
+#if !LEGATO_BEATMAP_OBJECT_ROTATION
         private static readonly ConstructorInfo _rotationEventCtor = AccessTools.FirstConstructor(typeof(SpawnRotationBeatmapEventData), _ => true);
         private static readonly ConstructorInfo _customRotationEventCtor = AccessTools.FirstConstructor(typeof(CustomSpawnRotationBeatmapEventdata), _ => true);
 #endif
@@ -153,7 +153,7 @@ namespace CustomJSONData.HarmonyPatches
             return instructions.ReplaceCtor(_version3, _bpmEventCtor, _customBpmEventCtor);
         }
 
-#if !LATEST
+#if !LEGATO_BEATMAP_OBJECT_ROTATION
         [HarmonyTranspiler]
         [HarmonyPatch(
             typeof(BeatmapDataLoaderVersion3.BeatmapDataLoader.RotationEventConverter),
@@ -233,7 +233,7 @@ namespace CustomJSONData.HarmonyPatches
             float endBeat = o.time + o.duration;
             float duration = __instance.BeatToTime(endBeat) - time;
 
-#if LATEST
+#if BEAT_SABER_1_38_0 || LATEST
             if (o.width < 0 || duration < Mathf.Epsilon)
             {
                 __result = null;
@@ -243,9 +243,11 @@ namespace CustomJSONData.HarmonyPatches
 
             __result = new CustomObstacleData(
                 time,
-#if LATEST
+#if LEGATO_BEATMAP_OBJECT_BEAT
                 o.time,
                 endBeat,
+#endif
+#if LEGATO_BEATMAP_OBJECT_ROTATION
                 __instance.BeatToRotation(o.time),
 #endif
                 o.lineIndex,

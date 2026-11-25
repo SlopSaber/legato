@@ -6,8 +6,10 @@ namespace CustomJSONData.CustomBeatmap
     {
         public CustomNoteData(
             float time,
-#if LATEST
+#if LEGATO_BEATMAP_OBJECT_BEAT
             float beat,
+#endif
+#if LEGATO_BEATMAP_OBJECT_ROTATION
             int rotation,
 #endif
             int lineIndex,
@@ -27,8 +29,10 @@ namespace CustomJSONData.CustomBeatmap
             Version version)
             : base(
                 time,
-#if LATEST
+#if LEGATO_BEATMAP_OBJECT_BEAT
                 beat,
+#endif
+#if LEGATO_BEATMAP_OBJECT_ROTATION
                 rotation,
 #endif
                 lineIndex,
@@ -55,8 +59,10 @@ namespace CustomJSONData.CustomBeatmap
 
         public static CustomNoteData CreateCustomBasicNoteData(
             float time,
-#if LATEST
+#if LEGATO_BEATMAP_OBJECT_BEAT
             float beat,
+#endif
+#if LEGATO_BEATMAP_OBJECT_ROTATION
             int rotation,
 #endif
             int lineIndex,
@@ -68,8 +74,10 @@ namespace CustomJSONData.CustomBeatmap
         {
             return new CustomNoteData(
                 time,
-#if LATEST
+#if LEGATO_BEATMAP_OBJECT_BEAT
                 beat,
+#endif
+#if LEGATO_BEATMAP_OBJECT_ROTATION
                 rotation,
 #endif
                 lineIndex,
@@ -91,8 +99,10 @@ namespace CustomJSONData.CustomBeatmap
 
         public static CustomNoteData CreateCustomBombNoteData(
             float time,
-#if LATEST
+#if LEGATO_BEATMAP_OBJECT_BEAT
             float beat,
+#endif
+#if LEGATO_BEATMAP_OBJECT_ROTATION
             int rotation,
 #endif
             int lineIndex,
@@ -102,8 +112,10 @@ namespace CustomJSONData.CustomBeatmap
         {
             return new CustomNoteData(
                 time,
-#if LATEST
+#if LEGATO_BEATMAP_OBJECT_BEAT
                 beat,
+#endif
+#if LEGATO_BEATMAP_OBJECT_ROTATION
                 rotation,
 #endif
                 lineIndex,
@@ -125,8 +137,10 @@ namespace CustomJSONData.CustomBeatmap
 
         public static CustomNoteData CreateCustomBurstSliderNoteData(
             float time,
-#if LATEST
+#if LEGATO_BEATMAP_OBJECT_BEAT
             float beat,
+#endif
+#if LEGATO_BEATMAP_OBJECT_ROTATION
             int rotation,
 #endif
             int lineIndex,
@@ -139,8 +153,10 @@ namespace CustomJSONData.CustomBeatmap
         {
             return new CustomNoteData(
                 time,
-#if LATEST
+#if LEGATO_BEATMAP_OBJECT_BEAT
                 beat,
+#endif
+#if LEGATO_BEATMAP_OBJECT_ROTATION
                 rotation,
 #endif
                 lineIndex,
@@ -168,8 +184,10 @@ namespace CustomJSONData.CustomBeatmap
         {
             return new CustomNoteData(
                 time,
-#if LATEST
+#if LEGATO_BEATMAP_OBJECT_BEAT
                 beat,
+#endif
+#if LEGATO_BEATMAP_OBJECT_ROTATION
                 rotation,
 #endif
                 lineIndex,

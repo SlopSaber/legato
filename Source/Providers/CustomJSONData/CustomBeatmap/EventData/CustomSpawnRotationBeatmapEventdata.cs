@@ -1,4 +1,4 @@
-﻿#if !LATEST
+﻿#if !LEGATO_BEATMAP_OBJECT_ROTATION
 using System;
 
 namespace CustomJSONData.CustomBeatmap

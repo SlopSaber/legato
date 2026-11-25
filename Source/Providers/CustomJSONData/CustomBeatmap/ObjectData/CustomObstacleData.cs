@@ -6,9 +6,11 @@ namespace CustomJSONData.CustomBeatmap
     {
         public CustomObstacleData(
             float time,
-#if LATEST
+#if LEGATO_BEATMAP_OBJECT_BEAT
             float startBeat,
             float endBeat,
+#endif
+#if LEGATO_BEATMAP_OBJECT_ROTATION
             int rotation,
 #endif
             int lineIndex,
@@ -20,9 +22,11 @@ namespace CustomJSONData.CustomBeatmap
             Version version)
             : base(
                 time,
-#if LATEST
+#if LEGATO_BEATMAP_OBJECT_BEAT
                 startBeat,
                 endBeat,
+#endif
+#if LEGATO_BEATMAP_OBJECT_ROTATION
                 rotation,
 #endif
                 lineIndex,
@@ -43,9 +47,11 @@ namespace CustomJSONData.CustomBeatmap
         {
             return new CustomObstacleData(
                 time,
-#if LATEST
+#if LEGATO_BEATMAP_OBJECT_BEAT
                 beat,
                 endBeat,
+#endif
+#if LEGATO_BEATMAP_OBJECT_ROTATION
                 rotation,
 #endif
                 lineIndex,

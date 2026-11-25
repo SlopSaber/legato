@@ -6,8 +6,10 @@ namespace CustomJSONData.CustomBeatmap
     {
         public CustomWaypointData(
             float time,
-#if LATEST
+#if LEGATO_BEATMAP_OBJECT_BEAT
             float beat,
+#endif
+#if LEGATO_BEATMAP_OBJECT_ROTATION
             int rotation,
 #endif
             int lineIndex,
@@ -17,8 +19,10 @@ namespace CustomJSONData.CustomBeatmap
             Version version)
             : base(
                 time,
-#if LATEST
+#if LEGATO_BEATMAP_OBJECT_BEAT
                 beat,
+#endif
+#if LEGATO_BEATMAP_OBJECT_ROTATION
                 rotation,
 #endif
                 lineIndex,
@@ -37,8 +41,10 @@ namespace CustomJSONData.CustomBeatmap
         {
             return new CustomWaypointData(
                 time,
-#if LATEST
+#if LEGATO_BEATMAP_OBJECT_BEAT
                 beat,
+#endif
+#if LEGATO_BEATMAP_OBJECT_ROTATION
                 rotation,
 #endif
                 lineIndex,

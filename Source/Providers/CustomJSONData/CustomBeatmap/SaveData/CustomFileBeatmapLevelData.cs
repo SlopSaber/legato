@@ -1,5 +1,8 @@
 ﻿#if !PRE_V1_37_1
 using System.Collections.Generic;
+#if !BEAT_SABER_1_45_1 && !BEAT_SABER_1_45_3
+using BeatmapCharacteristic = global::BeatmapCharacteristicSO;
+#endif
 
 namespace CustomJSONData.CustomBeatmap
 {

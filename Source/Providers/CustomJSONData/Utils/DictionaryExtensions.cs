@@ -37,8 +37,10 @@ namespace CustomJSONData
             BeatmapBasicData? beatmapBasicData =
 #if BEAT_SABER_1453
                 beatmapLevel.GetDifficultyBeatmapData(in beatmapKey);
-#else
+#elif BEAT_SABER_1_45_1
                 beatmapLevel.GetDifficultyBeatmapData(beatmapKey.characteristic, beatmapKey.difficulty);
+#else
+                beatmapLevel.GetDifficultyBeatmapData(beatmapKey.beatmapCharacteristic, beatmapKey.difficulty);
 #endif
             if (beatmapBasicData is CustomBeatmapBasicData customBeatmapBasicData)
             {

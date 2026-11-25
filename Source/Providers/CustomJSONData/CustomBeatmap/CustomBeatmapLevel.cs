@@ -57,7 +57,7 @@ namespace CustomJSONData.CustomBeatmap
             EnvironmentName environmentName,
             ColorScheme beatmapColorScheme,
             int notesCount,
-#if LATEST
+#if !LEGATO_LEGACY_BEATMAP_NOTE_COUNT
             int cuttableObjectsCount,
 #endif
             int obstaclesCount,
@@ -72,7 +72,7 @@ namespace CustomJSONData.CustomBeatmap
                 environmentName,
                 beatmapColorScheme,
                 notesCount,
-#if LATEST
+#if !LEGATO_LEGACY_BEATMAP_NOTE_COUNT
                 cuttableObjectsCount,
 #endif
                 obstaclesCount,

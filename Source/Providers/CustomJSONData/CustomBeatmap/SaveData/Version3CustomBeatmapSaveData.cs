@@ -1593,7 +1593,6 @@ namespace CustomJSONData.CustomBeatmap
 #if !PRE_V1_37_1
             string version = string.Empty;
 #endif
-            // lets do this
             List<_BpmChangeEventData> bpmEvents = new();
             List<_RotationEventData> rotationEvents = new();
             List<_ColorNoteData> colorNotes = new();

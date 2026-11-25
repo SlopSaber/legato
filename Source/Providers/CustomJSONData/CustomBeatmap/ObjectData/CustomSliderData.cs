@@ -9,8 +9,10 @@ namespace CustomJSONData.CustomBeatmap
             ColorType colorType,
             bool hasHeadNote,
             float headTime,
-#if LATEST
+#if LEGATO_BEATMAP_OBJECT_BEAT
             float headBeat,
+#endif
+#if LEGATO_BEATMAP_OBJECT_ROTATION
             int rotation,
 #endif
             int headLineIndex,
@@ -21,7 +23,7 @@ namespace CustomJSONData.CustomBeatmap
             float headCutDirectionAngleOffset,
             bool hasTailNote,
             float tailTime,
-#if LATEST
+#if LEGATO_BEATMAP_OBJECT_ROTATION
             int tailRotation,
 #endif
             int tailLineIndex,
@@ -40,8 +42,10 @@ namespace CustomJSONData.CustomBeatmap
                 colorType,
                 hasHeadNote,
                 headTime,
-#if LATEST
+#if LEGATO_BEATMAP_OBJECT_BEAT
                 headBeat,
+#endif
+#if LEGATO_BEATMAP_OBJECT_ROTATION
                 rotation,
 #endif
                 headLineIndex,
@@ -52,7 +56,7 @@ namespace CustomJSONData.CustomBeatmap
                 headCutDirectionAngleOffset,
                 hasTailNote,
                 tailTime,
-#if LATEST
+#if LEGATO_BEATMAP_OBJECT_ROTATION
                 tailRotation,
 #endif
                 tailLineIndex,
@@ -76,8 +80,10 @@ namespace CustomJSONData.CustomBeatmap
         public static SliderData CreateCustomSliderData(
             ColorType colorType,
             float headTime,
-#if LATEST
+#if LEGATO_BEATMAP_OBJECT_BEAT
             float headBeat,
+#endif
+#if LEGATO_BEATMAP_OBJECT_ROTATION
             int rotation,
 #endif
             int headLineIndex,
@@ -86,7 +92,7 @@ namespace CustomJSONData.CustomBeatmap
             float headControlPointLengthMultiplier,
             NoteCutDirection headCutDirection,
             float tailTime,
-#if LATEST
+#if LEGATO_BEATMAP_OBJECT_ROTATION
             int tailRotation,
 #endif
             int tailLineIndex,
@@ -103,8 +109,10 @@ namespace CustomJSONData.CustomBeatmap
                 colorType,
                 false,
                 headTime,
-#if LATEST
+#if LEGATO_BEATMAP_OBJECT_BEAT
                 headBeat,
+#endif
+#if LEGATO_BEATMAP_OBJECT_ROTATION
                 rotation,
 #endif
                 headLineIndex,
@@ -115,7 +123,7 @@ namespace CustomJSONData.CustomBeatmap
                 0,
                 false,
                 tailTime,
-#if LATEST
+#if LEGATO_BEATMAP_OBJECT_ROTATION
                 tailRotation,
 #endif
                 tailLineIndex,
@@ -134,8 +142,10 @@ namespace CustomJSONData.CustomBeatmap
         public static SliderData CreateCustomBurstSliderData(
             ColorType colorType,
             float headTime,
-#if LATEST
+#if LEGATO_BEATMAP_OBJECT_BEAT
             float headBeat,
+#endif
+#if LEGATO_BEATMAP_OBJECT_ROTATION
             int rotation,
 #endif
             int headLineIndex,
@@ -143,7 +153,7 @@ namespace CustomJSONData.CustomBeatmap
             NoteLineLayer headBeforeJumpLineLayer,
             NoteCutDirection headCutDirection,
             float tailTime,
-#if LATEST
+#if LEGATO_BEATMAP_OBJECT_ROTATION
             int tailRotation,
 #endif
             int tailLineIndex,
@@ -159,8 +169,10 @@ namespace CustomJSONData.CustomBeatmap
                 colorType,
                 false,
                 headTime,
-#if LATEST
+#if LEGATO_BEATMAP_OBJECT_BEAT
                 headBeat,
+#endif
+#if LEGATO_BEATMAP_OBJECT_ROTATION
                 rotation,
 #endif
                 headLineIndex,
@@ -171,7 +183,7 @@ namespace CustomJSONData.CustomBeatmap
                 0,
                 false,
                 tailTime,
-#if LATEST
+#if LEGATO_BEATMAP_OBJECT_ROTATION
                 tailRotation,
 #endif
                 tailLineIndex,
@@ -194,8 +206,10 @@ namespace CustomJSONData.CustomBeatmap
                 colorType,
                 hasHeadNote,
                 time,
-#if LATEST
+#if LEGATO_BEATMAP_OBJECT_BEAT
                 beat,
+#endif
+#if LEGATO_BEATMAP_OBJECT_ROTATION
                 rotation,
 #endif
                 headLineIndex,
@@ -206,7 +220,7 @@ namespace CustomJSONData.CustomBeatmap
                 headCutDirectionAngleOffset,
                 hasTailNote,
                 tailTime,
-#if LATEST
+#if LEGATO_BEATMAP_OBJECT_ROTATION
                 tailRotation,
 #endif
                 tailLineIndex,
