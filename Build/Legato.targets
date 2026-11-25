@@ -83,7 +83,7 @@
       <DefineConstants Condition="'$(LegatoUsesBuiltInRendering)' == 'true'">$(DefineConstants);LEGATO_BUILT_IN_RENDERING</DefineConstants>
       <DefineConstants Condition="'$(_LegatoApiVersion)' != '' AND $([MSBuild]::VersionGreaterThanOrEquals('$(_LegatoApiVersion)', '1.41.1'))">$(DefineConstants);LEGATO_LOCALIZATION_REMOVE_LISTENER</DefineConstants>
       <DefineConstants Condition="'$(_LegatoApiVersion)' != '' AND $([MSBuild]::VersionGreaterThanOrEquals('$(_LegatoApiVersion)', '1.45.1'))">$(DefineConstants);LEGATO_XR_APP_FOCUS_QUERY;LEGATO_XR_URP_RENDER_SCALE</DefineConstants>
-      <DefineConstants Condition="'$(_LegatoApiVersion)' != '' AND $([MSBuild]::VersionLessThan('$(_LegatoApiVersion)', '1.45.1'))">$(DefineConstants);LEGATO_LEGACY_MIRROR_RENDERER</DefineConstants>
+      <DefineConstants Condition="'$(_LegatoApiVersion)' != '' AND $([MSBuild]::VersionLessThan('$(_LegatoApiVersion)', '1.45.0'))">$(DefineConstants);LEGATO_LEGACY_MIRROR_RENDERER</DefineConstants>
       <DefineConstants Condition="'$(_LegatoApiVersion)' != '' AND $([MSBuild]::VersionLessThan('$(_LegatoApiVersion)', '1.44.2'))">$(DefineConstants);LEGATO_BLOOM_RENDER_TEXTURE</DefineConstants>
       <DefineConstants Condition="'$(_LegatoApiVersion)' != '' AND $([MSBuild]::VersionGreaterThanOrEquals('$(_LegatoApiVersion)', '1.45.0'))">$(DefineConstants);LEGATO_TRANSFORMED_BEATMAP_LOADER</DefineConstants>
       <DefineConstants Condition="'$(_LegatoApiVersion)' != '' AND $([MSBuild]::VersionGreaterThanOrEquals('$(_LegatoApiVersion)', '1.45.1'))">$(DefineConstants);LEGATO_URP_DRAW_MAIN_OPAQUE_FLAG</DefineConstants>
