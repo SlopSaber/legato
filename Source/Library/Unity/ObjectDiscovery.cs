@@ -17,7 +17,7 @@ namespace Legato.Unity {
         }
 
         internal static T FindFirstActive<T>() where T : UnityEngine.Object {
-#if BEAT_SABER_1_45_1 || BEAT_SABER_1_45_3
+#if BEAT_SABER_1_45_1 || BEAT_SABER_1_45_3 || LEGATO_UNITY_6_OBJECT_QUERIES
             return UnityEngine.Object.FindFirstObjectByType<T>();
 #else
             return UnityEngine.Object.FindObjectOfType<T>();
@@ -25,7 +25,7 @@ namespace Legato.Unity {
         }
 
         internal static UnityEngine.Object FindFirstActive(Type type) {
-#if BEAT_SABER_1_45_1 || BEAT_SABER_1_45_3
+#if BEAT_SABER_1_45_1 || BEAT_SABER_1_45_3 || LEGATO_UNITY_6_OBJECT_QUERIES
             return UnityEngine.Object.FindFirstObjectByType(type);
 #else
             return UnityEngine.Object.FindObjectOfType(type);
@@ -35,6 +35,8 @@ namespace Legato.Unity {
         internal static T FindAnyActive<T>() where T : UnityEngine.Object {
 #if BEAT_SABER_1_45_1 || BEAT_SABER_1_45_3
             return UnityEngine.Object.FindAnyObjectByType<T>();
+#elif LEGATO_UNITY_6_OBJECT_QUERIES
+            return UnityEngine.Object.FindFirstObjectByType<T>();
 #else
             return UnityEngine.Object.FindObjectOfType<T>();
 #endif
@@ -43,6 +45,8 @@ namespace Legato.Unity {
         internal static T[] FindIncludingInactiveUnsorted<T>() where T : UnityEngine.Object {
 #if BEAT_SABER_1_45_1 || BEAT_SABER_1_45_3
             return UnityEngine.Object.FindObjectsByType<T>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+#elif LEGATO_UNITY_6_OBJECT_QUERIES
+            return UnityEngine.Object.FindObjectsByType<T>(FindObjectsInactive.Include, FindObjectsSortMode.InstanceID);
 #elif BEAT_SABER_1_29_0 || LEGATO_HISTORICAL_GAME
             if (!typeof(Component).IsAssignableFrom(typeof(T)) && typeof(T) != typeof(GameObject))
                 return UnityEngine.Object.FindObjectsOfType<T>();
@@ -62,13 +66,15 @@ namespace Legato.Unity {
         internal static T[] FindActiveUnsorted<T>() where T : UnityEngine.Object {
 #if BEAT_SABER_1_45_1 || BEAT_SABER_1_45_3
             return UnityEngine.Object.FindObjectsByType<T>(FindObjectsSortMode.None);
+#elif LEGATO_UNITY_6_OBJECT_QUERIES
+            return UnityEngine.Object.FindObjectsByType<T>(FindObjectsSortMode.InstanceID);
 #else
             return UnityEngine.Object.FindObjectsOfType<T>();
 #endif
         }
 
         internal static T[] FindActive<T>() where T : UnityEngine.Object {
-#if BEAT_SABER_1_45_1 || BEAT_SABER_1_45_3
+#if BEAT_SABER_1_45_1 || BEAT_SABER_1_45_3 || LEGATO_UNITY_6_OBJECT_QUERIES
             return UnityEngine.Object.FindObjectsByType<T>(FindObjectsSortMode.InstanceID);
 #else
             return UnityEngine.Object.FindObjectsOfType<T>();

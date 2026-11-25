@@ -1,3 +1,5 @@
+#nullable enable
+
 using System;
 using System.IO;
 #if BEAT_SABER_1_29_0
