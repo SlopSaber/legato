@@ -14,5 +14,10 @@
       <Reference Include="Polyglot" HintPath="$(LegatoReferenceRoot)\Beat Saber_Data\Managed\Polyglot.dll" Private="false" />
       <Reference Include="BGNet" HintPath="$(LegatoReferenceRoot)\Beat Saber_Data\Managed\BGNet.dll" Private="false" />
     </ItemGroup>
+    <ItemGroup Condition="'$(LegatoTargetVersion)' == '1.11.1'">
+      <Reference Remove="BGLib.AppFlow;BGLib.DotnetExtension;BGLib.Polyglot;BGLib.UnityExtension;BGNetCore;BeatSaber.Init;BeatmapCore;DataModels;GameplayCore;Unity.InputSystem;Unity.XR.Management;Unity.XR.OpenXR;UnityEngine.SpatialTracking" />
+      <Reference Include="Colors" HintPath="$(LegatoReferenceRoot)\Beat Saber_Data\Managed\Colors.dll" Private="false" />
+      <Reference Include="Polyglot" HintPath="$(LegatoReferenceRoot)\Beat Saber_Data\Managed\Polyglot.dll" Private="false" />
+    </ItemGroup>
   </Target>
 </Project>

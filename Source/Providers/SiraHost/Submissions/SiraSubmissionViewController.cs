@@ -1,6 +1,9 @@
 using HMUI;
 using TMPro;
 using UnityEngine;
+#if LEGATO_HMUI_ACTIVATION_ENUMS
+using CurvedTextMeshPro = TMPro.TextMeshProUGUI;
+#endif
 
 namespace SiraUtil.Submissions
 {
@@ -8,6 +11,27 @@ namespace SiraUtil.Submissions
     {
         private CurvedTextMeshPro? _curvedText;
 
+#if LEGATO_HMUI_ACTIVATION_ENUMS
+        protected override void DidActivate(bool firstActivation, ActivationType activationType)
+        {
+            base.DidActivate(firstActivation, activationType);
+            if (firstActivation)
+            {
+                GameObject textGameObject = new("SiraSubmissionText", typeof(RectTransform));
+                textGameObject.layer = gameObject.layer;
+                textGameObject.SetActive(false);
+                textGameObject.transform.SetParent(transform, false);
+                _curvedText = textGameObject.AddComponent<CurvedTextMeshPro>();
+                RectTransform rect = _curvedText.rectTransform;
+                rect.sizeDelta = new Vector2(40f, 100f);
+                rect.anchorMin = rect.anchorMax = Vector2.zero;
+                rect.anchoredPosition = new Vector2(0f, -51f);
+                _curvedText.alignment = TextAlignmentOptions.Center;
+                _curvedText.lineSpacing = -45f;
+                _curvedText.fontSize = 3.5f;
+            }
+        }
+#else
 #if LEGATO_SIRA_LEGACY_VIEW_SYSTEM
         protected override void DidActivate
 #else
@@ -32,6 +56,7 @@ namespace SiraUtil.Submissions
                 _curvedText.gameObject.SetActive(false);
             }
         }
+#endif
 
         public void Enabled(bool value)
         {

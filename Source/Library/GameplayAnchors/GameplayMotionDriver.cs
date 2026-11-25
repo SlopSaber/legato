@@ -4,6 +4,12 @@ using System;
 using System.Linq;
 using UnityEngine;
 using Zenject;
+#if LEGATO_BEFORE_MULTIPLAYER
+using PlayerTransforms = global::PlayerController;
+using GameplayInstaller = global::GameplayCoreSceneSetup;
+#else
+using GameplayInstaller = global::GameplayCoreInstaller;
+#endif
 
 namespace Legato.Gameplay
 {
@@ -15,6 +21,9 @@ namespace Legato.Gameplay
         private PlayerTransforms? _player;
         private AudioTimeSyncController? _clock;
         private GameplayCoreSceneSetupData _scene = null!;
+#if LEGATO_BEFORE_MULTIPLAYER
+        private BeatmapData? _beatmapData;
+#endif
         private Transform? _origin;
         private Transform? _nativeHud;
         private Pose _initial;
@@ -24,12 +33,19 @@ namespace Legato.Gameplay
 
         [Inject]
         private void Construct(DiContainer container, GameplayCoreSceneSetupData scene,
-            [InjectOptional] PlayerTransforms? player, [InjectOptional] AudioTimeSyncController? clock)
+            [InjectOptional] PlayerTransforms? player, [InjectOptional] AudioTimeSyncController? clock
+#if LEGATO_BEFORE_MULTIPLAYER
+            , [InjectOptional] BeatmapData? beatmapData
+#endif
+            )
         {
             _container = container;
             _scene = scene;
             _player = player;
             _clock = clock;
+#if LEGATO_BEFORE_MULTIPLAYER
+            _beatmapData = beatmapData;
+#endif
         }
 
         private void Start()
@@ -37,7 +53,11 @@ namespace Legato.Gameplay
             if (_player == null)
                 _player = UnityEngine.Resources.FindObjectsOfTypeAll<PlayerTransforms>()
                     .FirstOrDefault(player => player.isActiveAndEnabled && player.gameObject.scene == gameObject.scene);
+#if LEGATO_BEFORE_MULTIPLAYER
+            Transform? origin = _player != null ? _player._headTransform.parent : null;
+#else
             Transform? origin = _player != null ? _player._originTransform : null;
+#endif
             _origin = origin != null ? origin.parent : null;
             if (_origin == null) return;
 
@@ -48,7 +68,7 @@ namespace Legato.Gameplay
             _current?.RestoreAnchors();
             _current = this;
             _initial = new Pose(_origin.position, _origin.rotation);
-#if BEAT_SABER_1_29_0
+#if BEAT_SABER_1_29_0 || LEGATO_BEFORE_MULTIPLAYER
             string? characteristic = _scene.difficultyBeatmap?.parentDifficultyBeatmapSet?.beatmapCharacteristic?.serializedName;
 #elif BEAT_SABER_1_34_2 || BEAT_SABER_1_37_1 || BEAT_SABER_1_38_0 || BEAT_SABER_1_40_0 || BEAT_SABER_1_42_0
             string? characteristic = _scene.beatmapKey.beatmapCharacteristic?.serializedName;
@@ -70,7 +90,11 @@ namespace Legato.Gameplay
             }
 
             Quaternion lane = Quaternion.identity;
+#if LEGATO_BEFORE_MULTIPLAYER
+            if (!_nativeRotation && _clock != null && _beatmapData is BeatmapData data)
+#else
             if (!_nativeRotation && _clock != null && _scene.transformedBeatmapData is IReadonlyBeatmapData data)
+#endif
             {
                 _lanes ??= new LaneRotation(data, _scene.playerSpecificSettings.leftHanded, _container);
                 lane = _lanes.At(_clock.songTime);
@@ -94,14 +118,14 @@ namespace Legato.Gameplay
                 anchor.Restore();
         }
 
-        [HarmonyPatch(typeof(GameplayCoreInstaller), nameof(GameplayCoreInstaller.InstallBindings))]
+        [HarmonyPatch(typeof(GameplayInstaller), nameof(GameplayInstaller.InstallBindings))]
         private static class Install
         {
             private static readonly Func<MonoInstallerBase, DiContainer> GetContainer =
                 (Func<MonoInstallerBase, DiContainer>)Delegate.CreateDelegate(typeof(Func<MonoInstallerBase, DiContainer>),
                     AccessTools.PropertyGetter(typeof(MonoInstallerBase), "Container"));
 
-            private static void Postfix(GameplayCoreInstaller __instance, GameplayCoreSceneSetupData ____sceneSetupData)
+            private static void Postfix(GameplayInstaller __instance, GameplayCoreSceneSetupData ____sceneSetupData)
             {
                 GetContainer(__instance).Bind<GameplayMotionDriver>().FromNewComponentOnRoot()
                     .AsSingle().WithArguments(____sceneSetupData).NonLazy();

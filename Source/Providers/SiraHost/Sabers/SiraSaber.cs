@@ -1,4 +1,4 @@
-#if BEAT_SABER_1_29_0 || (BEAT_SABER_1_37_1 && !LEGATO_SEPARATE_SABER_LOGIC)
+#if LEGATO_BEFORE_MULTIPLAYER || BEAT_SABER_1_29_0 || (BEAT_SABER_1_37_1 && !LEGATO_SEPARATE_SABER_LOGIC)
 #define LEGATO_LEGACY_SABER_MODEL_INIT
 #endif
 using SiraUtil.Extras;
@@ -21,7 +21,9 @@ namespace SiraUtil.Sabers
         internal SaberModelController Model { get; private set; } = null!;
         internal Action<Saber, Color> ColorUpdated { get; set; } = null!;
 
+#if !LEGATO_BEFORE_MULTIPLAYER
         private NoteCutter _noteCutter = null!;
+#endif
         private ColorManager _colorManager = null!;
         private SaberTypeObject _saberTypeObject = null!;
         private SaberModelProvider _saberModelProvider = null!;
@@ -33,7 +35,9 @@ namespace SiraUtil.Sabers
 
         [Inject]
         internal void Construct(
+#if !LEGATO_BEFORE_MULTIPLAYER
             NoteCutter noteCutter,
+#endif
             ColorManager colorManager,
             SaberModelProvider saberModelProvider
 #if !LEGATO_LEGACY_SABER_MODEL_INIT
@@ -41,7 +45,9 @@ namespace SiraUtil.Sabers
 #endif
             )
         {
+#if !LEGATO_BEFORE_MULTIPLAYER
             _noteCutter = noteCutter;
+#endif
             _colorManager = colorManager;
             _saberModelProvider = saberModelProvider;
 
@@ -66,15 +72,23 @@ namespace SiraUtil.Sabers
             bottom.transform.SetParent(transform);
             top.transform.position = new Vector3(0f, 0f, 1f);
 
+#if LEGATO_BEFORE_MULTIPLAYER
+            saber._topPos = top.transform;
+            saber._handlePos = bottom.transform;
+            saber._bottomPos = bottom.transform;
+#else
             saber._saberBladeTopTransform = top.transform;
             saber._handleTransform = bottom.transform;
             saber._saberBladeBottomTransform = bottom.transform;
             saber._saberBladeTopPos = top.transform.position;
             saber._saberBladeBottomPos = bottom.transform.position;
+#endif
 
             _saberTypeObject._saberType = saberType;
             Model = _saberModelProvider.NewModel(saberType);
-#if LEGATO_LEGACY_SABER_MODEL_INIT
+#if LEGATO_BEFORE_MULTIPLAYER
+            Model.Init(transform, saberType);
+#elif LEGATO_LEGACY_SABER_MODEL_INIT
             Model.Init(transform, Saber);
 #elif BEAT_SABER_1_45_1 || BEAT_SABER_1_45_3
             Model.Init(transform, Saber, _saberModelContainerInitData.trailTintColor, gameObject.name);
@@ -90,11 +104,15 @@ namespace SiraUtil.Sabers
             if (Saber != null && Saber.gameObject.activeInHierarchy && Saber.enabled)
             {
                 Saber saber = Saber;
+#if LEGATO_BEFORE_MULTIPLAYER
+                UpdateNativeSaber(saber);
+#else
                 Transform topTransform = saber._saberBladeTopTransform;
                 Transform bottomTransform = saber._saberBladeBottomTransform;
                 saber._saberBladeTopPos = topTransform.position;
                 saber._saberBladeBottomPos = bottomTransform.position;
                 _noteCutter.Cut(Saber);
+#endif
             }
 
             if (_colorProcessNextFrame.Count > 0)
@@ -102,6 +120,33 @@ namespace SiraUtil.Sabers
                 _colorProcessNextFrame.Dequeue().Invoke();
             }
         }
+
+#if LEGATO_BEFORE_MULTIPLAYER
+        private static void UpdateNativeSaber(Saber saber)
+        {
+            for (int index = saber._swingRatingCounters.Count - 1; index >= 0; index--)
+            {
+                SaberSwingRatingCounter counter = saber._swingRatingCounters[index];
+                if (counter.didFinish)
+                {
+                    counter.Deinit();
+                    saber._swingRatingCounters.RemoveAt(index);
+                    saber._unusedSwingRatingCounters.Add(counter);
+                }
+            }
+
+            bool hasPreviousSample = saber._time > 0f;
+            SaberMovementData.Data previous = saber._movementData.lastAddedData;
+            Vector3 top = saber.saberBladeTopPos;
+            Vector3 bottom = saber.saberBladeBottomPos;
+            saber._time += Time.deltaTime;
+            saber._movementData.AddNewData(top, bottom, saber._time);
+            if (hasPreviousSample && !saber.disableCutting)
+            {
+                saber._cutter.Cut(saber, top, bottom, previous.topPos, previous.bottomPos);
+            }
+        }
+#endif
 
         /// <inheritdoc/>
         protected void LateUpdate()

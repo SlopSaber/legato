@@ -9,7 +9,7 @@ namespace Legato.Sira
     {
         internal static void BindNativeServices(Zenject.DiContainer container)
         {
-#if BEAT_SABER_1_29_0
+#if BEAT_SABER_1_29_0 || LEGATO_BEFORE_MULTIPLAYER
             if (!container.HasBinding<MainSettingsModelSO>())
                 container.Bind<MainSettingsModelSO>().FromInstance(FindMainSettings()).AsSingle();
             if (!container.HasBinding<ColorSchemesSettings>())
@@ -24,13 +24,13 @@ namespace Legato.Sira
 
         internal static bool MatchesInstaller(Type expected, Type actual)
         {
-#if BEAT_SABER_1_29_0
+#if BEAT_SABER_1_29_0 || LEGATO_BEFORE_MULTIPLAYER
             if (expected == typeof(AppInit)) return expected.IsAssignableFrom(actual);
 #endif
             return expected == actual;
         }
 
-#if BEAT_SABER_1_29_0
+#if BEAT_SABER_1_29_0 || LEGATO_BEFORE_MULTIPLAYER
         private static readonly FieldInfo MainSettings = typeof(MainSystemInit).GetField(
             "_mainSettingsModel", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
             ?? throw new MissingFieldException(typeof(MainSystemInit).FullName, "_mainSettingsModel");
@@ -44,10 +44,24 @@ namespace Legato.Sira
         }
 
         private static readonly FieldInfo EnvironmentCatalog = typeof(CustomLevelLoader).GetField(
+#if LEGATO_BEFORE_MULTIPLAYER
+            "_enviromentSceneInfoColection", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
+            ?? throw new MissingFieldException(typeof(CustomLevelLoader).FullName, "_enviromentSceneInfoColection");
+#else
             "_environmentSceneInfoCollection", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
             ?? throw new MissingFieldException(typeof(CustomLevelLoader).FullName, "_environmentSceneInfoCollection");
 #endif
+#endif
 
+#if LEGATO_HMUI_ACTIVATION_ENUMS
+        private static readonly Action<FlowCoordinator, ViewController?, bool> SetBottomScreen =
+            (Action<FlowCoordinator, ViewController?, bool>)Delegate.CreateDelegate(
+                typeof(Action<FlowCoordinator, ViewController?, bool>),
+                typeof(FlowCoordinator).GetMethod("SetBottomScreenViewController", BindingFlags.Instance | BindingFlags.NonPublic)!);
+
+        internal static void SetBottomScreenViewController(FlowCoordinator flow, ViewController? view) =>
+            SetBottomScreen(flow, view, true);
+#else
 #if LEGATO_SIRA_LEGACY_VIEW_SYSTEM
         private static readonly Action<FlowCoordinator, ViewController?, ViewController.AnimationType> SetBottomScreen =
             (Action<FlowCoordinator, ViewController?, ViewController.AnimationType>)Delegate.CreateDelegate(
@@ -63,10 +77,11 @@ namespace Legato.Sira
             flow.SetBottomScreenViewController(view, animation);
 #endif
         }
+#endif
 
         internal static bool IsPaused(PauseController controller)
         {
-#if BEAT_SABER_1_29_0 || BEAT_SABER_1_37_1 || BEAT_SABER_1_38_0
+#if LEGATO_BEFORE_MULTIPLAYER || BEAT_SABER_1_29_0 || BEAT_SABER_1_37_1 || BEAT_SABER_1_38_0
             return controller._paused;
 #else
             return controller._paused == PauseController.PauseState.Paused;
@@ -75,7 +90,9 @@ namespace Legato.Sira
 
         internal static float LastMovementTime(Saber saber)
         {
-#if BEAT_SABER_1_29_0 || (BEAT_SABER_1_37_1 && !LEGATO_SEPARATE_SABER_LOGIC)
+#if LEGATO_BEFORE_MULTIPLAYER
+            return saber._movementData.lastAddedData.time;
+#elif BEAT_SABER_1_29_0 || (BEAT_SABER_1_37_1 && !LEGATO_SEPARATE_SABER_LOGIC)
             return saber.movementData.lastAddedData.time;
 #else
             return saber.movementDataForLogic.lastAddedData.time;
@@ -84,7 +101,7 @@ namespace Legato.Sira
 
         internal static bool RequestSucceeded(UnityWebRequest request)
         {
-#if BEAT_SABER_1_29_0
+#if BEAT_SABER_1_29_0 || LEGATO_BEFORE_MULTIPLAYER
             return request.isDone && !request.isNetworkError && !request.isHttpError;
 #else
             return request.isDone && request.result == UnityWebRequest.Result.Success;

@@ -4,7 +4,7 @@
   </ItemGroup>
   <Target Name="LegatoBsmlNativeReferences" BeforeTargets="ResolveAssemblyReferences" DependsOnTargets="LegatoConfigure">
     <PropertyGroup Condition="'$(LegatoTargetVersion)' == '1.11.1'">
-      <DefineConstants>$(DefineConstants);LEGATO_HMUI_ACTIVATION_ENUMS;LEGATO_HMUI_TABLE_SCROLLER;LEGATO_HMUI_LEGACY_SCROLL_VIEW;LEGATO_FIXED_TABLE_CELL_SIZE;LEGATO_NATIVE_POLYGLOT;LEGATO_LEGACY_TEXTMESH_PRO;LEGATO_HMUI_PLAIN_TMP;LEGATO_HMUI_LEGACY_GRAPHICS</DefineConstants>
+      <DefineConstants>$(DefineConstants);LEGATO_HMUI_TABLE_SCROLLER;LEGATO_HMUI_LEGACY_SCROLL_VIEW;LEGATO_FIXED_TABLE_CELL_SIZE;LEGATO_NATIVE_POLYGLOT;LEGATO_LEGACY_TEXTMESH_PRO;LEGATO_HMUI_PLAIN_TMP;LEGATO_HMUI_LEGACY_GRAPHICS</DefineConstants>
     </PropertyGroup>
     <ItemGroup>
       <Reference Remove="BeatSaber.ViewSystem" Condition="!Exists('$(LegatoReferenceRoot)\Beat Saber_Data\Managed\BeatSaber.ViewSystem.dll')" />

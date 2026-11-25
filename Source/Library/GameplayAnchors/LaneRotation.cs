@@ -6,6 +6,11 @@ using System.Linq;
 using System.Reflection;
 using UnityEngine;
 using Zenject;
+#if LEGATO_BEFORE_MULTIPLAYER
+using NativeBeatmapData = global::BeatmapData;
+#else
+using NativeBeatmapData = global::IReadonlyBeatmapData;
+#endif
 
 namespace Legato.Gameplay
 {
@@ -15,14 +20,19 @@ namespace Legato.Gameplay
         private readonly Dictionary<string, Func<string, Quaternion?>> _trackRotations = new();
         private readonly bool _leftHanded;
 
-        internal LaneRotation(IReadonlyBeatmapData data, bool leftHanded, DiContainer container)
+        internal LaneRotation(NativeBeatmapData data, bool leftHanded, DiContainer container)
         {
             _leftHanded = leftHanded;
             var properties = new Dictionary<Type, PropertyInfo?>();
-            foreach (NoteData note in data.allBeatmapDataItems.OfType<NoteData>().OrderBy(note => note.time))
+#if LEGATO_BEFORE_MULTIPLAYER
+            var notes = data.beatmapLinesData.SelectMany(line => line.beatmapObjectsData).OfType<NoteData>()
+                .Where(note => note.noteType != NoteType.Bomb);
+#else
+            var notes = data.allBeatmapDataItems.OfType<NoteData>().Where(note => note.gameplayType != NoteData.GameplayType.Bomb);
+#endif
+            foreach (NoteData note in notes.OrderBy(note => note.time))
             {
-                if (note.gameplayType == NoteData.GameplayType.Bomb ||
-                    (_samples.Count > 0 && Mathf.Approximately(_samples[_samples.Count - 1].Time, note.time)))
+                if (_samples.Count > 0 && Mathf.Approximately(_samples[_samples.Count - 1].Time, note.time))
                     continue;
 
                 Type type = note.GetType();

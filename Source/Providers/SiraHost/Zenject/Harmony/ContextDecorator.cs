@@ -1,4 +1,4 @@
-#if !BEAT_SABER_1_29_0
+#if !BEAT_SABER_1_29_0 && !LEGATO_BEFORE_MULTIPLAYER
 using BGLib.AppFlow.Initialization;
 #endif
 using HarmonyLib;
@@ -56,7 +56,7 @@ namespace SiraUtil.Zenject.Harmony
                 installerBindings.Add(installerPrefab.GetType());
             }
 
-#if !BEAT_SABER_1_29_0
+#if !BEAT_SABER_1_29_0 && !LEGATO_BEFORE_MULTIPLAYER
             if (__instance is AsyncSceneContext asyncSceneContext)
             {
 #if BEAT_SABER_1_45_1 || BEAT_SABER_1_45_3
