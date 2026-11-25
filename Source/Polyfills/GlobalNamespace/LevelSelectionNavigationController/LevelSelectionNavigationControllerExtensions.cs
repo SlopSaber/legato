@@ -3,7 +3,7 @@
 namespace Legato {
     internal static class LevelSelectionNavigationControllerExtensions {
         internal static BeatmapKey GetBeatmapKey(this LevelSelectionNavigationController controller) {
-#if BEAT_SABER_1_29_0
+#if LEGATO_DIFFICULTY_BEATMAPS
             return new BeatmapKey(controller.selectedDifficultyBeatmap);
 #else
             return controller.beatmapKey;
@@ -11,7 +11,7 @@ namespace Legato {
         }
 
         internal static BeatmapKey? GetSelectedBeatmapKey(this LevelSelectionNavigationController controller) {
-#if BEAT_SABER_1_29_0
+#if LEGATO_DIFFICULTY_BEATMAPS
             return controller.selectedDifficultyBeatmap == null ? null : new BeatmapKey(controller.selectedDifficultyBeatmap);
 #else
             return controller.beatmapLevel == null ? null : controller.GetBeatmapKey();
@@ -23,14 +23,14 @@ namespace Legato {
 
         private sealed class DifficultySubscription : System.IDisposable {
             private readonly LevelSelectionNavigationController _controller;
-#if BEAT_SABER_1_29_0
+#if LEGATO_DIFFICULTY_BEATMAPS
             private readonly System.Action<LevelSelectionNavigationController, IDifficultyBeatmap> _handler;
 #else
             private readonly System.Action<LevelSelectionNavigationController> _handler;
 #endif
             internal DifficultySubscription(LevelSelectionNavigationController controller, System.Action<BeatmapKey?> callback) {
                 _controller = controller;
-#if BEAT_SABER_1_29_0
+#if LEGATO_DIFFICULTY_BEATMAPS
                 _handler = (_, beatmap) => callback(beatmap == null ? null : new BeatmapKey(beatmap));
 #else
                 _handler = selection => callback(selection.GetSelectedBeatmapKey());

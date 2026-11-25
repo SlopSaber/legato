@@ -12,6 +12,10 @@ namespace Legato {
             _level = level;
         }
 
+#if LEGATO_LEGACY_PREVIEW
+        public Task<Texture2D> GetCoverTextureAsync() => _level.GetCoverImageTexture2DAsync(CancellationToken.None);
+#else
         public Task<Sprite> GetCoverSpriteAsync() => _level.GetCoverImageAsync(CancellationToken.None);
+#endif
     }
 }

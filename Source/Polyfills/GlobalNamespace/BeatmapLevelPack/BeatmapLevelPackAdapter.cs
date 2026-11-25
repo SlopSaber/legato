@@ -11,7 +11,7 @@ namespace Legato {
     // The 1.37 model replaced the interface graph with concrete level and pack objects.
     // Keep that seam here so a port only has one representation to work with.
     internal sealed class BeatmapLevelAdapter : IPreviewBeatmapLevel {
-#if BEAT_SABER_1_29_0
+#if LEGATO_DIFFICULTY_BEATMAPS
         internal readonly IPreviewBeatmapLevel source;
 
         internal BeatmapLevelAdapter(IPreviewBeatmapLevel source) {
@@ -42,7 +42,7 @@ namespace Legato {
         public float previewDuration => source.previewDuration;
         public float songDuration => source.songDuration;
 
-#if BEAT_SABER_1_29_0
+#if LEGATO_DIFFICULTY_BEATMAPS
         public float shuffle => source.shuffle;
         public float shufflePeriod => source.shufflePeriod;
         public EnvironmentInfoSO environmentInfo => source.environmentInfo;
@@ -51,7 +51,7 @@ namespace Legato {
         public Task<Sprite> GetCoverImageAsync(CancellationToken cancellationToken) => source.GetCoverImageAsync(cancellationToken);
 #endif
 
-#if BEAT_SABER_1_29_0
+#if LEGATO_DIFFICULTY_BEATMAPS
         internal IReadOnlyList<BeatmapDifficultyAdapter> difficulties => Array.Empty<BeatmapDifficultyAdapter>();
 #else
         internal IReadOnlyList<BeatmapDifficultyAdapter> difficulties => source.beatmapBasicData.Keys
@@ -81,7 +81,7 @@ namespace Legato {
     }
 
     internal sealed class BeatmapLevelPackAdapter : IBeatmapLevelPack {
-#if BEAT_SABER_1_29_0
+#if LEGATO_DIFFICULTY_BEATMAPS
         internal readonly IAnnotatedBeatmapLevelCollection source;
 
         internal BeatmapLevelPackAdapter(IAnnotatedBeatmapLevelCollection source) {
@@ -107,7 +107,7 @@ namespace Legato {
             .ToArray();
 #endif
 
-#if BEAT_SABER_1_29_0
+#if LEGATO_DIFFICULTY_BEATMAPS
         public string packID => (source as IBeatmapLevelPack)?.packID ?? string.Empty;
         public string packName => (source as IBeatmapLevelPack)?.packName ?? source.collectionName;
         public string shortPackName => (source as IBeatmapLevelPack)?.shortPackName ?? source.collectionName;
@@ -124,7 +124,7 @@ namespace Legato {
         public bool isPackAlwaysOwned => true;
 
         internal static BeatmapLevelPackAdapter From(IAnnotatedBeatmapLevelCollection source) {
-#if BEAT_SABER_1_29_0
+#if LEGATO_DIFFICULTY_BEATMAPS
             return source as BeatmapLevelPackAdapter ?? new BeatmapLevelPackAdapter(source);
 #else
             return source as BeatmapLevelPackAdapter
@@ -139,7 +139,7 @@ namespace Legato {
             Sprite coverImage,
             Sprite smallCoverImage,
             IReadOnlyList<BeatmapLevelAdapter> levels) {
-#if BEAT_SABER_1_29_0
+#if LEGATO_DIFFICULTY_BEATMAPS
             return new BeatmapLevelPackAdapter(new BeatmapLevelPack(
                 packID,
                 packName,

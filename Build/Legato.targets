@@ -30,11 +30,18 @@
       <LegatoTargetOrder>@(_LegatoTargetVersion->'%(Order)')</LegatoTargetOrder>
       <LegatoSourceProfile>@(_LegatoSourceVersion->'%(Profile)')</LegatoSourceProfile>
       <LegatoSourceOrder>@(_LegatoSourceVersion->'%(Order)')</LegatoSourceOrder>
+      <_LegatoCoreApi>@(_LegatoTargetVersion->'%(CoreApi)')</_LegatoCoreApi>
+      <_LegatoPolyfillProfile>$(LegatoTargetProfile)</_LegatoPolyfillProfile>
+      <_LegatoPolyfillProfile Condition="'$(LegatoTargetProfile)' == '1.34.2'">1.29.0</_LegatoPolyfillProfile>
+      <_LegatoUsesDifficultyBeatmaps Condition="'$(_LegatoPolyfillProfile)' == '1.29.0' OR '$(_LegatoCoreApi)' == 'LegacyPreview'">true</_LegatoUsesDifficultyBeatmaps>
       <LegatoTargetDefine Condition="'$(LegatoTargetProfile)' != ''">BEAT_SABER_$([System.String]::Copy('$(LegatoTargetProfile)').Replace('.', '_'))</LegatoTargetDefine>
       <DefineConstants Condition="'$(LegatoTargetDefine)' != ''">$(DefineConstants);$(LegatoTargetDefine)</DefineConstants>
+      <DefineConstants Condition="'$(_LegatoUsesDifficultyBeatmaps)' == 'true'">$(DefineConstants);LEGATO_DIFFICULTY_BEATMAPS</DefineConstants>
+      <DefineConstants Condition="'$(_LegatoCoreApi)' == 'LegacyPreview'">$(DefineConstants);LEGATO_LEGACY_PREVIEW</DefineConstants>
+      <DefineConstants Condition="'$(_LegatoCoreApi)' == 'EarlyAccess'">$(DefineConstants);LEGATO_EARLY_ACCESS</DefineConstants>
       <DefineConstants Condition="'$(LegatoEnableNativeBeatmapAliases)' == 'true'">$(DefineConstants);LEGATO_NATIVE_BEATMAP_KEYS</DefineConstants>
       <DefineConstants Condition="'$(LegatoEnableSteamAuthentication)' == 'true'">$(DefineConstants);LEGATO_STEAM_WEB_AUTH</DefineConstants>
-      <LegatoHasDefaultInterfaceMethods Condition="'$(LegatoTargetProfile)' != '1.29.0' AND '$(LegatoTargetProfile)' != ''">true</LegatoHasDefaultInterfaceMethods>
+      <LegatoHasDefaultInterfaceMethods Condition="'$(LegatoTargetProfile)' != '1.29.0' AND '$(LegatoTargetProfile)' != '' AND '$(_LegatoCoreApi)' == ''">true</LegatoHasDefaultInterfaceMethods>
       <DefineConstants Condition="'$(LegatoHasDefaultInterfaceMethods)' == 'true'">$(DefineConstants);LEGATO_DEFAULT_INTERFACE_METHODS</DefineConstants>
       <LegatoUsesNativeRenderTiming>false</LegatoUsesNativeRenderTiming>
       <LegatoUsesNativeRenderTiming Condition="'$(LegatoTargetProfile)' == '1.29.0' OR '$(LegatoTargetProfile)' == '1.45.1' OR '$(LegatoTargetProfile)' == '1.45.3'">true</LegatoUsesNativeRenderTiming>
@@ -186,19 +193,25 @@
 
   <Target Name="LegatoAddBaseSources" BeforeTargets="CoreCompile" DependsOnTargets="LegatoConfigure"
           Condition="'$(LegatoMetadataOnly)' != 'true'">
-    <ItemGroup Condition="'$(LegatoEnablePolyfills)' != 'false'">
+    <ItemGroup Condition="'$(LegatoEnablePolyfills)' != 'false' AND '$(_LegatoCoreApi)' != ''">
+      <Compile Include="$(LegatoSourceRoot)GlobalUsings.cs;$(LegatoSourceRoot)Polyfills\System\**\*.cs;$(LegatoSourceRoot)Polyfills\UnityEngine\Networking\UnityWebRequest\*.cs;$(LegatoSourceRoot)Polyfills\GlobalNamespace\AudioTimeSyncController\*.cs" />
+      <Compile Condition="'$(_LegatoCoreApi)' == 'LegacyPreview'"
+               Include="$(LegatoSourceRoot)Polyfills\GlobalNamespace\AudioManager\*.cs;$(LegatoSourceRoot)Polyfills\GlobalNamespace\BeatmapKey\Versions\1.29.0\*.cs;$(LegatoSourceRoot)Polyfills\GlobalNamespace\BeatmapLevel\Versions\1.29.0\*.cs;$(LegatoSourceRoot)Polyfills\GlobalNamespace\IPreviewMediaData\Versions\1.29.0\*.cs;$(LegatoSourceRoot)Polyfills\GlobalNamespace\LevelSelectionNavigationController\LevelSelectionNavigationControllerExtensions.cs;$(LegatoSourceRoot)Polyfills\GlobalNamespace\StandardLevelScenesTransitionSetupData\*.cs" />
+    </ItemGroup>
+    <ItemGroup Condition="'$(LegatoEnablePolyfills)' != 'false' AND '$(_LegatoCoreApi)' == ''">
       <Compile Include="$(LegatoSourceRoot)GlobalUsings.cs;$(LegatoSourceRoot)Library\Platform\Authentication\**\*.cs;$(LegatoSourceRoot)Library\Platform\Friends\**\*.cs;$(LegatoSourceRoot)Library\XR\Headset\**\*.cs;$(LegatoSourceRoot)Library\XR\InputFocus\**\*.cs" />
       <Compile Include="$(LegatoSourceRoot)Polyfills\**\*.cs" Exclude="$(LegatoSourceRoot)Polyfills\System\**\*.cs" />
       <Compile Include="$(LegatoSourceRoot)Polyfills\System\**\*.cs" />
       <Compile Remove="$(LegatoSourceRoot)**\Versions\**\*.cs" />
       <Compile Remove="$(LegatoSourceRoot)ForwardPolyfills\**\*.cs" />
-      <Compile Include="$(LegatoSourceRoot)Polyfills\**\Versions\$(LegatoTargetProfile)\**\*.cs" Condition="'$(LegatoTargetProfile)' != ''" />
-      <Compile Include="$(LegatoSourceRoot)Polyfills\**\Versions\1.29.0-1.37.1\**\*.cs" Condition="'$(LegatoTargetProfile)' == '1.29.0' OR '$(LegatoTargetProfile)' == '1.37.1'" />
-      <Compile Include="$(LegatoSourceRoot)Polyfills\**\Versions\1.29.0-1.38.0\**\*.cs" Condition="'$(LegatoTargetProfile)' == '1.29.0' OR '$(LegatoTargetProfile)' == '1.37.1' OR '$(LegatoTargetProfile)' == '1.38.0'" />
-      <Compile Include="$(LegatoSourceRoot)Polyfills\**\Versions\1.29.0-1.40.0\**\*.cs" Condition="'$(LegatoTargetProfile)' == '1.29.0' OR '$(LegatoTargetProfile)' == '1.37.1' OR '$(LegatoTargetProfile)' == '1.38.0' OR '$(LegatoTargetProfile)' == '1.40.0'" />
+      <Compile Include="$(LegatoSourceRoot)Polyfills\**\Versions\$(_LegatoPolyfillProfile)\**\*.cs" Condition="'$(_LegatoPolyfillProfile)' != ''" />
+      <Compile Include="$(LegatoSourceRoot)Polyfills\**\Versions\1.29.0-1.37.1\**\*.cs" Condition="'$(_LegatoPolyfillProfile)' == '1.29.0' OR '$(LegatoTargetProfile)' == '1.37.1'" />
+      <Compile Include="$(LegatoSourceRoot)Polyfills\**\Versions\1.29.0-1.38.0\**\*.cs" Condition="'$(_LegatoPolyfillProfile)' == '1.29.0' OR '$(LegatoTargetProfile)' == '1.37.1' OR '$(LegatoTargetProfile)' == '1.38.0'" />
+      <Compile Include="$(LegatoSourceRoot)Polyfills\**\Versions\1.29.0-1.40.0\**\*.cs" Condition="'$(_LegatoPolyfillProfile)' == '1.29.0' OR '$(LegatoTargetProfile)' == '1.37.1' OR '$(LegatoTargetProfile)' == '1.38.0' OR '$(LegatoTargetProfile)' == '1.40.0'" />
       <Compile Include="$(LegatoSourceRoot)Polyfills\**\Versions\1.37.1-1.40.0\**\*.cs" Condition="'$(LegatoTargetProfile)' == '1.37.1' OR '$(LegatoTargetProfile)' == '1.38.0' OR '$(LegatoTargetProfile)' == '1.40.0'" />
       <Compile Include="$(LegatoSourceRoot)ForwardPolyfills\**\Transitions\1.29.0-1.37.1\**\*.cs" Condition="'$(LegatoSourceOrder)' != '' AND '$(LegatoTargetOrder)' != '' AND $(LegatoSourceOrder) &lt;= 0 AND $(LegatoTargetOrder) &gt;= 1" />
       <Compile Remove="$(LegatoSourceRoot)Library\Presentation\**\*.cs;$(LegatoSourceRoot)Library\Resources\**\*.cs;$(LegatoSourceRoot)Polyfills\BeatSaberMarkupLanguage\**\*.cs" />
+      <Compile Remove="$(LegatoSourceRoot)Polyfills\UnityEngine\UI\Image\Versions\**\*.cs" />
       <Compile Remove="$(LegatoSourceRoot)Polyfills\LeaderboardCore\**\*.cs" />
       <Compile Remove="$(LegatoSourceRoot)Polyfills\SongCore\**\*.cs" />
       <Compile Remove="$(LegatoSourceRoot)Polyfills\SongDataCore\**\*.cs" />
@@ -251,7 +264,7 @@
       <_LegatoBsmlApiVersion>@(_LegatoBsmlIdentity->'%(Version)')</_LegatoBsmlApiVersion>
       <DefineConstants Condition="'$(_LegatoBsmlApiVersion)' != '' AND $([MSBuild]::VersionGreaterThanOrEquals('$(_LegatoBsmlApiVersion)', '1.14.0.0'))">$(DefineConstants);LEGATO_BSML_CURRENT</DefineConstants>
     </PropertyGroup>
-    <PropertyGroup Condition="'$(LegatoEnableAutoAdapters)' != 'false'">
+    <PropertyGroup Condition="'$(LegatoEnableAutoAdapters)' != 'false' AND '$(_LegatoCoreApi)' == ''">
       <LegatoEnableBSML Condition="'$(LegatoEnableBSML)' == '' AND '@(_LegatoBSMLReference)' != ''">true</LegatoEnableBSML>
       <LegatoEnableTextMeshPro Condition="'$(LegatoEnableTextMeshPro)' == '' AND '@(_LegatoTextMeshProReference)' != ''">true</LegatoEnableTextMeshPro>
       <LegatoEnableLeaderboardCore Condition="'$(LegatoEnableLeaderboardCore)' == '' AND '@(_LegatoLeaderboardCoreReference)' != ''">true</LegatoEnableLeaderboardCore>
@@ -567,7 +580,7 @@
       <Compile Include="$(LegatoSourceRoot)ForwardPolyfills\**\Transitions\1.40.0-1.42.0\**\*.cs"
                Condition="('@(_LegatoAudioReference)' != '' OR ('$(LegatoTargetProfile)' == '1.42.0' AND '@(_LegatoMainReference)' != '')) AND '$(LegatoSourceOrder)' != '' AND '$(LegatoTargetOrder)' != '' AND $(LegatoSourceOrder) &lt;= 3 AND $(LegatoTargetOrder) &gt;= 4" />
       <Compile Include="$(LegatoSourceRoot)Polyfills\GlobalNamespace\BeatmapKey\BeatmapKeyExtensions.cs"
-               Condition="('$(LegatoEnableBeatmapKeys)' == 'true' OR '$(LegatoEnableAutoAdapters)' != 'false') AND ('@(_LegatoDataModelsReference)' != '' OR ('$(LegatoTargetProfile)' == '1.29.0' AND '@(_LegatoMainReference)' != '')) AND '@(_LegatoColorsReference)' != ''" />
+               Condition="('$(LegatoEnableBeatmapKeys)' == 'true' OR '$(LegatoEnableAutoAdapters)' != 'false') AND ('@(_LegatoDataModelsReference)' != '' OR ('$(_LegatoPolyfillProfile)' == '1.29.0' AND '@(_LegatoMainReference)' != '')) AND '@(_LegatoColorsReference)' != ''" />
       <Compile Include="$(LegatoSourceRoot)Library\Gameplay\**\*.cs"
                Exclude="$(LegatoSourceRoot)Library\Gameplay\GameplayMetadataProvider.cs"
                Condition="'$(LegatoEnableGameplay)' == 'true'" />
@@ -580,6 +593,8 @@
                Condition="'$(LegatoEnableBSML)' == 'true'" />
       <Compile Include="$(LegatoSourceRoot)Polyfills\TMPro\**\*.cs"
                Condition="'$(LegatoEnableTextMeshPro)' == 'true'" />
+      <Compile Include="$(LegatoSourceRoot)Polyfills\UnityEngine\UI\Image\Versions\1.29.0\*.cs"
+               Condition="'$(LegatoEnablePolyfills)' != 'false' AND '$(LegatoEnableBSML)' == 'true' AND '$(_LegatoPolyfillProfile)' == '1.29.0'" />
       <Compile Include="$(LegatoSourceRoot)Polyfills\BeatSaberMarkupLanguage\**\Versions\$(LegatoTargetProfile)\**\*.cs"
                Condition="'$(LegatoEnableBSML)' == 'true' AND '$(LegatoTargetProfile)' != ''" />
       <Compile Include="$(LegatoSourceRoot)Polyfills\BeatSaberMarkupLanguage\**\Versions\1.29.0-1.37.1\**\*.cs"
@@ -603,7 +618,7 @@
       <Compile Include="$(LegatoSourceRoot)Polyfills\BS_Utils\**\*.cs"
                Condition="'$(LegatoEnableBSUtils)' == 'true'" />
       <Compile Include="$(LegatoSourceRoot)Polyfills\GlobalNamespace\BeatmapLevelPack\**\*.cs;$(LegatoSourceRoot)Polyfills\GlobalNamespace\LevelCollectionNavigationController\BeatmapLevelPackAdapterExtensions.cs;$(LegatoSourceRoot)Polyfills\GlobalNamespace\LevelCollectionViewController\BeatmapLevelPackAdapterExtensions.cs;$(LegatoSourceRoot)Polyfills\GlobalNamespace\LevelCollectionViewController\BeatmapLevelSelectionSubscription.cs;$(LegatoSourceRoot)Polyfills\GlobalNamespace\LevelFilteringNavigationController\**\*.cs;$(LegatoSourceRoot)Polyfills\GlobalNamespace\LevelSelectionNavigationController\LevelSelectionSession.cs;$(LegatoSourceRoot)Polyfills\GlobalNamespace\StandardLevelDetailViewController\**\*.cs"
-               Condition="'$(LegatoSourceProfile)' == '1.29.0'" />
+               Condition="('$(LegatoSourceProfile)' == '1.29.0' OR '$(LegatoSourceProfile)' == '1.34.2') AND '$(_LegatoCoreApi)' == ''" />
       <Compile Include="$(LegatoSourceRoot)Polyfills\SiraUtil\Web\IHttpResponse\**\*.cs"
                Condition="'$(LegatoEnableSiraUtil)' == 'true' AND '$(LegatoEnableHttp)' == 'true'" />
       <Compile Include="$(LegatoSourceRoot)Library\Beatmaps\**\*.cs"

@@ -14,7 +14,7 @@ namespace Legato {
             GameObject noDataInfoPrefab,
             BeatmapDifficultyMask allowedBeatmapDifficultyMask,
             BeatmapCharacteristicSO[] notAllowedCharacteristics) {
-#if BEAT_SABER_1_29_0
+#if LEGATO_DIFFICULTY_BEATMAPS
             controller.SetData(
                 pack.source,
                 showPackHeader,

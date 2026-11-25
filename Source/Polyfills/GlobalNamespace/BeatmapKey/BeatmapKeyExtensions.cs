@@ -5,32 +5,32 @@ using System.Linq;
 namespace Legato {
     internal static class BeatmapKeyExtensions {
         internal static string LevelId(this BeatmapKey key) =>
-#if BEAT_SABER_1_29_0 && LEGATO_NATIVE_BEATMAP_KEYS
+#if LEGATO_DIFFICULTY_BEATMAPS && LEGATO_NATIVE_BEATMAP_KEYS
             key?.level?.levelID ?? string.Empty;
-#elif BEAT_SABER_1_29_0
+#elif LEGATO_DIFFICULTY_BEATMAPS
             key.levelId ?? string.Empty;
 #else
             key.levelId;
 #endif
 
         internal static bool IsValidKey(this BeatmapKey key) =>
-#if BEAT_SABER_1_29_0 && LEGATO_NATIVE_BEATMAP_KEYS
+#if LEGATO_DIFFICULTY_BEATMAPS && LEGATO_NATIVE_BEATMAP_KEYS
             key?.level != null && key.parentDifficultyBeatmapSet?.beatmapCharacteristic != null;
-#elif BEAT_SABER_1_29_0
+#elif LEGATO_DIFFICULTY_BEATMAPS
             key.difficultyBeatmap?.level != null && key.beatmapCharacteristic != null;
 #else
             key.IsValid();
 #endif
 
         internal static bool IsCustomLevel(this BeatmapLevel? level) =>
-#if BEAT_SABER_1_29_0
+#if LEGATO_DIFFICULTY_BEATMAPS
             level?.levelID.StartsWith("custom_level_", System.StringComparison.Ordinal) == true;
 #else
             level != null && !level.hasPrecalculatedData;
 #endif
 
         internal static string FirstMapperName(this BeatmapLevel level) =>
-#if BEAT_SABER_1_29_0 && LEGATO_NATIVE_BEATMAP_KEYS
+#if LEGATO_DIFFICULTY_BEATMAPS && LEGATO_NATIVE_BEATMAP_KEYS
             level?.levelAuthorName ?? string.Empty;
 #else
             level?.allMappers?.FirstOrDefault() ?? string.Empty;
@@ -43,9 +43,9 @@ namespace Legato {
         };
 
         internal static string CharacteristicSerializedName(this BeatmapKey beatmapKey) {
-#if BEAT_SABER_1_29_0 && LEGATO_NATIVE_BEATMAP_KEYS
+#if LEGATO_DIFFICULTY_BEATMAPS && LEGATO_NATIVE_BEATMAP_KEYS
             return beatmapKey?.parentDifficultyBeatmapSet?.beatmapCharacteristic?.serializedName ?? string.Empty;
-#elif BEAT_SABER_1_29_0 || BEAT_SABER_1_37_1 || BEAT_SABER_1_38_0 || BEAT_SABER_1_40_0 || BEAT_SABER_1_42_0
+#elif LEGATO_DIFFICULTY_BEATMAPS || BEAT_SABER_1_37_1 || BEAT_SABER_1_38_0 || BEAT_SABER_1_40_0 || BEAT_SABER_1_42_0
             return beatmapKey.beatmapCharacteristic?.serializedName ?? string.Empty;
 #else
             return beatmapKey.characteristic.SerializedName();
@@ -53,18 +53,18 @@ namespace Legato {
         }
 
         internal static int CharacteristicSortingOrder(this BeatmapKey key) =>
-#if BEAT_SABER_1_29_0 && LEGATO_NATIVE_BEATMAP_KEYS
+#if LEGATO_DIFFICULTY_BEATMAPS && LEGATO_NATIVE_BEATMAP_KEYS
             key.parentDifficultyBeatmapSet.beatmapCharacteristic.sortingOrder;
-#elif BEAT_SABER_1_29_0 || BEAT_SABER_1_37_1 || BEAT_SABER_1_38_0 || BEAT_SABER_1_40_0 || BEAT_SABER_1_42_0
+#elif LEGATO_DIFFICULTY_BEATMAPS || BEAT_SABER_1_37_1 || BEAT_SABER_1_38_0 || BEAT_SABER_1_40_0 || BEAT_SABER_1_42_0
             key.beatmapCharacteristic?.sortingOrder ?? 0;
 #else
             key.characteristic.SortingOrder();
 #endif
 
         internal static string CharacteristicName(this BeatmapKey beatmapKey) {
-#if BEAT_SABER_1_29_0 && LEGATO_NATIVE_BEATMAP_KEYS
+#if LEGATO_DIFFICULTY_BEATMAPS && LEGATO_NATIVE_BEATMAP_KEYS
             return beatmapKey?.parentDifficultyBeatmapSet?.beatmapCharacteristic?.serializedName ?? string.Empty;
-#elif BEAT_SABER_1_29_0 || BEAT_SABER_1_37_1 || BEAT_SABER_1_38_0 || BEAT_SABER_1_40_0 || BEAT_SABER_1_42_0
+#elif LEGATO_DIFFICULTY_BEATMAPS || BEAT_SABER_1_37_1 || BEAT_SABER_1_38_0 || BEAT_SABER_1_40_0 || BEAT_SABER_1_42_0
             return beatmapKey.beatmapCharacteristic?.serializedName ?? string.Empty;
 #else
             return beatmapKey.characteristic.ToString();
@@ -72,9 +72,9 @@ namespace Legato {
         }
 
         internal static bool Is360Degree(this BeatmapKey beatmapKey) {
-#if BEAT_SABER_1_29_0 && LEGATO_NATIVE_BEATMAP_KEYS
+#if LEGATO_DIFFICULTY_BEATMAPS && LEGATO_NATIVE_BEATMAP_KEYS
             return beatmapKey?.parentDifficultyBeatmapSet?.beatmapCharacteristic?.serializedName == "360Degree";
-#elif BEAT_SABER_1_29_0 || BEAT_SABER_1_37_1 || BEAT_SABER_1_38_0 || BEAT_SABER_1_40_0 || BEAT_SABER_1_42_0
+#elif LEGATO_DIFFICULTY_BEATMAPS || BEAT_SABER_1_37_1 || BEAT_SABER_1_38_0 || BEAT_SABER_1_40_0 || BEAT_SABER_1_42_0
             return beatmapKey.beatmapCharacteristic?.serializedName == "360Degree";
 #else
             return beatmapKey.characteristic == BeatmapCharacteristic.Degree360;
@@ -82,10 +82,10 @@ namespace Legato {
         }
 
         internal static bool CharacteristicMatches(this BeatmapKey beatmapKey, string name) {
-#if BEAT_SABER_1_29_0 && LEGATO_NATIVE_BEATMAP_KEYS
+#if LEGATO_DIFFICULTY_BEATMAPS && LEGATO_NATIVE_BEATMAP_KEYS
             var characteristic = beatmapKey?.parentDifficultyBeatmapSet?.beatmapCharacteristic;
             return characteristic != null && (name == characteristic.serializedName || name == characteristic.characteristicNameLocalizationKey);
-#elif BEAT_SABER_1_29_0 || BEAT_SABER_1_37_1 || BEAT_SABER_1_38_0 || BEAT_SABER_1_40_0 || BEAT_SABER_1_42_0
+#elif LEGATO_DIFFICULTY_BEATMAPS || BEAT_SABER_1_37_1 || BEAT_SABER_1_38_0 || BEAT_SABER_1_40_0 || BEAT_SABER_1_42_0
             return name == beatmapKey.beatmapCharacteristic?.serializedName
                 || name == beatmapKey.beatmapCharacteristic?.characteristicNameLocalizationKey;
 #else
@@ -95,9 +95,9 @@ namespace Legato {
         }
 
         internal static string GetEnvironmentName(this BeatmapLevel beatmapLevel, in BeatmapKey beatmapKey) =>
-#if BEAT_SABER_1_29_0 && LEGATO_NATIVE_BEATMAP_KEYS
+#if LEGATO_DIFFICULTY_BEATMAPS && LEGATO_NATIVE_BEATMAP_KEYS
             beatmapKey?.GetEnvironmentInfo()?.serializedName ?? string.Empty;
-#elif BEAT_SABER_1_29_0
+#elif LEGATO_DIFFICULTY_BEATMAPS
             beatmapKey.difficultyBeatmap?.GetEnvironmentInfo()?.serializedName ?? string.Empty;
 #elif BEAT_SABER_1_37_1 || BEAT_SABER_1_38_0 || BEAT_SABER_1_40_0 || BEAT_SABER_1_42_0
             beatmapLevel.GetEnvironmentName(beatmapKey.beatmapCharacteristic, beatmapKey.difficulty);
@@ -107,7 +107,7 @@ namespace Legato {
             beatmapLevel.GetEnvironmentName(beatmapKey.characteristic, beatmapKey.difficulty);
 #endif
 
-#if !BEAT_SABER_1_29_0
+#if !LEGATO_DIFFICULTY_BEATMAPS
         internal static bool TryGetDifficultyBeatmapData(this BeatmapLevel level, in BeatmapKey key, out BeatmapBasicData data) =>
 #if BEAT_SABER_1_45_3
             level.gameplayTypeBeatmapBasicData.TryGetValue((key.gameplayType, key.characteristic, key.difficulty), out data);
@@ -129,7 +129,7 @@ namespace Legato {
 #endif
 
         internal static ColorScheme? GetColorScheme(this BeatmapLevel beatmapLevel, in BeatmapKey beatmapKey) {
-#if BEAT_SABER_1_29_0
+#if LEGATO_DIFFICULTY_BEATMAPS
             return null;
 #elif BEAT_SABER_1_37_1 || BEAT_SABER_1_38_0 || BEAT_SABER_1_40_0 || BEAT_SABER_1_42_0
             return beatmapLevel.GetColorScheme(beatmapKey.beatmapCharacteristic, beatmapKey.difficulty);

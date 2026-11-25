@@ -11,7 +11,7 @@ namespace Legato {
             string headerText,
             Sprite headerSprite,
             GameObject noDataInfoPrefab) {
-#if BEAT_SABER_1_29_0
+#if LEGATO_DIFFICULTY_BEATMAPS
             controller.SetData(pack.source.beatmapLevelCollection, headerText, headerSprite, false, noDataInfoPrefab);
 #else
             controller.SetData(

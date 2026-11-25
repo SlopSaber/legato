@@ -3,7 +3,7 @@
 namespace Legato {
     internal static class PlatformLeaderboardViewControllerExtensions {
         internal static void SetData(this PlatformLeaderboardViewController controller, in BeatmapKey beatmapKey) {
-#if BEAT_SABER_1_29_0
+#if LEGATO_DIFFICULTY_BEATMAPS
             controller.SetData(beatmapKey.difficultyBeatmap);
 #else
             controller.SetData(beatmapKey);

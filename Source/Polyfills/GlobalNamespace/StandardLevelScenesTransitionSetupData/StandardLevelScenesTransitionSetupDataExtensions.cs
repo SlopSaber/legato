@@ -2,12 +2,21 @@
 
 namespace Legato {
     internal static class StandardLevelScenesTransitionSetupDataExtensions {
-#if BEAT_SABER_1_29_0
-        internal static BeatmapLevel? GetBeatmapLevel(this StandardLevelScenesTransitionSetupData transition) =>
-            transition.difficultyBeatmap?.level == null ? null : new BeatmapLevel(transition.difficultyBeatmap.level);
+#if LEGATO_DIFFICULTY_BEATMAPS
+        internal static BeatmapLevel? GetBeatmapLevel(this StandardLevelScenesTransitionSetupData transition) {
+            var level = transition.GetDifficultyBeatmap()?.level;
+            return level == null ? null : new BeatmapLevel(level);
+        }
 
         internal static BeatmapKey GetBeatmapKey(this StandardLevelScenesTransitionSetupData transition) =>
-            new BeatmapKey(transition.difficultyBeatmap);
+            new BeatmapKey(transition.GetDifficultyBeatmap());
+
+        private static IDifficultyBeatmap? GetDifficultyBeatmap(this StandardLevelScenesTransitionSetupData transition) =>
+#if LEGATO_LEGACY_PREVIEW
+            transition.Get<GameplayCoreSceneSetupData>()?.difficultyBeatmap;
+#else
+            transition.difficultyBeatmap;
+#endif
 #else
         internal static BeatmapLevel? GetBeatmapLevel(this StandardLevelScenesTransitionSetupData transition) => transition.beatmapLevel;
 

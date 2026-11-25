@@ -39,7 +39,10 @@ The same setup can be added by hand:
 
 | Profile | Game versions |
 | --- | --- |
+| `0.11.2` | `0.11.2` |
+| `1.11.1` | `1.11.1` |
 | `1.29.0` | `1.29.0-1.29.1` |
+| `1.34.2` | `1.34.2` |
 | `1.37.1` | `1.37.1-1.37.2` |
 | `1.38.0` | `1.38.0-1.39.1` |
 | `1.40.0` | `1.40.0-1.40.8` |
@@ -47,7 +50,9 @@ The same setup can be added by hand:
 | `1.45.1` | `1.45.1-1.45.2` |
 | `1.45.3` | `1.45.3; 1.46.0` |
 
-Local revisions through `0.1.2-local.67` include the 1.45.3 and 1.46.0 targets and the optional adapters listed in [LIBRARY.md](LIBRARY.md). The version table is a source-selection catalog; each consumer still needs a successful build against its actual game assemblies. It does not certify every adapter on every listed version.
+The version table maps game builds to source profiles. Each consumer needs a build against the selected game assemblies and the dependencies for its enabled adapters. See [LIBRARY.md](LIBRARY.md) for adapter requirements.
+
+The 0.11.2 profile includes audio playback state, Unity web requests, and supported system polyfills. The 1.11.1 profile also includes native difficulty and level selection adapters. Its cover API exposes the native `GetCoverTextureAsync` result. These profiles defer BSML compatibility.
 
 Legato source is embedded into each plugin. Updating this package alone does not update installed plugins: rebuild and redeploy each consumer. Private fields, Harmony targets, IL patterns, native hooks, dependency APIs and shader bundles can still need changes. Confirm behavior in the game after building.
 

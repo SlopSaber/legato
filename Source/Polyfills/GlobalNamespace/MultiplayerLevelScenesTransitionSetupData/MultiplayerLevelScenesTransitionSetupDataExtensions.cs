@@ -2,7 +2,7 @@
 
 namespace Legato {
     internal static class MultiplayerLevelScenesTransitionSetupDataExtensions {
-#if BEAT_SABER_1_29_0
+#if LEGATO_DIFFICULTY_BEATMAPS
         internal static BeatmapLevel? GetBeatmapLevel(this MultiplayerLevelScenesTransitionSetupData transition) =>
             transition.previewBeatmapLevel == null ? null : new BeatmapLevel(transition.previewBeatmapLevel);
 

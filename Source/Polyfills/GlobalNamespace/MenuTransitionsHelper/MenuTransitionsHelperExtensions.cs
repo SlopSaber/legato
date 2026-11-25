@@ -1,6 +1,6 @@
 #nullable enable
 
-#if BEAT_SABER_1_29_0 || BEAT_SABER_1_37_1 || BEAT_SABER_1_38_0 || BEAT_SABER_1_40_0
+#if LEGATO_DIFFICULTY_BEATMAPS || BEAT_SABER_1_37_1 || BEAT_SABER_1_38_0 || BEAT_SABER_1_40_0
 using System;
 using Zenject;
 
@@ -23,7 +23,7 @@ namespace Legato {
             Action<DiContainer> afterSceneSwitchToGameplayCallback,
             Action<StandardLevelScenesTransitionSetupData, LevelCompletionResults> levelFinishedCallback,
             Action<StandardLevelScenesTransitionSetupData, LevelCompletionResults> levelRestartedCallback) {
-#if BEAT_SABER_1_29_0
+#if LEGATO_DIFFICULTY_BEATMAPS
             IDifficultyBeatmap difficultyBeatmap = beatmapKey.difficultyBeatmap
                 ?? throw new InvalidOperationException("The selected beatmap is unavailable");
             menuTransitionsHelper.StartStandardLevel(
@@ -32,6 +32,11 @@ namespace Legato {
                 difficultyBeatmap.level,
                 overrideEnvironmentSettings,
                 playerOverrideColorScheme,
+#if BEAT_SABER_1_34_2
+                difficultyBeatmap.level is CustomBeatmapLevel customLevel && difficultyBeatmap is CustomDifficultyBeatmap customDifficulty
+                    ? customLevel.GetBeatmapLevelColorScheme(customDifficulty.beatmapColorSchemeIdx)
+                    : null,
+#endif
                 gameplayModifiers,
                 playerSpecificSettings,
                 practiceSettings,

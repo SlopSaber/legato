@@ -8,7 +8,7 @@ namespace Legato {
     internal sealed class BeatmapLevelPackSelectionSubscription : IDisposable {
         private readonly LevelFilteringNavigationController _controller;
 
-#if BEAT_SABER_1_29_0
+#if LEGATO_DIFFICULTY_BEATMAPS
         private readonly Action<LevelFilteringNavigationController, IAnnotatedBeatmapLevelCollection, UnityEngine.GameObject, BeatmapCharacteristicSO> _handler;
 
         internal BeatmapLevelPackSelectionSubscription(LevelFilteringNavigationController controller, Action<BeatmapLevelPackAdapter?> callback) {

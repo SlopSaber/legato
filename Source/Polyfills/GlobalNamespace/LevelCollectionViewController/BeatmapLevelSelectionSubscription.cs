@@ -15,7 +15,7 @@ namespace Legato {
         private readonly LevelCollectionViewController _controller;
         private readonly Action<BeatmapLevelAdapter?> _callback;
 
-#if BEAT_SABER_1_29_0
+#if LEGATO_DIFFICULTY_BEATMAPS
         private readonly Action<LevelCollectionViewController, IPreviewBeatmapLevel> _handler;
 #else
         private readonly Action<LevelCollectionViewController, BeatmapLevel> _handler;

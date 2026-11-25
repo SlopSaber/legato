@@ -18,6 +18,8 @@ namespace Legato {
         internal static IEnumerable<PlayerLevelStatsAdapter> GetLevelStats(this PlayerData playerData) {
 #if BEAT_SABER_1_29_0
             return playerData.levelsStatsData.Select(stats => new PlayerLevelStatsAdapter(stats.levelID, stats.playCount));
+#elif BEAT_SABER_1_34_2
+            return playerData.levelsStatsData.Select(stats => new PlayerLevelStatsAdapter(stats.Key.songId, stats.Value.playCount));
 #else
             return playerData.levelsStatsData.Select(stats => new PlayerLevelStatsAdapter(stats.Key.levelId, stats.Value.playCount));
 #endif

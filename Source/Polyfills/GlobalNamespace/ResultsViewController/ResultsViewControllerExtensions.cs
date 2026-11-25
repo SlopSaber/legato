@@ -4,7 +4,7 @@ using IPA.Utilities;
 
 namespace Legato {
     internal static class ResultsViewControllerExtensions {
-#if BEAT_SABER_1_29_0
+#if LEGATO_DIFFICULTY_BEATMAPS
         private static readonly FieldAccessor<ResultsViewController, IDifficultyBeatmap>.Accessor DifficultyBeatmap =
             FieldAccessor<ResultsViewController, IDifficultyBeatmap>.GetAccessor("_difficultyBeatmap");
 

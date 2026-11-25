@@ -5,7 +5,7 @@ using System;
 namespace Legato {
     internal static class StandardLevelDetailViewControllerExtensions {
         internal static SelectedBeatmapAdapter? GetSelectedBeatmap(this StandardLevelDetailViewController controller) {
-#if BEAT_SABER_1_29_0
+#if LEGATO_DIFFICULTY_BEATMAPS
             var beatmap = controller.selectedDifficultyBeatmap;
             return beatmap == null
                 ? null
@@ -40,7 +40,7 @@ namespace Legato {
         private readonly StandardLevelDetailViewController _controller;
         private readonly Action<SelectedBeatmapAdapter?> _callback;
 
-#if BEAT_SABER_1_29_0
+#if LEGATO_DIFFICULTY_BEATMAPS
         private readonly Action<StandardLevelDetailViewController, IDifficultyBeatmap> _handler;
 
         internal DifficultyChangeSubscription(StandardLevelDetailViewController controller, Action<SelectedBeatmapAdapter?> callback) {

@@ -4,7 +4,7 @@ using IPA.Utilities;
 
 namespace Legato.Leaderboards {
     internal static class PlatformLeaderboardContextExtensions {
-#if BEAT_SABER_1_29_0
+#if LEGATO_DIFFICULTY_BEATMAPS
         private static readonly FieldAccessor<PlatformLeaderboardViewController, IDifficultyBeatmap>.Accessor PlatformDifficultyBeatmap =
             FieldAccessor<PlatformLeaderboardViewController, IDifficultyBeatmap>.GetAccessor("_difficultyBeatmap");
 #else
@@ -13,7 +13,7 @@ namespace Legato.Leaderboards {
 #endif
 
         internal static bool TryGetBeatmapKey(this PlatformLeaderboardViewController controller, out BeatmapKey beatmapKey) {
-#if BEAT_SABER_1_29_0
+#if LEGATO_DIFFICULTY_BEATMAPS
             IDifficultyBeatmap difficultyBeatmap = PlatformDifficultyBeatmap(ref controller);
             if (difficultyBeatmap == null) {
                 beatmapKey = default;

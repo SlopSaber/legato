@@ -4,6 +4,8 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <LegatoGameVersion Include="0.11.2" Profile="0.11.2" Order="-2" CoreApi="EarlyAccess" />
+    <LegatoGameVersion Include="1.11.1" Profile="1.11.1" Order="-1" CoreApi="LegacyPreview" />
     <LegatoGameVersion Include="1.29.0;1.29.1" Profile="1.29.0" Order="0" />
     <LegatoGameVersion Include="1.34.2" Profile="1.34.2" Order="0.5" />
     <LegatoGameVersion Include="1.37.1;1.37.2" Profile="1.37.1" Order="1" />

@@ -3,7 +3,7 @@
 namespace Legato {
     internal static class LevelFilteringBeatmapLevelPackExtensions {
         internal static BeatmapLevelPackAdapter? GetSelectedLevelPack(this LevelFilteringNavigationController controller) {
-#if BEAT_SABER_1_29_0
+#if LEGATO_DIFFICULTY_BEATMAPS
             IBeatmapLevelPack pack = controller.selectedBeatmapLevelPack;
             return pack == null ? null : new BeatmapLevelPackAdapter(pack);
 #else
@@ -17,7 +17,7 @@ namespace Legato {
                 return;
             }
 
-#if BEAT_SABER_1_29_0
+#if LEGATO_DIFFICULTY_BEATMAPS
             controller.SelectAnnotatedBeatmapLevelCollection(pack.source as IBeatmapLevelPack);
             controller.HandleAnnotatedBeatmapLevelCollectionsViewControllerDidSelectAnnotatedBeatmapLevelCollection(pack.source);
 #else
