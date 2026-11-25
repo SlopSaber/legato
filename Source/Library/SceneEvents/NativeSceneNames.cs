@@ -1,10 +1,6 @@
-#if BEAT_SABER_1_29_0
+#if LEGATO_LEGACY_SCENE_NAMES
 global using SceneNames = Legato.Gameplay.LegacySceneNames;
-#else
-global using SceneNames = BeatSaber.Destinations.SceneNames;
-#endif
 
-#if BEAT_SABER_1_29_0
 namespace Legato.Gameplay
 {
     internal static class LegacySceneNames
@@ -13,4 +9,6 @@ namespace Legato.Gameplay
         internal const string kMainMenuSceneName = "MainMenu";
     }
 }
+#else
+global using SceneNames = BeatSaber.Destinations.SceneNames;
 #endif

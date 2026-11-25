@@ -1,4 +1,4 @@
-#if !BEAT_SABER_1_29_0
+#if !LEGATO_SCRIPTABLE_CHARACTERISTICS
 using System;
 using System.Linq;
 using MonoMod.RuntimeDetour;

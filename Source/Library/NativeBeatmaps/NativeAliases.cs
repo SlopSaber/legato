@@ -12,4 +12,7 @@ global using SpriteAsyncLoader = global::CachedMediaAsyncLoader;
 #else
 global using NativeSongPack = global::BeatmapLevelPack;
 global using NativeSongCollection = global::BeatmapLevelPack;
+#if LEGATO_SCRIPTABLE_CHARACTERISTICS
+global using BeatmapCharacteristic = global::BeatmapCharacteristicSO;
+#endif
 #endif

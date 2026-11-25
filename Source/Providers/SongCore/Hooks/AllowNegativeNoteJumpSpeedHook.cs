@@ -1,3 +1,4 @@
+#if !LEGATO_FIXED_NOTE_JUMP_SPEED || BEAT_SABER_1_29_0
 using System;
 #if BEAT_SABER_1_29_0
 using MonoMod.Cil;
@@ -52,3 +53,4 @@ namespace SongCore.Hooks
 #endif
     }
 }
+#endif

@@ -1,4 +1,4 @@
-#if !BEAT_SABER_1_29_0
+#if !LEGATO_FIXED_NOTE_JUMP_SPEED
 using System;
 using System.Reflection;
 using Mono.Cecil.Cil;

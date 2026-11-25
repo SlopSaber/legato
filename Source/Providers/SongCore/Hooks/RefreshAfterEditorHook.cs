@@ -2,7 +2,7 @@ using System;
 using System.Reflection;
 using MonoMod.RuntimeDetour;
 using Zenject;
-#if BEAT_SABER_1_29_0
+#if LEGATO_SCRIPTABLE_SCENE_TRANSITIONS
 using NativeEditorTransition = global::BeatmapEditorScenesTransitionSetupDataSO;
 #else
 using NativeEditorTransition = global::BeatmapEditorScenesTransitionSetupData;

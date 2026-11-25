@@ -1,13 +1,32 @@
 <Project>
-  <Target Name="LegatoSongCoreLegacyReferences" BeforeTargets="ResolveAssemblyReferences" DependsOnTargets="LegatoConfigure">
-    <PropertyGroup Condition="'$(LegatoTargetProfile)' == '1.29.0'">
+  <Target Name="LegatoSongCoreNativeReferences" BeforeTargets="ResolveAssemblyReferences" DependsOnTargets="LegatoConfigure">
+    <PropertyGroup>
+      <DefineConstants Condition="$([MSBuild]::VersionLessThan('$(_LegatoApiVersion)', '1.37.4'))">$(DefineConstants);LEGATO_LEVEL_ROW_WITHOUT_INTERACTABLE</DefineConstants>
+      <DefineConstants Condition="$([MSBuild]::VersionLessThan('$(_LegatoApiVersion)', '1.38.0'))">$(DefineConstants);LEGATO_INLINE_AUDIO_CHECK;LEGATO_INLINE_SPRITE_DISPOSAL;LEGATO_SINGLE_BEATMAP_ENVIRONMENT</DefineConstants>
+      <DefineConstants Condition="$([MSBuild]::VersionLessThan('$(_LegatoApiVersion)', '1.40.0'))">$(DefineConstants);LEGATO_FIXED_NOTE_JUMP_SPEED;LEGATO_SINGLE_COLOR_OVERRIDE;LEGATO_UNMIGRATED_V4_LEVEL_INFO</DefineConstants>
+      <DefineConstants Condition="$([MSBuild]::VersionLessThan('$(_LegatoApiVersion)', '1.40.9'))">$(DefineConstants);LEGATO_CASE_SENSITIVE_LEVEL_LOOKUP</DefineConstants>
+      <DefineConstants Condition="$([MSBuild]::VersionLessThan('$(_LegatoApiVersion)', '1.41.1'))">$(DefineConstants);LEGATO_LOAD_RESULT_WITHOUT_ERROR_MESSAGE</DefineConstants>
+      <DefineConstants Condition="$([MSBuild]::VersionGreaterThanOrEquals('$(_LegatoApiVersion)', '1.37.1')) AND $([MSBuild]::VersionLessThan('$(_LegatoApiVersion)', '1.41.1'))">$(DefineConstants);LEGATO_SPLIT_SCENE_COLOR_SETUP</DefineConstants>
+      <DefineConstants Condition="$([MSBuild]::VersionLessThan('$(_LegatoApiVersion)', '1.42.3'))">$(DefineConstants);LEGATO_INLINE_HIDDEN_DIRECTORY_CHECK</DefineConstants>
+      <DefineConstants Condition="$([MSBuild]::VersionLessThan('$(_LegatoApiVersion)', '1.45.0'))">$(DefineConstants);LEGATO_BEATMAP_LOAD_CACHE_FLAG</DefineConstants>
+    </PropertyGroup>
+    <PropertyGroup Condition="!Exists('$(LegatoReferenceRoot)\Beat Saber_Data\Managed\SegmentedControl.dll')">
       <LegatoUseReferencePublicizeMetadata>true</LegatoUseReferencePublicizeMetadata>
     </PropertyGroup>
-    <ItemGroup Condition="'$(LegatoTargetProfile)' == '1.29.0'">
+    <ItemGroup Condition="!Exists('$(LegatoReferenceRoot)\Beat Saber_Data\Managed\SegmentedControl.dll')">
       <Reference Update="@(Reference)" Condition="'%(Reference.Identity)' == 'HMUI'">
         <Publicize>true</Publicize>
       </Reference>
-      <Reference Remove="BGLib.DotnetExtension;BGLib.JsonExtension;BeatSaber.Destinations;MediaLoader;SegmentedControl;Tweening" />
+      <Reference Remove="SegmentedControl" />
+    </ItemGroup>
+    <ItemGroup>
+      <Reference Include="Interactable" HintPath="$(LegatoReferenceRoot)\Beat Saber_Data\Managed\Interactable.dll" Private="false"
+                 Condition="Exists('$(LegatoReferenceRoot)\Beat Saber_Data\Managed\Interactable.dll') AND '@(Reference->WithMetadataValue('Identity', 'Interactable'))' == ''" />
+      <Reference Remove="BeatSaber.Destinations" Condition="!Exists('$(LegatoReferenceRoot)\Beat Saber_Data\Managed\BeatSaber.Destinations.dll')" />
+      <Reference Remove="BeatSaber.ViewSystem" Condition="!Exists('$(LegatoReferenceRoot)\Beat Saber_Data\Managed\BeatSaber.ViewSystem.dll')" />
+    </ItemGroup>
+    <ItemGroup Condition="'$(LegatoTargetProfile)' == '1.29.0'">
+      <Reference Remove="BGLib.DotnetExtension;BGLib.JsonExtension;MediaLoader;Tweening" />
       <Reference Include="CustomJSONData" HintPath="$(LegatoReferenceRoot)\Plugins\CustomJSONData.dll" Private="false" />
       <Reference Include="HMRendering" HintPath="$(LegatoReferenceRoot)\Beat Saber_Data\Managed\HMRendering.dll" Private="false" />
     </ItemGroup>

@@ -6,6 +6,8 @@
     <ItemGroup>
       <Reference Remove="BeatSaber.ViewSystem" Condition="!Exists('$(LegatoReferenceRoot)\Beat Saber_Data\Managed\BeatSaber.ViewSystem.dll')" />
       <Reference Remove="GameInit" Condition="!Exists('$(LegatoReferenceRoot)\Beat Saber_Data\Managed\GameInit.dll')" />
+      <Reference Include="Interactable" HintPath="$(LegatoReferenceRoot)\Beat Saber_Data\Managed\Interactable.dll" Private="false"
+                 Condition="Exists('$(LegatoReferenceRoot)\Beat Saber_Data\Managed\Interactable.dll') AND '@(Reference->WithMetadataValue('Identity', 'Interactable'))' == ''" />
       <Reference Remove="MenuSystem" Condition="!Exists('$(LegatoReferenceRoot)\Beat Saber_Data\Managed\MenuSystem.dll')" />
       <Reference Remove="SegmentedControl" Condition="!Exists('$(LegatoReferenceRoot)\Beat Saber_Data\Managed\SegmentedControl.dll')" />
     </ItemGroup>

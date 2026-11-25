@@ -10,6 +10,7 @@ using IPA.Utilities;
 using ModestTree;
 using MonoMod.RuntimeDetour;
 using SongCore.Utilities;
+using UnityEngine.SceneManagement;
 using Zenject;
 
 namespace SongCore.Hooks.BeatmapLevelCache
@@ -85,7 +86,11 @@ namespace SongCore.Hooks.BeatmapLevelCache
 
                 if (beatmapLevelDataResult.isError)
                 {
+#if LEGATO_LOAD_RESULT_WITHOUT_ERROR_MESSAGE
+                    Plugin.Log.Error($"Failed to load beatmap level data for {beatmapLevel.levelID}");
+#else
                     Plugin.Log.Error($"Failed to load beatmap level data for {beatmapLevel.levelID}: {beatmapLevelDataResult.errorMessage}");
+#endif
 
                     return null;
                 }
@@ -261,17 +266,56 @@ namespace SongCore.Hooks.BeatmapLevelCache
             tcs.TrySetResult(true);
         }
 
-        private Task<IReadonlyBeatmapData?> LoadBeatmapDataWithCacheAsync(Func<BeatmapDataLoader, IBeatmapLevelData, BeatmapKey, float, bool, IEnvironmentInfo?, IEnvironmentInfo?, BeatmapLevelDataVersion, GameplayModifiers?, PlayerSpecificSettings?, Task<IReadonlyBeatmapData?>> original, BeatmapDataLoader instance, IBeatmapLevelData beatmapLevelData, BeatmapKey beatmapKey, float startBpm, bool loadingForDesignatedEnvironment, IEnvironmentInfo? targetEnvironmentInfo, IEnvironmentInfo? originalEnvironmentInfo, BeatmapLevelDataVersion beatmapLevelDataVersion, GameplayModifiers? gameplayModifiers, PlayerSpecificSettings? playerSpecificSettings)
+        private delegate Task<IReadonlyBeatmapData?> OriginalBeatmapLoad(
+            BeatmapDataLoader loader, IBeatmapLevelData level, BeatmapKey key, float bpm, bool loadingForDesignatedEnvironment, IEnvironmentInfo? targetEnvironment,
+#if !LEGATO_SINGLE_BEATMAP_ENVIRONMENT
+            IEnvironmentInfo? originalEnvironment,
+#endif
+            BeatmapLevelDataVersion version, GameplayModifiers? modifiers, PlayerSpecificSettings? settings
+#if LEGATO_BEATMAP_LOAD_CACHE_FLAG
+            , bool enableNativeCaching
+#endif
+        );
+
+        private Task<IReadonlyBeatmapData?> LoadBeatmapDataWithCacheAsync(
+            OriginalBeatmapLoad original, BeatmapDataLoader instance, IBeatmapLevelData beatmapLevelData, BeatmapKey beatmapKey,
+            float startBpm, bool loadingForDesignatedEnvironment, IEnvironmentInfo? targetEnvironmentInfo,
+#if !LEGATO_SINGLE_BEATMAP_ENVIRONMENT
+            IEnvironmentInfo? originalEnvironmentInfo,
+#endif
+            BeatmapLevelDataVersion beatmapLevelDataVersion, GameplayModifiers? gameplayModifiers, PlayerSpecificSettings? playerSpecificSettings
+#if LEGATO_BEATMAP_LOAD_CACHE_FLAG
+            , bool enableNativeCaching
+#endif
+        )
         {
             Assert.That(UnityGame.OnMainThread, "This method must be called on the main thread.");
 
-            var request = new BeatmapDataRequest(beatmapLevelData, beatmapKey, startBpm, loadingForDesignatedEnvironment, targetEnvironmentInfo, originalEnvironmentInfo, beatmapLevelDataVersion, gameplayModifiers, playerSpecificSettings);
+            Task<IReadonlyBeatmapData?> Load(BeatmapDataLoader loader) => original(loader, beatmapLevelData, beatmapKey,
+                startBpm, loadingForDesignatedEnvironment, targetEnvironmentInfo,
+#if !LEGATO_SINGLE_BEATMAP_ENVIRONMENT
+                originalEnvironmentInfo,
+#endif
+                beatmapLevelDataVersion, gameplayModifiers, playerSpecificSettings
+#if LEGATO_BEATMAP_LOAD_CACHE_FLAG
+                , enableNativeCaching
+#endif
+            );
 
             if (!_beatmapLevelCache.LevelMatches(beatmapLevelData))
             {
                 Plugin.Log.Debug("Level data changed, returning original method");
-                return original(instance, beatmapLevelData, beatmapKey, startBpm, loadingForDesignatedEnvironment, targetEnvironmentInfo, originalEnvironmentInfo, beatmapLevelDataVersion, gameplayModifiers, playerSpecificSettings);
+                return Load(instance);
             }
+
+#if LEGATO_SINGLE_BEATMAP_ENVIRONMENT
+            const IEnvironmentInfo? originalEnvironmentInfo = null;
+#endif
+#if !LEGATO_BEATMAP_LOAD_CACHE_FLAG
+            const bool enableNativeCaching = false;
+#endif
+            var request = new BeatmapDataRequest(beatmapLevelData, beatmapKey, startBpm, loadingForDesignatedEnvironment, targetEnvironmentInfo,
+                originalEnvironmentInfo, beatmapLevelDataVersion, gameplayModifiers, playerSpecificSettings, enableNativeCaching);
 
             if (_beatmapLevelCache.BeatmapDataRequest?.Equals(request) == true)
             {
@@ -281,8 +325,11 @@ namespace SongCore.Hooks.BeatmapLevelCache
 
             Plugin.Log.Debug("Starting new beatmap data request");
 
+            Assert.That(SceneManager.GetActiveScene().name != SceneNames.kGameCoreSceneName,
+                "Beatmap data should not be loaded in the game scene, as garbage collection is disabled.");
+            var task = Load(_beatmapDataLoader);
             _beatmapLevelCache.BeatmapDataRequest = request;
-            return _beatmapLevelCache.BeatmapDataLoadingTask = request.Start(original, _beatmapDataLoader);
+            return _beatmapLevelCache.BeatmapDataLoadingTask = task;
         }
     }
 }

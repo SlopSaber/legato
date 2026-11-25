@@ -1,5 +1,10 @@
 using System;
 using Zenject;
+#if LEGATO_SCRIPTABLE_SCENE_TRANSITIONS
+using SceneTransitionSetup = global::ScenesTransitionSetupDataSO;
+#else
+using SceneTransitionSetup = global::ScenesTransitionSetupData;
+#endif
 
 namespace Legato.Gameplay
 {
@@ -10,17 +15,17 @@ namespace Legato.Gameplay
         private sealed class FinishedSubscription : IDisposable
         {
             private readonly GameScenesManager _manager;
-#if BEAT_SABER_1_29_0
-            private readonly Action<ScenesTransitionSetupDataSO, DiContainer> _handler;
+#if LEGATO_UNTYPED_SCENE_TRANSITIONS
+            private readonly Action<SceneTransitionSetup, DiContainer> _handler;
 #else
-            private readonly Action<GameScenesManager.SceneTransitionType, ScenesTransitionSetupData, DiContainer> _handler;
+            private readonly Action<GameScenesManager.SceneTransitionType, SceneTransitionSetup, DiContainer> _handler;
 #endif
             private bool _disposed;
 
             internal FinishedSubscription(GameScenesManager manager, Action callback)
             {
                 _manager = manager;
-#if BEAT_SABER_1_29_0
+#if LEGATO_UNTYPED_SCENE_TRANSITIONS
                 _handler = (setup, container) => callback();
 #else
                 _handler = (kind, setup, container) => callback();

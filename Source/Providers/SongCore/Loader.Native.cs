@@ -26,6 +26,11 @@ using SongCore.Utilities;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using Zenject;
+#if LEGATO_SCRIPTABLE_SCENE_TRANSITIONS
+using SceneTransitionSetup = global::ScenesTransitionSetupDataSO;
+#else
+using SceneTransitionSetup = global::ScenesTransitionSetupData;
+#endif
 
 namespace SongCore
 {
@@ -71,7 +76,11 @@ namespace SongCore
             SongsLoadedEvent -= HandleSongsLoaded;
         }
 
-        private async void HandleSceneTransitionDidFinish(GameScenesManager.SceneTransitionType sceneTransitionType, ScenesTransitionSetupData scenesTransitionSetupData, DiContainer container)
+        private async void HandleSceneTransitionDidFinish(
+#if !LEGATO_UNTYPED_SCENE_TRANSITIONS
+            GameScenesManager.SceneTransitionType sceneTransitionType,
+#endif
+            SceneTransitionSetup scenesTransitionSetupData, DiContainer container)
         {
             _gameScenesManager.transitionDidFinishEvent -= HandleSceneTransitionDidFinish;
 
@@ -98,7 +107,11 @@ namespace SongCore
             _gameScenesManager.transitionDidStartEvent += HandleSceneTransitionDidStart;
         }
 
-        private void HandleSceneTransitionDidStart(GameScenesManager.SceneTransitionType sceneTransitionType, float duration)
+        private void HandleSceneTransitionDidStart(
+#if !LEGATO_UNTYPED_SCENE_TRANSITIONS
+            GameScenesManager.SceneTransitionType sceneTransitionType,
+#endif
+            float duration)
         {
             CancelSongLoading();
         }
@@ -170,7 +183,7 @@ namespace SongCore
                 }
 
                 var customLevelFolderInfo = new CustomLevelFolderInfo(directoryInfo.FullName, directoryInfo.Name, json);
-                if (!CustomLevelLoader.CheckIfAudioExists(customLevelFolderInfo, standardLevelInfoSaveData.songFilename))
+                if (!AudioExists(customLevelFolderInfo, standardLevelInfoSaveData.songFilename))
                 {
                     return null;
                 }
@@ -186,17 +199,26 @@ namespace SongCore
                 }
 
                 var customLevelFolderInfo = new CustomLevelFolderInfo(directoryInfo.FullName, directoryInfo.Name, json);
-                if (!CustomLevelLoader.CheckIfAudioExists(customLevelFolderInfo, beatmapLevelSaveData.audio.songFilename))
+                if (!AudioExists(customLevelFolderInfo, beatmapLevelSaveData.audio.songFilename))
                 {
                     return null;
                 }
 
+#if !LEGATO_UNMIGRATED_V4_LEVEL_INFO
                 BeatmapLevelSaveDataUtils.MigrateBeatmapLevelSaveData(beatmapLevelSaveData);
+#endif
                 loadedSaveData = new NativeLoadedSaveData { customLevelFolderInfo = customLevelFolderInfo, beatmapLevelSaveData = beatmapLevelSaveData };
             }
 
             return LoadSong(loadedSaveData, entry);
         }
+
+        private static bool AudioExists(CustomLevelFolderInfo folder, string fileName) =>
+#if LEGATO_INLINE_AUDIO_CHECK
+            File.Exists(Path.Combine(folder.folderPath, fileName));
+#else
+            CustomLevelLoader.CheckIfAudioExists(folder, fileName);
+#endif
 
         public static BeatmapLevel? GetLevelById(string levelId)
         {
@@ -215,7 +237,11 @@ namespace SongCore
                 return null;
             }
 
+#if LEGATO_CASE_SENSITIVE_LEVEL_LOOKUP
+            return BeatmapLevelsModelSO.GetBeatmapLevel(CustomLevelLoader.kCustomLevelPrefixId + hash.ToUpperInvariant());
+#else
             return BeatmapLevelsModelSO.GetBeatmapLevel(CustomLevelLoader.kCustomLevelPrefixId + hash, true);
+#endif
         }
 
         private void GetSongDuration(NativeLoadedSaveData loadedSaveData, BeatmapLevel beatmapLevel)

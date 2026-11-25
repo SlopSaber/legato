@@ -8,7 +8,11 @@ namespace SongCore.OverrideClasses
     public class SongCoreCustomBeatmapLevelPack : NativeSongPack
     {
         public SongCoreCustomBeatmapLevelPack(string packID, string packName, Sprite? coverImage, BeatmapLevel[] beatmapLevels, string shortPackName = "")
-            : base(packID, packName, shortPackName.Length == 0 ? packName : shortPackName,  CreateCover(coverImage), coverImage ?? Loader.defaultCoverImage, PackBuyOption.Default, beatmapLevels, PlayerSensitivityFlag.Safe)
+            : base(packID, packName, shortPackName.Length == 0 ? packName : shortPackName, CreateCover(coverImage), coverImage ?? Loader.defaultCoverImage,
+#if !BEAT_SABER_1_37_1 || LEGATO_PACK_PURCHASE_OPTION || LEGATO_ADDITIONAL_PACK_LEVELS
+                PackBuyOption.Default,
+#endif
+                beatmapLevels, PlayerSensitivityFlag.Safe)
         {
         }
 
@@ -25,7 +29,11 @@ namespace SongCore.OverrideClasses
         public void UpdateBeatmapLevels(BeatmapLevel[] beatmapLevels)
         {
             var that = (NativeSongPack)this;
+#if BEAT_SABER_1_37_1 && !LEGATO_ADDITIONAL_PACK_LEVELS
+            Accessors.BeatmapLevelsAccessor(ref that) = beatmapLevels;
+#else
             Accessors.AllBeatmapLevelsAccessor(ref that) = beatmapLevels.Concat(_additionalBeatmapLevels).ToList();
+#endif
         }
     }
 }

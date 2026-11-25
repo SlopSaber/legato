@@ -24,6 +24,10 @@ namespace SongCore.Hooks
         private void RoundBpmAndShowAuthors(Action<LevelListTableCell, BeatmapLevel, bool, bool, bool> original, LevelListTableCell instance, BeatmapLevel beatmapLevel, bool isFavorite, bool isPromoted, bool interactable)
         {
             original(instance, beatmapLevel, isFavorite, isPromoted, interactable);
+#elif LEGATO_LEVEL_ROW_WITHOUT_INTERACTABLE
+        private void RoundBpmAndShowAuthors(Action<LevelListTableCell, BeatmapLevel, bool, bool, bool> original, LevelListTableCell instance, BeatmapLevel beatmapLevel, bool isFavorite, bool isPromoted, bool isUpdated)
+        {
+            original(instance, beatmapLevel, isFavorite, isPromoted, isUpdated);
 #else
         private void RoundBpmAndShowAuthors(Action<LevelListTableCell, BeatmapLevel, bool, bool, bool, bool> original, LevelListTableCell instance, BeatmapLevel beatmapLevel, bool isFavorite, bool isPromoted, bool isUpdated, bool interactable)
         {

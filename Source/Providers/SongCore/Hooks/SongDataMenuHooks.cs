@@ -39,8 +39,13 @@ namespace SongCore.Hooks
         private Hook _cosmeticCharacteristicHook = null!;
         private Hook _requirementsHook = null!;
         private Hook _buttonsStateHook = null!;
+#if LEGATO_SPLIT_SCENE_COLOR_SETUP
+        private Hook _overrideColorSchemeHook = null!;
+        private Hook _overrideMultiplayerColorSchemeHook = null!;
+#else
         private ILHook _overrideColorSchemeHook = null!;
         private ILHook _overrideMultiplayerColorSchemeHook = null!;
+#endif
         private SongData? _songData;
 
         private SongDataMenuHooks(StandardLevelDetailViewController standardLevelDetailViewController, CustomLevelLoader customLevelLoader, RequirementsUI requirementsUI, PluginConfig config)
@@ -67,8 +72,13 @@ namespace SongCore.Hooks
 #if !BEAT_SABER_1_29_0
             _buttonsStateHook = new Hook(typeof(StandardLevelDetailView).GetMethod(nameof(StandardLevelDetailView.CheckIfBeatmapLevelDataExists), BindingFlags.Instance | BindingFlags.NonPublic)!, SaveAndRestoreButtonsState, true);
 #endif
+#if LEGATO_SPLIT_SCENE_COLOR_SETUP
+            _overrideColorSchemeHook = new Hook(typeof(StandardLevelScenesTransitionSetupData).GetMethod(nameof(StandardLevelScenesTransitionSetupData.InitColorInfo), BindingFlags.Instance | BindingFlags.NonPublic)!, OverrideSoloColorScheme, true);
+            _overrideMultiplayerColorSchemeHook = new Hook(typeof(MultiplayerLevelScenesTransitionSetupData).GetMethod(nameof(MultiplayerLevelScenesTransitionSetupData.InitColorInfo), BindingFlags.Instance | BindingFlags.NonPublic)!, OverrideMultiplayerColorScheme, true);
+#else
             _overrideColorSchemeHook = new ILHook(typeof(StandardLevelScenesTransitionSetupData).GetMethod(nameof(StandardLevelScenesTransitionSetupData.Init), BindingFlags.Instance | BindingFlags.Public | BindingFlags.DeclaredOnly)!, OverrideColorSchemeManipulator, true);
             _overrideMultiplayerColorSchemeHook = new ILHook(typeof(MultiplayerLevelScenesTransitionSetupData).GetMethod(nameof(MultiplayerLevelScenesTransitionSetupData.Init), BindingFlags.Instance | BindingFlags.Public | BindingFlags.DeclaredOnly)!, OverrideColorSchemeManipulator, true);
+#endif
         }
 
         public void Dispose()
@@ -86,7 +96,7 @@ namespace SongCore.Hooks
 
             foreach (var sprite in _characteristicDetailsSprites.Values)
             {
-                #if BEAT_SABER_1_29_0
+#if LEGATO_INLINE_SPRITE_DISPOSAL
                 UnityEngine.Object.Destroy(sprite.texture);
                 UnityEngine.Object.Destroy(sprite);
 #else
@@ -209,7 +219,7 @@ namespace SongCore.Hooks
 
             if (_characteristicDifficultyLabels.TryGetValue(beatmapCharacteristic.SerializedName(), out var difficultyLabels) && difficultyLabels.TryGetValue(beatmapDifficulty, out var difficultyLabel))
             {
-#if BEAT_SABER_1_29_0
+#if LEGATO_LEGACY_TEXTMESH_PRO
                 instance._difficultyText.enableWordWrapping = false;
 #else
                 instance._difficultyText.textWrappingMode = TextWrappingModes.NoWrap;
@@ -426,6 +436,29 @@ namespace SongCore.Hooks
             instance.practiceButton.interactable = practiceButtonInteractable;
         }
 
+#if LEGATO_SPLIT_SCENE_COLOR_SETUP
+        private void OverrideSoloColorScheme(
+#if LEGATO_SINGLE_COLOR_OVERRIDE
+            Action<StandardLevelScenesTransitionSetupData, ColorScheme, ColorScheme> original,
+            StandardLevelScenesTransitionSetupData instance, ColorScheme playerOverride, ColorScheme beatmapOverride)
+        {
+            original(instance, playerOverride, beatmapOverride);
+#else
+            Action<StandardLevelScenesTransitionSetupData, ColorScheme, bool, ColorScheme> original,
+            StandardLevelScenesTransitionSetupData instance, ColorScheme playerOverride, bool overrideLightshow, ColorScheme beatmapOverride)
+        {
+            original(instance, playerOverride, overrideLightshow, beatmapOverride);
+#endif
+            instance.colorScheme = SetOverrideColorScheme(instance.colorScheme, instance, instance.beatmapKey);
+        }
+
+        private void OverrideMultiplayerColorScheme(Action<MultiplayerLevelScenesTransitionSetupData, ColorScheme> original,
+            MultiplayerLevelScenesTransitionSetupData instance, ColorScheme playerOverride)
+        {
+            original(instance, playerOverride);
+            instance.colorScheme = SetOverrideColorScheme(instance.colorScheme, instance, instance.beatmapKey);
+        }
+#else
         private void OverrideColorSchemeManipulator(ILContext context)
         {
             var cursor = new ILCursor(context);
@@ -443,6 +476,7 @@ namespace SongCore.Hooks
             cursor.EmitDelegate(SetOverrideColorScheme);
 #endif
         }
+#endif
 
         private ColorScheme SetOverrideColorScheme(ColorScheme colorScheme, LevelScenesTransitionSetupData levelScenesTransitionSetupData, in BeatmapKey beatmapKey)
         {
@@ -535,6 +569,9 @@ namespace SongCore.Hooks
             scheme.SetField("_environmentColorW", envWhite);
             scheme.SetField("_environmentColorWBoost", envWhiteBoost);
             return scheme;
+#elif LEGATO_SINGLE_COLOR_OVERRIDE
+            return new ColorScheme("SongCoreMapColorScheme", "SongCore Map Color Scheme", true, "SongCore Map Color Scheme", false,
+                saberLeft, saberRight, envLeft, envRight, envWhite, envLeftBoost != default && envRightBoost != default, envLeftBoost, envRightBoost, envWhiteBoost, obstacle);
 #else
             return new ColorScheme("SongCoreMapColorScheme", "SongCore Map Color Scheme", true, "SongCore Map Color Scheme", false, true, saberLeft, saberRight, true,
                 envLeft, envRight, envWhite, envLeftBoost != default && envRightBoost != default, envLeftBoost, envRightBoost, envWhiteBoost, obstacle);

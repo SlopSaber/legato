@@ -20,7 +20,7 @@ namespace SongCore
             key.IsValid();
 #endif
         internal static bool IsHiddenDirectory(DirectoryInfo directory) =>
-#if BEAT_SABER_1_29_0
+#if LEGATO_INLINE_HIDDEN_DIRECTORY_CHECK
             (directory.Attributes & FileAttributes.Hidden) != 0 || directory.Name.StartsWith(".", StringComparison.Ordinal) || directory.Name.StartsWith("~", StringComparison.Ordinal);
 #else
             CustomLevelPathHelper.IsHiddenDirectory(directory);
@@ -48,7 +48,7 @@ namespace SongCore
             model.GetEnvironmentInfoBySerializedNameSafe(name);
 #endif
         internal static List<BeatmapCharacteristic> AvailableCharacteristics(BeatmapCharacteristicSegmentedControlController controller) =>
-#if BEAT_SABER_1_29_0
+#if LEGATO_UNTYPED_SCENE_TRANSITIONS
             controller._beatmapCharacteristics;
 #else
             controller._currentlyAvailableBeatmapCharacteristics;
@@ -59,11 +59,19 @@ namespace SongCore
 #else
             view.beatmapKey;
 #endif
+#if !BEAT_SABER_1_29_0
+        internal static IReadOnlyList<BeatmapLevel> PackLevels(NativeSongPack pack) =>
+#if BEAT_SABER_1_37_1 && !LEGATO_ADDITIONAL_PACK_LEVELS
+            pack.beatmapLevels;
+#else
+            pack.AllBeatmapLevels();
+#endif
+#endif
         internal static string LevelDirectory(string id) => Loader.NativeSaveStore[id].customLevelFolderInfo.folderPath;
     }
 }
 
-#if BEAT_SABER_1_29_0
+#if LEGATO_CHARACTERISTIC_NAME_PROPERTY
 namespace SongCore
 {
     internal static class LegacyCharacteristicNames

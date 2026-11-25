@@ -13,6 +13,8 @@ namespace SongCore.Installers
             Container.BindInterfacesTo<V4GameHooks>().AsSingle();
             Container.BindInterfacesTo<V4MovementHooks>().AsSingle();
             Container.BindInterfacesTo<V4LightingHooks>().AsSingle();
+#elif LEGATO_FIXED_NOTE_JUMP_SPEED
+            Container.BindInterfacesTo<AllowNegativeNoteJumpSpeedHook>().AsSingle();
 #else
             Container.BindInterfacesTo<AllowNegativeVariableNoteJumpSpeedHook>().AsSingle();
 #endif

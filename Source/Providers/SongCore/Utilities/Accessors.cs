@@ -16,8 +16,13 @@ namespace SongCore.Utilities
         public static readonly FieldAccessor<BeatmapLevel, float>.Accessor PreviewDurationAccessor =
             FieldAccessor<BeatmapLevel, float>.GetAccessor(nameof(BeatmapLevel.previewDuration));
 
+#if BEAT_SABER_1_37_1 && !LEGATO_ADDITIONAL_PACK_LEVELS
+        public static readonly FieldAccessor<NativeSongPack, BeatmapLevel[]>.Accessor BeatmapLevelsAccessor =
+            FieldAccessor<NativeSongPack, BeatmapLevel[]>.GetAccessor(nameof(NativeSongPack.beatmapLevels));
+#else
         public static readonly FieldAccessor<NativeSongPack, List<BeatmapLevel>>.Accessor AllBeatmapLevelsAccessor =
             FieldAccessor<NativeSongPack, List<BeatmapLevel>>.GetAccessor(nameof(NativeSongPack._allBeatmapLevels));
+#endif
 
         public static readonly FieldAccessor<SaberManager, SaberManager.InitData>.Accessor SaberManagerInitDataAccessor =
             FieldAccessor<SaberManager, SaberManager.InitData>.GetAccessor(nameof(SaberManager._initData));
