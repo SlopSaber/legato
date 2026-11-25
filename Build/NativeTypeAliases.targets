@@ -6,6 +6,8 @@
     <ItemGroup>
       <Reference Include="HMUI" HintPath="$(LegatoReferenceRoot)\Beat Saber_Data\Managed\HMUI.dll" Private="false"
                  Condition="('$(LegatoTargetProfile)' == '1.29.0' OR '$(LegatoTargetVersion)' == '1.11.1') AND '$(LegatoEnableNativeTypeAliases)' == 'true' AND Exists('$(LegatoReferenceRoot)\Beat Saber_Data\Managed\HMUI.dll') AND '@(Reference->WithMetadataValue('Identity', 'HMUI'))' == ''" />
+      <Reference Include="MediaLoader" HintPath="$(LegatoReferenceRoot)\Beat Saber_Data\Managed\MediaLoader.dll" Private="false"
+                 Condition="'$(LegatoTargetVersion)' == '1.11.1' AND '$(LegatoEnableNativeBeatmapAliases)' == 'true' AND Exists('$(LegatoReferenceRoot)\Beat Saber_Data\Managed\MediaLoader.dll') AND '@(Reference->WithMetadataValue('Identity', 'MediaLoader'))' == ''" />
       <Reference Include="BGLib.AppFlow" HintPath="$(LegatoReferenceRoot)\Beat Saber_Data\Managed\BGLib.AppFlow.dll" Private="false"
                  Condition="'$(LegatoEnableNativeTypeAliases)' == 'true' AND '$(LegatoTargetProfile)' != '1.29.0' AND '$(LegatoTargetProfile)' != '1.45.1' AND '$(LegatoTargetProfile)' != '1.45.3' AND Exists('$(LegatoReferenceRoot)\Beat Saber_Data\Managed\BGLib.AppFlow.dll') AND '@(Reference->WithMetadataValue('Identity', 'BGLib.AppFlow'))' == ''" />
       <Reference Include="UnityEngine.VRModule" HintPath="$(LegatoReferenceRoot)\Beat Saber_Data\Managed\UnityEngine.VRModule.dll" Private="false"
