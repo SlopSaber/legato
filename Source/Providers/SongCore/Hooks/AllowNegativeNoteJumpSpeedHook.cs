@@ -1,6 +1,6 @@
-#if !LEGATO_FIXED_NOTE_JUMP_SPEED || BEAT_SABER_1_29_0
+#if !LEGATO_FIXED_NOTE_JUMP_SPEED || BEAT_SABER_1_29_0 || LEGATO_BEFORE_MULTIPLAYER
 using System;
-#if BEAT_SABER_1_29_0
+#if BEAT_SABER_1_29_0 || LEGATO_BEFORE_MULTIPLAYER
 using MonoMod.Cil;
 using Mono.Cecil.Cil;
 using UnityEngine;
@@ -19,7 +19,7 @@ namespace SongCore.Hooks
     /// </example>
     internal class AllowNegativeNoteJumpSpeedHook : IInitializable, IDisposable
     {
-#if BEAT_SABER_1_29_0
+#if BEAT_SABER_1_29_0 || LEGATO_BEFORE_MULTIPLAYER
         private ILHook _negativeNoteJumpSpeedHook = null!;
 #else
         private Hook _negativeNoteJumpSpeedHook = null!;
@@ -27,7 +27,7 @@ namespace SongCore.Hooks
 
         public void Initialize()
         {
-#if BEAT_SABER_1_29_0
+#if BEAT_SABER_1_29_0 || LEGATO_BEFORE_MULTIPLAYER
             _negativeNoteJumpSpeedHook = new ILHook(typeof(GameplayCoreInstaller).GetMethod(nameof(GameplayCoreInstaller.InstallBindings))!, context =>
             {
                 var cursor = new ILCursor(context);
@@ -45,7 +45,7 @@ namespace SongCore.Hooks
             _negativeNoteJumpSpeedHook.Dispose();
         }
 
-#if !BEAT_SABER_1_29_0
+#if !BEAT_SABER_1_29_0 && !LEGATO_BEFORE_MULTIPLAYER
         private float AllowNegativeJumpSpeed(Func<BeatmapDifficulty, float, bool, float> original, BeatmapDifficulty difficulty, float noteJumpMovementSpeed, bool fastNotes)
         {
             return noteJumpMovementSpeed <= -VariableMovementDataProvider.kMinNoteJumpMovementSpeed ? noteJumpMovementSpeed : original(difficulty, noteJumpMovementSpeed, fastNotes);

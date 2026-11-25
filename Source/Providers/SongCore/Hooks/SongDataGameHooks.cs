@@ -14,11 +14,20 @@ namespace SongCore.Hooks
         private Hook? _oneSaberHook;
         private bool _showRotationNoteSpawnLines;
         private bool _oneSaber;
+#if LEGATO_BEFORE_MULTIPLAYER
+        private readonly PluginConfig _config;
 
+        private SongDataGameHooks(BeatmapKey beatmapKey, PluginConfig config)
+        {
+            _beatmapKey = beatmapKey;
+            _config = config;
+        }
+#else
         private SongDataGameHooks(BeatmapKey beatmapKey)
         {
             _beatmapKey = beatmapKey;
         }
+#endif
 
         public void Initialize()
         {
@@ -29,13 +38,21 @@ namespace SongCore.Hooks
                 return;
             }
 
-            if (difficultyData._showRotationNoteSpawnLines != null)
+            if (difficultyData._showRotationNoteSpawnLines != null
+#if LEGATO_BEFORE_MULTIPLAYER
+                && !_config.DisableRotationSpawnLinesOverride
+#endif
+                )
             {
                 _showRotationNoteSpawnLines = (bool)difficultyData._showRotationNoteSpawnLines;
                 _rotationNoteSpawnLinesHook = new Hook(typeof(BeatLineManager).GetMethod(nameof(BeatLineManager.HandleNoteWasSpawned), BindingFlags.Instance | BindingFlags.NonPublic)!, ShowOrHideRotationNoteSpawnLines, true);
             }
 
-            if (difficultyData._oneSaber != null)
+            if (difficultyData._oneSaber != null
+#if LEGATO_BEFORE_MULTIPLAYER
+                && !_config.DisableOneSaberOverride
+#endif
+                )
             {
                 _oneSaber = difficultyData._oneSaber.Value;
 #if LEGATO_BEFORE_MULTIPLAYER
