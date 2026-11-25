@@ -1,11 +1,6 @@
 #if PRE_V1_37_1
 using Heck.Module;
 using SiraUtil.Affinity;
-#if LEGATO_HECK_LEGACY_GAMEPLAY
-using MissionLevelScenesTransitionSetupData = MissionLevelScenesTransitionSetupDataSO;
-using StandardLevelScenesTransitionSetupData = StandardLevelScenesTransitionSetupDataSO;
-using TutorialScenesTransitionSetupData = TutorialScenesTransitionSetupDataSO;
-#endif
 
 namespace Heck.HarmonyPatches.ModuleActivator;
 

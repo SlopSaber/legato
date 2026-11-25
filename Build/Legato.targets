@@ -620,7 +620,7 @@
                Condition="'$(LegatoEnableColorOverrideAlias)' == 'true'" />
       <Compile Include="$(LegatoSourceRoot)Providers\Heck\**\*.cs"
                Condition="'$(LegatoEnableHeckProviders)' == 'true'" />
-      <Compile Remove="$(LegatoSourceRoot)Providers\Heck\HarmonyPatches\BurstSliderDataRegisterer.cs;HarmonyPatches\FollowedObstacleFiller.cs;HarmonyPatches\NoteCutSoundDelayer.cs;HarmonyPatches\ObjectInitializer.cs"
+      <Compile Remove="$(LegatoSourceRoot)Providers\Heck\HarmonyPatches\BurstSliderDataRegisterer.cs;$(LegatoSourceRoot)Providers\Heck\HarmonyPatches\PlayViewInterrupter.cs;$(LegatoSourceRoot)Providers\Heck\Services\PlayView\StartStandardLevelParameters.cs;$(LegatoSourceRoot)Providers\Heck\Services\PlayView\StartMultiplayerLevelParameters.cs;HarmonyPatches\FollowedObstacleFiller.cs;HarmonyPatches\NoteCutSoundDelayer.cs;HarmonyPatches\ObjectInitializer.cs;HarmonyPatches\PlayViewTransitionListener.cs"
                Condition="'$(LegatoEnableHeckProviders)' == 'true' AND '$(LegatoTargetVersion)' == '1.11.1'" />
       <Compile Include="$(LegatoSourceRoot)Providers\Chroma\**\*.cs"
                Condition="'$(LegatoEnableChromaProviders)' == 'true'" />

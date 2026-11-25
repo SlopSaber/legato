@@ -120,7 +120,9 @@ internal class SettingsSetterViewController : BSMLResourceViewController, IPlayV
             {
                 _contents.Clear();
                 _modifiedParameters = startParameters.Copy();
+#if !LEGATO_HECK_LEGACY_GAMEPLAY
                 _isMultiplayer = _modifiedParameters is StartMultiplayerLevelParameters;
+#endif
 
                 CustomData? jsonPlayerOptions = settings.Get<CustomData>("_playerOptions");
                 if (jsonPlayerOptions != null)

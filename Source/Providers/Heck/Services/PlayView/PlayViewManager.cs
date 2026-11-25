@@ -14,8 +14,10 @@ namespace Heck.PlayView;
 public sealed class PlayViewManager : IDisposable
 {
     private readonly bool[] _doPresent;
+#if !LEGATO_HECK_LEGACY_GAMEPLAY
     private readonly GameServerLobbyFlowCoordinator _gameServerLobbyFlowCoordinator;
     private readonly LobbyGameStateController _lobbyGameStateController;
+#endif
     private readonly MenuTransitionsHelper _menuTransitionsHelper;
     private readonly PartyFreePlayFlowCoordinator _partyFreePlayFlowCoordinator;
     private readonly SoloFreePlayFlowCoordinator _soloFreePlayFlowCoordinator;
@@ -25,7 +27,11 @@ public sealed class PlayViewManager : IDisposable
     private StartStandardLevelParameters? _currentParameters;
 
     private FlowCoordinator _flowCoordinator;
+#if LEGATO_HECK_LEGACY_GAMEPLAY
+    private bool _viewTransitionInProgress;
+#else
     private bool _modifiedParameters;
+#endif
 
     private Queue<Action> _transitionFinished = new();
 
@@ -35,9 +41,11 @@ public sealed class PlayViewManager : IDisposable
         IEnumerable<IPlayViewController> viewControllers,
         SoloFreePlayFlowCoordinator soloFreePlayFlowCoordinator,
         PartyFreePlayFlowCoordinator partyFreePlayFlowCoordinator,
+#if !LEGATO_HECK_LEGACY_GAMEPLAY
         GameServerLobbyFlowCoordinator gameServerLobbyFlowCoordinator,
         FlowCoordinatorTransitionListener flowCoordinatorTransitionListener,
         ILobbyGameStateController lobbyGameStateController,
+#endif
         MenuTransitionsHelper menuTransitionsHelper)
     {
         _viewControllers =
@@ -56,9 +64,11 @@ public sealed class PlayViewManager : IDisposable
         _flowCoordinator = soloFreePlayFlowCoordinator;
         _soloFreePlayFlowCoordinator = soloFreePlayFlowCoordinator;
         _partyFreePlayFlowCoordinator = partyFreePlayFlowCoordinator;
+#if !LEGATO_HECK_LEGACY_GAMEPLAY
         _gameServerLobbyFlowCoordinator = gameServerLobbyFlowCoordinator;
         flowCoordinatorTransitionListener.TransitionFinished += OnTransitionFinished;
         _lobbyGameStateController = (LobbyGameStateController)lobbyGameStateController;
+#endif
         _menuTransitionsHelper = menuTransitionsHelper;
     }
 
@@ -66,7 +76,7 @@ public sealed class PlayViewManager : IDisposable
     {
         add
         {
-            if (!_flowCoordinator._isInTransition)
+            if (!ViewTransitionInProgress)
             {
                 value();
                 return;
@@ -79,6 +89,12 @@ public sealed class PlayViewManager : IDisposable
     }
 
     internal PlayViewControllerData? ActiveView { get; private set; }
+
+#if LEGATO_HECK_LEGACY_GAMEPLAY
+    private bool ViewTransitionInProgress => _viewTransitionInProgress;
+#else
+    private bool ViewTransitionInProgress => _flowCoordinator._isInTransition;
+#endif
 
     public void Dispose()
     {
@@ -97,7 +113,11 @@ public sealed class PlayViewManager : IDisposable
     [PublicAPI]
     public void ForceStart(StartStandardLevelParameters startParameters)
     {
+#if LEGATO_HECK_LEGACY_GAMEPLAY
+        Init(startParameters, _soloFreePlayFlowCoordinator.isActivated ? _soloFreePlayFlowCoordinator : _partyFreePlayFlowCoordinator, true);
+#else
         Init(startParameters, true);
+#endif
         StartStandard();
     }
 
@@ -109,8 +129,15 @@ public sealed class PlayViewManager : IDisposable
         }
 
         ActiveView.InvokeOnEarlyDismiss();
+#if LEGATO_HECK_LEGACY_GAMEPLAY
+        var view = (ViewController)ActiveView.ViewController;
+        ActiveView = null;
+        _viewTransitionInProgress = true;
+        _flowCoordinator.DismissViewController(view, FinishViewTransition, false);
+#else
         _flowCoordinator.DismissViewController((ViewController)ActiveView.ViewController);
         ActiveView = null;
+#endif
         return false;
     }
 
@@ -122,11 +149,19 @@ public sealed class PlayViewManager : IDisposable
         }
     }
 
+#if LEGATO_HECK_LEGACY_GAMEPLAY
+    internal void Init(StartStandardLevelParameters startParameters, FlowCoordinator flowCoordinator, bool forced = false)
+#else
     internal void Init(StartStandardLevelParameters startParameters, bool forced = false)
+#endif
     {
         _currentIndex = 0;
         _currentParameters = startParameters;
+#if LEGATO_HECK_LEGACY_GAMEPLAY
+        _flowCoordinator = flowCoordinator;
+#else
         _modifiedParameters = false;
+#endif
         for (int i = 0; i < _viewControllers.Length; i++)
         {
             _doPresent[i] = _viewControllers[i].ViewController.Init(_currentParameters);
@@ -137,6 +172,7 @@ public sealed class PlayViewManager : IDisposable
             return;
         }
 
+#if !LEGATO_HECK_LEGACY_GAMEPLAY
         if (startParameters is StartMultiplayerLevelParameters)
         {
             _flowCoordinator = _gameServerLobbyFlowCoordinator;
@@ -147,10 +183,12 @@ public sealed class PlayViewManager : IDisposable
                 ? _soloFreePlayFlowCoordinator
                 : _partyFreePlayFlowCoordinator;
         }
+#endif
 
         Activate();
     }
 
+#if !LEGATO_HECK_LEGACY_GAMEPLAY
     internal bool StartMultiplayer()
     {
         TransitionFinished += Dismiss;
@@ -205,6 +243,7 @@ public sealed class PlayViewManager : IDisposable
             multiplayerStartParameters.DidDisconnectCallback!);
         return false;
     }
+#endif
 
     private void Activate()
     {
@@ -228,6 +267,19 @@ public sealed class PlayViewManager : IDisposable
                 bool newView = ActiveView == null;
                 ActiveView = viewControllerData;
 
+#if LEGATO_HECK_LEGACY_GAMEPLAY
+                _viewTransitionInProgress = true;
+                if (newView)
+                {
+                    _flowCoordinator.PresentViewController((ViewController)viewController, FinishViewTransition, false);
+                }
+                else
+                {
+                    _flowCoordinator.ReplaceTopViewController((ViewController)viewController, FinishViewTransition, false, default);
+                }
+
+                _flowCoordinator.PresentTitle(viewControllerData.Title, false);
+#else
                 if (newView)
                 {
                     _flowCoordinator.PresentViewController((ViewController)viewController);
@@ -238,6 +290,7 @@ public sealed class PlayViewManager : IDisposable
                 }
 
                 _flowCoordinator.SetTitle(viewControllerData.Title);
+#endif
 
                 viewControllerData.InvokeOnShow();
 
@@ -246,10 +299,14 @@ public sealed class PlayViewManager : IDisposable
 
             Dismiss();
 
+#if LEGATO_HECK_LEGACY_GAMEPLAY
+            StartStandard();
+#else
             if (_currentParameters is not StartMultiplayerLevelParameters)
             {
                 StartStandard();
             }
+#endif
         };
     }
 
@@ -260,17 +317,23 @@ public sealed class PlayViewManager : IDisposable
             return;
         }
 
+#if LEGATO_HECK_LEGACY_GAMEPLAY
+        _flowCoordinator.DismissViewController((ViewController)ActiveView.ViewController, null, true);
+#else
         _flowCoordinator.DismissViewController(
             (ViewController)ActiveView.ViewController,
             ViewController.AnimationDirection.Horizontal,
             null,
             true);
+#endif
         ActiveView = null;
     }
 
     private void HandleParametersModified(StartStandardLevelParameters startParameters)
     {
+#if !LEGATO_HECK_LEGACY_GAMEPLAY
         _modifiedParameters = true;
+#endif
         _currentParameters = startParameters;
     }
 
@@ -286,6 +349,19 @@ public sealed class PlayViewManager : IDisposable
             playViewControllerData.InvokeOnPlay();
         }
 
+#if LEGATO_HECK_LEGACY_GAMEPLAY
+        _menuTransitionsHelper.StartStandardLevel(
+            _currentParameters.DifficultyBeatmap,
+            _currentParameters.OverrideEnvironmentSettings,
+            _currentParameters.OverrideColorScheme,
+            _currentParameters.GameplayModifiers,
+            _currentParameters.PlayerSpecificSettings,
+            _currentParameters.PracticeSettings,
+            _currentParameters.BackButtonText,
+            _currentParameters.UseTestNoteCutSoundEffects,
+            _currentParameters.BeforeSceneSwitchCallback,
+            _currentParameters.LevelFinishedCallback);
+#else
 #if BEAT_SABER_1453
         GameMode gameMode = (GameMode)Enum.Parse(typeof(GameMode), _currentParameters.GameMode);
 #else
@@ -342,8 +418,17 @@ public sealed class PlayViewManager : IDisposable
 #else
             _currentParameters.LevelRestartedCallback);
 #endif
+#endif
     }
 
+#if LEGATO_HECK_LEGACY_GAMEPLAY
+    private void FinishViewTransition()
+    {
+        _viewTransitionInProgress = false;
+        OnTransitionFinished(_flowCoordinator);
+    }
+
+#endif
     private void OnTransitionFinished(FlowCoordinator flowCoordinator)
     {
         if (flowCoordinator != _flowCoordinator)
@@ -351,7 +436,7 @@ public sealed class PlayViewManager : IDisposable
             return;
         }
 
-        while (!_flowCoordinator._isInTransition && _transitionFinished.Count > 0)
+        while (!ViewTransitionInProgress && _transitionFinished.Count > 0)
         {
             _transitionFinished.Dequeue().Invoke();
         }
