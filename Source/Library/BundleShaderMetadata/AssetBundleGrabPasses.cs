@@ -12,6 +12,7 @@ namespace Legato.Rendering;
 internal static class AssetBundleGrabPasses
 {
     private const int ShaderClassId = 48;
+    private const int MonoBehaviourClassId = 114;
     private const int DrawPassType = 0;
     private const int UsePassType = 1;
     private const int GrabPassType = 2;
@@ -43,6 +44,8 @@ internal static class AssetBundleGrabPasses
 
     internal static int Count { get; private set; }
 
+    internal static int LegacyTextWrappingCount { get; private set; }
+
     internal static int NativeGrabCount => _nativeGrabTags.Count;
 
     internal static bool HasGrabPass(Shader shader) => _grabPasses.ContainsKey(shader.name);
@@ -67,6 +70,7 @@ internal static class AssetBundleGrabPasses
         _nativeGrabTags.Clear();
         _textColorMasks.Clear();
         Count = 0;
+        LegacyTextWrappingCount = 0;
         if (bundlePath == null || !File.Exists(bundlePath))
         {
             return null;
@@ -198,7 +202,7 @@ internal static class AssetBundleGrabPasses
         {
             byte[] file = new byte[size];
             Buffer.BlockCopy(data, (int)offset, file, 0, (int)size);
-            if (ReadShaders(file, applyCompatibility, hasLegacyShadowCaster))
+            if (ReadSerializedFile(file, applyCompatibility, hasLegacyShadowCaster))
             {
                 (repairedFiles ??= []).Add(((int)offset, file));
             }
@@ -322,7 +326,7 @@ internal static class AssetBundleGrabPasses
         }
     }
 
-    private static bool ReadShaders(byte[] file, bool applyCompatibility, bool hasLegacyShadowCaster)
+    private static bool ReadSerializedFile(byte[] file, bool applyCompatibility, bool hasLegacyShadowCaster)
     {
         Reader header = new(file, true);
         header.Int32();
@@ -354,19 +358,24 @@ internal static class AssetBundleGrabPasses
         }
 
         int typeCount = reader.Int32();
-        (int ClassId, Node[] Nodes)[] types = new (int, Node[])[typeCount];
+        (int ClassId, Node[] Nodes, LegacyWrappingEdit? Wrapping)[] types = new (int, Node[], LegacyWrappingEdit?)[typeCount];
         for (int i = 0; i < typeCount; i++)
         {
             int classId = reader.Int32();
             reader.Byte();
             reader.Int16();
-            if (classId == 114)
+            if (classId == MonoBehaviourClassId)
             {
                 reader.Position += 16;
             }
 
             reader.Position += 16;
-            types[i] = (classId, ReadNodes(reader));
+            int treeStart = reader.Position;
+            Node[] nodes = ReadNodes(reader);
+            LegacyWrappingEdit? wrapping = applyCompatibility && classId == MonoBehaviourClassId
+                ? LegacyWrappingEdit.TryCreate(treeStart, nodes)
+                : null;
+            types[i] = (classId, nodes, wrapping);
             if (version >= 21)
             {
                 int dependencies = reader.Int32();
@@ -384,14 +393,24 @@ internal static class AssetBundleGrabPasses
             int sizeOffset = reader.Position;
             int size = reader.Int32();
             int typeIndex = reader.Int32();
-            if (types[typeIndex].ClassId != ShaderClassId)
+            (int classId, Node[] nodes, LegacyWrappingEdit? wrapping) = types[typeIndex];
+            if (classId != ShaderClassId && wrapping == null)
             {
                 continue;
             }
 
             int objectStart = checked((int)(dataOffset + start));
             Reader objectReader = new(file, bigEndian) { Position = objectStart };
-            Node[] nodes = types[typeIndex].Nodes;
+            if (wrapping != null)
+            {
+                if (!wrapping.TryCollect(objectReader, nodes, checked(objectStart + size)))
+                {
+                    types[typeIndex].Wrapping = null;
+                }
+
+                continue;
+            }
+
             int parsedForm = FindChild(nodes, 0, "m_ParsedForm");
             if (parsedForm < 0)
             {
@@ -421,7 +440,99 @@ internal static class AssetBundleGrabPasses
             }
         }
 
+        foreach ((_, Node[] nodes, LegacyWrappingEdit? wrapping) in types)
+        {
+            int count = wrapping?.Apply(file, bigEndian, nodes.Length) ?? 0;
+            if (count > 0)
+            {
+                LegacyTextWrappingCount += count;
+                repaired = true;
+            }
+        }
+
         return repaired;
+    }
+
+    private sealed class LegacyWrappingEdit(int treeStart, int field)
+    {
+        private const string OldName = "m_enableWordWrapping";
+        private const string NewName = "m_TextWrappingMode";
+        private readonly List<(int Offset, byte Value)> _values = [];
+
+        internal static LegacyWrappingEdit? TryCreate(int treeStart, Node[] nodes)
+        {
+            if (nodes.Length == 0)
+            {
+                return null;
+            }
+
+            int field = FindChild(nodes, 0, OldName);
+            if (field < 0 || nodes[field].ByteSize != 1 || (nodes[field].MetaFlag & AlignFlag) == 0 ||
+                nodes[field].Type is not ("UInt8" or "bool") || FindChild(nodes, 0, NewName) >= 0)
+            {
+                return null;
+            }
+
+            int text = FindChild(nodes, 0, "m_text");
+            int font = FindChild(nodes, 0, "m_fontAsset");
+            return text >= 0 && nodes[text].Type == "string" && font >= 0 &&
+                   nodes[font].Type is "PPtr<$TMP_FontAsset>" or "PPtr<TMP_FontAsset>"
+                ? new LegacyWrappingEdit(treeStart, field)
+                : null;
+        }
+
+        internal bool TryCollect(Reader reader, Node[] nodes, int objectEnd)
+        {
+            for (int child = 1; child < field; child = NextSibling(nodes, child))
+            {
+                Skip(reader, nodes, child);
+            }
+
+            int offset = reader.Position;
+            if (offset % sizeof(int) != 0 || offset > objectEnd - sizeof(int) || reader.Data[offset] > 1)
+            {
+                return false;
+            }
+
+            _values.Add((offset, reader.Data[offset]));
+            return true;
+        }
+
+        internal int Apply(byte[] file, bool bigEndian, int nodeCount)
+        {
+            if (_values.Count == 0)
+            {
+                return 0;
+            }
+
+            const int nodeSize = 32;
+            int nodeStart = treeStart + (2 * sizeof(int)) + (field * nodeSize);
+            int stringStart = treeStart + (2 * sizeof(int)) + (nodeCount * nodeSize);
+            Reader writer = new(file, bigEndian) { Position = nodeStart + 8 };
+            int nameOffset = writer.Int32();
+            if (nameOffset < 0)
+            {
+                return 0;
+            }
+
+            // The aligned bool already occupies four bytes. No object lengths or references move.
+            writer.Position = nodeStart + 4;
+            int intType = CommonStrings.IndexOf("\0int\0", StringComparison.Ordinal) + 1;
+            writer.WriteInt32(int.MinValue | intType);
+            writer.Position = nodeStart + 12;
+            writer.WriteInt32(sizeof(int));
+            writer.Position = nodeStart + 20;
+            writer.WriteInt32(AlignFlag);
+            Array.Clear(file, stringStart + nameOffset, OldName.Length + 1);
+            Encoding.ASCII.GetBytes(NewName, 0, NewName.Length, file, stringStart + nameOffset);
+            foreach ((int offset, byte value) in _values)
+            {
+                writer.Position = offset;
+                writer.WriteInt32(value);
+            }
+
+            return _values.Count;
+        }
     }
 
     private static bool TagNativeGrabDraw(byte[] file, bool bigEndian, Dictionary<string, object?> shader)
