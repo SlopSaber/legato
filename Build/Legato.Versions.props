@@ -39,6 +39,6 @@
                                  BundleTarget="1.37.2" UnityVersion="2022.3.33f1" Pipeline="BuiltIn" />
     <LegatoPortableShaderProfile Include="1.42.0;1.42.1;1.42.2;1.42.3;1.43.0;1.44.0;1.44.1"
                                  BundleTarget="1.42.0" UnityVersion="6000.0.40f1" Pipeline="Universal" UrpVersion="17.0.1" SideBySideMirrors="true" />
-    <LegatoPortableShaderProfile Include="1.45.1;1.45.2;1.45.3;1.46.0" BundleTarget="1.46.0" UnityVersion="6000.3.19f1" Pipeline="Universal" />
+    <LegatoPortableShaderProfile Include="1.45.1;1.45.2;1.45.3;1.46.0" BundleTarget="1.46.0" UnityVersion="6000.3.19f1" Pipeline="Universal" UrpVersion="17.3.0" />
   </ItemGroup>
 </Project>

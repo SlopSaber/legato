@@ -63,6 +63,8 @@ foreach ($file in $files) {
         $content = $content.Replace('Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl', 'Assets/Legato/Core.hlsl')
         $content = $content.Replace('Packages/com.unity.render-pipelines.core/Runtime/Utilities/Blit.hlsl', 'Assets/Legato/Blit.hlsl')
         if (!$urp) {
+            $content = [regex]::Replace($content, '(?ms)^[ \t]*// LEGATO_URP_PASS_BEGIN[ \t]*\r?\n.*?^[ \t]*// LEGATO_URP_PASS_END[ \t]*(?:\r?\n|\z)', '')
+            if ($content -match 'LEGATO_URP_PASS_(?:BEGIN|END)') { throw "Unpaired URP pass markers in $relative." }
             $content = $content.Replace('"UnityUI.cginc"', '"Assets/Legato/UnityUICompatibility.cginc"')
             if ($content.Contains('TMPro_Properties.cginc')) {
                 # Standard TMP SDF shaders moved signed font scale from UV2.y to UV0.w.
@@ -77,7 +79,7 @@ foreach ($file in $files) {
             $content = [regex]::Replace($content, '("LightMode"\s*=\s*")DepthOnly"', '${1}ShadowCaster"')
             $content = [regex]::Replace($content, '("LightMode"\s*=\s*")SRPDefaultUnlit"', '${1}Always"')
             foreach ($match in [regex]::Matches($content, '"LightMode"\s*=\s*"([^"]+)"')) {
-                if ($match.Groups[1].Value -notin 'ForwardBase','ShadowCaster','Always','Meta') {
+                if ($match.Groups[1].Value -notin 'ForwardBase','ShadowCaster','Always') {
                     throw "Unsupported pass '$($match.Groups[1].Value)' in $relative."
                 }
             }
