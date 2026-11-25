@@ -330,7 +330,12 @@ public sealed class PlayViewManager : IDisposable
             _currentParameters.LevelFinishedCallback,
 #if LATEST
             _currentParameters.LevelRestartedCallback,
+#if LEGATO_SCRIPTABLE_SCENE_TRANSITIONS
+            _currentParameters.BeatmapLevelData,
+            _currentParameters.RecordingToolData);
+#else
             _currentParameters.BeatmapLevelData);
+#endif
 #elif !V1_29_1
             _currentParameters.LevelRestartedCallback,
             _currentParameters.RecordingToolData);

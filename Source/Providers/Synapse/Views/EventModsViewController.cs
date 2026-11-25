@@ -66,7 +66,7 @@ internal class EventModsViewController : BSMLAutomaticViewController
         }
     }
 
-#if LEGATO_BSML_CURRENT || !V1_29_1
+#if LEGATO_BSML_CURRENT || !BEAT_SABER_1_29_0
     protected override void OnDestroy()
 #else
     public override void OnDestroy()
@@ -117,14 +117,14 @@ internal class EventModsViewController : BSMLAutomaticViewController
     [Inject]
     private void Construct(
         SiraLog log,
-#if LEGATO_BSML_CURRENT || !V1_29_1
+#if LEGATO_BSML_CURRENT || !BEAT_SABER_1_29_0
         BSMLParser bsmlParser,
 #endif
         ListingManager listingManager,
         NotificationManager notificationManager)
     {
         _log = log;
-#if LEGATO_BSML_CURRENT || !V1_29_1
+#if LEGATO_BSML_CURRENT || !BEAT_SABER_1_29_0
         _bsmlParser = bsmlParser;
 #else
         _bsmlParser = BSMLParser.instance;

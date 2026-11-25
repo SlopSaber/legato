@@ -137,7 +137,7 @@ internal class EventLobbyChatViewController : BSMLAutomaticViewController
     [UIValue("division-choices")]
     private List<object> DivisionChoices { get; set; } = [0];
 
-#if LEGATO_BSML_CURRENT || !V1_29_1
+#if LEGATO_BSML_CURRENT || !BEAT_SABER_1_29_0
     protected override void OnDestroy()
 #else
     public override void OnDestroy()
@@ -189,7 +189,7 @@ internal class EventLobbyChatViewController : BSMLAutomaticViewController
 
             _input.gameObject.AddComponent<LayoutElement>().minHeight = 10;
 
-#if PRE_V1_40_8 && !LEGATO_BSML_CURRENT
+#if LEGATO_LEGACY_BSML_CHAT_BINDINGS && !LEGATO_BSML_CURRENT
             ImageView priorityBg = (ImageView)_priorityBg.background;
 #else
             ImageView priorityBg = (ImageView)_priorityBg.Background;
@@ -226,7 +226,7 @@ internal class EventLobbyChatViewController : BSMLAutomaticViewController
                 DivisionChoices = [0];
             }
 
-#if LEGATO_BSML_CURRENT || !PRE_V1_40_8
+#if LEGATO_BSML_CURRENT || !LEGATO_LEGACY_BSML_CHAT_BINDINGS
             _divisionSetting.Values = DivisionChoices;
 #else
             _divisionSetting.values = DivisionChoices;

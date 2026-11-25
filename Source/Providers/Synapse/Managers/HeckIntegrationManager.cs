@@ -39,7 +39,7 @@ internal class HeckIntegrationManager
 
     internal void StartPlayViewInterruptedLevel(
         string gameMode,
-#if !PRE_V1_37_1
+#if !LEGATO_DIFFICULTY_BEATMAPS
         in BeatmapKey beatmapKey,
         BeatmapLevel beatmapLevel,
 #else
@@ -48,19 +48,19 @@ internal class HeckIntegrationManager
 #endif
         OverrideEnvironmentSettings? overrideEnvironmentSettings,
         ColorScheme? overrideColorScheme,
-#if !PRE_V1_40_8
+#if !LEGATO_SINGLE_COLOR_OVERRIDE
         bool playerOverrideLightshowColors,
 #endif
-#if !V1_29_1 && !LATEST
+#if !BEAT_SABER_1_29_0 && LEGATO_GAMEPLAY_WITHOUT_ADDITIONAL_INFORMATION
         ColorScheme? beatmapOverrideColorScheme,
 #endif
         GameplayModifiers gameplayModifiers,
         PlayerSpecificSettings playerSpecificSettings,
         PracticeSettings? practiceSettings,
-#if !PRE_V1_37_1
+#if !LEGATO_DIFFICULTY_BEATMAPS
         EnvironmentsListModel environmentsListModel,
 #endif
-#if LATEST
+#if !LEGATO_GAMEPLAY_WITHOUT_ADDITIONAL_INFORMATION
         GameplayAdditionalInformation gameplayAdditionalInformation,
         Action? beforeSceneSwitchToGameplayCallback,
         Action<DiContainer>? afterSceneSwitchToGameplayCallback,
@@ -70,13 +70,13 @@ internal class HeckIntegrationManager
         bool startPaused,
         Action? beforeSceneSwitchCallback,
 #endif
-#if !PRE_V1_37_1 && !LATEST
+#if !LEGATO_DIFFICULTY_BEATMAPS && LEGATO_GAMEPLAY_WITHOUT_ADDITIONAL_INFORMATION
         Action<DiContainer>? afterSceneSwitchCallback,
 #endif
         Action<StandardLevelScenesTransitionSetupData, LevelCompletionResults>? levelFinishedCallback,
-#if !V1_29_1
+#if !BEAT_SABER_1_29_0
         Action<LevelScenesTransitionSetupData, LevelCompletionResults>? levelRestartedCallback,
-#if LATEST
+#if !LEGATO_GAMEPLAY_WITHOUT_ADDITIONAL_INFORMATION
         IBeatmapLevelData? beatmapLevelData)
 #else
         RecordingToolManager.SetupData? recordingToolData)
@@ -87,7 +87,7 @@ internal class HeckIntegrationManager
     {
         object parameters = _parametersConstructor.Invoke([
             gameMode,
-#if !PRE_V1_37_1
+#if !LEGATO_DIFFICULTY_BEATMAPS
             beatmapKey,
             beatmapLevel,
 #else
@@ -96,19 +96,19 @@ internal class HeckIntegrationManager
 #endif
             overrideEnvironmentSettings,
             overrideColorScheme,
-#if !PRE_V1_40_8
+#if !LEGATO_SINGLE_COLOR_OVERRIDE
             playerOverrideLightshowColors,
 #endif
-#if !V1_29_1 && !LATEST
+#if !BEAT_SABER_1_29_0 && LEGATO_GAMEPLAY_WITHOUT_ADDITIONAL_INFORMATION
             beatmapOverrideColorScheme,
 #endif
             gameplayModifiers,
             playerSpecificSettings,
             practiceSettings,
-#if !PRE_V1_37_1
+#if !LEGATO_DIFFICULTY_BEATMAPS
             environmentsListModel,
 #endif
-#if LATEST
+#if !LEGATO_GAMEPLAY_WITHOUT_ADDITIONAL_INFORMATION
             gameplayAdditionalInformation,
             beforeSceneSwitchToGameplayCallback,
             afterSceneSwitchToGameplayCallback,
@@ -118,13 +118,13 @@ internal class HeckIntegrationManager
             startPaused,
             beforeSceneSwitchCallback,
 #endif
-#if !PRE_V1_37_1 && !LATEST
+#if !LEGATO_DIFFICULTY_BEATMAPS && LEGATO_GAMEPLAY_WITHOUT_ADDITIONAL_INFORMATION
             afterSceneSwitchCallback,
 #endif
             levelFinishedCallback,
-#if !V1_29_1
+#if !BEAT_SABER_1_29_0
             levelRestartedCallback,
-#if LATEST
+#if !LEGATO_GAMEPLAY_WITHOUT_ADDITIONAL_INFORMATION
             beatmapLevelData,
 #else
             recordingToolData

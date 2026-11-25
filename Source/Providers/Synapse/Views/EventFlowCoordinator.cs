@@ -15,7 +15,7 @@ using Synapse.Models;
 using Synapse.Networking.Models;
 using UnityEngine;
 using Zenject;
-#if !PRE_V1_37_1
+#if !LEGATO_DIFFICULTY_BEATMAPS
 using System.Reflection;
 using HarmonyLib;
 #endif
@@ -46,7 +46,7 @@ internal class EventFlowCoordinator : FlowCoordinator
     private MenuPrefabManager _menuPrefabManager = null!;
     private GlobalParticleManager _globalParticleManager = null!;
 
-#if !PRE_V1_37_1
+#if !LEGATO_DIFFICULTY_BEATMAPS
     private MethodInfo _resultsViewControllerInit = null!;
 #endif
 
@@ -284,7 +284,7 @@ internal class EventFlowCoordinator : FlowCoordinator
         _networkManager = networkManager;
         _menuPrefabManager = menuPrefabManager;
         _globalParticleManager = globalParticleManager;
-#if !PRE_V1_37_1
+#if !LEGATO_DIFFICULTY_BEATMAPS
         _resultsViewControllerInit = AccessTools.Method(typeof(ResultsViewController), nameof(ResultsViewController.Init));
 #endif
     }
@@ -387,7 +387,7 @@ internal class EventFlowCoordinator : FlowCoordinator
             return;
         }
 
-#if PRE_V1_37_1
+#if LEGATO_DIFFICULTY_BEATMAPS
         IDifficultyBeatmap difficultyBeatmap = standardLevelScenesTransitionSetupData.difficultyBeatmap;
 #else
         BeatmapKey beatmapKey = standardLevelScenesTransitionSetupData.beatmapKey;
@@ -402,7 +402,7 @@ internal class EventFlowCoordinator : FlowCoordinator
             levelCompletionResults.SetField(nameof(levelCompletionResults.levelEndStateType), LevelCompletionResults.LevelEndStateType.Cleared);
         }
 
-#if PRE_V1_37_1
+#if LEGATO_DIFFICULTY_BEATMAPS
         _resultsViewController.Init(
             levelCompletionResults,
             transformedBeatmapData,
@@ -438,7 +438,7 @@ internal class EventFlowCoordinator : FlowCoordinator
             ViewController.AnimationDirection.Horizontal,
             true);
 
-#if BEAT_SABER_1453
+#if BEAT_SABER_1_45_3
         _ = SubmitScore(map, levelCompletionResults.score.modified, ScorePercentageHelper.ScorePercentage);
 #else
         _ = SubmitScore(map, levelCompletionResults.modifiedScore, ScorePercentageHelper.ScorePercentage);

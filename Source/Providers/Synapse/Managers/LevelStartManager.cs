@@ -16,7 +16,7 @@ internal class LevelStartManager : IDisposable
     private static readonly Action<string>? _nextLevelIsIsolated = GetNextLevelIsIsolated();
 
     private readonly Action? _disableCustomPlatform;
-#if !PRE_V1_37_1
+#if !LEGATO_DIFFICULTY_BEATMAPS
     private readonly EnvironmentsListModel _environmentsListModel;
 #endif
 
@@ -36,7 +36,7 @@ internal class LevelStartManager : IDisposable
         DiContainer container,
         GameplaySetupViewController gameplaySetupViewController,
         MenuTransitionsHelper menuTransitionsHelper,
-#if !PRE_V1_37_1
+#if !LEGATO_DIFFICULTY_BEATMAPS
         EnvironmentsListModel environmentsListModel,
 #endif
         NetworkManager networkManager,
@@ -46,7 +46,7 @@ internal class LevelStartManager : IDisposable
         _config = config;
         _gameplaySetupViewController = gameplaySetupViewController;
         _menuTransitionsHelper = menuTransitionsHelper;
-#if !PRE_V1_37_1
+#if !LEGATO_DIFFICULTY_BEATMAPS
         _environmentsListModel = environmentsListModel;
 #endif
         _networkManager = networkManager;
@@ -231,14 +231,14 @@ internal class LevelStartManager : IDisposable
 
         int division = _config.LastEvent.Division ?? 0;
 
-#if !PRE_V1_37_1
+#if !LEGATO_DIFFICULTY_BEATMAPS
         BeatmapKey beatmapKey = downloadedMap.BeatmapKeys[division];
         BeatmapLevel beatmapLevel = downloadedMap.BeatmapLevel;
-#if !LATEST
+#if LEGATO_GAMEPLAY_WITHOUT_ADDITIONAL_INFORMATION
         ColorScheme? beatmapOverrideColorScheme =
             beatmapLevel.GetColorScheme(beatmapKey.beatmapCharacteristic, beatmapKey.difficulty);
 #endif
-#elif !V1_29_1
+#elif !BEAT_SABER_1_29_0
         ColorScheme? beatmapOverrideColorScheme = null;
         if (downloadedMap is { BeatmapLevel: CustomBeatmapLevel customBeatmapLevel } &&
             downloadedMap.DifficultyBeatmaps[division] is CustomDifficultyBeatmap customDifficultyBeatmap)
@@ -252,14 +252,14 @@ internal class LevelStartManager : IDisposable
         _nextLevelIsIsolated?.Invoke("Synapse");
         IntroSkipInstallationPatch.SkipNext = true;
 
-#if BEAT_SABER_1453
+#if BEAT_SABER_1_45_3
         const GameMode selectedGameMode = GameMode.Development;
 #else
         const string selectedGameMode = "screw yo analytics";
 #endif
         StartStandardOrHeck(
             selectedGameMode,
-#if !PRE_V1_37_1
+#if !LEGATO_DIFFICULTY_BEATMAPS
             beatmapKey,
             beatmapLevel,
 #else
@@ -268,19 +268,19 @@ internal class LevelStartManager : IDisposable
 #endif
             null, // no environment override
             overrideColorScheme,
-#if !PRE_V1_40_8
+#if !LEGATO_SINGLE_COLOR_OVERRIDE
             _gameplaySetupViewController.colorSchemesSettings.ShouldOverrideLightshowColors(),
 #endif
-#if !V1_29_1 && !LATEST
+#if !BEAT_SABER_1_29_0 && LEGATO_GAMEPLAY_WITHOUT_ADDITIONAL_INFORMATION
             beatmapOverrideColorScheme,
 #endif
             modifiers,
             playerSpecificSettings,
             null,
-#if !PRE_V1_37_1
+#if !LEGATO_DIFFICULTY_BEATMAPS
             _environmentsListModel,
 #endif
-#if LATEST
+#if !LEGATO_GAMEPLAY_WITHOUT_ADDITIONAL_INFORMATION
             new GameplayAdditionalInformation(string.Empty),
             null,
             null,
@@ -290,11 +290,11 @@ internal class LevelStartManager : IDisposable
             false,
             null,
 #endif
-#if !PRE_V1_37_1 && !LATEST
+#if !LEGATO_DIFFICULTY_BEATMAPS && LEGATO_GAMEPLAY_WITHOUT_ADDITIONAL_INFORMATION
             null,
 #endif
             callback,
-#if !V1_29_1
+#if !BEAT_SABER_1_29_0
             null,
 #endif
             null);
@@ -334,12 +334,12 @@ internal class LevelStartManager : IDisposable
 
     // i wish i could use my StartStandardLevelParameters here
     private void StartStandardOrHeck(
-#if BEAT_SABER_1453
+#if BEAT_SABER_1_45_3
         GameMode gameMode,
 #else
         string gameMode,
 #endif
-#if !PRE_V1_37_1
+#if !LEGATO_DIFFICULTY_BEATMAPS
         in BeatmapKey beatmapKey,
         BeatmapLevel beatmapLevel,
 #else
@@ -348,19 +348,19 @@ internal class LevelStartManager : IDisposable
 #endif
         OverrideEnvironmentSettings? overrideEnvironmentSettings,
         ColorScheme? overrideColorScheme,
-#if !PRE_V1_40_8
+#if !LEGATO_SINGLE_COLOR_OVERRIDE
         bool playerOverrideLightshowColors,
 #endif
-#if !V1_29_1 && !LATEST
+#if !BEAT_SABER_1_29_0 && LEGATO_GAMEPLAY_WITHOUT_ADDITIONAL_INFORMATION
         ColorScheme? beatmapOverrideColorScheme,
 #endif
         GameplayModifiers gameplayModifiers,
         PlayerSpecificSettings playerSpecificSettings,
         PracticeSettings? practiceSettings,
-#if !PRE_V1_37_1
+#if !LEGATO_DIFFICULTY_BEATMAPS
         EnvironmentsListModel environmentsListModel,
 #endif
-#if LATEST
+#if !LEGATO_GAMEPLAY_WITHOUT_ADDITIONAL_INFORMATION
         GameplayAdditionalInformation gameplayAdditionalInformation,
         Action? beforeSceneSwitchToGameplayCallback,
         Action<DiContainer>? afterSceneSwitchToGameplayCallback,
@@ -370,13 +370,13 @@ internal class LevelStartManager : IDisposable
         bool startPaused,
         Action? beforeSceneSwitchCallback,
 #endif
-#if !PRE_V1_37_1 && !LATEST
+#if !LEGATO_DIFFICULTY_BEATMAPS && LEGATO_GAMEPLAY_WITHOUT_ADDITIONAL_INFORMATION
         Action<DiContainer>? afterSceneSwitchCallback,
 #endif
         Action<StandardLevelScenesTransitionSetupData, LevelCompletionResults>? levelFinishedCallback,
-#if !V1_29_1
+#if !BEAT_SABER_1_29_0
         Action<LevelScenesTransitionSetupData, LevelCompletionResults>? levelRestartedCallback,
-#if LATEST
+#if !LEGATO_GAMEPLAY_WITHOUT_ADDITIONAL_INFORMATION
         IBeatmapLevelData? beatmapLevelData)
 #else
         RecordingToolManager.SetupData? recordingToolData)
@@ -387,14 +387,14 @@ internal class LevelStartManager : IDisposable
     {
         if (_heckIntegrationManager != null)
         {
-#if BEAT_SABER_1453
+#if BEAT_SABER_1_45_3
             string heckGameMode = gameMode.ToString();
 #else
             string heckGameMode = gameMode;
 #endif
             _heckIntegrationManager.StartPlayViewInterruptedLevel(
                 heckGameMode,
-#if !PRE_V1_37_1
+#if !LEGATO_DIFFICULTY_BEATMAPS
                 beatmapKey,
                 beatmapLevel,
 #else
@@ -403,19 +403,19 @@ internal class LevelStartManager : IDisposable
 #endif
                 overrideEnvironmentSettings,
                 overrideColorScheme,
-#if !PRE_V1_40_8
+#if !LEGATO_SINGLE_COLOR_OVERRIDE
                 playerOverrideLightshowColors,
 #endif
-#if !V1_29_1 && !LATEST
+#if !BEAT_SABER_1_29_0 && LEGATO_GAMEPLAY_WITHOUT_ADDITIONAL_INFORMATION
                 beatmapOverrideColorScheme,
 #endif
                 gameplayModifiers,
                 playerSpecificSettings,
                 practiceSettings,
-#if !PRE_V1_37_1
+#if !LEGATO_DIFFICULTY_BEATMAPS
                 environmentsListModel,
 #endif
-#if LATEST
+#if !LEGATO_GAMEPLAY_WITHOUT_ADDITIONAL_INFORMATION
                 gameplayAdditionalInformation,
                 beforeSceneSwitchToGameplayCallback,
                 afterSceneSwitchToGameplayCallback,
@@ -425,13 +425,13 @@ internal class LevelStartManager : IDisposable
                 startPaused,
                 beforeSceneSwitchCallback,
 #endif
-#if !PRE_V1_37_1 && !LATEST
+#if !LEGATO_DIFFICULTY_BEATMAPS && LEGATO_GAMEPLAY_WITHOUT_ADDITIONAL_INFORMATION
                 afterSceneSwitchCallback,
 #endif
                 levelFinishedCallback,
-#if !V1_29_1
+#if !BEAT_SABER_1_29_0
                 levelRestartedCallback,
-#if LATEST
+#if !LEGATO_GAMEPLAY_WITHOUT_ADDITIONAL_INFORMATION
                 beatmapLevelData);
 #else
                 recordingToolData);
@@ -444,7 +444,7 @@ internal class LevelStartManager : IDisposable
         {
             _menuTransitionsHelper.StartStandardLevel(
                 gameMode,
-#if !PRE_V1_37_1
+#if !LEGATO_DIFFICULTY_BEATMAPS
                 beatmapKey,
                 beatmapLevel,
 #else
@@ -453,19 +453,19 @@ internal class LevelStartManager : IDisposable
 #endif
                 overrideEnvironmentSettings,
                 overrideColorScheme,
-#if !PRE_V1_40_8
+#if !LEGATO_SINGLE_COLOR_OVERRIDE
                 playerOverrideLightshowColors,
 #endif
-#if !V1_29_1 && !LATEST
+#if !BEAT_SABER_1_29_0 && LEGATO_GAMEPLAY_WITHOUT_ADDITIONAL_INFORMATION
                 beatmapOverrideColorScheme,
 #endif
                 gameplayModifiers,
                 playerSpecificSettings,
                 practiceSettings,
-#if !PRE_V1_37_1
+#if !LEGATO_DIFFICULTY_BEATMAPS
                 environmentsListModel,
 #endif
-#if LATEST
+#if !LEGATO_GAMEPLAY_WITHOUT_ADDITIONAL_INFORMATION
                 gameplayAdditionalInformation,
                 beforeSceneSwitchToGameplayCallback,
                 afterSceneSwitchToGameplayCallback,
@@ -475,13 +475,13 @@ internal class LevelStartManager : IDisposable
                 startPaused,
                 beforeSceneSwitchCallback,
 #endif
-#if !PRE_V1_37_1 && !LATEST
+#if !LEGATO_DIFFICULTY_BEATMAPS && LEGATO_GAMEPLAY_WITHOUT_ADDITIONAL_INFORMATION
                 afterSceneSwitchCallback,
 #endif
                 levelFinishedCallback,
-#if !V1_29_1
+#if !BEAT_SABER_1_29_0
                 levelRestartedCallback,
-#if LATEST
+#if !LEGATO_GAMEPLAY_WITHOUT_ADDITIONAL_INFORMATION
                 beatmapLevelData);
 #else
                 recordingToolData);

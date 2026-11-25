@@ -144,6 +144,9 @@ public class StartStandardLevelParameters
 #endif
 #if LATEST
         BeatmapLevelData = original.BeatmapLevelData;
+#if LEGATO_SCRIPTABLE_SCENE_TRANSITIONS
+        RecordingToolData = original.RecordingToolData;
+#endif
 #endif
     }
 
@@ -207,6 +210,10 @@ public class StartStandardLevelParameters
 
 #if LATEST
     public IBeatmapLevelData? BeatmapLevelData { get; }
+#if LEGATO_SCRIPTABLE_SCENE_TRANSITIONS
+
+    public RecordingToolManager.SetupData? RecordingToolData { get; private set; }
+#endif
 #endif
 
     public virtual StartStandardLevelParameters Copy()
@@ -214,42 +221,93 @@ public class StartStandardLevelParameters
         return new StartStandardLevelParameters(this);
     }
 
-#if BEAT_SABER_1453
+#if LEGATO_STANDARD_LEVEL_RESTART_CALLBACK
     internal static StartStandardLevelParameters FromGame(
+#if BEAT_SABER_1453
         global::GameMode gameMode,
+#else
+        string gameMode,
+#endif
         in BeatmapKey beatmapKey,
         BeatmapLevel beatmapLevel,
         OverrideEnvironmentSettings? overrideEnvironmentSettings,
         ColorScheme? overrideColorScheme,
+#if !LEGATO_SINGLE_COLOR_OVERRIDE
         bool playerOverrideLightshowColors,
+#endif
+#if !LATEST
+        ColorScheme? beatmapOverrideColorScheme,
+#endif
         GameplayModifiers gameplayModifiers,
         PlayerSpecificSettings playerSpecificSettings,
         PracticeSettings? practiceSettings,
         EnvironmentsListModel? environmentsListModel,
+#if LATEST
         GameplayAdditionalInformation? gameplayAdditionalInformation,
+#else
+        string backButtonText,
+        bool useTestNoteCutSoundEffects,
+        bool startPaused,
+#endif
         Action? beforeSceneSwitchToGameplayCallback,
         Action<DiContainer>? afterSceneSwitchToGameplayCallback,
         Action<StandardLevelScenesTransitionSetupData, LevelCompletionResults>? levelFinishedCallback,
-        Action<LevelScenesTransitionSetupData, LevelCompletionResults>? levelRestartedCallback,
+        Action<StandardLevelScenesTransitionSetupData, LevelCompletionResults>? levelRestartedCallback,
+#if LATEST
+#if LEGATO_SCRIPTABLE_SCENE_TRANSITIONS
+        IBeatmapLevelData? beatmapLevelData,
+        RecordingToolManager.SetupData? recordingToolData)
+#else
         IBeatmapLevelData? beatmapLevelData)
+#endif
+#else
+        RecordingToolManager.SetupData? recordingToolData)
+#endif
     {
-        return new StartStandardLevelParameters(
-            gameMode.ToString(),
+#if BEAT_SABER_1453
+        string gameModeName = gameMode.ToString();
+#else
+        string gameModeName = gameMode;
+#endif
+        Action<LevelScenesTransitionSetupData, LevelCompletionResults>? restart = levelRestartedCallback == null
+            ? null
+            : (transition, results) => levelRestartedCallback((StandardLevelScenesTransitionSetupData)transition, results);
+        var parameters = new StartStandardLevelParameters(
+            gameModeName,
             in beatmapKey,
             beatmapLevel,
             overrideEnvironmentSettings,
             overrideColorScheme,
+#if !LEGATO_SINGLE_COLOR_OVERRIDE
             playerOverrideLightshowColors,
+#endif
+#if !LATEST
+            beatmapOverrideColorScheme,
+#endif
             gameplayModifiers,
             playerSpecificSettings,
             practiceSettings,
             environmentsListModel,
+#if LATEST
             gameplayAdditionalInformation,
+#else
+            backButtonText,
+            useTestNoteCutSoundEffects,
+            startPaused,
+#endif
             beforeSceneSwitchToGameplayCallback,
             afterSceneSwitchToGameplayCallback,
             levelFinishedCallback,
-            levelRestartedCallback,
+            restart,
+#if LATEST
             beatmapLevelData);
+#if LEGATO_SCRIPTABLE_SCENE_TRANSITIONS
+        parameters.RecordingToolData = recordingToolData;
+#endif
+#else
+            recordingToolData);
+#endif
+        return parameters;
     }
 #endif
 }

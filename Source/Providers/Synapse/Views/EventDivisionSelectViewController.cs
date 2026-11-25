@@ -39,7 +39,7 @@ internal class EventDivisionSelectViewController : BSMLAutomaticViewController
         _callback = callback;
     }
 
-#if LEGATO_BSML_CURRENT || !V1_29_1
+#if LEGATO_BSML_CURRENT || !BEAT_SABER_1_29_0
     protected override void OnDestroy()
 #else
     public override void OnDestroy()

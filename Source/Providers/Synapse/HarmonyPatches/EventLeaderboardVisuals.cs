@@ -3,7 +3,7 @@ using HarmonyLib;
 using HMUI;
 using Synapse.Views;
 using TMPro;
-#if !V1_29_1
+#if !BEAT_SABER_1_29_0
 using UnityEngine;
 #endif
 
@@ -45,7 +45,7 @@ internal static class EventLeaderboardVisuals
         }
     }
 
-#if !V1_29_1
+#if !BEAT_SABER_1_29_0
     [HarmonyPostfix]
     [HarmonyPatch(typeof(LeaderboardTableCell), nameof(LeaderboardTableCell.score), MethodType.Setter)]
     private static void ExpandScore(TextMeshProUGUI ____scoreText)

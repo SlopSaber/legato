@@ -12,13 +12,13 @@ internal class SettingsMenu : IInitializable, IDisposable
     private readonly BSMLSettings _bsmlSettings;
 
     private SettingsMenu(
-#if LEGATO_BSML_CURRENT || !V1_29_1
+#if LEGATO_BSML_CURRENT || !BEAT_SABER_1_29_0
         BSMLSettings bsmlSettings,
 #endif
         Config config)
     {
         _config = config;
-#if LEGATO_BSML_CURRENT || !V1_29_1
+#if LEGATO_BSML_CURRENT || !BEAT_SABER_1_29_0
         _bsmlSettings = bsmlSettings;
 #else
         _bsmlSettings = BSMLSettings.instance;

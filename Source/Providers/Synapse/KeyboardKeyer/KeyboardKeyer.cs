@@ -1,7 +1,7 @@
 using System;
 using IPA.Utilities;
 using UnityEngine;
-#if LATEST
+#if LEGATO_KEYBOARD_CAPS_LOCK_STATE
 using HMUI;
 #endif
 
@@ -45,7 +45,7 @@ internal class KeyboardKeyer : MonoBehaviour
             caps = !caps;
         }
 
-#if LATEST
+#if LEGATO_KEYBOARD_CAPS_LOCK_STATE
         if (caps != _keyboard.shouldCapitalize)
         {
             _keyboard._capsLockState = caps ? CapsLockState.Uppercase : CapsLockState.Lowercase;

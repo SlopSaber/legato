@@ -11,7 +11,7 @@ using SiraUtil.Logging;
 using Synapse.Extras;
 using Synapse.Networking;
 using Synapse.Networking.Models;
-#if LATEST
+#if !LEGATO_PLATFORM_USER_MODEL
 using OculusStudios.Platform.Core;
 #endif
 
@@ -34,7 +34,7 @@ internal class NetworkManager : IDisposable
     private readonly Config _config;
     private readonly ListingManager _listingManager;
     private readonly SiraLog _log;
-#if LATEST
+#if !LEGATO_PLATFORM_USER_MODEL
     private readonly IPlatform _platformUserModel;
 #else
     private readonly IPlatformUserModel _platformUserModel;
@@ -51,7 +51,7 @@ internal class NetworkManager : IDisposable
     private NetworkManager(
         SiraLog log,
         Config config,
-#if LATEST
+#if !LEGATO_PLATFORM_USER_MODEL
         IPlatform platformUserModel,
 #else
         IPlatformUserModel platformUserModel,
@@ -240,7 +240,7 @@ internal class NetworkManager : IDisposable
 
     private async Task<AuthenticationToken?> GetToken()
     {
-#if LATEST
+#if !LEGATO_PLATFORM_USER_MODEL
         UserInfo.Platform platform = _platformUserModel.key switch
         {
             "steam" => UserInfo.Platform.Steam,
@@ -252,7 +252,7 @@ internal class NetworkManager : IDisposable
             _platformUserModel.user.userId.ToString(),
             _platformUserModel.user.displayName);
 #else
-#if !V1_29_1
+#if !BEAT_SABER_1_29_0
         UserInfo? userInfo = await _platformUserModel.GetUserInfo(CancellationToken.None);
 #else
         UserInfo? userInfo = await _platformUserModel.GetUserInfo();

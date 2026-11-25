@@ -47,7 +47,7 @@ internal class EventIntroViewController : BSMLAutomaticViewController
         _intro = intro;
     }
 
-#if LEGATO_BSML_CURRENT || !V1_29_1
+#if LEGATO_BSML_CURRENT || !BEAT_SABER_1_29_0
     protected override void OnDestroy()
 #else
 #pragma warning disable SA1202

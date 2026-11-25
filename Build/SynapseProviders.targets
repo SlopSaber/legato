@@ -1,8 +1,14 @@
 <Project>
+  <PropertyGroup Condition="'$(GenerateDocumentationFile)' != 'true'">
+    <NoWarn>$(NoWarn);SA0001</NoWarn>
+  </PropertyGroup>
   <ItemGroup>
     <EditorConfigFiles Include="$(LegatoSourceRoot)Providers\Synapse\.editorconfig" />
   </ItemGroup>
   <Target Name="LegatoSynapseNativeReferences" BeforeTargets="ResolveAssemblyReferences" DependsOnTargets="LegatoConfigure">
+    <PropertyGroup Condition="'$(_LegatoApiVersion)' != '' AND $([MSBuild]::VersionLessThan('$(_LegatoApiVersion)', '1.40.8'))">
+      <DefineConstants>$(DefineConstants);LEGATO_LEGACY_BSML_CHAT_BINDINGS</DefineConstants>
+    </PropertyGroup>
     <ItemGroup Condition="'$(LegatoTargetProfile)' == '1.29.0'">
       <Reference Remove="BGLib.AppFlow;BGLib.UnityExtension;BGNetCore;BeatSaber.Multiplayer.Core;BeatSaber.ViewSystem;DataModels;MediaLoader;Networking;OculusStudios.Platform.Core;PlatformUserModel;SegmentedControl;Transitions;Tweening" />
     </ItemGroup>

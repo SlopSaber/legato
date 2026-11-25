@@ -23,7 +23,7 @@ namespace Legato.Gameplay
                 {
                     "360degree" => BeatmapCharacteristic.Degree360,
                     "90degree" => BeatmapCharacteristic.Degree90,
-                    _ => throw new InvalidOperationException("Failed to find characteristic: " + serializedName)
+                    _ => throw new InvalidOperationException("Failed to find characteristic: " + serializedName),
                 };
             }
 #if BEAT_SABER_1_45_3

@@ -4,7 +4,7 @@ using HarmonyLib;
 using IPA.Loader;
 using JetBrains.Annotations;
 using Zenject;
-#if PRE_V1_37_1
+#if LEGATO_DIFFICULTY_BEATMAPS
 using System.Threading;
 #else
 using System.Collections.Concurrent;
@@ -16,7 +16,7 @@ namespace Synapse.Managers;
 internal class SongCoreLoader : IInitializable
 {
     private FieldInfo _loaderInstanceField = null!;
-#if PRE_V1_37_1
+#if LEGATO_DIFFICULTY_BEATMAPS
     private MethodInfo _loadSongAndAddToDictionaries = null!;
     private MethodInfo _loadCustomLevelSongData = null!;
     private MethodInfo? _loadBackportedLevel;
@@ -48,7 +48,7 @@ internal class SongCoreLoader : IInitializable
 
         _loaderInstanceField = instanceField;
 
-#if PRE_V1_37_1
+#if LEGATO_DIFFICULTY_BEATMAPS
         _loadBackportedLevel = loaderType.GetMethod("LoadCustomLevel", BindingFlags.Public | BindingFlags.Static);
         if (_loadBackportedLevel == null)
         {
@@ -69,7 +69,7 @@ internal class SongCoreLoader : IInitializable
 #endif
     }
 
-#if PRE_V1_37_1
+#if LEGATO_DIFFICULTY_BEATMAPS
     // needed for other mods like BeatTogether/Camera2
     internal CustomPreviewBeatmapLevel Load(string songPath)
     {

@@ -118,7 +118,7 @@ internal class EventLobbySongInfoViewController : BSMLAutomaticViewController
     private Sprite? _finishSprite;
 
     private float _angle;
-#if !PRE_V1_37_1
+#if !LEGATO_DIFFICULTY_BEATMAPS
     private BeatmapLevel? _beatmapLevel;
 #else
     private IPreviewBeatmapLevel? _beatmapLevel;
@@ -258,8 +258,8 @@ internal class EventLobbySongInfoViewController : BSMLAutomaticViewController
         }
         else if (_beatmapLevel != null)
         {
-#if !PRE_V1_37_1
-#if !PRE_V1_40_8
+#if !LEGATO_DIFFICULTY_BEATMAPS
+#if !LEGATO_CANCELLABLE_COVER_LOADING
             Task<Sprite> spriteTask = _beatmapLevel.previewMediaData.GetCoverSpriteAsync();
 #else
             Task<Sprite> spriteTask = _beatmapLevel.previewMediaData.GetCoverSpriteAsync(token);

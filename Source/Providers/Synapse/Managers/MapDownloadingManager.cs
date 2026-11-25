@@ -25,7 +25,7 @@ internal sealed class MapDownloadingManager : IDisposable, ITickable
     private readonly SiraLog _log;
     private readonly CustomLevelLoader _customLevelLoader;
     private readonly NetworkManager _networkManager;
-#if !PRE_V1_37_1
+#if !LEGATO_DIFFICULTY_BEATMAPS
     private readonly BeatmapLevelsModel _beatmapLevelsModel;
 #endif
     private readonly CancellationTokenManager _cancellationTokenManager;
@@ -45,7 +45,7 @@ internal sealed class MapDownloadingManager : IDisposable, ITickable
         SiraLog log,
         CustomLevelLoader customLevelLoader,
         NetworkManager networkManager,
-#if !PRE_V1_37_1
+#if !LEGATO_DIFFICULTY_BEATMAPS
         BeatmapLevelsModel beatmapLevelsModel,
 #endif
         Config config,
@@ -55,7 +55,7 @@ internal sealed class MapDownloadingManager : IDisposable, ITickable
         _log = log;
         _customLevelLoader = customLevelLoader;
         _networkManager = networkManager;
-#if !PRE_V1_37_1
+#if !LEGATO_DIFFICULTY_BEATMAPS
         _beatmapLevelsModel = beatmapLevelsModel;
 #endif
         _cancellationTokenManager = cancellationTokenManager;
@@ -263,7 +263,7 @@ internal sealed class MapDownloadingManager : IDisposable, ITickable
             }
 
             _downloadProgress = 0.98f;
-#if !PRE_V1_37_1
+#if !LEGATO_DIFFICULTY_BEATMAPS
             BeatmapLevel beatmapLevel;
             if (_songCoreLoader != null)
             {
@@ -339,7 +339,7 @@ internal sealed class MapDownloadingManager : IDisposable, ITickable
             DownloadedMap downloadedMap = new(
                 index,
                 map,
-#if !PRE_V1_37_1
+#if !LEGATO_DIFFICULTY_BEATMAPS
                 beatmapKeys,
                 beatmapLevel);
 #else

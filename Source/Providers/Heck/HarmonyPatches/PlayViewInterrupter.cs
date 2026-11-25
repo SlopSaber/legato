@@ -17,7 +17,7 @@ internal class PlayViewInterrupter : IAffinity
         typeof(SinglePlayerLevelSelectionFlowCoordinator),
         "_menuTransitionsHelper");
 
-#if BEAT_SABER_1453
+#if LEGATO_STANDARD_LEVEL_RESTART_CALLBACK
     private static readonly MethodInfo _standardLevelParametersFactory =
         AccessTools.Method(typeof(StartStandardLevelParameters), nameof(StartStandardLevelParameters.FromGame));
 #else
@@ -72,7 +72,7 @@ internal class PlayViewInterrupter : IAffinity
                     new CodeMatch(
                         n => n.opcode == OpCodes.Callvirt &&
                              ((MethodInfo)n.operand).Name == nameof(MenuTransitionsHelper.StartStandardLevel)))
-#if BEAT_SABER_1453
+#if LEGATO_STANDARD_LEVEL_RESTART_CALLBACK
                 .SetInstruction(new CodeInstruction(OpCodes.Call, _standardLevelParametersFactory))
 #else
                 .SetInstruction(new CodeInstruction(OpCodes.Newobj, _standardLevelParametersCtor))
