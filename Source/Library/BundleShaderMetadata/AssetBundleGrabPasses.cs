@@ -767,7 +767,7 @@ internal static class AssetBundleGrabPasses
                 bool wanted = keep && (childName is
                     "m_Name" or "m_SubShaders" or "m_Passes" or "m_Type" or "m_TextureName" or "m_UseName" or
                     "m_State" or "m_Tags" or "tags" or "first" or "second" or "m_ProgramMask" or "rtBlend0" or "colMask" ||
-                    node.Name == "colMask" && childName is "name" or "val");
+                    (node.Name == "colMask" && childName is "name" or "val"));
                 object? item = ReadValue(reader, nodes, child, wanted);
                 if (fields != null && wanted)
                 {
