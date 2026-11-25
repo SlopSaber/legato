@@ -117,7 +117,7 @@ namespace MappingExtensions.HarmonyPatches
         }
     }
 
-#if BEAT_SABER_1_29_0
+#if LEGATO_LEGACY_OBSTACLE_PROPERTIES
     [HarmonyPatch(typeof(ObstacleController), nameof(ObstacleController.Init))]
 #else
     [HarmonyPatch(typeof(BeatmapObjectSpawnMovementData), nameof(BeatmapObjectSpawnMovementData.GetObstacleSpawnData))]
@@ -149,7 +149,7 @@ namespace MappingExtensions.HarmonyPatches
     [HarmonyPatch(typeof(ObstacleController), nameof(ObstacleController.Init))]
     internal static class ObstacleControllerInitPatch
     {
-#if BEAT_SABER_1_29_0
+#if LEGATO_LEGACY_OBSTACLE_PROPERTIES
         private static void Prefix(ObstacleData obstacleData, ref float height)
 #else
         private static void Prefix(ObstacleData obstacleData, ref ObstacleSpawnData obstacleSpawnData)
@@ -167,7 +167,7 @@ namespace MappingExtensions.HarmonyPatches
 
             obstacleHeight *= StaticBeatmapObjectSpawnMovementData.kNoteLinesDistance;
 
-#if BEAT_SABER_1_29_0
+#if LEGATO_LEGACY_OBSTACLE_PROPERTIES
             height = obstacleHeight;
 #else
             obstacleSpawnData = new ObstacleSpawnData(obstacleSpawnData.moveOffset, obstacleSpawnData.obstacleWidth, obstacleHeight);
@@ -203,7 +203,7 @@ namespace MappingExtensions.HarmonyPatches
         }
 
         private static void Resize(ObstacleController controller, float length, bool wasNegative) {
-#if BEAT_SABER_1_29_0
+#if LEGATO_LEGACY_OBSTACLE_PROPERTIES
             controller._stretchableObstacle.SetSizeAndColor(controller._width, controller._height, length, controller.color);
             if (wasNegative) StretchableObstacleNegativeLengthPatch.NormalizeLegacy(controller._stretchableObstacle, controller._width, controller._height, length);
 #else
@@ -226,7 +226,7 @@ namespace MappingExtensions.HarmonyPatches
         }
     }
 
-#if BEAT_SABER_1_29_0
+#if LEGATO_LEGACY_OBSTACLE_PROPERTIES
     [HarmonyPatch(typeof(StretchableObstacle), nameof(StretchableObstacle.SetSizeAndColor))]
 #else
     [HarmonyPatch(typeof(StretchableObstacle), "CalculateObstacleTransformProperties")]
@@ -236,7 +236,7 @@ namespace MappingExtensions.HarmonyPatches
         internal const float TinyPrecisionWallVisualLength = 0.05f;
         private const float NegativeWallMinimumVisualLength = 35f;
 
-#if BEAT_SABER_1_29_0
+#if LEGATO_LEGACY_OBSTACLE_PROPERTIES
         private static void Postfix(StretchableObstacle __instance, float width, float height, float length) {
             if (length < 0f) NormalizeLegacy(__instance, width, height, GetNormalizedVisualLength(length));
         }
@@ -291,7 +291,7 @@ namespace MappingExtensions.HarmonyPatches
         }
     }
 
-#if !BEAT_SABER_1_29_0
+#if !LEGATO_LEGACY_OBSTACLE_PROPERTIES
     [HarmonyPatch(typeof(StretchableObstacle))]
     internal static class StretchableObstacleNegativeLengthRendererPatch
     {

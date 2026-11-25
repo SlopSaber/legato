@@ -5,6 +5,11 @@ using HarmonyLib;
 using SongCore.UI;
 using SongCore.Utilities;
 using UnityEngine;
+#if LEGATO_ABSOLUTE_LEGACY_ROTATION
+using System.Linq;
+using LegacyRotationEvent = BeatmapSaveDataVersion2_6_0AndEarlier.EventData;
+using LegacyRotationEventType = BeatmapSaveDataCommon.BeatmapEventType;
+#endif
 
 namespace MappingExtensions.HarmonyPatches
 {
@@ -131,27 +136,73 @@ namespace MappingExtensions.HarmonyPatches
 
 #if BEAT_SABER_1_29_0
     [HarmonyPatch(typeof(BeatmapSaveDataVersion3.BeatmapSaveData), nameof(BeatmapSaveDataVersion3.BeatmapSaveData.SpawnRotationForEventValue))]
+#elif LEGATO_SPAWN_ROTATION_EVENTS
+    [HarmonyPatch(typeof(BeatmapDataLoaderVersion2_6_0AndEarlier.BeatmapDataLoader.BasicEventConverter), nameof(BeatmapDataLoaderVersion2_6_0AndEarlier.BeatmapDataLoader.BasicEventConverter.SpawnRotationForEventValue))]
+#elif LEGATO_ABSOLUTE_LEGACY_ROTATION
+    [HarmonyPatch(typeof(RotationTimeProcessor), MethodType.Constructor, typeof(IReadOnlyList<LegacyRotationEvent>))]
 #else
     [HarmonyPatch(typeof(RotationTimeProcessor), nameof(RotationTimeProcessor.SpawnRotationForEventValue))]
 #endif
     internal static class RotationTimeProcessorSpawnRotationForEventValuePatch
     {
-#if BEAT_SABER_1_29_0
+#if LEGATO_ABSOLUTE_LEGACY_ROTATION
+        private static void Prefix(ref IReadOnlyList<LegacyRotationEvent> __0)
+        {
+            if (!UseCustomRotations() || !__0.Any(entry => IsRotationEvent(entry) && IsEncodedRotation(entry.value)))
+            {
+                return;
+            }
+
+            // 1.39 reads absolute angles. Legacy charts with encoded events author rotation deltas.
+            int rotation = 0;
+            var rotations = new List<LegacyRotationEvent>();
+            foreach (var entry in __0)
+            {
+                if (!IsRotationEvent(entry))
+                {
+                    continue;
+                }
+
+                rotation += entry.value switch
+                {
+                    >= 0 and <= 3 => (entry.value - 4) * 15,
+                    >= 4 and <= 7 => (entry.value - 3) * 15,
+                    _ when IsEncodedRotation(entry.value) => entry.value - 1360,
+                    _ => 0,
+                };
+                rotations.Add(new LegacyRotationEvent(entry.time, entry.type, entry.value, rotation));
+            }
+
+            __0 = rotations;
+        }
+
+        private static bool IsRotationEvent(LegacyRotationEvent entry)
+        {
+            return entry.type is LegacyRotationEventType.Event14 or LegacyRotationEventType.Event15;
+        }
+#else
+#if BEAT_SABER_1_29_0 || LEGATO_SPAWN_ROTATION_EVENTS
         private static void Postfix(ref float __result, int __0)
 #else
         private static void Postfix(ref int __result, int __0)
 #endif
         {
-            if (BS_Utils.Plugin.LevelData.IsSet &&
-                !Legato.BeatmapKeyExtensions.Is360Degree(Legato.Gameplay.GameplaySceneAccess.Key(BS_Utils.Plugin.LevelData.GameplayCoreSceneSetupData)))
-            {
-                return;
-            }
-
-            if (__0 is >= 1000 and <= 1720)
+            if (IsEncodedRotation(__0) && UseCustomRotations())
             {
                 __result = __0 - 1360;
             }
+        }
+#endif
+
+        private static bool IsEncodedRotation(int value)
+        {
+            return value is >= 1000 and <= 1720;
+        }
+
+        private static bool UseCustomRotations()
+        {
+            return !BS_Utils.Plugin.LevelData.IsSet ||
+                Legato.BeatmapKeyExtensions.Is360Degree(Legato.Gameplay.GameplaySceneAccess.Key(BS_Utils.Plugin.LevelData.GameplayCoreSceneSetupData));
         }
     }
 }
