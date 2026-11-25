@@ -8,7 +8,7 @@ namespace SiraUtil.Submissions
     {
         private CurvedTextMeshPro? _curvedText;
 
-#if BEAT_SABER_1_29_0
+#if LEGATO_SIRA_LEGACY_VIEW_SYSTEM
         protected override void DidActivate
 #else
         public override void DidActivate

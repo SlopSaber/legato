@@ -1,3 +1,6 @@
+#if BEAT_SABER_1_29_0 || (BEAT_SABER_1_37_1 && !LEGATO_SEPARATE_SABER_LOGIC)
+#define LEGATO_LEGACY_SABER_MODEL_INIT
+#endif
 using SiraUtil.Extras;
 using System;
 using System.Collections.Generic;
@@ -22,7 +25,7 @@ namespace SiraUtil.Sabers
         private ColorManager _colorManager = null!;
         private SaberTypeObject _saberTypeObject = null!;
         private SaberModelProvider _saberModelProvider = null!;
-#if !BEAT_SABER_1_29_0
+#if !LEGATO_LEGACY_SABER_MODEL_INIT
         private SaberModelContainer.InitData _saberModelContainerInitData = new();
 #endif
         private readonly Queue<Action> _colorProcessNextFrame = new();
@@ -33,7 +36,7 @@ namespace SiraUtil.Sabers
             NoteCutter noteCutter,
             ColorManager colorManager,
             SaberModelProvider saberModelProvider
-#if !BEAT_SABER_1_29_0
+#if !LEGATO_LEGACY_SABER_MODEL_INIT
             , [InjectOptional] SaberModelContainer.InitData saberModelContainerInitData
 #endif
             )
@@ -42,7 +45,7 @@ namespace SiraUtil.Sabers
             _colorManager = colorManager;
             _saberModelProvider = saberModelProvider;
 
-#if !BEAT_SABER_1_29_0
+#if !LEGATO_LEGACY_SABER_MODEL_INIT
             if (saberModelContainerInitData != null)
             {
                 _saberModelContainerInitData = saberModelContainerInitData;
@@ -71,10 +74,12 @@ namespace SiraUtil.Sabers
 
             _saberTypeObject._saberType = saberType;
             Model = _saberModelProvider.NewModel(saberType);
-#if BEAT_SABER_1_29_0
+#if LEGATO_LEGACY_SABER_MODEL_INIT
             Model.Init(transform, Saber);
-#else
+#elif BEAT_SABER_1_45_1 || BEAT_SABER_1_45_3
             Model.Init(transform, Saber, _saberModelContainerInitData.trailTintColor, gameObject.name);
+#else
+            Model.Init(transform, Saber, _saberModelContainerInitData.trailTintColor);
 #endif
             _constructedThisFrame = true;
         }

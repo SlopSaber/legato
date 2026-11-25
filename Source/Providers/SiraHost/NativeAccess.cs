@@ -46,7 +46,9 @@ namespace Legato.Sira
         private static readonly FieldInfo EnvironmentCatalog = typeof(CustomLevelLoader).GetField(
             "_environmentSceneInfoCollection", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
             ?? throw new MissingFieldException(typeof(CustomLevelLoader).FullName, "_environmentSceneInfoCollection");
+#endif
 
+#if LEGATO_SIRA_LEGACY_VIEW_SYSTEM
         private static readonly Action<FlowCoordinator, ViewController?, ViewController.AnimationType> SetBottomScreen =
             (Action<FlowCoordinator, ViewController?, ViewController.AnimationType>)Delegate.CreateDelegate(
                 typeof(Action<FlowCoordinator, ViewController?, ViewController.AnimationType>),
@@ -55,7 +57,7 @@ namespace Legato.Sira
 
         internal static void SetBottomScreenViewController(FlowCoordinator flow, ViewController? view, ViewController.AnimationType animation)
         {
-#if BEAT_SABER_1_29_0
+#if LEGATO_SIRA_LEGACY_VIEW_SYSTEM
             SetBottomScreen(flow, view, animation);
 #else
             flow.SetBottomScreenViewController(view, animation);
@@ -64,7 +66,7 @@ namespace Legato.Sira
 
         internal static bool IsPaused(PauseController controller)
         {
-#if BEAT_SABER_1_29_0
+#if BEAT_SABER_1_29_0 || BEAT_SABER_1_37_1 || BEAT_SABER_1_38_0
             return controller._paused;
 #else
             return controller._paused == PauseController.PauseState.Paused;
@@ -73,7 +75,7 @@ namespace Legato.Sira
 
         internal static float LastMovementTime(Saber saber)
         {
-#if BEAT_SABER_1_29_0
+#if BEAT_SABER_1_29_0 || (BEAT_SABER_1_37_1 && !LEGATO_SEPARATE_SABER_LOGIC)
             return saber.movementData.lastAddedData.time;
 #else
             return saber.movementDataForLogic.lastAddedData.time;

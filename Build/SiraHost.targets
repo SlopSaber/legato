@@ -1,7 +1,16 @@
 <Project>
   <Target Name="LegatoSiraNativeReferences" BeforeTargets="ResolveAssemblyReferences" DependsOnTargets="LegatoConfigure">
+    <PropertyGroup Condition="!Exists('$(LegatoReferenceRoot)\Beat Saber_Data\Managed\BeatSaber.ViewSystem.dll')">
+      <DefineConstants>$(DefineConstants);LEGATO_SIRA_LEGACY_VIEW_SYSTEM</DefineConstants>
+    </PropertyGroup>
+    <ItemGroup>
+      <Reference Remove="BeatSaber.ViewSystem" Condition="!Exists('$(LegatoReferenceRoot)\Beat Saber_Data\Managed\BeatSaber.ViewSystem.dll')" />
+      <Reference Remove="BeatSaber.Multiplayer.Core" Condition="!Exists('$(LegatoReferenceRoot)\Beat Saber_Data\Managed\BeatSaber.Multiplayer.Core.dll')" />
+      <Reference Remove="GameInit" Condition="!Exists('$(LegatoReferenceRoot)\Beat Saber_Data\Managed\GameInit.dll')" />
+      <Reference Remove="SaberTrail" Condition="!Exists('$(LegatoReferenceRoot)\Beat Saber_Data\Managed\SaberTrail.dll')" />
+    </ItemGroup>
     <ItemGroup Condition="'$(LegatoTargetProfile)' == '1.29.0'">
-      <Reference Remove="BGLib.AppFlow;BGLib.DotnetExtension;BGLib.Polyglot;BGLib.UnityExtension;BGNetCore;BeatSaber.Init;BeatSaber.Multiplayer.Core;BeatSaber.ViewSystem;DataModels;GameInit;SaberTrail;Unity.InputSystem;Unity.XR.Management;Unity.XR.OpenXR;UnityEngine.SpatialTracking" />
+      <Reference Remove="BGLib.AppFlow;BGLib.DotnetExtension;BGLib.Polyglot;BGLib.UnityExtension;BGNetCore;BeatSaber.Init;DataModels;Unity.InputSystem;Unity.XR.Management;Unity.XR.OpenXR;UnityEngine.SpatialTracking" />
       <Reference Include="Polyglot" HintPath="$(LegatoReferenceRoot)\Beat Saber_Data\Managed\Polyglot.dll" Private="false" />
       <Reference Include="BGNet" HintPath="$(LegatoReferenceRoot)\Beat Saber_Data\Managed\BGNet.dll" Private="false" />
     </ItemGroup>

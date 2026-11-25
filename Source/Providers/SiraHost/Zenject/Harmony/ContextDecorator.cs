@@ -59,10 +59,22 @@ namespace SiraUtil.Zenject.Harmony
 #if !BEAT_SABER_1_29_0
             if (__instance is AsyncSceneContext asyncSceneContext)
             {
+#if BEAT_SABER_1_45_1 || BEAT_SABER_1_45_3
                 foreach (IInstaller asyncInstaller in asyncSceneContext._registry.installers)
                 {
                     installerBindings.Add(asyncInstaller.GetType());
                 }
+#else
+                foreach (ScriptableObjectInstaller asyncInstaller in asyncSceneContext._registry.scriptableObjectInstallers)
+                {
+                    installerBindings.Add(asyncInstaller.GetType());
+                }
+
+                foreach (MonoInstaller asyncInstaller in asyncSceneContext._registry.monoInstallers)
+                {
+                    installerBindings.Add(asyncInstaller.GetType());
+                }
+#endif
             }
 
 #endif

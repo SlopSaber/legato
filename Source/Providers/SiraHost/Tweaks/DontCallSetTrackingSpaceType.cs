@@ -7,7 +7,11 @@ using UnityEngine.XR;
 
 namespace SiraUtil.Tweaks
 {
+#if LEGATO_APPLY_PERFORMANCE_PRESET
+    [HarmonyPatch(typeof(SettingsApplicatorSO), nameof(SettingsApplicatorSO.ApplyPerformancePreset))]
+#else
     [HarmonyPatch(typeof(SettingsApplicatorSO), nameof(SettingsApplicatorSO.ApplyGraphicSettings))]
+#endif
     internal class DontCallSetTrackingSpaceType
     {
         // The game still calls this obsolete API; this patch must identify that exact call to remove it.
