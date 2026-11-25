@@ -6,7 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using MonoMod.RuntimeDetour;
 using Zenject;
-#if BEAT_SABER_1_29_0
+#if BEAT_SABER_1_29_0 || LEGATO_BEFORE_MULTIPLAYER
 using NativePackCollection = global::IBeatmapLevelPackCollection;
 #else
 using NativePackCollection = global::BeatmapLevelsRepository;
@@ -17,31 +17,42 @@ namespace SongCore.Hooks
     internal class LoadingHooks : IInitializable, IDisposable
     {
         private Hook _reloadCustomLevelPackCollectionAsyncHook = null!;
+#if !LEGATO_BEFORE_MULTIPLAYER
         private Hook _updateCustomSongsHook = null!;
+#endif
 
         public void Initialize()
         {
+#if LEGATO_BEFORE_MULTIPLAYER
+            _reloadCustomLevelPackCollectionAsyncHook = new Hook(typeof(BeatmapLevelsModel).GetMethod(nameof(BeatmapLevelsModel.GetCustomLevelPackCollectionAsync))!, SuppressReload, true);
+#else
             _reloadCustomLevelPackCollectionAsyncHook = new Hook(typeof(BeatmapLevelsModel).GetMethod(nameof(BeatmapLevelsModel.ReloadCustomLevelPackCollectionAsync))!, SuppressReload, true);
             _updateCustomSongsHook = new Hook(typeof(LevelFilteringNavigationController).GetMethod(nameof(LevelFilteringNavigationController.UpdateCustomSongs), BindingFlags.Instance | BindingFlags.NonPublic)!, SetPacksAndRefreshUI, true);
+#endif
         }
 
         public void Dispose()
         {
             _reloadCustomLevelPackCollectionAsyncHook.Dispose();
+#if !LEGATO_BEFORE_MULTIPLAYER
             _updateCustomSongsHook.Dispose();
+#endif
         }
 
         // TODO: Some code in LoadBeatmapLevelCollectionAsync is skipped that is important.
         private Task<NativePackCollection?> SuppressReload(Func<BeatmapLevelsModel, CancellationToken, Task<NativePackCollection?>> original, BeatmapLevelsModel instance, CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
-            #if BEAT_SABER_1_29_0
+#if LEGATO_BEFORE_MULTIPLAYER
+            return Task.FromResult<NativePackCollection?>(Loader.CustomLevelsRepository ?? SongCore.OverrideClasses.SongCoreBeatmapLevelsRepository.CreateNew());
+#elif BEAT_SABER_1_29_0
             return Task.FromResult<NativePackCollection?>(Loader.CustomLevelsRepository);
 #else
             return Task.FromResult<NativePackCollection?>(null);
 #endif
         }
 
+#if !LEGATO_BEFORE_MULTIPLAYER
         private void SetPacksAndRefreshUI(Action<LevelFilteringNavigationController> original, LevelFilteringNavigationController instance)
         {
             if (Loader.CustomLevelsRepository == null)
@@ -70,5 +81,6 @@ namespace SongCore.Hooks
             instance._levelSearchViewController.Setup(instance._allBeatmapLevelPacks);
             instance.UpdateSecondChildControllerContent(instance._selectLevelCategoryViewController.selectedLevelCategory);
         }
+#endif
     }
 }

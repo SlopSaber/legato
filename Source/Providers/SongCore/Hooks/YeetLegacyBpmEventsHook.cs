@@ -1,3 +1,4 @@
+#if !LEGATO_BEFORE_MULTIPLAYER
 using System;
 #if BEAT_SABER_1_29_0
 using BeatmapEventType = BeatmapSaveDataVersion2_6_0AndEarlier.BeatmapSaveData.BeatmapEventType;
@@ -46,3 +47,4 @@ namespace SongCore.Hooks
         }
     }
 }
+#endif

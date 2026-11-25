@@ -20,6 +20,18 @@ namespace SongCore.Hooks
             _setDataFromLevelAsyncHook.Dispose();
         }
 
+#if LEGATO_BEFORE_MULTIPLAYER
+        private void RoundBpmAndShowAuthors(Action<LevelListTableCell, BeatmapLevel, bool> original, LevelListTableCell instance, BeatmapLevel beatmapLevel, bool isFavorite)
+        {
+            original(instance, beatmapLevel, isFavorite);
+            var authors = string.Join(", ", SongCoreNative.Authors(beatmapLevel));
+            if (!string.IsNullOrWhiteSpace(authors))
+            {
+                instance._authorText.richText = true;
+                instance._authorText.text = $"{beatmapLevel.songAuthorName.Trim()} [<color=#ff69b4>{authors.Replace("<", "<\u200B").Replace(">", ">\u200B")}</color>]";
+            }
+        }
+#else
 #if BEAT_SABER_1_29_0
         private void RoundBpmAndShowAuthors(Action<LevelListTableCell, BeatmapLevel, bool, bool, bool> original, LevelListTableCell instance, BeatmapLevel beatmapLevel, bool isFavorite, bool isPromoted, bool interactable)
         {
@@ -44,5 +56,6 @@ namespace SongCore.Hooks
                 instance._songAuthorText.text = $"<size=80%>{beatmapLevel.songAuthorName.Trim()}</size> <size=90%>[<color=#ff69b4>{authors.Replace("<", "<\u200B").Replace(">", ">\u200B")}</color>]</size>";
             }
         }
+#endif
     }
 }

@@ -8,13 +8,13 @@ namespace SongCore
     internal static class SongCoreNative
     {
         internal static string KeyLevelId(BeatmapKey key) =>
-#if BEAT_SABER_1_29_0
+#if BEAT_SABER_1_29_0 || LEGATO_BEFORE_MULTIPLAYER
             key?.level?.levelID ?? string.Empty;
 #else
             key.levelId;
 #endif
         internal static bool KeyIsValid(BeatmapKey key) =>
-#if BEAT_SABER_1_29_0
+#if BEAT_SABER_1_29_0 || LEGATO_BEFORE_MULTIPLAYER
             key?.level != null && key.parentDifficultyBeatmapSet?.beatmapCharacteristic != null;
 #else
             key.IsValid();
@@ -27,7 +27,7 @@ namespace SongCore
 #endif
         internal static IEnumerable<string> Authors(BeatmapLevel level)
         {
-#if BEAT_SABER_1_29_0
+#if BEAT_SABER_1_29_0 || LEGATO_BEFORE_MULTIPLAYER
             if (Loader.NativeSaveStore.TryGetValue(level.levelID, out var data) && data.beatmapLevelSaveData != null)
                 return data.beatmapLevelSaveData.Difficulties.SelectMany(value => value.Mappers.Concat(value.Lighters)).Distinct();
             return new[] { level.levelAuthorName };
@@ -35,14 +35,18 @@ namespace SongCore
             return level.allMappers.Concat(level.allLighters).Distinct();
 #endif
         }
+#if !LEGATO_BEFORE_MULTIPLAYER
         internal static string PackId(AnnotatedBeatmapLevelCollectionCell cell) =>
 #if BEAT_SABER_1_29_0
             (cell._annotatedBeatmapLevelCollection as IBeatmapLevelPack)?.packID ?? string.Empty;
 #else
             cell._beatmapLevelPack.packID;
 #endif
+#endif
         internal static EnvironmentInfoSO? Environment(EnvironmentsListModel model, string name) =>
-#if BEAT_SABER_1_29_0
+#if LEGATO_BEFORE_MULTIPLAYER
+            model.GetEnviromentInfoBySerializedName(name);
+#elif BEAT_SABER_1_29_0
             model.GetEnvironmentInfoBySerializedName(name);
 #else
             model.GetEnvironmentInfoBySerializedNameSafe(name);
@@ -54,12 +58,12 @@ namespace SongCore
             controller._currentlyAvailableBeatmapCharacteristics;
 #endif
         internal static BeatmapKey SelectedKey(StandardLevelDetailView view) =>
-#if BEAT_SABER_1_29_0
+#if BEAT_SABER_1_29_0 || LEGATO_BEFORE_MULTIPLAYER
             view.selectedDifficultyBeatmap;
 #else
             view.beatmapKey;
 #endif
-#if !BEAT_SABER_1_29_0
+#if !BEAT_SABER_1_29_0 && !LEGATO_BEFORE_MULTIPLAYER
         internal static IReadOnlyList<BeatmapLevel> PackLevels(NativeSongPack pack) =>
 #if BEAT_SABER_1_37_1 && !LEGATO_ADDITIONAL_PACK_LEVELS
             pack.beatmapLevels;

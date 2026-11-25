@@ -1,13 +1,27 @@
-#if BEAT_SABER_1_29_0
+#if BEAT_SABER_1_29_0 || LEGATO_BEFORE_MULTIPLAYER
 using System;
 using System.Collections.Generic;
+#if !LEGATO_BEFORE_MULTIPLAYER
 using IPA.Utilities;
+#endif
 using UnityEngine;
 
 namespace SongCore.OverrideClasses
 {
     public class SongCoreCustomBeatmapLevelPack : CustomBeatmapLevelPack
     {
+#if LEGATO_BEFORE_MULTIPLAYER
+        public SongCoreCustomBeatmapLevelPack(string packID, string packName, Sprite? coverImage, BeatmapLevel[] beatmapLevels, string shortPackName = "")
+            : base(packID, packName, shortPackName.Length == 0 ? packName : shortPackName,
+                CreateCover(coverImage), new CustomBeatmapLevelCollection(Array.ConvertAll(beatmapLevels, AsNativePreview)))
+        {
+        }
+
+        public void UpdateBeatmapLevels(BeatmapLevel[] levels) =>
+            _customBeatmapLevelCollection._customPreviewBeatmapLevels = Array.ConvertAll(levels, AsNativePreview);
+
+        private static CustomPreviewBeatmapLevel AsNativePreview(BeatmapLevel level) => (CustomPreviewBeatmapLevel)level;
+#else
         private readonly MutableCollection _levels;
 
         public SongCoreCustomBeatmapLevelPack(string packID, string packName, Sprite? coverImage, BeatmapLevel[] beatmapLevels, string shortPackName = "")
@@ -17,6 +31,7 @@ namespace SongCore.OverrideClasses
             _levels = new MutableCollection(beatmapLevels);
             ((CustomBeatmapLevelPack)this).SetField("<beatmapLevelCollection>k__BackingField", (IBeatmapLevelCollection)_levels);
         }
+#endif
 
         private static Sprite CreateCover(Sprite? cover)
         {
@@ -25,6 +40,7 @@ namespace SongCore.OverrideClasses
             return cover == Loader.defaultCoverImage ? cover : Sprite.Create(cover.texture, cover.rect, cover.pivot, cover.texture.width);
         }
 
+#if !LEGATO_BEFORE_MULTIPLAYER
         public void UpdateBeatmapLevels(BeatmapLevel[] levels) => _levels.Levels = levels;
 
         private sealed class MutableCollection : IBeatmapLevelCollection
@@ -33,6 +49,7 @@ namespace SongCore.OverrideClasses
             internal MutableCollection(BeatmapLevel[] levels) => Levels = levels;
             public IReadOnlyList<BeatmapLevel> beatmapLevels => Levels;
         }
+#endif
     }
 
     public class SongCoreBeatmapLevelsRepository : IBeatmapLevelPackCollection

@@ -1,4 +1,4 @@
-#if BEAT_SABER_1_29_0
+#if BEAT_SABER_1_29_0 || LEGATO_BEFORE_MULTIPLAYER
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -155,35 +155,39 @@ namespace SongCore.Hooks.BeatmapLevelCache
             await InvokeEventAsync(standardLevelDetailViewController, contentType, _eventProxyHooks.StandardLevelDetailViewControllerDidChangeContentDelegate!, _cancellationToken);
         }
 
+#if LEGATO_BEFORE_MULTIPLAYER
+        private void ReplaceDidSelectLevelEvent(Action<LevelCollectionViewController, bool, HMUI.ViewController.ActivationType> original, LevelCollectionViewController instance, bool firstActivation, HMUI.ViewController.ActivationType activationType)
+#else
         private void ReplaceDidSelectLevelEvent(Action<LevelCollectionViewController, bool, bool, bool> original, LevelCollectionViewController instance, bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling)
+#endif
         {
-            if (!firstActivation)
+            if (firstActivation)
             {
-                original(instance, firstActivation, addedToHierarchy, screenSystemEnabling);
-                return;
+                Accessors.ViewControllerDidSelectLevelEventAccessor(ref instance) = HandleDidSelectLevel;
+                Accessors.TableViewDidSelectLevelEventAccessor(ref instance._levelCollectionTableView) = HandleDidSelectLevel;
             }
-
-            ref var didSelectLevelViewControllerEvent = ref Accessors.ViewControllerDidSelectLevelEventAccessor(ref instance);
-            didSelectLevelViewControllerEvent = HandleDidSelectLevel;
-
-            ref var didSelectLevelViewEvent = ref Accessors.TableViewDidSelectLevelEventAccessor(ref instance._levelCollectionTableView);
-            didSelectLevelViewEvent = HandleDidSelectLevel;
-
+#if LEGATO_BEFORE_MULTIPLAYER
+            original(instance, firstActivation, activationType);
+#else
             original(instance, firstActivation, addedToHierarchy, screenSystemEnabling);
+#endif
         }
 
+#if LEGATO_BEFORE_MULTIPLAYER
+        private void ReplaceDidChangeContentEvent(Action<StandardLevelDetailViewController, bool, HMUI.ViewController.ActivationType> original, StandardLevelDetailViewController instance, bool firstActivation, HMUI.ViewController.ActivationType activationType)
+#else
         private void ReplaceDidChangeContentEvent(Action<StandardLevelDetailViewController, bool, bool, bool> original, StandardLevelDetailViewController instance, bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling)
+#endif
         {
-            if (!firstActivation)
+            if (firstActivation)
             {
-                original(instance, firstActivation, addedToHierarchy, screenSystemEnabling);
-                return;
+                Accessors.DidChangeContentEventAccessor(ref instance) = HandleDidChangeContent;
             }
-
-            ref var didChangeContentEvent = ref Accessors.DidChangeContentEventAccessor(ref instance);
-            didChangeContentEvent = HandleDidChangeContent;
-
+#if LEGATO_BEFORE_MULTIPLAYER
+            original(instance, firstActivation, activationType);
+#else
             original(instance, firstActivation, addedToHierarchy, screenSystemEnabling);
+#endif
         }
 
         private void SetBeatmapLevelCacheBeatmapKey(Action<StandardLevelDetailView> original, StandardLevelDetailView instance)

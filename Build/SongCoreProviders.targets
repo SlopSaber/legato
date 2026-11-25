@@ -30,5 +30,9 @@
       <Reference Include="CustomJSONData" HintPath="$(LegatoReferenceRoot)\Plugins\CustomJSONData.dll" Private="false" />
       <Reference Include="HMRendering" HintPath="$(LegatoReferenceRoot)\Beat Saber_Data\Managed\HMRendering.dll" Private="false" />
     </ItemGroup>
+    <ItemGroup Condition="'$(LegatoTargetVersion)' == '1.11.1'">
+      <Reference Remove="AdditionalContentModel.Interfaces;BeatmapCore;BGLib.AppFlow;BGLib.DotnetExtension;BGLib.JsonExtension;BGLib.UnityExtension;DataModels;GameplayCore;Menu.ColorSettings;Tweening" />
+      <Reference Include="HMRendering" HintPath="$(LegatoReferenceRoot)\Beat Saber_Data\Managed\HMRendering.dll" Private="false" />
+    </ItemGroup>
   </Target>
 </Project>

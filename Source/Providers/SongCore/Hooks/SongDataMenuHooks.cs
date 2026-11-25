@@ -1,3 +1,4 @@
+#if !LEGATO_BEFORE_MULTIPLAYER
 using System;
 using IPA.Utilities;
 using Utils = SongCore.Utilities.Utils;
@@ -579,3 +580,4 @@ namespace SongCore.Hooks
         }
     }
 }
+#endif

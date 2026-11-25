@@ -9,8 +9,12 @@ using Bsml::BeatSaberMarkupLanguage;
 #else
 using BeatSaberMarkupLanguage;
 #endif
-using HMUI;
 using UnityEngine;
+#if LEGATO_HMUI_PLAIN_TMP
+using CurvedTextMeshPro = TMPro.TextMeshProUGUI;
+#else
+using HMUI;
+#endif
 
 namespace Legato.Presentation {
     internal static class CurvedTextFactory {

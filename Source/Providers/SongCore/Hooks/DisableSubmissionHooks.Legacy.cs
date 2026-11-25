@@ -1,4 +1,4 @@
-#if LEGATO_FIXED_NOTE_JUMP_SPEED
+#if LEGATO_FIXED_NOTE_JUMP_SPEED && !LEGATO_BEFORE_MULTIPLAYER
 using System;
 using MonoMod.RuntimeDetour;
 using SiraUtil.Submissions;

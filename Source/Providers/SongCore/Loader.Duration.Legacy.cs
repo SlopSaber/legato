@@ -1,4 +1,4 @@
-#if BEAT_SABER_1_29_0
+#if BEAT_SABER_1_29_0 || LEGATO_BEFORE_MULTIPLAYER
 #nullable enable
 using System;
 using System.IO;
@@ -36,9 +36,15 @@ namespace SongCore
                     Hashing.cachedAudioData[path] = new AudioCacheData(level.levelID, duration);
                 }
                 var preview = (CustomPreviewBeatmapLevel)level;
+#if LEGATO_BEFORE_MULTIPLAYER
+                preview._songDuration = duration;
+                if (_config.ForceLongPreviews)
+                    preview._previewDuration = Mathf.Max(preview.previewDuration, duration - preview.previewStartTime);
+#else
                 preview.SetField("<songDuration>k__BackingField", duration);
                 if (_config.ForceLongPreviews && data.beatmapLevelSaveData?.PreviewFilename == data.beatmapLevelSaveData?.AudioFilename)
                     preview.SetField("<previewDuration>k__BackingField", Mathf.Max(preview.previewDuration, duration - preview.previewStartTime));
+#endif
             }
             catch (Exception error)
             {
@@ -64,10 +70,18 @@ namespace SongCore
             }
             var info = data.standardLevelInfoSaveData!;
             string filename = info.difficultyBeatmapSets.Last().difficultyBeatmaps.Last().beatmapFilename;
+#if LEGATO_BEFORE_MULTIPLAYER
+            string json = File.ReadAllText(Path.Combine(directory, filename));
+            BeatmapData chart = new BeatmapDataLoader().GetBeatmapDataFromJson(json, level.beatsPerMinute, level.shuffle, level.shufflePeriod);
+            float lastEvent = chart.beatmapEventDatas.Select(value => value.time).DefaultIfEmpty().Max();
+            float lastObject = chart.beatmapLinesData.SelectMany(line => line.beatmapObjectsData).Select(value => value.time).DefaultIfEmpty().Max();
+            return Mathf.Max(lastObject, lastEvent);
+#else
             var save = CustomJSONData.CustomBeatmap.Version3CustomBeatmapSaveData.Deserialize(Path.Combine(directory, filename), new CustomJSONData.CustomBeatmap.CustomData(), new CustomJSONData.CustomBeatmap.CustomData());
             float highest = save.colorNotes.Count > 0 ? save.colorNotes.Max(value => value.beat)
                 : save.basicBeatmapEvents.Select(value => value.beat).DefaultIfEmpty().Max();
             return new BeatmapDataLoader.BpmTimeProcessor(level.beatsPerMinute, save.bpmEvents).ConvertBeatToTime(highest);
+#endif
         }
     }
 }

@@ -1,4 +1,4 @@
-#if LEGATO_FIXED_NOTE_JUMP_SPEED && !BEAT_SABER_1_29_0
+#if LEGATO_FIXED_NOTE_JUMP_SPEED && !BEAT_SABER_1_29_0 && !LEGATO_BEFORE_MULTIPLAYER
 using System;
 using MonoMod.RuntimeDetour;
 using UnityEngine;

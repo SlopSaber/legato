@@ -38,7 +38,11 @@ namespace SongCore.Hooks
             if (difficultyData._oneSaber != null)
             {
                 _oneSaber = difficultyData._oneSaber.Value;
+#if LEGATO_BEFORE_MULTIPLAYER
+                _oneSaberHook = new Hook(typeof(PlayerController).GetMethod(nameof(PlayerController.Start), BindingFlags.Instance | BindingFlags.NonPublic)!, ForceOneSaber, true);
+#else
                 _oneSaberHook = new Hook(typeof(SaberManager).GetMethod(nameof(SaberManager.Start), BindingFlags.Instance | BindingFlags.NonPublic)!, ForceOneSaber, true);
+#endif
             }
         }
 
@@ -56,10 +60,18 @@ namespace SongCore.Hooks
             }
         }
 
+#if LEGATO_BEFORE_MULTIPLAYER
+        private void ForceOneSaber(Action<PlayerController> original, PlayerController instance)
+        {
+            instance._initData = new PlayerController.InitData(_oneSaber, instance._initData.oneSaberType);
+            original(instance);
+        }
+#else
         private void ForceOneSaber(Action<SaberManager> original, SaberManager instance)
         {
             Accessors.SaberManagerInitDataAccessor(ref instance) = new SaberManager.InitData(_oneSaber, instance._initData.oneSaberType);
             original(instance);
         }
+#endif
     }
 }

@@ -1,3 +1,4 @@
+#if !LEGATO_BEFORE_MULTIPLAYER
 using System;
 using MonoMod.RuntimeDetour;
 using Zenject;
@@ -67,3 +68,4 @@ namespace SongCore.Hooks
 #endif
     }
 }
+#endif

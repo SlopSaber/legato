@@ -1,3 +1,4 @@
+#if !LEGATO_BEFORE_MULTIPLAYER
 using System;
 using System.Reflection;
 using MonoMod.Cil;
@@ -49,3 +50,4 @@ namespace SongCore.Hooks
         }
     }
 }
+#endif

@@ -24,7 +24,7 @@ namespace SongCore.Hooks
         private void BindBeatmapLevel(Action<GameplayCoreInstaller> original, GameplayCoreInstaller instance)
         {
             original(instance);
-#if BEAT_SABER_1_29_0
+#if BEAT_SABER_1_29_0 || LEGATO_BEFORE_MULTIPLAYER
             instance.Container.Bind<BeatmapLevel>().FromInstance(instance._sceneSetupData.difficultyBeatmap.level).AsSingle();
 #else
             instance.Container.Bind<BeatmapLevel>().FromInstance(instance._sceneSetupData.beatmapLevel).AsSingle();
