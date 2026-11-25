@@ -25,7 +25,13 @@ namespace BetterPause.Patches
 
         [AffinityPostfix]
         [AffinityPatch(typeof(LevelBar), "SetupData", AffinityMethodType.Normal, new[] { typeof(NativePauseLevel), typeof(BeatmapDifficulty), typeof(NativePauseCharacteristic) })]
-        private void NativeSetupDataPostfix(LevelBar __instance, NativePauseLevel beatmapLevel, ref Task __result) => SetupDataPostfix(__instance, beatmapLevel, ref __result);
+        private void NativeSetupDataPostfix(LevelBar __instance, NativePauseLevel beatmapLevel, ref Task __result)
+        {
+#if !LEGATO_LEVEL_BAR_CACHES_LEVEL
+            Legato.Presentation.PauseMenuLayout.Remember(__instance, beatmapLevel);
+#endif
+            SetupDataPostfix(__instance, beatmapLevel, ref __result);
+        }
 #endif
     }
 }

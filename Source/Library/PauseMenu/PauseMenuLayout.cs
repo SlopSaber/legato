@@ -29,17 +29,21 @@ namespace Legato.Presentation {
 #endif
         }
 
-#if BEAT_SABER_1_29_0
+#if !LEGATO_LEVEL_BAR_CACHES_LEVEL
         private sealed class LevelIdentity { internal NativePauseLevel? Level; }
         private static readonly ConditionalWeakTable<LevelBar, LevelIdentity> Levels = new();
-        internal static void Remember(LevelBar bar, NativePauseLevel level) => Levels.GetOrCreateValue(bar).Level = level;
+        internal static void Remember(LevelBar bar, NativePauseLevel? level) => Levels.GetOrCreateValue(bar).Level = level;
         internal static NativePauseLevel? CurrentLevel(LevelBar bar) => Levels.TryGetValue(bar, out var value) ? value.Level : null;
+#else
+        internal static NativePauseLevel? CurrentLevel(LevelBar bar) => bar.GetField<NativePauseLevel, LevelBar>("_beatmapLevel");
+#endif
+
+#if BEAT_SABER_1_29_0
         internal static NativePauseLevel? MenuLevel(PauseMenuManager menu) => InitData(menu)?.previewBeatmapLevel;
         internal static NativePauseLevel? SceneLevel(GameplayCoreSceneSetupData scene) => scene.difficultyBeatmap?.level;
         internal static string Contributors(NativePauseLevel level) => level.levelAuthorName;
         internal static MethodInfo SetupMethod => AccessTools.Method(typeof(LevelBar), "Setup", new[] { typeof(IPreviewBeatmapLevel), typeof(BeatmapCharacteristicSO), typeof(BeatmapDifficulty) });
 #else
-        internal static NativePauseLevel? CurrentLevel(LevelBar bar) => bar.GetField<NativePauseLevel, LevelBar>("_beatmapLevel");
         internal static NativePauseLevel? MenuLevel(PauseMenuManager menu) => InitData(menu)?.beatmapLevel;
         internal static NativePauseLevel? SceneLevel(GameplayCoreSceneSetupData scene) => scene.beatmapLevel;
         internal static string Contributors(NativePauseLevel level) => string.Join(", ", (level.allMappers ?? new string[0]).Concat(level.allLighters ?? new string[0]));
