@@ -1,4 +1,4 @@
-#if BEAT_SABER_1_29_0
+#if BEAT_SABER_1_29_0 || LEGATO_BEFORE_MULTIPLAYER
 global using BeatmapLevel = global::IPreviewBeatmapLevel;
 global using BeatmapKey = global::IDifficultyBeatmap;
 global using NativeSongPack = global::IBeatmapLevelPack;

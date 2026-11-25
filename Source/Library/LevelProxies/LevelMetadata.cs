@@ -7,14 +7,14 @@ using System.Reflection;
 namespace Legato.Beatmaps {
     internal static class LevelMetadata {
         internal static string Authors(BeatmapLevel level) =>
-#if BEAT_SABER_1_29_0
+#if BEAT_SABER_1_29_0 || LEGATO_BEFORE_MULTIPLAYER
             level.levelAuthorName;
 #else
             string.Join(", ", level.allMappers.Concat(level.allLighters).Distinct());
 #endif
         internal static BeatmapDifficulty Difficulty(BeatmapKey? key) => key?.difficulty ?? default;
         internal static string Characteristic(BeatmapKey? key) =>
-#if BEAT_SABER_1_29_0
+#if BEAT_SABER_1_29_0 || LEGATO_BEFORE_MULTIPLAYER
             key == null ? string.Empty : BeatmapKeyExtensions.CharacteristicSerializedName(key);
 #else
             key.HasValue ? BeatmapKeyExtensions.CharacteristicSerializedName(key.Value) : string.Empty;
@@ -22,15 +22,18 @@ namespace Legato.Beatmaps {
         internal static Stream? OpenCustomCover(BeatmapLevel? level, object? loader) {
             string? directory = null;
             string? filename = null;
-#if BEAT_SABER_1_29_0
+#if BEAT_SABER_1_29_0 || LEGATO_BEFORE_MULTIPLAYER
             while (level is LevelPreviewProxy proxy) level = proxy.Source;
             if (level is CustomPreviewBeatmapLevel preview) {
                 directory = preview.customLevelPath;
                 filename = preview.standardLevelInfoSaveData.coverImageFilename;
-            } else if (level is CustomBeatmapLevel full) {
+            }
+#if !LEGATO_BEFORE_MULTIPLAYER
+            else if (level is CustomBeatmapLevel full) {
                 directory = full.customLevelPath;
                 filename = full.standardLevelInfoSaveData.coverImageFilename;
             }
+#endif
 #else
             if (level != null && !level.hasPrecalculatedData && loader != null) {
                 var field = typeof(CustomLevelLoader).GetField("_loadedBeatmapSaveData", BindingFlags.Instance | BindingFlags.NonPublic);

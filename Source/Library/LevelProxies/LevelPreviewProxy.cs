@@ -1,5 +1,7 @@
 #nullable enable
+#if !LEGATO_BEFORE_MULTIPLAYER
 using System.Collections.Generic;
+#endif
 using System.Threading;
 using System.Threading.Tasks;
 using UnityEngine;
@@ -7,7 +9,7 @@ using UnityEngine;
 namespace Legato.Beatmaps {
     /// <summary>Preserves a level preview through the selected native API.</summary>
     public abstract class LevelPreviewProxy : BeatmapLevel {
-#if BEAT_SABER_1_29_0
+#if BEAT_SABER_1_29_0 || LEGATO_BEFORE_MULTIPLAYER
         internal BeatmapLevel Source { get; }
         /// <summary>Wraps the supplied native level preview.</summary>
         protected LevelPreviewProxy(BeatmapLevel source) { Source = source; }
@@ -40,9 +42,17 @@ namespace Legato.Beatmaps {
         /// <inheritdoc/>
         public EnvironmentInfoSO allDirectionsEnvironmentInfo => Source.allDirectionsEnvironmentInfo;
         /// <inheritdoc/>
+#if LEGATO_BEFORE_MULTIPLAYER
+        public PreviewDifficultyBeatmapSet[] previewDifficultyBeatmapSets => Source.previewDifficultyBeatmapSets;
+        /// <inheritdoc/>
+        public Task<AudioClip> GetPreviewAudioClipAsync(CancellationToken token) => Source.GetPreviewAudioClipAsync(token);
+        /// <inheritdoc/>
+        public Task<Texture2D> GetCoverImageTexture2DAsync(CancellationToken token) => Source.GetCoverImageTexture2DAsync(token);
+#else
         public IReadOnlyList<PreviewDifficultyBeatmapSet> previewDifficultyBeatmapSets => Source.previewDifficultyBeatmapSets;
         /// <inheritdoc/>
         public Task<Sprite> GetCoverImageAsync(CancellationToken token) => Source.GetCoverImageAsync(token);
+#endif
 #else
         /// <summary>Wraps the supplied native level preview.</summary>
         protected LevelPreviewProxy(BeatmapLevel source)
@@ -55,7 +65,7 @@ namespace Legato.Beatmaps {
 
     /// <summary>Wraps preview levels as a native level pack.</summary>
     public abstract class LevelPackProxy :
-#if BEAT_SABER_1_29_0
+#if BEAT_SABER_1_29_0 || LEGATO_BEFORE_MULTIPLAYER
         IBeatmapLevelPack {
         /// <inheritdoc/>
         public string packID { get; }
