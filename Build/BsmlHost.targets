@@ -3,6 +3,9 @@
     <EditorConfigFiles Include="$(LegatoSourceRoot)Providers\BsmlHost\.editorconfig;$(LegatoSourceRoot)Library\LocalizationSupport\.editorconfig" />
   </ItemGroup>
   <Target Name="LegatoBsmlNativeReferences" BeforeTargets="ResolveAssemblyReferences" DependsOnTargets="LegatoConfigure">
+    <PropertyGroup Condition="'$(LegatoTargetVersion)' == '1.11.1'">
+      <DefineConstants>$(DefineConstants);LEGATO_HMUI_ACTIVATION_ENUMS</DefineConstants>
+    </PropertyGroup>
     <ItemGroup>
       <Reference Remove="BeatSaber.ViewSystem" Condition="!Exists('$(LegatoReferenceRoot)\Beat Saber_Data\Managed\BeatSaber.ViewSystem.dll')" />
       <Reference Remove="GameInit" Condition="!Exists('$(LegatoReferenceRoot)\Beat Saber_Data\Managed\GameInit.dll')" />
