@@ -54,6 +54,7 @@
       <DefineConstants Condition="'$(_LegatoApiVersion)' != '' AND $([MSBuild]::VersionLessThan('$(_LegatoApiVersion)', '1.40.11'))">$(DefineConstants);LEGATO_SYNC_CONTROLLER_AUDIO_STATE</DefineConstants>
       <DefineConstants Condition="'$(_LegatoApiVersion)' != '' AND $([MSBuild]::VersionLessThan('$(_LegatoApiVersion)', '1.41.1'))">$(DefineConstants);LEGATO_CHARACTERISTIC_NAME_PROPERTY;LEGATO_LEGACY_SCENE_NAMES;LEGATO_BUILT_IN_RENDERING;LEGATO_PLATFORM_USER_MODEL;LEGATO_GAMEPLAY_WITHOUT_ADDITIONAL_INFORMATION;LEGATO_BURN_MARKS_START;LEGATO_STATIC_TIME_HELPER</DefineConstants>
       <DefineConstants Condition="'$(LegatoTargetVersion)' == '1.41.1'">$(DefineConstants);LEGATO_TUTORIAL_WITHOUT_ADDITIONAL_INFORMATION</DefineConstants>
+      <DefineConstants Condition="'$(_LegatoApiVersion)' != '' AND $([MSBuild]::VersionLessThan('$(_LegatoApiVersion)', '1.42.0'))">$(DefineConstants);LEGATO_SINGLE_UI_AUDIO_SOURCE</DefineConstants>
       <DefineConstants Condition="'$(_LegatoApiVersion)' != '' AND $([MSBuild]::VersionGreaterThanOrEquals('$(_LegatoApiVersion)', '1.29.4')) AND $([MSBuild]::VersionLessThan('$(_LegatoApiVersion)', '1.43.0'))">$(DefineConstants);LEGATO_ENABLED_LAST_SELECTED_POINTER</DefineConstants>
       <DefineConstants Condition="'$(_LegatoApiVersion)' != '' AND $([MSBuild]::VersionLessThan('$(_LegatoApiVersion)', '1.44.2'))">$(DefineConstants);LEGATO_SCRIPTABLE_CHARACTERISTICS;LEGATO_SCRIPTABLE_SCENE_TRANSITIONS</DefineConstants>
       <DefineConstants Condition="'$(LegatoTargetOrder)' != '' AND $(LegatoTargetOrder) &gt;= 1 AND $(LegatoTargetOrder) &lt; 4">$(DefineConstants);LEGATO_PC_APP_INIT</DefineConstants>
@@ -87,6 +88,8 @@
   <Target Name="LegatoAddRequiredReferences" BeforeTargets="ResolveAssemblyReferences" DependsOnTargets="LegatoConfigure"
           Condition="'$(LegatoMetadataOnly)' != 'true' AND '$(LegatoEnableReferenceShims)' != 'false'">
     <ItemGroup>
+      <Reference Include="Interactable" HintPath="$(LegatoReferenceRoot)\Beat Saber_Data\Managed\Interactable.dll" Private="false"
+                 Condition="'@(Reference->WithMetadataValue('Filename', 'HMUI'))' != '' AND '@(Reference->WithMetadataValue('Filename', 'Interactable'))' == '' AND Exists('$(LegatoReferenceRoot)\Beat Saber_Data\Managed\Interactable.dll')" />
       <Reference Include="Colors" HintPath="$(LegatoReferenceRoot)\Beat Saber_Data\Managed\Colors.dll" Private="false"
                  Condition="'$(LegatoEnableBeatmapKeys)' == 'true' AND '@(Reference->WithMetadataValue('Identity', 'Colors'))' == '' AND Exists('$(LegatoReferenceRoot)\Beat Saber_Data\Managed\Colors.dll')" />
       <Reference Include="BGNet" HintPath="$(LegatoReferenceRoot)\Beat Saber_Data\Managed\BGNet.dll" Private="false"
