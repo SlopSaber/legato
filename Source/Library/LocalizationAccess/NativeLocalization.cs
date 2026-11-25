@@ -14,13 +14,13 @@ namespace Legato.LocalizationSupport {
             typeof(Localization).GetField("_instance", Fields).GetValue(null) != null;
 #endif
         internal static List<LocalizationAsset> InputFiles =>
-#if BEAT_SABER_1_29_0
+#if BEAT_SABER_1_29_0 || LEGATO_LEGACY_TEXTMESH_PRO
             Localization.Instance.InputFiles;
 #else
             Localization.Instance.inputFiles;
 #endif
         internal static Dictionary<string, List<string>> Strings =>
-#if BEAT_SABER_1_29_0
+#if BEAT_SABER_1_29_0 || LEGATO_LEGACY_TEXTMESH_PRO
             (Dictionary<string, List<string>>)typeof(LocalizationImporter).GetField("languageStrings", Fields).GetValue(null);
 #else
             FieldAccessor<LocalizationModel, Dictionary<string, List<string>>>.Get(Localization.Instance, "_languageStrings");
@@ -30,7 +30,12 @@ namespace Legato.LocalizationSupport {
 #if BEAT_SABER_1_29_0
                 return Localization.Instance.SupportedLanguages;
 #else
-                var data = typeof(LocalizationModel).GetField("_localization", Fields).GetValue(Localization.Instance);
+#if LEGATO_LEGACY_TEXTMESH_PRO
+                const string localizationField = "localization";
+#else
+                const string localizationField = "_localization";
+#endif
+                var data = typeof(LocalizationModel).GetField(localizationField, Fields).GetValue(Localization.Instance);
                 return (List<LocalizationLanguage>)data.GetType().GetField("supportedLanguages", Fields).GetValue(data);
 #endif
             }
@@ -38,6 +43,8 @@ namespace Legato.LocalizationSupport {
         internal static void ImportFiles() {
 #if BEAT_SABER_1_29_0
             LocalizationImporter.Initialize();
+#elif LEGATO_LEGACY_TEXTMESH_PRO
+            LocalizationImporter.Initialize(Localization.Instance);
 #else
             LocalizationImporter.ImportFromFiles(InputFiles);
 #endif
@@ -60,6 +67,8 @@ namespace Legato.LocalizationSupport {
         internal static List<string> GetLanguages(string key) =>
 #if BEAT_SABER_1_29_0
             LocalizationImporter.GetLanguages(key, null);
+#elif LEGATO_LEGACY_TEXTMESH_PRO
+            LocalizationImporter.GetLanguages(key);
 #else
             Localization.Instance.GetLanguages(key);
 #endif
@@ -73,7 +82,7 @@ namespace Legato.LocalizationSupport {
 #endif
         }
         internal static MethodInfo ParseLanguageMethod => typeof(LocalizationLanguageExtensions).GetMethod(
-#if BEAT_SABER_1_29_0
+#if BEAT_SABER_1_29_0 || LEGATO_LEGACY_TEXTMESH_PRO
             "ToLanguage",
 #else
             "ToLocalizationLanguage",
@@ -111,10 +120,18 @@ namespace Legato.LocalizationSupport {
             throw new InvalidOperationException("The native application settings are not loaded.");
         }
         internal LocalizationLanguage Selected => _settings.language.value;
+#elif LEGATO_MAIN_SETTINGS_HANDLER
+        private readonly BeatSaber.GameSettings.MainSettingsHandler _settings;
+        public LanguagePreferences(BeatSaber.GameSettings.MainSettingsHandler settings) { _settings = settings; }
+        internal LocalizationLanguage Selected => _settings.instance.language;
 #else
         private readonly SettingsManager _settings;
         public LanguagePreferences(SettingsManager settings) { _settings = settings; }
+#if LEGATO_LEGACY_TEXTMESH_PRO
+        internal LocalizationLanguage Selected => LocalizationLanguageExtensions.ToLanguage(_settings.settings.misc.language);
+#else
         internal LocalizationLanguage Selected => LocalizationLanguageExtensions.ToLocalizationLanguage(_settings.settings.misc.language);
+#endif
 #endif
     }
 }

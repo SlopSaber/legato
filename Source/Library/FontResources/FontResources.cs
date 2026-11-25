@@ -56,13 +56,13 @@ namespace Legato.Assets {
             ?? Resources.FindObjectsOfTypeAll<TMP_FontAsset>().FirstOrDefault(font => font.name == "Teko-Bold SDF")
             ?? TMP_Settings.defaultFontAsset).material;
         internal static TextureCreationFlags CopyTextureFlags =>
-#if BEAT_SABER_1_29_0
+#if LEGATO_BASIC_TEXTURE_CREATION_FLAGS
             TextureCreationFlags.None;
 #else
             TextureCreationFlags.DontInitializePixels | TextureCreationFlags.DontUploadUponCreate;
 #endif
         internal static void InvalidateFallbacks(TMP_FontAsset font) {
-#if BEAT_SABER_1_29_0
+#if BEAT_SABER_1_29_0 || LEGATO_LEGACY_TEXTMESH_PRO
             font.ReadFontAssetDefinition();
 #else
             font.ClearFallbackCharacterTable();

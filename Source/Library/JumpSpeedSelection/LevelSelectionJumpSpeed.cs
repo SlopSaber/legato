@@ -11,14 +11,16 @@ namespace Legato.Gameplay {
                 : BeatmapDifficultyMethods.NoteJumpMovementSpeed(data.difficulty);
 #else
             BeatmapLevel level = view.GetField<BeatmapLevel, StandardLevelDetailView>("_beatmapLevel");
-            var characteristics = view.GetField<BeatmapCharacteristicSegmentedControlController, StandardLevelDetailView>("_beatmapCharacteristicSegmentedControlController");
-            var difficulties = view.GetField<BeatmapDifficultySegmentedControlController, StandardLevelDetailView>("_beatmapDifficultySegmentedControlController");
-            if (level == null || characteristics == null || difficulties == null) return 0f;
-            var characteristic = characteristics.selectedBeatmapCharacteristic;
-            BeatmapDifficulty difficulty = difficulties.selectedDifficulty;
-            var key = BeatmapKeyFactory.Create(level.levelID, characteristic, difficulty);
+            var key = view.beatmapKey;
+            if (level == null || !BeatmapKeyExtensions.IsValidKey(key)) return 0f;
             var data = BeatmapKeyExtensions.GetDifficultyBeatmapData(level, in key);
-            return data == null ? 0f : BeatmapDifficultyMethods.NoteJumpMovementSpeed(difficulty, data.noteJumpMovementSpeed, false);
+            if (data == null) return 0f;
+#if LEGATO_VARIABLE_MOVEMENT_DATA
+            return BeatmapDifficultyMethods.NoteJumpMovementSpeed(key.difficulty, data.noteJumpMovementSpeed, false);
+#else
+            return data.noteJumpMovementSpeed > 0f ? data.noteJumpMovementSpeed
+                : BeatmapDifficultyMethods.NoteJumpMovementSpeed(key.difficulty);
+#endif
 #endif
         }
     }

@@ -41,7 +41,7 @@
       <_LegatoUsesDifficultyBeatmaps Condition="'$(_LegatoPolyfillProfile)' == '1.29.0' OR '$(_LegatoCoreApi)' == 'LegacyPreview'">true</_LegatoUsesDifficultyBeatmaps>
       <LegatoTargetDefine Condition="'$(LegatoTargetProfile)' != ''">BEAT_SABER_$([System.String]::Copy('$(LegatoTargetProfile)').Replace('.', '_'))</LegatoTargetDefine>
       <DefineConstants Condition="'$(LegatoTargetDefine)' != ''">$(DefineConstants);$(LegatoTargetDefine);@(_LegatoTargetVersion->'%(Constants)')</DefineConstants>
-      <DefineConstants Condition="'$(_LegatoApiVersion)' != '' AND $([MSBuild]::VersionLessThan('$(_LegatoApiVersion)', '1.37.2'))">$(DefineConstants);LEGATO_INTEGER_REFRESH_RATE;LEGATO_LEGACY_FRAME_TIMING</DefineConstants>
+      <DefineConstants Condition="'$(_LegatoApiVersion)' != '' AND $([MSBuild]::VersionLessThan('$(_LegatoApiVersion)', '1.37.2'))">$(DefineConstants);LEGATO_INTEGER_REFRESH_RATE;LEGATO_LEGACY_FRAME_TIMING;LEGATO_BASIC_TEXTURE_CREATION_FLAGS</DefineConstants>
       <DefineConstants Condition="'$(_LegatoApiVersion)' != '' AND $([MSBuild]::VersionLessThan('$(_LegatoApiVersion)', '1.37.3'))">$(DefineConstants);LEGATO_PACK_CONTENT_WITHOUT_PURCHASE_OPTIONS</DefineConstants>
       <DefineConstants Condition="'$(_LegatoApiVersion)' != '' AND $([MSBuild]::VersionGreaterThanOrEquals('$(_LegatoApiVersion)', '1.36.2')) AND $([MSBuild]::VersionLessThan('$(_LegatoApiVersion)', '1.37.3'))">$(DefineConstants);LEGATO_MAIN_SETTINGS_HANDLER</DefineConstants>
       <DefineConstants Condition="'$(_LegatoApiVersion)' != '' AND $([MSBuild]::VersionGreaterThanOrEquals('$(_LegatoApiVersion)', '1.37.3'))">$(DefineConstants);LEGATO_QUALITY_SETTINGS_MANAGER</DefineConstants>
