@@ -626,6 +626,8 @@
                Condition="'$(LegatoEnableHeckProviders)' == 'true' AND '$(LegatoTargetVersion)' == '1.11.1'" />
       <Compile Include="$(LegatoSourceRoot)Providers\Chroma\**\*.cs"
                Condition="'$(LegatoEnableChromaProviders)' == 'true'" />
+      <Compile Remove="$(LegatoSourceRoot)Providers\Chroma\EnvironmentEnhancement\Saved\Features.cs;$(LegatoSourceRoot)Providers\Chroma\HarmonyPatches\SavedEnvironmentLoading.cs"
+               Condition="'$(LegatoEnableChromaProviders)' == 'true' AND '$(LegatoTargetVersion)' == '1.11.1'" />
       <Compile Include="$(LegatoSourceRoot)Providers\NoodleExtensions\**\*.cs"
                Condition="'$(LegatoEnableNoodleExtensionsProviders)' == 'true'" />
       <Compile Include="$(LegatoSourceRoot)Library\NativeTypeAliases\**\*.cs"

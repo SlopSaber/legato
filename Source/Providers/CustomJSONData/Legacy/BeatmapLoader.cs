@@ -69,7 +69,10 @@ namespace CustomJSONData.HarmonyPatches
                     }
                 }
 
-                __result = new CustomBeatmapData(__result, customData, version, customEvents);
+                __result = new CustomBeatmapData(__result, customData, version, customEvents)
+                {
+                    hasAuthoredEvents = events.Count > 0
+                };
             }
             catch (JsonException exception)
             {

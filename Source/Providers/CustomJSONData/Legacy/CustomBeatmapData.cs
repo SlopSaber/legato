@@ -34,6 +34,8 @@ namespace CustomJSONData.CustomBeatmap
 
         public Version version { get; private set; }
 
+        public bool hasAuthoredEvents { get; internal set; }
+
         public IReadOnlyList<CustomEventData> customEventDatas { get; private set; }
 
         public IReadOnlyList<BeatmapObjectData> beatmapObjectDatas { get; private set; }
@@ -59,14 +61,18 @@ namespace CustomJSONData.CustomBeatmap
             beatmapObjectDatas = chart.beatmapObjectDatas;
             levelCustomData = chart.levelCustomData;
             beatmapCustomData = chart.beatmapCustomData;
+            hasAuthoredEvents = chart.hasAuthoredEvents;
         }
+
+        public CustomBeatmapData CopyWithEvents(BeatmapEventData[] events) => CopyDataTo(new BeatmapData(beatmapLinesData, events));
 
         internal CustomBeatmapData CopyDataTo(BeatmapData result)
         {
             return new CustomBeatmapData(result, customData.Copy(), version, customEventDatas.Select(item => item.GetCopy()).ToArray())
             {
                 beatmapCustomData = beatmapCustomData.Copy(),
-                levelCustomData = levelCustomData.Copy()
+                levelCustomData = levelCustomData.Copy(),
+                hasAuthoredEvents = hasAuthoredEvents
             };
         }
     }
@@ -134,7 +140,7 @@ namespace CustomJSONData.CustomBeatmap
 
     public sealed class CustomBasicBeatmapEventData : BeatmapEventData, ICustomData, IVersionable
     {
-        internal CustomBasicBeatmapEventData(BeatmapEventData item, float floatValue, CustomData data, Version version)
+        public CustomBasicBeatmapEventData(BeatmapEventData item, float floatValue, CustomData data, Version version)
             : base(item.time, item.type, item.value)
         {
             this.floatValue = floatValue;

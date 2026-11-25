@@ -42,6 +42,10 @@ internal class ChromaPlayerInstaller : Installer
             Container.Bind<BombColorizerManager>().AsSingle();
             Container.BindFactory<NoteControllerBase, BombColorizer, BombColorizer.Factory>().AsSingle();
             Container.Bind<LightColorizerManager>().AsSingle();
+#if LEGATO_CHROMA_LEGACY_LIGHTS
+            Container.Bind<LegacyLightTimeline>().AsSingle();
+            Container.BindInterfacesAndSelfTo<LegacySongTimeTweening>().AsSingle();
+#endif
             Container.BindFactory<ChromaLightSwitchEventEffect, LightColorizer, LightColorizer.Factory>().AsSingle();
             Container
                 .BindFactory<LightSwitchEventEffect, ChromaLightSwitchEventEffect,

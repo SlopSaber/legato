@@ -55,6 +55,8 @@ internal class FeaturesModule : IModule
 #if !PRE_V1_37_1
         bool legacyOverride = capabilities.Requirements.Contains(LEGACY_CAPABILITY) ||
                               capabilities.Suggestions.Contains(LEGACY_CAPABILITY);
+#elif LEGATO_CHROMA_LEGACY_LIGHTS
+        bool legacyOverride = difficultyBeatmap.beatmapData.beatmapEventData.Any(item => item.value >= LegacyLightHelper.RGB_INT_OFFSET);
 #else
         bool legacyOverride =
             difficultyBeatmap is CustomDifficultyBeatmap { beatmapSaveData: Version3CustomBeatmapSaveData customBeatmapSaveData } &&

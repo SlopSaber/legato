@@ -1,3 +1,4 @@
+#if !LEGATO_CHROMA_LEGACY_LIGHTS
 #nullable enable
 using System;
 using System.Collections;
@@ -128,3 +129,4 @@ namespace Legato.Lighting
 #endif
     }
 }
+#endif

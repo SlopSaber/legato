@@ -15,11 +15,15 @@ namespace Legato.Lighting
 
         internal static bool ContainsScene(GameScenesManager manager, string sceneName) => Contains(manager, sceneName);
 
+#if LEGATO_CHROMA_LEGACY_LIGHTS
+        internal static string SerializedName(GameplayCoreSceneSetupData setup) => setup.environmentInfo.serializedName;
+#else
         internal static string SerializedName(EnvironmentSceneSetupData setup) =>
 #if BEAT_SABER_1_45_1 || BEAT_SABER_1_45_3
             setup.environmentSerializedName;
 #else
             setup.environmentInfo.serializedName;
+#endif
 #endif
     }
 }
