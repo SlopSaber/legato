@@ -667,7 +667,7 @@
       <Compile Include="$(LegatoSourceRoot)ForwardPolyfills\**\Transitions\1.40.0-1.42.0\**\*.cs"
                Condition="('@(_LegatoAudioReference)' != '' OR ('$(LegatoTargetProfile)' == '1.42.0' AND '@(_LegatoMainReference)' != '')) AND '$(LegatoSourceOrder)' != '' AND '$(LegatoTargetOrder)' != '' AND $(LegatoSourceOrder) &lt;= 3 AND $(LegatoTargetOrder) &gt;= 4" />
       <Compile Include="$(LegatoSourceRoot)Polyfills\GlobalNamespace\BeatmapKey\BeatmapKeyExtensions.cs"
-               Condition="('$(LegatoEnableBeatmapKeys)' == 'true' OR '$(LegatoEnableAutoAdapters)' != 'false') AND ('@(_LegatoDataModelsReference)' != '' OR ('$(_LegatoPolyfillProfile)' == '1.29.0' AND '@(_LegatoMainReference)' != '')) AND '@(_LegatoColorsReference)' != ''" />
+               Condition="('$(LegatoEnableBeatmapKeys)' == 'true' OR '$(LegatoEnableAutoAdapters)' != 'false') AND ('@(_LegatoDataModelsReference)' != '' OR (('$(_LegatoPolyfillProfile)' == '1.29.0' OR ('$(LegatoTargetVersion)' == '1.11.1' AND '$(LegatoEnableBeatmapKeys)' == 'true')) AND '@(_LegatoMainReference)' != '')) AND '@(_LegatoColorsReference)' != ''" />
       <Compile Include="$(LegatoSourceRoot)Library\Gameplay\**\*.cs"
                Exclude="$(LegatoSourceRoot)Library\Gameplay\GameplayMetadataProvider.cs"
                Condition="'$(LegatoEnableGameplay)' == 'true'" />

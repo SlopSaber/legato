@@ -1,5 +1,5 @@
 using System;
-#if BEAT_SABER_1_29_0
+#if BEAT_SABER_1_29_0 || LEGATO_BEFORE_MULTIPLAYER
 using System.Collections.Concurrent;
 using System.Threading;
 #endif
@@ -7,7 +7,7 @@ namespace SongCore.Utilities
 {
     internal static class HashingRuntime
     {
-#if BEAT_SABER_1_29_0
+#if BEAT_SABER_1_29_0 || LEGATO_BEFORE_MULTIPLAYER
         private static readonly ConcurrentBag<byte[]> Buffers = new();
         private static int _retained;
         internal static byte[] Rent()
@@ -27,7 +27,7 @@ namespace SongCore.Utilities
 #endif
         internal static string ToHexString(byte[] bytes)
         {
-#if BEAT_SABER_1_29_0
+#if BEAT_SABER_1_29_0 || LEGATO_BEFORE_MULTIPLAYER
             var chars = new char[bytes.Length * 2];
             Fill(chars, bytes);
             return new string(chars);

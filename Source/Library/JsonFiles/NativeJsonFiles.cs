@@ -1,7 +1,7 @@
 #nullable enable
 using System.IO;
 using Newtonsoft.Json;
-#if BEAT_SABER_1_29_0
+#if BEAT_SABER_1_29_0 || LEGATO_BEFORE_MULTIPLAYER
 using Newtonsoft.Json.Serialization;
 #endif
 
@@ -10,7 +10,7 @@ namespace Legato.Json
     internal static class NativeJsonSettings
     {
         internal static readonly JsonSerializerSettings readableWithDefault =
-#if BEAT_SABER_1_29_0
+#if BEAT_SABER_1_29_0 || LEGATO_BEFORE_MULTIPLAYER
             new JsonSerializerSettings
             {
                 DefaultValueHandling = DefaultValueHandling.Populate,
@@ -22,7 +22,7 @@ namespace Legato.Json
             BGLib.JsonExtension.JsonSettings.readableWithDefault;
 #endif
 
-#if BEAT_SABER_1_29_0
+#if BEAT_SABER_1_29_0 || LEGATO_BEFORE_MULTIPLAYER
         internal static readonly JsonSerializerSettings compactNoDefault = new JsonSerializerSettings
         {
             DefaultValueHandling = DefaultValueHandling.Ignore,
@@ -37,7 +37,7 @@ namespace Legato.Json
     {
         internal static T ReadFromFile<T>(string path)
         {
-#if BEAT_SABER_1_29_0
+#if BEAT_SABER_1_29_0 || LEGATO_BEFORE_MULTIPLAYER
             using var stream = File.Open(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
             using var text = new StreamReader(stream);
             using var json = new JsonTextReader(text);
@@ -49,7 +49,7 @@ namespace Legato.Json
 
         internal static void WriteCompactWithoutDefault<T>(T value, string path)
         {
-#if BEAT_SABER_1_29_0
+#if BEAT_SABER_1_29_0 || LEGATO_BEFORE_MULTIPLAYER
             using var stream = File.Open(path, FileMode.Create, FileAccess.Write, FileShare.ReadWrite);
             using var text = new StreamWriter(stream);
             using var json = new JsonTextWriter(text);

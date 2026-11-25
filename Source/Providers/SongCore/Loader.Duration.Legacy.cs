@@ -73,7 +73,7 @@ namespace SongCore
 #if LEGATO_BEFORE_MULTIPLAYER
             string json = File.ReadAllText(Path.Combine(directory, filename));
             BeatmapData chart = new BeatmapDataLoader().GetBeatmapDataFromJson(json, level.beatsPerMinute, level.shuffle, level.shufflePeriod);
-            float lastEvent = chart.beatmapEventDatas.Select(value => value.time).DefaultIfEmpty().Max();
+            float lastEvent = chart.beatmapEventData.Select(value => value.time).DefaultIfEmpty().Max();
             float lastObject = chart.beatmapLinesData.SelectMany(line => line.beatmapObjectsData).Select(value => value.time).DefaultIfEmpty().Max();
             return Mathf.Max(lastObject, lastEvent);
 #else

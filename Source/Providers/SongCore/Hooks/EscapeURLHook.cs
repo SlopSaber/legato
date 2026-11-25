@@ -25,7 +25,7 @@ namespace SongCore.Hooks
         private string GetEscapedURL(Func<string, string> original, string filePath)
         {
             return
-#if BEAT_SABER_1_29_0
+#if BEAT_SABER_1_29_0 || LEGATO_BEFORE_MULTIPLAYER
                 Uri.TryCreate(filePath, UriKind.Absolute, out var uri) && !uri.IsFile ? filePath
 #else
                 FileHelpers.PathIsUrl(filePath) ? filePath
