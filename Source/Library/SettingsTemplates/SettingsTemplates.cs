@@ -13,6 +13,10 @@ namespace Legato.UI {
 #if BEAT_SABER_1_29_0
             return Resources.FindObjectsOfTypeAll<LayoutElement>()
                 .First(x => x.name == "PositionX").gameObject;
+#elif BEAT_SABER_1_37_1 || BEAT_SABER_1_38_0
+            return container.Resolve<MainSettingsMenuViewController>()._settingsSubMenuInfos
+                .First(x => x.viewController is ControllersTransformSettingsViewController)
+                .viewController.transform.Find("Content/PositionX").gameObject;
 #else
             return container.Resolve<MainSettingsMenuViewController>()._settingsSubMenuInfos
                 .First(x => x.viewController is ControllerProfilesSettingsViewController)
