@@ -15,8 +15,13 @@ global using Localization = BGLib.Polyglot.Localization;
 global using LocalizationAsset = BGLib.Polyglot.LocalizationAsset;
 global using LocalizationAsyncInstaller = BGLib.Polyglot.LocalizationAsyncInstaller;
 global using LocalizationImporter = BGLib.Polyglot.LocalizationImporter;
+#if LEGATO_LEGACY_TEXTMESH_PRO
+global using LocalizationLanguage = BGLib.Polyglot.Language;
+global using LocalizationLanguageExtensions = BGLib.Polyglot.LanguageExtensions;
+#else
 global using LocalizationLanguage = BGLib.Polyglot.LocalizationLanguage;
 global using LocalizationLanguageExtensions = BGLib.Polyglot.LocalizationLanguageExtensions;
+#endif
 global using LocalizationModel = BGLib.Polyglot.LocalizationModel;
 global using LocalizedTextMeshProUGUI = BGLib.Polyglot.LocalizedTextMeshProUGUI;
 #endif

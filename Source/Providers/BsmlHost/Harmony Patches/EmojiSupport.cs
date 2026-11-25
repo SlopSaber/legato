@@ -1,4 +1,4 @@
-#if !BEAT_SABER_1_29_0
+#if !LEGATO_LEGACY_TEXTMESH_PRO
 using System.Collections.Generic;
 using System.Reflection.Emit;
 using HarmonyLib;

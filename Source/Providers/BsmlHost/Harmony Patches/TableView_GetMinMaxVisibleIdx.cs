@@ -1,4 +1,4 @@
-#if !BEAT_SABER_1_29_0
+#if !BEAT_SABER_1_29_0 && !LEGATO_FIXED_TABLE_CELL_SIZE
 using System.Collections.Generic;
 using System.Reflection;
 using System.Reflection.Emit;

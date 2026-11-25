@@ -12,7 +12,7 @@ namespace Legato.Unity
         /// Gets the render mode used when importing color glyphs.
         /// </summary>
         internal static GlyphRenderMode ColorGlyphMode =>
-#if BEAT_SABER_1_29_0
+#if LEGATO_LEGACY_TEXTMESH_PRO
             GlyphRenderMode.RASTER;
 #else
             GlyphRenderMode.COLOR;
@@ -25,7 +25,7 @@ namespace Legato.Unity
         /// <param name="enabled">Whether to wrap text.</param>
         internal static void SetWrapping(TMP_Text text, bool enabled)
         {
-#if BEAT_SABER_1_29_0
+#if LEGATO_LEGACY_TEXTMESH_PRO
             text.enableWordWrapping = enabled;
 #else
             text.textWrappingMode = enabled ? TextWrappingModes.Normal : TextWrappingModes.NoWrap;

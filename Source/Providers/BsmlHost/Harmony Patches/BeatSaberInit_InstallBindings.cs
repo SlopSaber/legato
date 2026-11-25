@@ -1,4 +1,4 @@
-#if !BEAT_SABER_1_29_0
+#if BEAT_SABER_1_42_0 || BEAT_SABER_1_45_1 || BEAT_SABER_1_45_3
 using BeatSaberMarkupLanguage.Animations;
 using HarmonyLib;
 using Zenject;

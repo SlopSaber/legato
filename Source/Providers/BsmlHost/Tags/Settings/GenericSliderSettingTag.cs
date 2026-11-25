@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using BeatSaberMarkupLanguage.Components;
 using BeatSaberMarkupLanguage.Components.Settings;
-#if !BEAT_SABER_1_29_0
+#if !BEAT_SABER_1_29_0 && !BEAT_SABER_1_37_1 && !BEAT_SABER_1_38_0
 using BeatSaber.GameSettings;
 #endif
 using HMUI;
@@ -28,6 +28,8 @@ namespace BeatSaberMarkupLanguage.Tags.Settings
             {
 #if BEAT_SABER_1_29_0
                 this.controllersTransformTemplate = Resources.FindObjectsOfTypeAll<LayoutElement>().First(x => x.name == "PositionX");
+#elif BEAT_SABER_1_37_1 || BEAT_SABER_1_38_0
+                this.controllersTransformTemplate = this.DiContainer.Resolve<MainSettingsMenuViewController>()._settingsSubMenuInfos.First(m => m.viewController is ControllersTransformSettingsViewController).viewController.transform.Find("Content/PositionX").GetComponent<LayoutElement>();
 #else
                 this.controllersTransformTemplate = this.DiContainer.Resolve<MainSettingsMenuViewController>()._settingsSubMenuInfos.First(m => m.viewController is ControllerProfilesSettingsViewController).viewController.transform.Find("Content/MainContent/Sliders/PositionX").GetComponent<LayoutElement>();
 #endif

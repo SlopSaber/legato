@@ -12,7 +12,7 @@ namespace Legato.Unity
     /// </summary>
     internal static class BsmlNativeAccess
     {
-#if BEAT_SABER_1_29_0
+#if BEAT_SABER_1_29_0 || BEAT_SABER_1_37_1
         private static readonly System.Action<TextSlider> UpdateSliderVisuals =
             (System.Action<TextSlider>)typeof(TextSlider).GetMethod(
                 "UpdateVisuals",
@@ -24,7 +24,7 @@ namespace Legato.Unity
         /// Gets the engine flags for textures that will receive copied pixels.
         /// </summary>
         internal static TextureCreationFlags CopyTextureFlags =>
-#if BEAT_SABER_1_29_0
+#if BEAT_SABER_1_29_0 || BEAT_SABER_1_37_1
             TextureCreationFlags.None;
 #else
             TextureCreationFlags.DontInitializePixels | TextureCreationFlags.DontUploadUponCreate;
@@ -60,7 +60,7 @@ namespace Legato.Unity
         /// <param name="slider">The slider to refresh.</param>
         internal static void RefreshSlider(RangeValuesTextSlider slider)
         {
-#if BEAT_SABER_1_29_0
+#if BEAT_SABER_1_29_0 || BEAT_SABER_1_37_1
             UpdateSliderVisuals(slider);
 #else
             slider.Refresh();

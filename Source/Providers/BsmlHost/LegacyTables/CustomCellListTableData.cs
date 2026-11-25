@@ -1,4 +1,4 @@
-#if BEAT_SABER_1_29_0
+#if BEAT_SABER_1_29_0 || LEGATO_FIXED_TABLE_CELL_SIZE
 namespace BeatSaberMarkupLanguage.Components
 {
     /// <summary>

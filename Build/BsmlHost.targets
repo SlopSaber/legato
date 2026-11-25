@@ -3,8 +3,14 @@
     <EditorConfigFiles Include="$(LegatoSourceRoot)Providers\BsmlHost\.editorconfig;$(LegatoSourceRoot)Library\LocalizationSupport\.editorconfig" />
   </ItemGroup>
   <Target Name="LegatoBsmlNativeReferences" BeforeTargets="ResolveAssemblyReferences" DependsOnTargets="LegatoConfigure">
+    <ItemGroup>
+      <Reference Remove="BeatSaber.ViewSystem" Condition="!Exists('$(LegatoReferenceRoot)\Beat Saber_Data\Managed\BeatSaber.ViewSystem.dll')" />
+      <Reference Remove="GameInit" Condition="!Exists('$(LegatoReferenceRoot)\Beat Saber_Data\Managed\GameInit.dll')" />
+      <Reference Remove="MenuSystem" Condition="!Exists('$(LegatoReferenceRoot)\Beat Saber_Data\Managed\MenuSystem.dll')" />
+      <Reference Remove="SegmentedControl" Condition="!Exists('$(LegatoReferenceRoot)\Beat Saber_Data\Managed\SegmentedControl.dll')" />
+    </ItemGroup>
     <ItemGroup Condition="'$(LegatoTargetProfile)' == '1.29.0'">
-      <Reference Remove="BGLib.AppFlow;BGLib.Polyglot;BGLib.UnityExtension;BeatSaber.GameSettings;BeatSaber.Init;BeatSaber.ViewSystem;GameInit;Menu.ColorSettings;Menu.CommonLib;MenuSystem;SegmentedControl;UnityEngine.TextCoreFontEngineModule" />
+      <Reference Remove="BGLib.AppFlow;BGLib.Polyglot;BGLib.UnityExtension;BeatSaber.GameSettings;BeatSaber.Init;Menu.ColorSettings;Menu.CommonLib;UnityEngine.TextCoreFontEngineModule" />
       <Reference Include="Polyglot" HintPath="$(LegatoReferenceRoot)\Beat Saber_Data\Managed\Polyglot.dll" Private="false" Publicize="true" />
       <Reference Include="UnityEngine.TextCoreModule" HintPath="$(LegatoReferenceRoot)\Beat Saber_Data\Managed\UnityEngine.TextCoreModule.dll" Private="false" />
     </ItemGroup>
