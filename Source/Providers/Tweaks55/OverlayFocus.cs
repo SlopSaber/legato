@@ -1,23 +1,34 @@
 using HarmonyLib;
 using System;
+using System.Collections.Generic;
+using System.Reflection;
 using UnityEngine;
 using UnityEngine.XR;
+#if LEGATO_MENU_CONTROLLER_FOCUS_CAPTURE
+using OverlayControllerDeactivator = DeactivateMenuControllersOnFocusCaptureOrTrackingLost;
+#elif LEGATO_CONTROLLER_FOCUS_CAPTURE
+using OverlayControllerDeactivator = DeactivateVRControllersOnFocusCapture;
+#endif
 
 namespace Tweaks55.HarmonyPatches {
-#if BEAT_SABER_1_29_0
+#if !LEGATO_MENU_CONTROLLER_FOCUS_CAPTURE && !LEGATO_CONTROLLER_FOCUS_CAPTURE
     [HarmonyPatch]
     static class KeepSabersInOverlay {
-        static System.Collections.Generic.IEnumerable<System.Reflection.MethodBase> TargetMethods() {
+        static IEnumerable<MethodBase> TargetMethods() {
+#if BEAT_SABER_1_29_0
             yield return AccessTools.Method(typeof(DeactivateOnInputFocusCapture), "OnEnable");
+#else
+            yield return AccessTools.Method(typeof(DeactivateOnInputFocusCapture), "Setup");
+#endif
             yield return AccessTools.Method(typeof(DeactivateOnInputFocusCapture), "HandleInputFocusCaptured");
         }
 
         static bool Prefix(DeactivateOnInputFocusCapture __instance) {
-            if(!Config.Instance.keepSabersInOverlay || __instance.GetComponentInChildren<VRController>(true) == null)
+            var helper = __instance._vrPlatformHelper;
+            if(!Config.Instance.keepSabersInOverlay || helper == null || __instance.GetComponentInChildren<VRController>(true) == null)
                 return true;
 
             // Keep the native subscription ownership without deactivating controller objects.
-            var helper = __instance._vrPlatformHelper;
             helper.inputFocusWasCapturedEvent -= __instance.HandleInputFocusCaptured;
             helper.inputFocusWasCapturedEvent += __instance.HandleInputFocusCaptured;
             helper.inputFocusWasReleasedEvent -= __instance.HandleInputFocusReleased;
@@ -27,10 +38,22 @@ namespace Tweaks55.HarmonyPatches {
         static Exception Cleanup(Exception ex) => Plugin.PatchFailed(ex);
     }
 #else
-	[HarmonyPatch(typeof(DeactivateVRControllersOnFocusCapture), nameof(DeactivateVRControllersOnFocusCapture.UpdateVRControllerActiveState))]
+#if LEGATO_MENU_CONTROLLER_FOCUS_CAPTURE
+	[HarmonyPatch(typeof(OverlayControllerDeactivator), nameof(OverlayControllerDeactivator.UpdateMenuControllersState))]
+#else
+	[HarmonyPatch(typeof(OverlayControllerDeactivator), nameof(OverlayControllerDeactivator.UpdateVRControllerActiveState))]
+#endif
 	static class KeepSabersInOverlay {
-		static bool Prefix(DeactivateVRControllersOnFocusCapture __instance) {
-			if(!Config.Instance.keepSabersInOverlay || __instance._vrControllerGameObjects == null || __instance._xrSystemState.hasInputFocus)
+		static bool Prefix(OverlayControllerDeactivator __instance) {
+			if(!Config.Instance.keepSabersInOverlay || __instance._vrControllers == null ||
+#if LEGATO_CONTROLLER_FOCUS_CAPTURE
+				__instance._vrControllerGameObjects == null ||
+#endif
+#if LEGATO_XR_SYSTEM_STATE
+				__instance._xrSystemState.hasInputFocus)
+#else
+				__instance._vrPlatformHelper.hasInputFocus)
+#endif
 				return true;
 
 			// Without input focus the runtime may report invalid poses; VRController then keeps its last tracked pose.
@@ -39,8 +62,12 @@ namespace Tweaks55.HarmonyPatches {
 				if(controllers[i] == null)
 					continue;
 
+#if LEGATO_MENU_CONTROLLER_FOCUS_CAPTURE
+				var gameObject = controllers[i].gameObject;
+#else
 				var gameObject = __instance._vrControllerGameObjects[i];
-				if(!gameObject.activeSelf)
+#endif
+				if(gameObject != null && !gameObject.activeSelf)
 					gameObject.SetActive(true);
 			}
 
@@ -73,10 +100,10 @@ namespace Tweaks55.HarmonyPatches {
 			if(node != XRNode.LeftHand && node != XRNode.RightHand)
 				return;
 			if(
-#if BEAT_SABER_1_29_0
-                __instance._vrPlatformHelper.hasInputFocus
-#else
+#if LEGATO_XR_SYSTEM_STATE
                 __instance._xrSystemState.hasInputFocus
+#else
+                __instance._vrPlatformHelper.hasInputFocus
 #endif
             ) {
 				hasWorld = false;
@@ -132,10 +159,10 @@ namespace Tweaks55.HarmonyPatches {
 		static Exception Cleanup(Exception ex) => Plugin.PatchFailed(ex);
 	}
 
-#if BEAT_SABER_1_29_0
+#if !LEGATO_XR_SYSTEM_STATE
     [HarmonyPatch]
     static class KeepMusicInOverlay {
-        static System.Collections.Generic.IEnumerable<System.Reflection.MethodBase> TargetMethods() {
+        static IEnumerable<MethodBase> TargetMethods() {
             yield return AccessTools.Method(typeof(SongPreviewPlayerPauseOnInputFocusLost), "HandleInputFocusCaptured");
             yield return AccessTools.Method(typeof(SongPreviewPlayerPauseOnInputFocusLost), "HandleInputFocusReleased");
         }

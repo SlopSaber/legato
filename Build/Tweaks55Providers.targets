@@ -1,9 +1,14 @@
 <Project>
   <Target Name="LegatoTweaks55Sources" BeforeTargets="ResolveAssemblyReferences" DependsOnTargets="LegatoConfigure">
+    <PropertyGroup Condition="'$(_LegatoApiVersion)' != ''">
+      <_LegatoTweaks55UsesAnalyticsDispatcher>$([MSBuild]::VersionGreaterThanOrEquals('$(_LegatoApiVersion)', '1.41.1'))</_LegatoTweaks55UsesAnalyticsDispatcher>
+      <DefineConstants Condition="'$(_LegatoTweaks55UsesAnalyticsDispatcher)' == 'true'">$(DefineConstants);LEGATO_ANALYTICS_DISPATCHER</DefineConstants>
+      <DefineConstants Condition="$([MSBuild]::VersionGreaterThanOrEquals('$(_LegatoApiVersion)', '1.37.4'))">$(DefineConstants);LEGATO_SINGLE_DISPLAY_SCORE_UPDATE</DefineConstants>
+    </PropertyGroup>
     <ItemGroup>
       <Compile Remove="HarmonyPatches\DisableAnalytics.cs;HarmonyPatches\RumbleStuff.cs;HarmonyPatches\OverlayFocus.cs;HarmonyPatches\HealthWarning.cs;HarmonyPatches\WallStuff.cs;HarmonyPatches\RawScoreDisplay.cs" />
       <Compile Include="$(LegatoSourceRoot)Providers\Tweaks55\**\*.cs" />
-      <Reference Remove="BeatGames.Analytics;osce.analytics" Condition="'$(LegatoTargetProfile)' == '1.29.0'" />
+      <Reference Remove="BeatGames.Analytics;osce.analytics" Condition="'$(_LegatoTweaks55UsesAnalyticsDispatcher)' != 'true'" />
     </ItemGroup>
   </Target>
 </Project>

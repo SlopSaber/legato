@@ -1,12 +1,11 @@
-﻿#if !BEAT_SABER_1_29_0
+﻿#if BEAT_SABER_1_29_0 || LEGATO_ANALYTICS_DISPATCHER
+#if LEGATO_ANALYTICS_DISPATCHER
 using BeatGames.Analytics;
 using OSCE.Analytics;
 #endif
 using HarmonyLib;
 using System;
 using System.Reflection;
-using Tweaks55.Util;
-using UnityEngine;
 
 namespace Tweaks55.HarmonyPatches {
 	[HarmonyPatch]
@@ -33,3 +32,4 @@ namespace Tweaks55.HarmonyPatches {
 		static Exception Cleanup(Exception ex) => Plugin.PatchFailed(ex);
 	}
 }
+#endif

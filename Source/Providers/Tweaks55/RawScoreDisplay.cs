@@ -1,6 +1,5 @@
 ﻿using HarmonyLib;
 using System;
-using System.Linq;
 using System.Reflection;
 using TMPro;
 
@@ -17,7 +16,7 @@ namespace Tweaks55.HarmonyPatches {
 		}
 
 		static MethodBase TargetMethod() => AccessTools.Method(typeof(ScoreUIController), nameof(ScoreUIController.UpdateScore), 
-#if BEAT_SABER_1_29_0
+#if !LEGATO_SINGLE_DISPLAY_SCORE_UPDATE
             new[] { typeof(int), typeof(int) }
 #else
             new[] { typeof(int) }

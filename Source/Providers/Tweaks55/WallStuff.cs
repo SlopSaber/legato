@@ -216,8 +216,8 @@ namespace Tweaks55.HarmonyPatches {
 			return c.InstructionEnumeration();
 		}
 		static MethodBase TargetMethod() => Resolver.GetMethod(nameof(StretchableObstacle), 
-#if BEAT_SABER_1_29_0
-            "SetSizeAndColor"
+#if LEGATO_LEGACY_OBSTACLE_PROPERTIES
+            nameof(StretchableObstacle.SetSizeAndColor)
 #else
             nameof(StretchableObstacle.SetAllProperties)
 #endif
