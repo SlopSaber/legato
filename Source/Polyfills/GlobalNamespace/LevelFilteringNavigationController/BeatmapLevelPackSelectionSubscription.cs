@@ -9,11 +9,19 @@ namespace Legato {
         private readonly LevelFilteringNavigationController _controller;
 
 #if LEGATO_DIFFICULTY_BEATMAPS
+#if LEGATO_LEGACY_PACK_SORT
+        private readonly Action<LevelFilteringNavigationController, IAnnotatedBeatmapLevelCollection, UnityEngine.GameObject, bool, BeatmapCharacteristicSO> _handler;
+#else
         private readonly Action<LevelFilteringNavigationController, IAnnotatedBeatmapLevelCollection, UnityEngine.GameObject, BeatmapCharacteristicSO> _handler;
+#endif
 
         internal BeatmapLevelPackSelectionSubscription(LevelFilteringNavigationController controller, Action<BeatmapLevelPackAdapter?> callback) {
             _controller = controller;
+#if LEGATO_LEGACY_PACK_SORT
+            _handler = (_, pack, _, _, _) => callback(pack == null ? null : new BeatmapLevelPackAdapter(pack));
+#else
             _handler = (_, pack, _, _) => callback(pack == null ? null : new BeatmapLevelPackAdapter(pack));
+#endif
             _controller.didSelectAnnotatedBeatmapLevelCollectionEvent += _handler;
         }
 

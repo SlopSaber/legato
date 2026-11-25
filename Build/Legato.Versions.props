@@ -4,15 +4,30 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <LegatoGameVersion Include="0.11.2" Profile="0.11.2" Order="-2" CoreApi="EarlyAccess" />
-    <LegatoGameVersion Include="1.11.1" Profile="1.11.1" Order="-1" CoreApi="LegacyPreview" />
-    <LegatoGameVersion Include="1.29.0;1.29.1" Profile="1.29.0" Order="0" />
-    <LegatoGameVersion Include="1.34.2" Profile="1.34.2" Order="0.5" />
+    <LegatoGameVersion Include="0.10.1;0.10.2;0.10.2p1" Profile="0.10.1" Order="-5" CoreApi="EarlyAccess" />
+    <LegatoGameVersion Include="0.11.0;0.11.1;0.11.2;0.12.0;0.12.0p1;0.12.1;0.12.2;0.13.0;0.13.0p1;0.13.1;0.13.2" Profile="0.11.2" Order="-4" CoreApi="EarlyAccess" />
+    <LegatoGameVersion Include="1.0.0;1.0.1;1.1.0;1.1.0p1;1.2.0" Profile="1.0.0" Order="-3" CoreApi="LegacyPreview" Constants="LEGATO_COVER_TEXTURE;LEGATO_NO_TRANSITION_DIFFICULTY" />
+    <LegatoGameVersion Include="1.3.0;1.4.0;1.4.2;1.5.0" Profile="1.0.0" Order="-3" CoreApi="LegacyPreview" Constants="LEGATO_COVER_TEXTURE" />
+    <LegatoGameVersion Include="1.6.0;1.6.1;1.6.2;1.7.0;1.8.0;1.9.0;1.9.1;1.10.0;1.11.0;1.11.1" Profile="1.11.1" Order="-2" CoreApi="LegacyPreview" Constants="LEGATO_COVER_TEXTURE;LEGATO_DIFFICULTY_IN_SCENE_SETUP" />
+    <LegatoGameVersion Include="1.12.1;1.12.2;1.13.0;1.13.2;1.13.4;1.13.5;1.14.0;1.15.0;1.16.0;1.16.1;1.16.2;1.16.3;1.16.4;1.17.0;1.17.1;1.18.0;1.18.1;1.18.2;1.18.3;1.19.0;1.19.1" Profile="1.12.1" Order="-1" CoreApi="LegacyPreview" Constants="LEGATO_DIFFICULTY_IN_SCENE_SETUP" />
+    <LegatoGameVersion Include="1.20.0;1.21.0;1.22.0;1.22.1;1.23.0;1.24.0;1.24.1;1.25.0;1.25.1;1.26.0;1.27.0;1.28.0" Profile="1.12.1" Order="-1" CoreApi="LegacyPreview" />
+    <LegatoGameVersion Include="1.29.0;1.29.1" Profile="1.29.0" Order="0" Constants="LEGATO_LIST_LEVEL_STATS" />
+    <LegatoGameVersion Include="1.29.4;1.30.0;1.30.2" Profile="1.29.4" Order="0.25" Constants="LEGATO_LIST_LEVEL_STATS" />
+    <LegatoGameVersion Include="1.31.0" Profile="1.34.2" Order="0.5" Constants="LEGATO_LIST_LEVEL_STATS;LEGATO_PREVIEW_ENVIRONMENTS" />
+    <LegatoGameVersion Include="1.31.1" Profile="1.34.2" Order="0.5" Constants="LEGATO_LIST_LEVEL_STATS;LEGATO_PREVIEW_ENVIRONMENTS;LEGATO_LEGACY_PACK_SORT" />
+    <LegatoGameVersion Include="1.32.0" Profile="1.34.2" Order="0.5" Constants="LEGATO_LIST_LEVEL_STATS;LEGATO_PREVIEW_ENVIRONMENTS;LEGATO_LEGACY_PACK_SORT;LEGATO_LEGACY_CONTENT_RATING" />
+    <LegatoGameVersion Include="1.33.0;1.34.0;1.34.2" Profile="1.34.2" Order="0.5" Constants="LEGATO_PREVIEW_ENVIRONMENTS;LEGATO_LEGACY_PACK_SORT;LEGATO_LEGACY_CONTENT_RATING" />
+    <LegatoGameVersion Include="1.34.5;1.34.6;1.35.0;1.36.0;1.36.2;1.37.0" Profile="1.37.1" Order="1" Constants="LEGATO_NO_DEPTH_TEXTURE_CONTROLLER" />
     <LegatoGameVersion Include="1.37.1;1.37.2" Profile="1.37.1" Order="1" />
+    <LegatoGameVersion Include="1.37.3" Profile="1.37.1" Order="1" Constants="LEGATO_PACK_PURCHASE_OPTION" />
+    <LegatoGameVersion Include="1.37.4;1.37.5" Profile="1.37.1" Order="1" Constants="LEGATO_ADDITIONAL_PACK_LEVELS;LEGATO_SEPARATE_SABER_LOGIC" />
     <LegatoGameVersion Include="1.38.0;1.39.0;1.39.1" Profile="1.38.0" Order="2" />
     <LegatoGameVersion Include="1.40.0;1.40.1;1.40.2;1.40.3;1.40.4;1.40.5;1.40.6;1.40.7;1.40.8" Profile="1.40.0" Order="3" />
-    <LegatoGameVersion Include="1.42.0;1.42.1;1.42.2;1.42.3;1.43.0;1.44.0;1.44.1;1.45.0" Profile="1.42.0" Order="4" />
-    <LegatoGameVersion Include="1.45.1;1.45.2" Profile="1.45.1" Order="5" />
-    <LegatoGameVersion Include="1.45.3;1.46.0" Profile="1.45.3" Order="6" />
+    <LegatoGameVersion Include="1.40.9;1.40.10" Profile="1.40.0" Order="3" Constants="LEGATO_NATIVE_AUDIO_MANAGER" />
+    <LegatoGameVersion Include="1.40.11;1.40.12;1.40.13" Profile="1.40.0" Order="3" Constants="LEGATO_NATIVE_AUDIO_MANAGER;LEGATO_AUDIO_SOURCE_STATE" />
+    <LegatoGameVersion Include="1.41.1;1.42.0;1.42.1;1.42.2;1.42.3;1.43.0;1.44.0;1.44.1" Profile="1.42.0" Order="4" />
+    <LegatoGameVersion Include="1.44.2;1.44.3;1.45.0" Profile="1.45.1" Order="5" />
+    <LegatoGameVersion Include="1.45.1;1.45.2" Profile="1.45.1" Order="5" Constants="LEGATO_NATIVE_BEATMAP_CACHE" />
+    <LegatoGameVersion Include="1.45.3;1.46.0" Profile="1.45.3" Order="6" Constants="LEGATO_NATIVE_BEATMAP_CACHE" />
   </ItemGroup>
 </Project>

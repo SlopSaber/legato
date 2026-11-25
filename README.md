@@ -39,20 +39,26 @@ The same setup can be added by hand:
 
 | Profile | Game versions |
 | --- | --- |
-| `0.11.2` | `0.11.2` |
-| `1.11.1` | `1.11.1` |
+| `0.10.1` | `0.10.1-0.10.2p1` |
+| `0.11.2` | `0.11.0-0.13.2` |
+| `1.0.0` | `1.0.0-1.5.0` |
+| `1.11.1` | `1.6.0-1.11.1` |
+| `1.12.1` | `1.12.1-1.28.0` |
 | `1.29.0` | `1.29.0-1.29.1` |
-| `1.34.2` | `1.34.2` |
-| `1.37.1` | `1.37.1-1.37.2` |
+| `1.29.4` | `1.29.4-1.30.2` |
+| `1.34.2` | `1.31.0-1.34.2` |
+| `1.37.1` | `1.34.5-1.37.5` |
 | `1.38.0` | `1.38.0-1.39.1` |
-| `1.40.0` | `1.40.0-1.40.8` |
-| `1.42.0` | `1.42.0-1.44.1` |
-| `1.45.1` | `1.45.1-1.45.2` |
+| `1.40.0` | `1.40.0-1.40.13` |
+| `1.42.0` | `1.41.1-1.44.1` |
+| `1.45.1` | `1.44.2-1.45.2` |
 | `1.45.3` | `1.45.3; 1.46.0` |
 
-The version table maps game builds to source profiles. Each consumer needs a build against the selected game assemblies and the dependencies for its enabled adapters. See [LIBRARY.md](LIBRARY.md) for adapter requirements.
+Set `LegatoTargetVersion` to the exact installed PC release, including any `p1` suffix. The ranges summarize the 120 entries in [the version catalog](Build/Legato.Versions.props), covering the original PC releases archived in BSCode from 0.10.1 through 1.46.0. Each consumer needs a build against the selected game assemblies and the dependencies for its enabled adapters. See [LIBRARY.md](LIBRARY.md) for adapter requirements.
 
-The 0.11.2 profile includes audio playback state, Unity web requests, and supported system polyfills. The 1.11.1 profile also includes native difficulty and level selection adapters. Its cover API exposes the native `GetCoverTextureAsync` result. These profiles defer BSML compatibility.
+Profiles before 1.29.0 select a smaller core for audio playback state, Unity web requests, and system polyfills. Starting at 1.0.0 the core includes difficulty keys, preview levels, and gameplay scene data. The 1.6.0 and newer historical targets also include selection subscriptions. The cover API uses `GetCoverTextureAsync` from 1.0.0 through 1.11.1 and `GetCoverSpriteAsync` from 1.12.1.
+
+For 0.10.x, reference the game's .NET 2.0/3.5 assemblies. Use Unity coroutines to await web requests and Legato's `RequestStatus` to read the result. BSML integration for 0.11.2 and 1.11.1 is deferred.
 
 Legato source is embedded into each plugin. Updating this package alone does not update installed plugins: rebuild and redeploy each consumer. Private fields, Harmony targets, IL patterns, native hooks, dependency APIs and shader bundles can still need changes. Confirm behavior in the game after building.
 

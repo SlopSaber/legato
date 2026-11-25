@@ -13,19 +13,19 @@ namespace Legato.Unity {
         }
 
         internal static bool IsSuccess(UnityWebRequest request) =>
-#if BEAT_SABER_1_29_0
+#if BEAT_SABER_1_29_0 || LEGATO_HISTORICAL_GAME
             !request.isNetworkError && !request.isHttpError;
 #else
             request.result == UnityWebRequest.Result.Success;
 #endif
         internal static bool IsConnectionError(UnityWebRequest request) =>
-#if BEAT_SABER_1_29_0
+#if BEAT_SABER_1_29_0 || LEGATO_HISTORICAL_GAME
             request.isNetworkError;
 #else
             request.result == UnityWebRequest.Result.ConnectionError;
 #endif
         internal static bool IsProtocolError(UnityWebRequest request) =>
-#if BEAT_SABER_1_29_0
+#if BEAT_SABER_1_29_0 || LEGATO_HISTORICAL_GAME
             request.isHttpError;
 #else
             request.result == UnityWebRequest.Result.ProtocolError;

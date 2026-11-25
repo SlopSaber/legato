@@ -6,7 +6,7 @@ namespace Legato.Unity
     {
         internal static bool Succeeded(UnityWebRequest request)
         {
-#if BEAT_SABER_1_29_0
+#if BEAT_SABER_1_29_0 || LEGATO_HISTORICAL_GAME
             return request.isDone && !request.isNetworkError && !request.isHttpError;
 #else
             return request.result == UnityWebRequest.Result.Success;
@@ -15,7 +15,7 @@ namespace Legato.Unity
 
         internal static string Describe(UnityWebRequest request)
         {
-#if BEAT_SABER_1_29_0
+#if BEAT_SABER_1_29_0 || LEGATO_HISTORICAL_GAME
             return !request.isDone ? "InProgress" : request.isNetworkError ? "ConnectionError" :
                 request.isHttpError ? "ProtocolError" : "Success";
 #else

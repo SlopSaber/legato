@@ -16,7 +16,7 @@ namespace Legato {
         }
 
         internal static void RebuildDepthTextureControllerFor(this MainCamera mainCamera, Camera spectatorCamera) {
-#if !LEGATO_DIFFICULTY_BEATMAPS
+#if !LEGATO_DIFFICULTY_BEATMAPS && !LEGATO_NO_DEPTH_TEXTURE_CONTROLLER
             // recreate this since Instantiate leaves it without its Zenject objects
             Component.Destroy(spectatorCamera.gameObject.GetComponent<DepthTextureController>());
             mainCamera.gameObject.GetComponent<DepthTextureController>().CopyComponent<DepthTextureController>(spectatorCamera.gameObject);

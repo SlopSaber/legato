@@ -1,5 +1,10 @@
 #nullable enable
 
+#if LEGATO_DIFFICULTY_IN_SCENE_SETUP
+using System.Linq;
+#endif
+
+#if !LEGATO_NO_TRANSITION_DIFFICULTY
 namespace Legato {
     internal static class StandardLevelScenesTransitionSetupDataExtensions {
 #if LEGATO_DIFFICULTY_BEATMAPS
@@ -12,8 +17,8 @@ namespace Legato {
             new BeatmapKey(transition.GetDifficultyBeatmap());
 
         private static IDifficultyBeatmap? GetDifficultyBeatmap(this StandardLevelScenesTransitionSetupData transition) =>
-#if LEGATO_LEGACY_PREVIEW
-            transition.Get<GameplayCoreSceneSetupData>()?.difficultyBeatmap;
+#if LEGATO_DIFFICULTY_IN_SCENE_SETUP
+            transition.sceneSetupDataArray?.OfType<GameplayCoreSceneSetupData>().FirstOrDefault()?.difficultyBeatmap;
 #else
             transition.difficultyBeatmap;
 #endif
@@ -24,3 +29,4 @@ namespace Legato {
 #endif
     }
 }
+#endif

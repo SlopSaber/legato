@@ -47,12 +47,25 @@ namespace Legato {
         public float shufflePeriod => source.shufflePeriod;
         public EnvironmentInfoSO environmentInfo => source.environmentInfo;
         public EnvironmentInfoSO allDirectionsEnvironmentInfo => source.allDirectionsEnvironmentInfo;
+#if LEGATO_PREVIEW_ENVIRONMENTS
+        public EnvironmentInfoSO[] environmentInfos => source.environmentInfos;
+#endif
+#if LEGATO_LEGACY_CONTENT_RATING
+        public PlayerSensitivityFlag contentRating => source.contentRating;
+#endif
         public IReadOnlyList<PreviewDifficultyBeatmapSet> previewDifficultyBeatmapSets => source.previewDifficultyBeatmapSets;
         public Task<Sprite> GetCoverImageAsync(CancellationToken cancellationToken) => source.GetCoverImageAsync(cancellationToken);
 #endif
 
 #if LEGATO_DIFFICULTY_BEATMAPS
         internal IReadOnlyList<BeatmapDifficultyAdapter> difficulties => Array.Empty<BeatmapDifficultyAdapter>();
+#elif BEAT_SABER_1_45_1 || BEAT_SABER_1_45_3
+        internal IReadOnlyList<BeatmapDifficultyAdapter> difficulties => source.GetBeatmapKeys()
+#if BEAT_SABER_1_45_3
+            .Where(key => key.gameplayType == GameplayType.BeatSaber)
+#endif
+            .Select(key => new BeatmapDifficultyAdapter(key.characteristic.SerializedName(), key.difficulty.ToString()))
+            .ToArray();
 #else
         internal IReadOnlyList<BeatmapDifficultyAdapter> difficulties => source.beatmapBasicData.Keys
             .Select(key => new BeatmapDifficultyAdapter(key.characteristic.serializedName, key.difficulty.ToString()))
@@ -98,7 +111,7 @@ namespace Legato {
             this.source = source;
         }
 
-#if BEAT_SABER_1_37_1
+#if BEAT_SABER_1_37_1 && !LEGATO_ADDITIONAL_PACK_LEVELS
         internal IReadOnlyList<BeatmapLevelAdapter> beatmapLevels => source.beatmapLevels
 #else
         internal IReadOnlyList<BeatmapLevelAdapter> beatmapLevels => source.AllBeatmapLevels()
@@ -122,6 +135,13 @@ namespace Legato {
         public Sprite smallCoverImage => source.smallCoverImage;
         public IBeatmapLevelCollection beatmapLevelCollection => new BeatmapLevelCollectionAdapter(beatmapLevels);
         public bool isPackAlwaysOwned => true;
+#if LEGATO_LEGACY_CONTENT_RATING
+        public PlayerSensitivityFlag contentRating => (source as IBeatmapLevelPack)?.contentRating
+            ?? GetContentRating(source.beatmapLevelCollection.beatmapLevels);
+
+        private static PlayerSensitivityFlag GetContentRating(IEnumerable<IPreviewBeatmapLevel> levels) =>
+            levels.Select(level => level.contentRating).DefaultIfEmpty(PlayerSensitivityFlag.Safe).Max();
+#endif
 
         internal static BeatmapLevelPackAdapter From(IAnnotatedBeatmapLevelCollection source) {
 #if LEGATO_DIFFICULTY_BEATMAPS
@@ -140,14 +160,20 @@ namespace Legato {
             Sprite smallCoverImage,
             IReadOnlyList<BeatmapLevelAdapter> levels) {
 #if LEGATO_DIFFICULTY_BEATMAPS
+            var nativeLevels = levels.Select(level => level.source).ToArray();
+            var collection = new BeatmapLevelCollection(nativeLevels);
             return new BeatmapLevelPackAdapter(new BeatmapLevelPack(
                 packID,
                 packName,
                 shortPackName,
                 coverImage,
                 smallCoverImage,
-                new BeatmapLevelCollection(levels.Select(level => level.source).ToArray())));
-#elif BEAT_SABER_1_37_1
+#if LEGATO_LEGACY_CONTENT_RATING
+                collection, GetContentRating(nativeLevels)));
+#else
+                collection));
+#endif
+#elif BEAT_SABER_1_37_1 && !LEGATO_PACK_PURCHASE_OPTION && !LEGATO_ADDITIONAL_PACK_LEVELS
             return new BeatmapLevelPackAdapter(new BeatmapLevelPack(
                 packID,
                 packName,

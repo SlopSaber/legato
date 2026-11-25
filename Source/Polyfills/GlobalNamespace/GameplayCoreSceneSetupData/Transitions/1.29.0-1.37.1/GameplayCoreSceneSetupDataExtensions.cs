@@ -10,7 +10,9 @@ namespace Legato {
 #endif
 
         internal static BeatmapLevel? GetBeatmapLevel(this GameplayCoreSceneSetupData instance) =>
-#if LEGATO_DIFFICULTY_BEATMAPS
+#if LEGATO_HISTORICAL_GAME
+            instance.difficultyBeatmap?.level is IBeatmapLevel level ? new BeatmapLevel(level) : null;
+#elif LEGATO_DIFFICULTY_BEATMAPS
             instance.previewBeatmapLevel == null ? null : new BeatmapLevel(instance.previewBeatmapLevel);
 #else
             instance.beatmapLevel;

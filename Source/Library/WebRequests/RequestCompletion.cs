@@ -1,3 +1,4 @@
+#if !BEAT_SABER_0_10_1
 using System.Threading.Tasks;
 using UnityEngine.Networking;
 
@@ -12,3 +13,4 @@ namespace Legato.Unity {
         }
     }
 }
+#endif

@@ -1,7 +1,7 @@
 #nullable enable
 
 using System;
-#if BEAT_SABER_1_29_0
+#if BEAT_SABER_1_29_0 || LEGATO_HISTORICAL_GAME
 using System.Linq;
 #endif
 using UnityEngine;
@@ -43,7 +43,7 @@ namespace Legato.Unity {
         internal static T[] FindIncludingInactiveUnsorted<T>() where T : UnityEngine.Object {
 #if BEAT_SABER_1_45_1 || BEAT_SABER_1_45_3
             return UnityEngine.Object.FindObjectsByType<T>(FindObjectsInactive.Include, FindObjectsSortMode.None);
-#elif BEAT_SABER_1_29_0
+#elif BEAT_SABER_1_29_0 || LEGATO_HISTORICAL_GAME
             if (!typeof(Component).IsAssignableFrom(typeof(T)) && typeof(T) != typeof(GameObject))
                 return UnityEngine.Object.FindObjectsOfType<T>();
             return UnityEngine.Resources.FindObjectsOfTypeAll<T>()

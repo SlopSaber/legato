@@ -13,6 +13,13 @@ namespace Legato {
             BeatmapLevelDataVersion beatmapLevelDataVersion,
             GameplayModifiers? gameplayModifiers,
             PlayerSpecificSettings? playerSpecificSettings,
-            bool enableBeatmapDataCaching) => instance.LoadBeatmapDataAsync(beatmapLevelData, beatmapKey, startBpm, loadingForDesignatedEnvironment, environmentInfo, null, beatmapLevelDataVersion, gameplayModifiers, playerSpecificSettings, enableBeatmapDataCaching);
+            bool enableBeatmapDataCaching) =>
+            instance.LoadBeatmapDataAsync(beatmapLevelData, beatmapKey, startBpm, loadingForDesignatedEnvironment,
+                environmentInfo, null, beatmapLevelDataVersion, gameplayModifiers,
+#if LEGATO_NATIVE_BEATMAP_CACHE
+                playerSpecificSettings);
+#else
+                playerSpecificSettings, enableBeatmapDataCaching);
+#endif
     }
 }

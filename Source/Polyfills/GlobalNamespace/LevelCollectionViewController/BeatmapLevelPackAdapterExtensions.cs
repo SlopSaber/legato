@@ -12,7 +12,11 @@ namespace Legato {
             Sprite headerSprite,
             GameObject noDataInfoPrefab) {
 #if LEGATO_DIFFICULTY_BEATMAPS
-            controller.SetData(pack.source.beatmapLevelCollection, headerText, headerSprite, false, noDataInfoPrefab);
+            controller.SetData(pack.source.beatmapLevelCollection, headerText, headerSprite, false,
+#if LEGATO_LEGACY_PACK_SORT
+                false,
+#endif
+                noDataInfoPrefab);
 #else
             controller.SetData(
                 pack.beatmapLevels.Select(level => level.source).ToArray(),

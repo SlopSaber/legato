@@ -20,6 +20,9 @@ namespace Legato {
                 showPackHeader,
                 showPracticeButton,
                 actionButtonText,
+#if LEGATO_LEGACY_PACK_SORT
+                false,
+#endif
                 noDataInfoPrefab,
                 allowedBeatmapDifficultyMask,
                 notAllowedCharacteristics);
@@ -32,7 +35,11 @@ namespace Legato {
                 true,
                 noDataInfoPrefab,
                 allowedBeatmapDifficultyMask,
+#if BEAT_SABER_1_45_1 || BEAT_SABER_1_45_3
+                notAllowedCharacteristics == null ? null : Array.ConvertAll(notAllowedCharacteristics, characteristic => characteristic.AsEnum()),
+#else
                 notAllowedCharacteristics,
+#endif
                 true);
 #endif
         }
