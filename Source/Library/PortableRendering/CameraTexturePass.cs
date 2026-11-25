@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Rendering;
-#if BEAT_SABER_1_45_1 || BEAT_SABER_1_45_3
+#if !LEGATO_BUILT_IN_RENDERING
 using HarmonyLib;
 using UnityEngine.Rendering.RenderGraphModule;
 using UnityEngine.Rendering.RenderGraphModule.Util;
@@ -45,7 +45,7 @@ namespace Legato.Rendering
             this.colorTexture = string.IsNullOrEmpty(colorTexture) ? 0 : Shader.PropertyToID(colorTexture);
             this.downsample = downsample;
             Registrations.Add(this);
-#if BEAT_SABER_1_45_1 || BEAT_SABER_1_45_3
+#if !LEGATO_BUILT_IN_RENDERING
             pass = new GraphPass(this);
             reset.SetGlobalFloat(this.depthAvailable, 0);
             RenderPipelineManager.endCameraRendering += EndCamera;
@@ -60,7 +60,7 @@ namespace Legato.Rendering
             disposed = true;
             Registrations.Remove(this);
             Shader.SetGlobalFloat(depthAvailable, 0);
-#if BEAT_SABER_1_45_1 || BEAT_SABER_1_45_3
+#if !LEGATO_BUILT_IN_RENDERING
             RenderPipelineManager.endCameraRendering -= EndCamera;
             reset.Release();
 #else
@@ -70,7 +70,7 @@ namespace Legato.Rendering
 #endif
         }
 
-#if BEAT_SABER_1_45_1 || BEAT_SABER_1_45_3
+#if !LEGATO_BUILT_IN_RENDERING
         private readonly GraphPass pass;
         private readonly CommandBuffer reset = new() { name = "Legato reset scene depth availability" };
         private void EndCamera(ScriptableRenderContext context, Camera camera) => context.ExecuteCommandBuffer(reset);

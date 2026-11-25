@@ -32,4 +32,13 @@
     <LegatoGameVersion Include="1.45.1;1.45.2" Profile="1.45.1" Order="5" Constants="LEGATO_NATIVE_BEATMAP_CACHE;LEGATO_GROUPED_LIGHT_IDS" />
     <LegatoGameVersion Include="1.45.3;1.46.0" Profile="1.45.3" Order="6" Constants="LEGATO_NATIVE_BEATMAP_CACHE;LEGATO_GROUPED_LIGHT_IDS" />
   </ItemGroup>
+  <ItemGroup>
+    <LegatoPortableShaderProfile Include="1.29.0;1.29.1" BundleTarget="1.29.1" UnityVersion="2019.4.28f1" Pipeline="BuiltIn" />
+    <LegatoPortableShaderProfile Include="1.37.1" BundleTarget="1.37.1" UnityVersion="2021.3.16f1" Pipeline="BuiltIn" />
+    <LegatoPortableShaderProfile Include="1.37.2;1.38.0;1.39.0;1.39.1;1.40.0;1.40.1;1.40.2;1.40.3;1.40.4;1.40.5;1.40.6;1.40.7;1.40.8"
+                                 BundleTarget="1.37.2" UnityVersion="2022.3.33f1" Pipeline="BuiltIn" />
+    <LegatoPortableShaderProfile Include="1.42.0;1.42.1;1.42.2;1.42.3;1.43.0;1.44.0;1.44.1"
+                                 BundleTarget="1.42.0" UnityVersion="6000.0.40f1" Pipeline="Universal" UrpVersion="17.0.1" SideBySideMirrors="true" />
+    <LegatoPortableShaderProfile Include="1.45.1;1.45.2;1.45.3;1.46.0" BundleTarget="1.46.0" UnityVersion="6000.3.19f1" Pipeline="Universal" />
+  </ItemGroup>
 </Project>

@@ -28,9 +28,13 @@
     <ItemGroup>
       <_LegatoTargetVersion Include="@(LegatoGameVersion->WithMetadataValue('Identity', '$(LegatoTargetVersion)'))" />
       <_LegatoSourceVersion Include="@(LegatoGameVersion->WithMetadataValue('Identity', '$(LegatoSourceVersion)'))" />
+      <_LegatoPortableShaderProfile Include="@(LegatoPortableShaderProfile->WithMetadataValue('Identity', '$(LegatoTargetVersion)'))"
+                                   Condition="'$(LegatoEnablePortableRendering)' == 'true'" />
     </ItemGroup>
     <PropertyGroup>
       <LegatoTargetProfile>@(_LegatoTargetVersion->'%(Profile)')</LegatoTargetProfile>
+      <LegatoPortableShaderBundleTarget>@(_LegatoPortableShaderProfile->'%(BundleTarget)')</LegatoPortableShaderBundleTarget>
+      <_LegatoPortablePipeline>@(_LegatoPortableShaderProfile->'%(Pipeline)')</_LegatoPortablePipeline>
       <LegatoTargetOrder>@(_LegatoTargetVersion->'%(Order)')</LegatoTargetOrder>
       <LegatoSourceProfile>@(_LegatoSourceVersion->'%(Profile)')</LegatoSourceProfile>
       <LegatoSourceOrder>@(_LegatoSourceVersion->'%(Order)')</LegatoSourceOrder>
@@ -42,12 +46,15 @@
       <LegatoTargetDefine Condition="'$(LegatoTargetProfile)' != ''">BEAT_SABER_$([System.String]::Copy('$(LegatoTargetProfile)').Replace('.', '_'))</LegatoTargetDefine>
       <DefineConstants Condition="'$(LegatoTargetDefine)' != ''">$(DefineConstants);$(LegatoTargetDefine);@(_LegatoTargetVersion->'%(Constants)')</DefineConstants>
       <DefineConstants Condition="'$(_LegatoApiVersion)' != '' AND $([MSBuild]::VersionLessThan('$(_LegatoApiVersion)', '1.37.2'))">$(DefineConstants);LEGATO_INTEGER_REFRESH_RATE;LEGATO_LEGACY_FRAME_TIMING;LEGATO_BASIC_TEXTURE_CREATION_FLAGS</DefineConstants>
+      <DefineConstants Condition="'$(_LegatoApiVersion)' != '' AND $([MSBuild]::VersionGreaterThanOrEquals('$(_LegatoApiVersion)', '1.37.2'))">$(DefineConstants);LEGATO_LINE_RENDERER_TEXTURE_SCALE</DefineConstants>
       <DefineConstants Condition="'$(_LegatoApiVersion)' != '' AND $([MSBuild]::VersionLessThan('$(_LegatoApiVersion)', '1.37.3'))">$(DefineConstants);LEGATO_PACK_CONTENT_WITHOUT_PURCHASE_OPTIONS</DefineConstants>
       <DefineConstants Condition="'$(_LegatoApiVersion)' != '' AND $([MSBuild]::VersionGreaterThanOrEquals('$(_LegatoApiVersion)', '1.36.2')) AND $([MSBuild]::VersionLessThan('$(_LegatoApiVersion)', '1.37.3'))">$(DefineConstants);LEGATO_MAIN_SETTINGS_HANDLER</DefineConstants>
       <DefineConstants Condition="'$(_LegatoApiVersion)' != '' AND $([MSBuild]::VersionGreaterThanOrEquals('$(_LegatoApiVersion)', '1.37.3'))">$(DefineConstants);LEGATO_QUALITY_SETTINGS_MANAGER</DefineConstants>
+      <DefineConstants Condition="'$(_LegatoApiVersion)' != '' AND $([MSBuild]::VersionGreaterThanOrEquals('$(_LegatoApiVersion)', '1.37.3'))">$(DefineConstants);LEGATO_LEVEL_DETAIL_METRICS_SET_DATA</DefineConstants>
       <DefineConstants Condition="'$(_LegatoApiVersion)' != '' AND $([MSBuild]::VersionLessThan('$(_LegatoApiVersion)', '1.37.3'))">$(DefineConstants);LEGATO_CACHED_RENDERER_MATERIAL_COUNTS</DefineConstants>
       <DefineConstants Condition="'$(_LegatoApiVersion)' != '' AND $([MSBuild]::VersionGreaterThanOrEquals('$(_LegatoApiVersion)', '1.37.4'))">$(DefineConstants);LEGATO_CUTTABLE_SCORING_OBJECT_COUNT;LEGATO_BEATMAP_OBJECT_BEAT</DefineConstants>
       <DefineConstants Condition="'$(_LegatoApiVersion)' != '' AND $([MSBuild]::VersionGreaterThanOrEquals('$(_LegatoApiVersion)', '1.37.4'))">$(DefineConstants);LEGATO_ENVIRONMENT_COLOR_PROVIDER</DefineConstants>
+      <DefineConstants Condition="'$(_LegatoApiVersion)' != '' AND $([MSBuild]::VersionGreaterThanOrEquals('$(_LegatoApiVersion)', '1.37.4'))">$(DefineConstants);LEGATO_SABER_VISUAL_ENDPOINTS</DefineConstants>
       <DefineConstants Condition="'$(_LegatoApiVersion)' != '' AND $([MSBuild]::VersionGreaterThanOrEquals('$(_LegatoApiVersion)', '1.38.0'))">$(DefineConstants);LEGATO_DEPTH_TEXTURE_SETTINGS_INIT</DefineConstants>
       <DefineConstants Condition="'$(_LegatoApiVersion)' != '' AND $([MSBuild]::VersionGreaterThanOrEquals('$(_LegatoApiVersion)', '1.38.0'))">$(DefineConstants);LEGATO_STANDARD_LEVEL_RESTART_CALLBACK</DefineConstants>
       <DefineConstants Condition="'$(_LegatoApiVersion)' != '' AND $([MSBuild]::VersionLessThan('$(_LegatoApiVersion)', '1.37.4'))">$(DefineConstants);LEGATO_UNTYPED_SCENE_TRANSITIONS;LEGATO_LEGACY_AVAILABLE_CHARACTERISTICS_FIELD;LEGATO_PRIVATE_POINTER_CURSOR;LEGATO_SELECT_ROW_EVENT;LEGATO_FAIL_ON_ZERO_ENERGY;LEGATO_LEGACY_FLOW_OVERRIDE</DefineConstants>
@@ -73,7 +80,11 @@
       <DefineConstants Condition="'$(LegatoUsesBuiltInRendering)' == 'true'">$(DefineConstants);LEGATO_BUILT_IN_RENDERING</DefineConstants>
       <DefineConstants Condition="'$(_LegatoApiVersion)' != '' AND $([MSBuild]::VersionGreaterThanOrEquals('$(_LegatoApiVersion)', '1.41.1'))">$(DefineConstants);LEGATO_LOCALIZATION_REMOVE_LISTENER</DefineConstants>
       <DefineConstants Condition="'$(_LegatoApiVersion)' != '' AND $([MSBuild]::VersionGreaterThanOrEquals('$(_LegatoApiVersion)', '1.45.1'))">$(DefineConstants);LEGATO_XR_APP_FOCUS_QUERY;LEGATO_XR_URP_RENDER_SCALE</DefineConstants>
+      <DefineConstants Condition="'$(_LegatoApiVersion)' != '' AND $([MSBuild]::VersionLessThan('$(_LegatoApiVersion)', '1.45.1'))">$(DefineConstants);LEGATO_LEGACY_MIRROR_RENDERER</DefineConstants>
+      <DefineConstants Condition="'$(_LegatoApiVersion)' != '' AND $([MSBuild]::VersionGreaterThanOrEquals('$(_LegatoApiVersion)', '1.45.1'))">$(DefineConstants);LEGATO_URP_DRAW_MAIN_OPAQUE_FLAG</DefineConstants>
+      <DefineConstants Condition="'$(_LegatoApiVersion)' != '' AND $([MSBuild]::VersionGreaterThanOrEquals('$(_LegatoApiVersion)', '1.45.1'))">$(DefineConstants);LEGATO_LINE_RENDERER_COLOR_SPACE</DefineConstants>
       <DefineConstants Condition="'$(_LegatoApiVersion)' != '' AND $([MSBuild]::VersionLessThan('$(_LegatoApiVersion)', '1.41.1'))">$(DefineConstants);LEGATO_CHARACTERISTIC_NAME_PROPERTY;LEGATO_LEGACY_SCENE_NAMES;LEGATO_PLATFORM_USER_MODEL;LEGATO_GAMEPLAY_WITHOUT_ADDITIONAL_INFORMATION;LEGATO_BURN_MARKS_START</DefineConstants>
+      <DefineConstants Condition="'$(_LegatoApiVersion)' != '' AND $([MSBuild]::VersionGreaterThanOrEquals('$(_LegatoApiVersion)', '1.41.1'))">$(DefineConstants);LEGATO_TRANSITION_ENVIRONMENT_OVERRIDE</DefineConstants>
       <DefineConstants Condition="'$(_LegatoApiVersion)' != '' AND $([MSBuild]::VersionLessThan('$(_LegatoApiVersion)', '1.41.1'))">$(DefineConstants);LEGATO_MIXER_MUSIC_PITCH</DefineConstants>
       <DefineConstants Condition="'$(_LegatoApiVersion)' != '' AND $([MSBuild]::VersionGreaterThanOrEquals('$(_LegatoApiVersion)', '1.41.1'))">$(DefineConstants);LEGATO_BEATMAP_LOAD_ERROR_MESSAGE</DefineConstants>
       <DefineConstants Condition="'$(_LegatoApiVersion)' != '' AND $([MSBuild]::VersionGreaterThanOrEquals('$(_LegatoApiVersion)', '1.41.1'))">$(DefineConstants);LEGATO_CONTROLLER_AUTOPLAY</DefineConstants>
@@ -98,8 +109,8 @@
     </PropertyGroup>
     <Error Condition="'$(LegatoTargetProfile)' == ''" Text="Legato does not support Beat Saber $(LegatoTargetVersion)" />
     <Error Condition="'$(LegatoSourceProfile)' == ''" Text="Legato does not support source written for Beat Saber $(LegatoSourceVersion)" />
-    <Error Condition="'$(LegatoEnablePortableRendering)' == 'true' AND '$(LegatoTargetProfile)' != '1.29.0' AND '$(LegatoTargetProfile)' != '1.45.1' AND '$(LegatoTargetProfile)' != '1.45.3'"
-           Text="Portable camera passes currently support the built-in 1.29 and Unity 6 profiles only." />
+    <Error Condition="'$(LegatoEnablePortableRendering)' == 'true' AND '$(LegatoPortableShaderBundleTarget)' == ''"
+           Text="Portable rendering has no exact profile for Beat Saber $(LegatoTargetVersion)." />
   </Target>
 
   <Target Name="LegatoPrepareBuildMetadata" BeforeTargets="BeforeBuild;GenerateManifest;GenerateBSMLManifest;BSMT_StartBSIPA;BSMT_GenerateManifest;PrepareForBuild"
@@ -131,14 +142,14 @@
                  Condition="'$(LegatoEnablePlatformAuthentication)' == 'true' AND '@(Reference->WithMetadataValue('Identity', 'BGNetCore'))' == '' AND Exists('$(LegatoReferenceRoot)\Beat Saber_Data\Managed\BGNetCore.dll')" />
       <Reference Remove="OculusStudios.Platform.Core" Condition="'$(LegatoEnablePlatformAuthentication)' == 'true' AND !Exists('$(LegatoReferenceRoot)\Beat Saber_Data\Managed\OculusStudios.Platform.Core.dll')" />
       <Reference Include="Unity.RenderPipelines.Core.Runtime;Unity.RenderPipelines.Universal.Runtime"
-                 Condition="('$(LegatoEnableCameraEffects)' == 'true' OR '$(LegatoEnablePortableRendering)' == 'true') AND ('$(LegatoTargetProfile)' == '1.45.1' OR '$(LegatoTargetProfile)' == '1.45.3')">
+                 Condition="'$(_LegatoPortablePipeline)' == 'Universal' OR ('$(LegatoEnableCameraEffects)' == 'true' AND ('$(LegatoTargetProfile)' == '1.45.1' OR '$(LegatoTargetProfile)' == '1.45.3'))">
         <HintPath>$(LegatoReferenceRoot)\Beat Saber_Data\Managed\%(Identity).dll</HintPath>
         <Private>false</Private>
       </Reference>
       <Reference Include="UnityEngine.VRModule" HintPath="$(LegatoReferenceRoot)\Beat Saber_Data\Managed\UnityEngine.VRModule.dll" Private="false"
-                 Condition="'$(LegatoEnablePortableRendering)' == 'true' AND '$(LegatoTargetProfile)' == '1.29.0' AND '@(Reference->WithMetadataValue('Identity', 'UnityEngine.VRModule'))' == ''" />
+                 Condition="'$(_LegatoPortablePipeline)' == 'BuiltIn' AND '@(Reference->WithMetadataValue('Identity', 'UnityEngine.VRModule'))' == '' AND Exists('$(LegatoReferenceRoot)\Beat Saber_Data\Managed\UnityEngine.VRModule.dll')" />
       <Reference Include="Unity.RenderPipelines.Core.Runtime.Shared" HintPath="$(LegatoReferenceRoot)\Beat Saber_Data\Managed\Unity.RenderPipelines.Core.Runtime.Shared.dll" Private="false"
-                 Condition="'$(LegatoEnablePortableRendering)' == 'true' AND ('$(LegatoTargetProfile)' == '1.45.1' OR '$(LegatoTargetProfile)' == '1.45.3') AND '@(Reference->WithMetadataValue('Identity', 'Unity.RenderPipelines.Core.Runtime.Shared'))' == '' AND Exists('$(LegatoReferenceRoot)\Beat Saber_Data\Managed\Unity.RenderPipelines.Core.Runtime.Shared.dll')" />
+                 Condition="'$(_LegatoPortablePipeline)' == 'Universal' AND '@(Reference->WithMetadataValue('Identity', 'Unity.RenderPipelines.Core.Runtime.Shared'))' == '' AND Exists('$(LegatoReferenceRoot)\Beat Saber_Data\Managed\Unity.RenderPipelines.Core.Runtime.Shared.dll')" />
       <Reference Remove="SongDataCore"
                  Condition="'$(LegatoSourceProfile)' == '1.29.0' AND !Exists('$(LegatoReferenceRoot)\Plugins\SongDataCore.dll') AND Exists('$(LegatoLibraryRoot)\SongDetailsCache.dll')" />
       <Reference Include="SongDetailsCache"

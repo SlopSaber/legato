@@ -15,12 +15,11 @@ $source = [IO.Path]::GetFullPath($SourceDirectory).TrimEnd('/','\')
 $workspace = [IO.Path]::GetFullPath($WorkspacePath).TrimEnd('/','\')
 $output = [IO.Path]::GetFullPath($OutputDirectory)
 if ($BundleName -notmatch '^[a-z0-9][a-z0-9_.-]*$' -or $BundleName -in '.','..') { throw 'BundleName must be a simple lowercase asset-bundle filename.' }
-$unityVersion = switch ($TargetVersion) {
-    { $_ -in '1.29.0','1.29.1' } { '2019.4.28f1'; break }
-    '1.46.0' { '6000.3.19f1'; break }
-    default { throw 'Portable shaders currently support 1.29.0/1.29.1 and 1.46.0 only.' }
-}
-$urp = $unityVersion.StartsWith('6000.')
+$versions = [xml](Get-Content -LiteralPath (Join-Path $PSScriptRoot 'Legato.Versions.props') -Raw)
+$profile = @($versions.Project.ItemGroup.LegatoPortableShaderProfile | Where-Object { ($_.Include -split ';') -contains $TargetVersion })
+if ($profile.Count -ne 1) { throw "Portable shaders have no exact profile for Beat Saber $TargetVersion." }
+$unityVersion = $profile[0].UnityVersion
+$urp = $profile[0].Pipeline -eq 'Universal'
 if (!(Test-Path -LiteralPath $source -PathType Container)) { throw 'SourceDirectory is missing.' }
 if ($workspace -eq $source -or $workspace.StartsWith($source + [IO.Path]::DirectorySeparatorChar, [StringComparison]::OrdinalIgnoreCase) -or
     $source.StartsWith($workspace + [IO.Path]::DirectorySeparatorChar, [StringComparison]::OrdinalIgnoreCase)) {
@@ -44,7 +43,12 @@ $manifest = '{"dependencies":{"com.unity.modules.assetbundle":"1.0.0","com.unity
 if ($urp) {
     if (!$PackageManifestPath) { throw 'The URP target requires the maintained source project PackageManifestPath.' }
     $manifest = Get-Content -LiteralPath $PackageManifestPath -Raw
-    if (!(($manifest | ConvertFrom-Json).dependencies.'com.unity.render-pipelines.universal')) { throw 'The package manifest does not declare URP.' }
+    $packages = $manifest | ConvertFrom-Json
+    if (!$packages.dependencies.'com.unity.render-pipelines.universal') { throw 'The package manifest does not declare URP.' }
+    if ($profile[0].UrpVersion) {
+        $packages.dependencies.'com.unity.render-pipelines.universal' = $profile[0].UrpVersion
+        $manifest = $packages | ConvertTo-Json -Depth 16
+    }
 }
 $files = @(Get-ChildItem -LiteralPath $source -Recurse -File | Where-Object {
     $_.Extension -in '.shader','.hlsl','.cginc' -or $_.Name -match '\.(shader|hlsl|cginc)\.meta$'
@@ -83,6 +87,7 @@ foreach ($file in $files) {
 $legato = Split-Path $PSScriptRoot -Parent
 foreach ($name in 'Core.hlsl','Blit.hlsl','UnityUICompatibility.cginc') { $prepared['Assets/Legato/' + $name] = [IO.File]::ReadAllText((Join-Path $legato ('ShaderLibrary/' + $name))) }
 $prepared['Assets/Legato/Pipeline.hlsl'] = '#define LEGATO_URP ' + [int]$urp + "`n"
+if ($profile[0].SideBySideMirrors -eq 'true') { $prepared['Assets/Legato/Pipeline.hlsl'] += "#define LEGATO_SIDE_BY_SIDE_MIRROR 1`n" }
 $prepared['Assets/Editor/BuildPortableShaders.cs'] = [IO.File]::ReadAllText((Join-Path $legato 'AssetBuild/Editor/BuildPortableShaders.cs'))
 $prepared['ProjectSettings/ProjectVersion.txt'] = "m_EditorVersion: $unityVersion`n"
 $prepared['Packages/manifest.json'] = $manifest
