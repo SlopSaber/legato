@@ -36,8 +36,10 @@
   <!-- Keep the suite's original version ordering while selecting it from Legato's target. -->
   <Target Name="LBSM_GetConfigurationInfo" DependsOnTargets="LegatoConfigure">
     <PropertyGroup>
-      <_LegatoHeckConfiguration>Release-$(LegatoTargetVersion)</_LegatoHeckConfiguration>
-      <_LegatoHeckConfiguration Condition="$(Configuration.StartsWith('Debug'))">Debug-$(LegatoTargetVersion)</_LegatoHeckConfiguration>
+      <_LegatoHeckCodeVersion>$(LegatoTargetVersion)</_LegatoHeckCodeVersion>
+      <_LegatoHeckCodeVersion Condition="'$(LegatoTargetProfile)' == '1.29.0'">1.29.1</_LegatoHeckCodeVersion>
+      <_LegatoHeckConfiguration>Release-$(_LegatoHeckCodeVersion)</_LegatoHeckConfiguration>
+      <_LegatoHeckConfiguration Condition="$(Configuration.StartsWith('Debug'))">Debug-$(_LegatoHeckCodeVersion)</_LegatoHeckConfiguration>
       <_LegatoHeckConfigurations>$(Configurations)</_LegatoHeckConfigurations>
       <_LegatoHeckConfigurations Condition="!$([System.String]::Copy(';$(Configurations);').Contains(';$(_LegatoHeckConfiguration);'))">$(Configurations);$(_LegatoHeckConfiguration)</_LegatoHeckConfigurations>
     </PropertyGroup>
