@@ -26,7 +26,7 @@ namespace Legato.Json
                 throw new JsonSerializationException("The existing value has an incompatible type for " + typeof(T).FullName + ".");
             }
 
-            return ReadJson(reader, objectType, hasExistingValue ? (T)existingValue! : default, hasExistingValue, serializer);
+            return this.ReadJson(reader, objectType, hasExistingValue ? (T)existingValue! : default, hasExistingValue, serializer);
         }
 
         public sealed override void WriteJson(JsonWriter writer, object? value, JsonSerializer serializer)
@@ -36,7 +36,7 @@ namespace Legato.Json
                 throw new JsonSerializationException("The value has an incompatible type for " + typeof(T).FullName + ".");
             }
 
-            WriteJson(writer, value == null ? default : (T)value, serializer);
+            this.WriteJson(writer, value == null ? default : (T)value, serializer);
         }
 #endif
     }

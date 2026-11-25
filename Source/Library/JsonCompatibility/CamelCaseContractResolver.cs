@@ -11,7 +11,7 @@ namespace Legato.Json
         public CamelCaseContractResolver()
         {
 #if !BEAT_SABER_1_29_0
-            NamingStrategy = new CamelCaseNamingStrategy();
+            this.NamingStrategy = new CamelCaseNamingStrategy();
 #endif
         }
 

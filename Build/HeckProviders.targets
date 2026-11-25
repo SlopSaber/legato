@@ -1,4 +1,7 @@
 <Project>
+  <PropertyGroup Condition="'$(GenerateDocumentationFile)' != 'true' AND ('$(LegatoEnableHeckProviders)' == 'true' OR '$(LegatoEnableChromaProviders)' == 'true' OR '$(LegatoEnableNoodleExtensionsProviders)' == 'true' OR '$(LegatoEnableVivifyProviders)' == 'true')">
+    <NoWarn>$(NoWarn);SA0001</NoWarn>
+  </PropertyGroup>
   <ItemGroup>
     <EditorConfigFiles Include="$(LegatoSourceRoot)Library\LegacyShaderRendering\.editorconfig"
                        Condition="'$(LegatoEnableLegacyShaderRendering)' == 'true'" />
@@ -24,13 +27,23 @@
     </ItemGroup>
   </Target>
   <Target Name="LegatoSuiteLegacyReferences" BeforeTargets="ResolveAssemblyReferences" DependsOnTargets="LegatoConfigure">
+    <ItemGroup Condition="'$(LegatoEnableHeckProviders)' == 'true' OR '$(LegatoEnableChromaProviders)' == 'true' OR '$(LegatoEnableNoodleExtensionsProviders)' == 'true' OR '$(LegatoEnableVivifyProviders)' == 'true'">
+      <Reference Remove="BeatSaber.Multiplayer.Core" Condition="!Exists('$(LegatoReferenceRoot)\Beat Saber_Data\Managed\BeatSaber.Multiplayer.Core.dll')" />
+      <Reference Remove="BeatSaber.Settings" Condition="!Exists('$(LegatoReferenceRoot)\Beat Saber_Data\Managed\BeatSaber.Settings.dll')" />
+      <Reference Remove="BeatSaber.ViewSystem" Condition="!Exists('$(LegatoReferenceRoot)\Beat Saber_Data\Managed\BeatSaber.ViewSystem.dll')" />
+      <Reference Remove="BeatSaber.Haptics" Condition="!Exists('$(LegatoReferenceRoot)\Beat Saber_Data\Managed\BeatSaber.Haptics.dll')" />
+      <Reference Remove="SaberTrail" Condition="!Exists('$(LegatoReferenceRoot)\Beat Saber_Data\Managed\SaberTrail.dll')" />
+    </ItemGroup>
     <ItemGroup Condition="'$(LegatoTargetProfile)' == '1.29.0' AND ('$(LegatoEnableHeckProviders)' == 'true' OR '$(LegatoEnableChromaProviders)' == 'true' OR '$(LegatoEnableNoodleExtensionsProviders)' == 'true' OR '$(LegatoEnableVivifyProviders)' == 'true')">
       <Reference Remove="AdditionalContentModel.Interfaces;BGLib.AppFlow;BGLib.DotnetExtension;BGLib.JsonExtension;BGLib.SaveDataCore;BGLib.UnityExtension;BGNetCore;BeatSaber.GameSettings;BeatSaber.Multiplayer.Core;BeatSaber.Settings;BeatSaber.ViewSystem;DataModels;MediaLoader;Tweening" />
     </ItemGroup>
   </Target>
   <Target Name="LegatoVivifyLegacyReferences" BeforeTargets="ResolveAssemblyReferences" DependsOnTargets="LegatoConfigure">
+    <ItemGroup Condition="'$(LegatoEnableVivifyProviders)' == 'true'">
+      <Reference Remove="ZenjectExtension" Condition="!Exists('$(LegatoReferenceRoot)\Beat Saber_Data\Managed\ZenjectExtension.dll')" />
+    </ItemGroup>
     <ItemGroup Condition="'$(LegatoTargetProfile)' == '1.29.0' AND '$(LegatoEnableVivifyProviders)' == 'true'">
-      <Reference Remove="SaberTrail;Unity.XR.OpenXR;ZenjectExtension" />
+      <Reference Remove="Unity.XR.OpenXR" />
     </ItemGroup>
   </Target>
   <!-- Keep the suite's original version ordering while selecting it from Legato's target. -->

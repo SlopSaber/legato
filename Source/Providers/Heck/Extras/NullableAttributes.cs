@@ -1,6 +1,6 @@
 ﻿using JetBrains.Annotations;
 
-#if BEAT_SABER_1453
+#if !BEAT_SABER_1_29_0 && !LEGATO_HISTORICAL_GAME
 [assembly: System.Runtime.CompilerServices.TypeForwardedTo(typeof(System.Diagnostics.CodeAnalysis.NotNullWhenAttribute))]
 [assembly: System.Runtime.CompilerServices.TypeForwardedTo(typeof(System.Diagnostics.CodeAnalysis.NotNullIfNotNullAttribute))]
 #else

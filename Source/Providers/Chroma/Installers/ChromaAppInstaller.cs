@@ -5,6 +5,7 @@ using Chroma.HarmonyPatches.ZenModeWalls;
 using Chroma.Modules;
 using Chroma.Settings;
 using JetBrains.Annotations;
+using Legato.Injection;
 using Zenject;
 
 namespace Chroma.Installers;
@@ -24,7 +25,7 @@ internal class ChromaAppInstaller : Installer
         Container.BindInstance(_config);
 
         Container.Bind<SavedEnvironmentLoader>().AsSingle();
-        Container.Bind<EnvironmentMaterialsManager>().FromNewComponentOnNewGameObject().AsSingle();
+        ComponentBinding.OnNewGameObject(Container.Bind<EnvironmentMaterialsManager>()).AsSingle();
         Container.BindInterfacesTo<SavedEnvironmentLoading>().AsSingle();
 
         Container.BindInterfacesTo<ForceZenModeObstacleBeatmapData>().AsSingle();

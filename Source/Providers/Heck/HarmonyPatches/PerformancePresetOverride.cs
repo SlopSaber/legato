@@ -1,4 +1,4 @@
-#if V1_37_1
+#if LEGATO_APPLY_PERFORMANCE_PRESET
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -27,9 +27,9 @@ internal static class PerformancePresetOverride
     }
 
     [HarmonyPrefix]
-    private static void Prefix(ref PerformancePreset? __state, ref PerformancePreset ____currentPreset)
+    private static void Prefix(ref PerformancePreset? __state, ref PerformancePreset? ____currentPreset)
     {
-        if (SettingsOverride == null)
+        if (SettingsOverride == null || ____currentPreset == null)
         {
             return;
         }
@@ -50,8 +50,8 @@ internal static class PerformancePresetOverride
         ____currentPreset = customPerformancePreset;
     }
 
-    [HarmonyPostfix]
-    private static void Postfix(ref PerformancePreset? __state, ref PerformancePreset ____currentPreset)
+    [HarmonyFinalizer]
+    private static void RestorePreset(PerformancePreset? __state, ref PerformancePreset? ____currentPreset)
     {
         if (__state != null)
         {

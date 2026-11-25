@@ -2,7 +2,7 @@
   <Import Project="$(MSBuildThisFileDirectory)AssetBundles.targets" />
   <Import Project="$(MSBuildProjectFullPath).user" Condition="'$(LegatoMetadataOnly)' != 'true' AND '$(BeatSaberDir)' == '' AND Exists('$(MSBuildProjectFullPath).user')" />
 
-  <ItemGroup Condition="'$(LegatoEnableObjectDiscovery)' == 'true' OR '$(LegatoEnableUnityCompatibility)' == 'true' OR '$(LegatoEnableLegacyLayoutRepair)' == 'true'">
+  <ItemGroup>
     <EditorConfigFiles Include="$(LegatoSourceRoot)Library\.editorconfig" />
   </ItemGroup>
 
@@ -40,6 +40,7 @@
       <_LegatoUsesDifficultyBeatmaps Condition="'$(_LegatoPolyfillProfile)' == '1.29.0' OR '$(_LegatoCoreApi)' == 'LegacyPreview'">true</_LegatoUsesDifficultyBeatmaps>
       <LegatoTargetDefine Condition="'$(LegatoTargetProfile)' != ''">BEAT_SABER_$([System.String]::Copy('$(LegatoTargetProfile)').Replace('.', '_'))</LegatoTargetDefine>
       <DefineConstants Condition="'$(LegatoTargetDefine)' != ''">$(DefineConstants);$(LegatoTargetDefine);@(_LegatoTargetVersion->'%(Constants)')</DefineConstants>
+      <DefineConstants Condition="'$(LegatoTargetOrder)' != '' AND $(LegatoTargetOrder) &gt;= 4">$(DefineConstants);LEGATO_NATIVE_ZENJECT_COMPONENT_BINDER</DefineConstants>
       <DefineConstants Condition="'$(_LegatoUsesDifficultyBeatmaps)' == 'true'">$(DefineConstants);LEGATO_DIFFICULTY_BEATMAPS</DefineConstants>
       <DefineConstants Condition="'$(_LegatoCoreApi)' != ''">$(DefineConstants);LEGATO_HISTORICAL_GAME</DefineConstants>
       <DefineConstants Condition="'$(_LegatoCoreApi)' == 'EarlyAccess' OR '$(LegatoTargetProfile)' == '1.0.0'">$(DefineConstants);LEGATO_AUDIO_WITHOUT_STATE</DefineConstants>

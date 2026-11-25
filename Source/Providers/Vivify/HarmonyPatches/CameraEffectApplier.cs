@@ -13,7 +13,7 @@ namespace Vivify.HarmonyPatches;
 
 internal class CameraEffectApplier : IAffinity, IDisposable
 {
-#if BEAT_SABER_1_29_0
+#if !BEAT_SABER_1_45_1 && !BEAT_SABER_1_45_3
     private readonly HashSet<PostProcessingController> _nativeControllers = new();
 #else
     private readonly Dictionary<MainEffectController, PostProcessingController> _postProcessingControllers = new();
@@ -80,12 +80,15 @@ internal class CameraEffectApplier : IAffinity, IDisposable
         }
     }
 
-#if BEAT_SABER_1_29_0
+#if !BEAT_SABER_1_45_1 && !BEAT_SABER_1_45_3
     [AffinityPrefix]
     [AffinityPatch(typeof(PostProcessingController), "OnPreCull")]
     private void BindNativeCamera(PostProcessingController __instance)
     {
-        if (_nativeControllers.Add(__instance)) AttachEffects(__instance);
+        if (_nativeControllers.Add(__instance))
+        {
+            AttachEffects(__instance);
+        }
     }
 #else
     [AffinityPrefix]

@@ -322,7 +322,7 @@ public sealed class PlayViewManager : IDisposable
             _currentParameters.StartPaused,
 #endif
             _currentParameters.BeforeSceneSwitchCallback,
-#if LATEST
+#if !PRE_V1_37_1
             _currentParameters.AfterSceneSwitchCallback,
 #else
             null,

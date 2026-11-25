@@ -88,9 +88,13 @@ internal class EnvironmentModule : IModule
 #if !PRE_V1_37_1
 #if BEAT_SABER_1453
         EnvironmentName environmentName = beatmapLevel.GetEnvironmentName(in beatmapKey);
-#else
+#elif BEAT_SABER_1_45_1
         EnvironmentName environmentName = beatmapLevel.GetEnvironmentName(
             beatmapKey.characteristic,
+            beatmapKey.difficulty);
+#else
+        EnvironmentName environmentName = beatmapLevel.GetEnvironmentName(
+            beatmapKey.beatmapCharacteristic,
             beatmapKey.difficulty);
 #endif
         EnvironmentInfoSO environmentInfo =

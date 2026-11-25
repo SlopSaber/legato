@@ -209,8 +209,10 @@ public class ReLoader : ITickable
         float beatsPerMinute = beatmapLevel.beatsPerMinute;
 #if BEAT_SABER_1453
         EnvironmentName environmentName = beatmapLevel.GetEnvironmentName(in beatmapKey);
-#else
+#elif BEAT_SABER_1_45_1
         EnvironmentName environmentName = beatmapLevel.GetEnvironmentName(beatmapKey.characteristic, beatmapKey.difficulty);
+#else
+        EnvironmentName environmentName = beatmapLevel.GetEnvironmentName(beatmapKey.beatmapCharacteristic, beatmapKey.difficulty);
 #endif
 #if !PRE_V1_40_8
         EnvironmentInfoSO targetEnvironmentInfo = _gameplayCoreSceneSetupData.targetEnvironmentInfo;

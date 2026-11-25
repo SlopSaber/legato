@@ -16,7 +16,7 @@ using SiraUtil.Logging;
 using UnityEngine;
 using UnityEngine.UI;
 using Zenject;
-#if V1_37_1
+#if LEGATO_APPLY_PERFORMANCE_PRESET
 using BeatSaber.GameSettings;
 using BeatSaber.PerformancePresets;
 using Heck.HarmonyPatches;
@@ -46,7 +46,7 @@ internal class SettingsSetterViewController : BSMLResourceViewController, IPlayV
     private BSMLParser _bsmlParser = null!;
 #if !PRE_V1_40_8
     private SettingsManager _settingsManager = null!;
-#elif V1_37_1
+#elif LEGATO_APPLY_PERFORMANCE_PRESET
     private GraphicSettingsHandler _graphicSettingsHandler = null!;
 #else
     private MainSystemInit _mainSystemInit = null!;
@@ -58,7 +58,7 @@ internal class SettingsSetterViewController : BSMLResourceViewController, IPlayV
     private StartStandardLevelParameters? _defaultParameters;
     private StartStandardLevelParameters? _modifiedParameters;
 
-#if !V1_37_1
+#if !LEGATO_APPLY_PERFORMANCE_PRESET
     private SettableMainSettings? _cachedMainSettings;
 #endif
     private SettableMainSettings? _modifiedMainSettings;
@@ -292,7 +292,7 @@ internal class SettingsSetterViewController : BSMLResourceViewController, IPlayV
                 }
 
                 _modifiedMainSettings = null;
-#if !V1_37_1
+#if !LEGATO_APPLY_PERFORMANCE_PRESET
                 _cachedMainSettings = null;
 #endif
                 CustomData? jsonGraphics = settings.Get<CustomData>("_graphics");
@@ -312,7 +312,7 @@ internal class SettingsSetterViewController : BSMLResourceViewController, IPlayV
                         qualitySettings.maxShockwaveParticles);
 
                     _modifiedMainSettings = _cachedMainSettings with { };
-#elif V1_37_1
+#elif LEGATO_APPLY_PERFORMANCE_PRESET
                     if (!_graphicSettingsHandler.TryGetCurrentPerformancePreset(out PerformancePreset? preset))
                     {
                         throw new Exception("Could not get current performance preset.");
@@ -474,7 +474,7 @@ internal class SettingsSetterViewController : BSMLResourceViewController, IPlayV
             ScreenDisplacementEffectRendererFeature.enabled = _modifiedMainSettings.ScreenDisplacementEffectsEnabled;
 #endif
             _settingsManager.settings.quality.maxShockwaveParticles = _modifiedMainSettings.MaxShockwaveParticles;
-#elif V1_37_1
+#elif LEGATO_APPLY_PERFORMANCE_PRESET
             PerformancePresetOverride.SettingsOverride = _modifiedMainSettings;
 #else
             _mainSettings.mirrorGraphicsSettings.value = _modifiedMainSettings.MirrorGraphicsSettings;
@@ -524,7 +524,7 @@ internal class SettingsSetterViewController : BSMLResourceViewController, IPlayV
             _cachedOverrideEnvironmentSettings = null;
         }
 
-#if V1_37_1
+#if LEGATO_APPLY_PERFORMANCE_PRESET
         PerformancePresetOverride.SettingsOverride = null;
 #else
         if (_cachedMainSettings == null)
@@ -571,7 +571,7 @@ internal class SettingsSetterViewController : BSMLResourceViewController, IPlayV
 #endif
 #if !PRE_V1_40_8
         SettingsManager settingsManager,
-#elif V1_37_1
+#elif LEGATO_APPLY_PERFORMANCE_PRESET
         GraphicSettingsHandler graphicSettingsHandler,
 #endif
         PlayerDataModel playerDataModel)
@@ -586,7 +586,7 @@ internal class SettingsSetterViewController : BSMLResourceViewController, IPlayV
 #endif
 #if !PRE_V1_40_8
         _settingsManager = settingsManager;
-#elif V1_37_1
+#elif LEGATO_APPLY_PERFORMANCE_PRESET
         _graphicSettingsHandler = graphicSettingsHandler;
 #else
         _mainSettings = Resources.FindObjectsOfTypeAll<MainSettingsModelSO>().First();
@@ -603,7 +603,7 @@ internal class SettingsSetterViewController : BSMLResourceViewController, IPlayV
             throw new InvalidOperationException($"[{nameof(_defaultParameters)}] was null.");
         }
 
-#if !V1_37_1
+#if !LEGATO_APPLY_PERFORMANCE_PRESET
         _cachedMainSettings = null;
 #endif
         _modifiedMainSettings = null;

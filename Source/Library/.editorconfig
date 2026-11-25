@@ -1,2 +1,6 @@
-[{Unity/ObjectDiscovery.cs,LegacyLayoutRepair/PruneDestroyedChildren.cs}]
+[{ComponentBindings/*.cs,LegacyLayoutRepair/PruneDestroyedChildren.cs}]
 dotnet_diagnostic.SA1633.severity = silent
+
+[{Unity/ObjectDiscovery.cs,LightRegistry/*.cs,JsonCompatibility/*.cs,CameraEffectsLifecycle/*.cs}]
+dotnet_diagnostic.SA1200.severity = none
+dotnet_diagnostic.SA1633.severity = none

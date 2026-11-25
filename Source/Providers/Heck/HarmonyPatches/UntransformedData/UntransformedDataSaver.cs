@@ -3,7 +3,9 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Reflection.Emit;
+#if !LEGATO_APPLY_PERFORMANCE_PRESET
 using System.Runtime.CompilerServices;
+#endif
 using HarmonyLib;
 using IPA.Utilities;
 
@@ -16,13 +18,16 @@ public class HeckGameplayCoreSceneSetupData : GameplayCoreSceneSetupData
         typeof(HeckGameplayCoreSceneSetupData),
         nameof(HeckGetType));
 
+    private static readonly MethodInfo _getType = AccessTools.Method(typeof(object), nameof(GetType));
+
     private static readonly FieldAccessor<GameplayCoreSceneSetupData, BeatmapLevelsModel>.Accessor
         _beatmapLevelsModelAccessor =
             FieldAccessor<GameplayCoreSceneSetupData, BeatmapLevelsModel>.GetAccessor(nameof(_beatmapLevelsModel));
 
-    // 1.45 loads and transforms inside BeatmapDataLoader. Associate those two
-    // objects by identity, then capture the source when setup data receives it.
+#if !LEGATO_APPLY_PERFORMANCE_PRESET
+    // Associate the source with the transformed result before the setup data receives it.
     private static readonly ConditionalWeakTable<IReadonlyBeatmapData, IReadonlyBeatmapData> _untransformedByTransformed = new();
+#endif
 
     private IReadonlyBeatmapData? _untransformedBeatmapData;
 
@@ -46,17 +51,22 @@ public class HeckGameplayCoreSceneSetupData : GameplayCoreSceneSetupData
             original.colorScheme,
 #if !PRE_V1_40_8
             original._settingsManager,
-#elif V1_37_1
+#elif LEGATO_APPLY_PERFORMANCE_PRESET
             original._performancePreset,
 #endif
             original._audioClipAsyncLoader,
             original._beatmapDataLoader,
             original._beatmapLevelsEntitlementModel,
             original._enableBeatmapDataCaching,
+#if LEGATO_APPLY_PERFORMANCE_PRESET
+            original._allowNullBeatmapLevelData,
+            original.recordingToolData)
+#else
             original.environmentsListModel,
             original._allowNullBeatmapLevelData,
             original._beatmapLevelsModel,
             original.beatmapLevelData)
+#endif
     {
         GameplayCoreSceneSetupData @this = this;
         _beatmapLevelsModelAccessor(ref @this) = original._beatmapLevelsModel!;
@@ -67,6 +77,17 @@ public class HeckGameplayCoreSceneSetupData : GameplayCoreSceneSetupData
         _untransformedBeatmapData ??
         throw new InvalidOperationException($"[{nameof(_untransformedBeatmapData)}] was null.");
 
+#if LEGATO_APPLY_PERFORMANCE_PRESET
+    [HarmonyPrefix]
+    [HarmonyPatch(typeof(GameplayCoreSceneSetupData), nameof(TransformBeatmapData))]
+    private static void CaptureForSetupData(GameplayCoreSceneSetupData __instance, IReadonlyBeatmapData beatmapData)
+    {
+        if (__instance is HeckGameplayCoreSceneSetupData hecked)
+        {
+            hecked._untransformedBeatmapData = beatmapData;
+        }
+    }
+#else
     [HarmonyPrefix]
     [HarmonyPatch(typeof(BeatmapDataTransformHelper), nameof(BeatmapDataTransformHelper.CreateTransformedBeatmapData))]
     private static void CaptureUntransformed(IReadonlyBeatmapData beatmapData, out IReadonlyBeatmapData __state)
@@ -97,23 +118,21 @@ public class HeckGameplayCoreSceneSetupData : GameplayCoreSceneSetupData
             hecked._untransformedBeatmapData = untransformed;
         }
     }
+#endif
 
     private static Type HeckGetType(Type original)
     {
         return original == typeof(HeckGameplayCoreSceneSetupData) ? typeof(GameplayCoreSceneSetupData) : original;
     }
 
-    // i hate gettype i hate gettype i hate gettype
     [HarmonyTranspiler]
     [HarmonyPatch(typeof(ScenesTransitionSetupData), nameof(ScenesTransitionSetupData.InstallBindings))]
     private static IEnumerable<CodeInstruction> HeckOff(IEnumerable<CodeInstruction> instructions)
     {
         return new CodeMatcher(instructions)
-            /*
-             * -- Type type = sceneSetupData.GetType();
-             * ++ Type type = HeckGetType(sceneSetupData.GetType());
-             */
-            .MatchForward(false, new CodeMatch(OpCodes.Stloc_3))
+            .MatchForward(true, new CodeMatch(instruction => instruction.Calls(_getType)))
+            .ThrowIfInvalid("Scene setup type lookup was not found.")
+            .Advance(1)
             .InsertAndAdvance(new CodeInstruction(OpCodes.Call, _heckType))
             .InstructionEnumeration();
     }

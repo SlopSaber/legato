@@ -5,6 +5,9 @@ using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using Newtonsoft.Json.Linq;
+#if !BEAT_SABER_1_45_1 && !BEAT_SABER_1_45_3
+using BeatmapCharacteristic = global::BeatmapCharacteristicSO;
+#endif
 
 namespace Chroma.Modules;
 
@@ -38,7 +41,7 @@ internal static class LightshowQuality
             }
 
             BeatmapKey key = beatmapKey;
-            return GetDifficultyFiles(folder, GetCharacteristicName(key.characteristic), key.difficulty.ToString())
+            return GetDifficultyFiles(folder, GetCharacteristicName(GetCharacteristic(in key)), key.difficulty.ToString())
                 .Any(file => IsQualityFile(file, key));
         }
         catch (Exception ex)
@@ -56,7 +59,15 @@ internal static class LightshowQuality
         ((V3BoxGroups.IsMatch(text) || V4BoxGroups.IsMatch(text)) &&
          HasAtLeast(BoxGroupEntries, text, MinBoxGroups));
 
-    // Custom characteristics registered by SongCore have no enum name; those match any set.
+    private static BeatmapCharacteristic GetCharacteristic(in BeatmapKey key) =>
+#if BEAT_SABER_1_45_1 || BEAT_SABER_1_45_3
+        key.characteristic;
+#else
+        key.beatmapCharacteristic;
+#endif
+
+#if BEAT_SABER_1_45_1 || BEAT_SABER_1_45_3
+    // Custom characteristics registered by SongCore have no enum name.
     private static string? GetCharacteristicName(BeatmapCharacteristic characteristic) => characteristic switch
     {
         BeatmapCharacteristic.Degree360 => "360Degree",
@@ -64,6 +75,9 @@ internal static class LightshowQuality
         _ when Enum.IsDefined(typeof(BeatmapCharacteristic), characteristic) => characteristic.ToString(),
         _ => null,
     };
+#else
+    private static string? GetCharacteristicName(BeatmapCharacteristic characteristic) => characteristic?.serializedName;
+#endif
 
     private static string? GetFolder(BeatmapLevel beatmapLevel)
     {
@@ -180,7 +194,7 @@ internal static class LightshowQuality
             string.Empty,
             new Dictionary<(BeatmapCharacteristic, BeatmapDifficulty), FileDifficultyBeatmap>
             {
-                [(beatmapKey.characteristic, beatmapKey.difficulty)] = new(path, string.Empty),
+                [(GetCharacteristic(in beatmapKey), beatmapKey.difficulty)] = new(path, string.Empty),
             });
 
         // Read both JSON formats through the beatmap reader: the synchronous lightshow getter in

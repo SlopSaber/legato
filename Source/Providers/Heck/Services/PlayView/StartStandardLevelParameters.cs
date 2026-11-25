@@ -46,13 +46,16 @@ public class StartStandardLevelParameters
         Action<DiContainer>? afterSceneSwitchCallback,
 #endif
         Action<StandardLevelScenesTransitionSetupData, LevelCompletionResults>? levelFinishedCallback,
-        Action<LevelScenesTransitionSetupData, LevelCompletionResults>? levelRestartedCallback
+#if V1_29_1
+        Action<LevelScenesTransitionSetupData, LevelCompletionResults>? levelRestartedCallback)
+#else
+        Action<LevelScenesTransitionSetupData, LevelCompletionResults>? levelRestartedCallback,
 #if LATEST
-        , IBeatmapLevelData? beatmapLevelData
-#elif !V1_29_1
-        , RecordingToolManager.SetupData? recordingToolData
+        IBeatmapLevelData? beatmapLevelData)
+#else
+        RecordingToolManager.SetupData? recordingToolData)
 #endif
-        )
+#endif
     {
         GameMode = gameMode;
 #if !PRE_V1_37_1
@@ -85,6 +88,9 @@ public class StartStandardLevelParameters
         UseTestNoteCutSoundEffects = useTestNoteCutSoundEffects;
         StartPaused = startPaused;
         BeforeSceneSwitchCallback = beforeSceneSwitchCallback;
+#if !PRE_V1_37_1
+        AfterSceneSwitchCallback = afterSceneSwitchCallback;
+#endif
 #endif
         LevelFinishedCallback = levelFinishedCallback;
         LevelRestartedCallback = levelRestartedCallback;
@@ -122,11 +128,13 @@ public class StartStandardLevelParameters
 #endif
 #if LATEST
         GameplayAdditionalInformation = original.GameplayAdditionalInformation;
-        AfterSceneSwitchCallback = original.AfterSceneSwitchCallback;
 #else
         BackButtonText = original.BackButtonText;
         UseTestNoteCutSoundEffects = original.UseTestNoteCutSoundEffects;
         StartPaused = original.StartPaused;
+#endif
+#if !PRE_V1_37_1
+        AfterSceneSwitchCallback = original.AfterSceneSwitchCallback;
 #endif
         BeforeSceneSwitchCallback = original.BeforeSceneSwitchCallback;
         LevelFinishedCallback = original.LevelFinishedCallback;
@@ -185,7 +193,7 @@ public class StartStandardLevelParameters
 
     public Action? BeforeSceneSwitchCallback { get; }
 
-#if LATEST
+#if !PRE_V1_37_1
     public Action<DiContainer>? AfterSceneSwitchCallback { get; }
 #endif
 

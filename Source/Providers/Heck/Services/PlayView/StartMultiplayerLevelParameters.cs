@@ -69,6 +69,9 @@ public class StartMultiplayerLevelParameters : StartStandardLevelParameters
             null,
 #endif
             null,
+#if !PRE_V1_37_1 && !LATEST
+            null,
+#endif
             null)
     {
 #if !LATEST

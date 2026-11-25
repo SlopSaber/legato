@@ -24,11 +24,12 @@
     <LegatoGameVersion Include="1.38.0" Profile="1.38.0" Order="2" Constants="LEGATO_LEGACY_TEXTMESH_PRO" />
     <LegatoGameVersion Include="1.39.0;1.39.1" Profile="1.38.0" Order="2" Constants="LEGATO_LEGACY_TEXTMESH_PRO;LEGATO_BEATMAP_OBJECT_ROTATION" />
     <LegatoGameVersion Include="1.40.0;1.40.1;1.40.2;1.40.3;1.40.4;1.40.5;1.40.6;1.40.7;1.40.8" Profile="1.40.0" Order="3" Constants="LEGATO_LEGACY_TEXTMESH_PRO" />
-    <LegatoGameVersion Include="1.40.9;1.40.10" Profile="1.40.0" Order="3" Constants="LEGATO_NATIVE_AUDIO_MANAGER;LEGATO_UNITY_6_OBJECT_QUERIES" />
-    <LegatoGameVersion Include="1.40.11;1.40.12;1.40.13" Profile="1.40.0" Order="3" Constants="LEGATO_NATIVE_AUDIO_MANAGER;LEGATO_AUDIO_SOURCE_STATE;LEGATO_UNITY_6_OBJECT_QUERIES" />
+    <LegatoGameVersion Include="1.40.9;1.40.10" Profile="1.40.0" Order="3" Constants="LEGATO_NATIVE_AUDIO_MANAGER;LEGATO_UNITY_6_OBJECT_QUERIES;LEGATO_NATIVE_ZENJECT_COMPONENT_BINDER" />
+    <LegatoGameVersion Include="1.40.11;1.40.12;1.40.13" Profile="1.40.0" Order="3" Constants="LEGATO_NATIVE_AUDIO_MANAGER;LEGATO_AUDIO_SOURCE_STATE;LEGATO_UNITY_6_OBJECT_QUERIES;LEGATO_NATIVE_ZENJECT_COMPONENT_BINDER" />
     <LegatoGameVersion Include="1.41.1;1.42.0;1.42.1;1.42.2;1.42.3;1.43.0;1.44.0;1.44.1" Profile="1.42.0" Order="4" Constants="LEGATO_UNITY_6_OBJECT_QUERIES" />
-    <LegatoGameVersion Include="1.44.2;1.44.3;1.45.0" Profile="1.45.1" Order="5" />
-    <LegatoGameVersion Include="1.45.1;1.45.2" Profile="1.45.1" Order="5" Constants="LEGATO_NATIVE_BEATMAP_CACHE" />
-    <LegatoGameVersion Include="1.45.3;1.46.0" Profile="1.45.3" Order="6" Constants="LEGATO_NATIVE_BEATMAP_CACHE" />
+    <LegatoGameVersion Include="1.44.2;1.44.3" Profile="1.45.1" Order="5" />
+    <LegatoGameVersion Include="1.45.0" Profile="1.45.1" Order="5" Constants="LEGATO_GROUPED_LIGHT_IDS" />
+    <LegatoGameVersion Include="1.45.1;1.45.2" Profile="1.45.1" Order="5" Constants="LEGATO_NATIVE_BEATMAP_CACHE;LEGATO_GROUPED_LIGHT_IDS" />
+    <LegatoGameVersion Include="1.45.3;1.46.0" Profile="1.45.3" Order="6" Constants="LEGATO_NATIVE_BEATMAP_CACHE;LEGATO_GROUPED_LIGHT_IDS" />
   </ItemGroup>
 </Project>
