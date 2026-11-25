@@ -1,3 +1,4 @@
+using Legato.Injection;
 using SongCore.Hooks;
 using SongCore.Hooks.BeatmapLevelCache;
 using SongCore.UI;
@@ -12,7 +13,7 @@ namespace SongCore.Installers
             Container.Bind<SettingsController>().AsSingle();
             Container.BindInterfacesAndSelfTo<Loader>().AsSingle();
             Container.BindInterfacesAndSelfTo<ColorsUI>().AsSingle();
-            Container.Bind<ProgressBar>().FromNewComponentOnNewGameObject().AsSingle();
+            ComponentBinding.OnNewGameObject(Container.Bind<ProgressBar>()).AsSingle();
             Container.BindInterfacesAndSelfTo<RequirementsUI>().AsSingle();
             Container.Bind<BeatmapLevelCache>().AsSingle();
             Container.BindInterfacesTo<BeatmapVersionDetectionHook>().AsSingle();

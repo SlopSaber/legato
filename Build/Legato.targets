@@ -67,6 +67,8 @@
     <ItemGroup>
       <Reference Include="Colors" HintPath="$(LegatoReferenceRoot)\Beat Saber_Data\Managed\Colors.dll" Private="false"
                  Condition="'$(LegatoEnableBeatmapKeys)' == 'true' AND '@(Reference->WithMetadataValue('Identity', 'Colors'))' == '' AND Exists('$(LegatoReferenceRoot)\Beat Saber_Data\Managed\Colors.dll')" />
+      <Reference Include="BGNet" HintPath="$(LegatoReferenceRoot)\Beat Saber_Data\Managed\BGNet.dll" Private="false"
+                 Condition="'$(LegatoEnablePlatformAuthentication)' == 'true' AND '$(LegatoTargetProfile)' == '1.29.0' AND '@(Reference->WithMetadataValue('Identity', 'BGNet'))' == '' AND Exists('$(LegatoReferenceRoot)\Beat Saber_Data\Managed\BGNet.dll')" />
       <Reference Include="Unity.RenderPipelines.Core.Runtime;Unity.RenderPipelines.Universal.Runtime"
                  Condition="('$(LegatoEnableCameraEffects)' == 'true' OR '$(LegatoEnablePortableRendering)' == 'true') AND ('$(LegatoTargetProfile)' == '1.45.1' OR '$(LegatoTargetProfile)' == '1.45.3')">
         <HintPath>$(LegatoReferenceRoot)\Beat Saber_Data\Managed\%(Identity).dll</HintPath>
@@ -126,7 +128,7 @@
         <HintPath>$(LegatoReferenceRoot)\Beat Saber_Data\Managed\UnityEngine.UnityWebRequestModule.dll</HintPath>
         <Private>false</Private>
       </Reference>
-      <Reference Include="BeatmapCore" Condition="('$(LegatoTargetProfile)' == '1.45.1' OR '$(LegatoTargetProfile)' == '1.45.3') AND '@(Reference->WithMetadataValue('Identity', 'BeatmapCore'))' == '' AND Exists('$(LegatoReferenceRoot)\Beat Saber_Data\Managed\BeatmapCore.dll')">
+      <Reference Include="BeatmapCore" Condition="('$(LegatoEnableNativeBeatmapAliases)' == 'true' OR '$(LegatoTargetProfile)' == '1.45.1' OR '$(LegatoTargetProfile)' == '1.45.3') AND '@(Reference->WithMetadataValue('Identity', 'BeatmapCore'))' == '' AND Exists('$(LegatoReferenceRoot)\Beat Saber_Data\Managed\BeatmapCore.dll')">
         <HintPath>$(LegatoReferenceRoot)\Beat Saber_Data\Managed\BeatmapCore.dll</HintPath>
         <Private>false</Private>
       </Reference>
@@ -305,7 +307,7 @@
       <Compile Include="$(LegatoSourceRoot)Library\Physics\**\*.cs"
                Condition="'$(LegatoEnablePhysics)' == 'true'" />
       <Compile Include="$(LegatoSourceRoot)Library\ComponentBindings\**\*.cs"
-               Condition="'$(LegatoEnableComponentBindings)' == 'true'" />
+               Condition="'$(LegatoEnableComponentBindings)' == 'true' OR '$(LegatoEnableSongCoreProviders)' == 'true'" />
       <Compile Include="$(LegatoSourceRoot)Library\BsmlTableSources\**\*.cs"
                Condition="'$(LegatoEnableBsmlTableSources)' == 'true'" />
       <Compile Include="$(LegatoSourceRoot)Library\FlowNavigation\**\*.cs"

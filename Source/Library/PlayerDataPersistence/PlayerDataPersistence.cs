@@ -1,15 +1,20 @@
-using System.Threading.Tasks;
+#nullable enable
+
 using System.Reflection;
-using HarmonyLib;
+using System.Threading.Tasks;
 
 namespace Legato.Gameplay {
     internal static class PlayerDataPersistence {
-        internal static MethodInfo InitializationMethod => AccessTools.DeclaredMethod(typeof(PlayerDataModel),
+        private const BindingFlags DeclaredMethods = BindingFlags.DeclaredOnly | BindingFlags.Instance |
+            BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic;
+
+        internal static MethodInfo InitializationMethod => typeof(PlayerDataModel).GetMethod(
 #if BEAT_SABER_1_29_0
-            "Load");
+            "Load",
 #else
-            "Inject");
+            "Inject",
 #endif
+            DeclaredMethods)!;
 
         internal static Task Save(PlayerDataModel model) {
 #if BEAT_SABER_1_29_0
