@@ -48,10 +48,10 @@ namespace Hitbloq.Utilities
 			{
                 var hash = CustomHash(beatmapKey.levelId);
 				var difficulty = beatmapKey.difficulty.ToString();
-#if HITBLOQ_BS_1_45_0
-                var characteristic = beatmapKey.characteristic.SerializedName();
-#else
+#if LEGATO_SCRIPTABLE_CHARACTERISTICS
                 var characteristic = beatmapKey.beatmapCharacteristic?.serializedName ?? string.Empty;
+#else
+                var characteristic = beatmapKey.characteristic.SerializedName();
 #endif
 				return $"{hash}%7C_{difficulty}_Solo{characteristic}";
 			}

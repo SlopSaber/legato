@@ -280,7 +280,7 @@ namespace Hitbloq.UI.ViewControllers
 			return 7;
 		}
 
-#if HITBLOQ_BS_1_29_1
+#if HITBLOQ_BS_1_29_1 || LEGATO_FIXED_TABLE_CELL_SIZE
 		public float CellSize()
 		{
 			return 7;

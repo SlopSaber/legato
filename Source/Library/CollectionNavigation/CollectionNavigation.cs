@@ -4,7 +4,7 @@ using System.Linq;
 using UnityEngine;
 
 namespace Legato.UI {
-    internal static class CollectionNavigation {
+    internal static partial class CollectionNavigation {
         internal static string EmptyCustomPackId => CustomLevelLoader.kCustomLevelPackPrefixId + "CustomLevels";
         internal static string LevelId(BeatmapKey key) =>
 #if BEAT_SABER_1_29_0
@@ -73,12 +73,6 @@ namespace Legato.UI {
             characteristic.serializedName;
 #else
             characteristic.SerializedName();
-#endif
-        internal const string RowSelectionMethod =
-#if BEAT_SABER_1_29_0
-            "HandleDidSelectRowEvent";
-#else
-            "HandleDidSelectCellWithIndex";
 #endif
         internal static NativeSongPack Selected(AnnotatedBeatmapLevelCollectionsViewController view) =>
 #if BEAT_SABER_1_29_0

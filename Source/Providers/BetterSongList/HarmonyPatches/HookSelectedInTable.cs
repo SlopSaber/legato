@@ -1,11 +1,7 @@
 ﻿using HarmonyLib;
 
 namespace BetterSongList.HarmonyPatches {
-	#if BEAT_SABER_1_29_0
-    [HarmonyPatch(typeof(LevelCollectionTableView), "HandleDidSelectRowEvent")]
-#else
-    [HarmonyPatch(typeof(LevelCollectionTableView), nameof(LevelCollectionTableView.HandleDidSelectCellWithIndex))]
-#endif
+	[HarmonyPatch(typeof(LevelCollectionTableView), Legato.UI.CollectionNavigation.RowSelectionMethod)]
 	static class HookSelectedInTable {
 		[HarmonyPriority(int.MinValue)]
 		static void Postfix(LevelCollectionTableView __instance) {

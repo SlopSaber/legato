@@ -39,7 +39,7 @@ namespace Hitbloq.UI
 
 		private FlowCoordinator? _presentingFlowCoordinator;
 
-#if HITBLOQ_BS_1_29_1
+#if LEGATO_LEGACY_FLOW_OVERRIDE
 		public
 #else
 		protected
@@ -60,7 +60,7 @@ namespace Hitbloq.UI
 			_hitbloqInfoViewController.URLOpenRequested += OnURLOpenRequested;
 		}
 
-#if HITBLOQ_BS_1_29_1
+#if LEGATO_LEGACY_FLOW_OVERRIDE
 		public
 #else
 		protected
@@ -122,7 +122,7 @@ namespace Hitbloq.UI
 			_popupModalsController.ShowYesNoModal(_hitbloqPoolListViewController.rectTransform, $"Would you like to open\n{url}", () => { Application.OpenURL(url); });
 		}
 
-#if HITBLOQ_BS_1_29_1
+#if LEGATO_LEGACY_FLOW_OVERRIDE
 		public
 #else
 		protected

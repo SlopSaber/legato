@@ -1,25 +1,26 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using HarmonyLib;
 
 namespace Legato.Gameplay {
     internal static class JumpSelectionContext {
-#if BEAT_SABER_1_29_0
-        internal const int SpeedParameterIndex = 1;
-        internal const int BpmParameterIndex = 2;
-#else
+#if LEGATO_VARIABLE_MOVEMENT_DATA
         internal const int SpeedParameterIndex = 2;
         internal const int BpmParameterIndex = 4;
+#else
+        internal const int SpeedParameterIndex = 1;
+        internal const int BpmParameterIndex = 2;
 #endif
         internal static Type MovementType =>
-#if BEAT_SABER_1_29_0
-            typeof(BeatmapObjectSpawnMovementData);
-#else
+#if LEGATO_VARIABLE_MOVEMENT_DATA
             typeof(VariableMovementDataProvider);
+#else
+            typeof(BeatmapObjectSpawnMovementData);
 #endif
-        internal static MethodInfo StandardSceneInit => typeof(StandardLevelScenesTransitionSetupData)
-            .GetMethods().Single(method => method.Name == "Init"
+        internal static IEnumerable<MethodInfo> StandardSceneInitializers => typeof(StandardLevelScenesTransitionSetupData)
+            .GetMethods().Where(method => method.Name == "Init"
                 && method.GetParameters().Any(parameter => parameter.ParameterType == typeof(GameplayModifiers))
                 && method.GetParameters().Any(parameter => parameter.ParameterType == typeof(PracticeSettings)));
         internal static (float speed, float offset) JumpDetails(BeatmapLevel level, BeatmapKey key) {

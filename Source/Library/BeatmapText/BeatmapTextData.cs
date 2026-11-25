@@ -1,5 +1,5 @@
 #nullable enable
-#if BEAT_SABER_1_45_3
+#if !LEGATO_DIFFICULTY_BEATMAPS
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -12,7 +12,12 @@ namespace Legato.Beatmaps {
             model.LoadBeatmapLevelDataAsync(levelId, version, token);
 
         internal static bool HasData(LoadBeatmapLevelDataResult result) => !result.isError && result.beatmapLevelData != null;
-        internal static string? Error(LoadBeatmapLevelDataResult result) => result.errorMessage;
+        internal static string? Error(LoadBeatmapLevelDataResult result) =>
+#if LEGATO_BEATMAP_LOAD_ERROR_MESSAGE
+            result.errorMessage;
+#else
+            result.isError ? "The game could not load beatmap data." : null;
+#endif
 
         internal static Task<string?> ReadText(LoadBeatmapLevelDataResult result, in BeatmapKey key) =>
             result.beatmapLevelData!.GetBeatmapStringAsync(in key);
