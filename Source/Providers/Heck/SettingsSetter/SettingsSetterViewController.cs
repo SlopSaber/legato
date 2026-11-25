@@ -27,6 +27,9 @@ namespace Heck.SettingsSetter;
 [PlayViewControllerSettings(0, "settings")]
 internal class SettingsSetterViewController : BSMLResourceViewController, IPlayViewController, IParameterModifier
 {
+#if LEGATO_HECK_LEGACY_GAMEPLAY
+    private static readonly MethodInfo _memberwiseClone = typeof(object).GetMethod("MemberwiseClone", BindingFlags.Instance | BindingFlags.NonPublic)!;
+#endif
     private static string? _contentBSML;
 
     [UIValue("contents")]
@@ -131,7 +134,11 @@ internal class SettingsSetterViewController : BSMLResourceViewController, IPlayV
                     List<Dictionary<string, object>> settablePlayerSettings =
                         SettingSetterSettableSettingsManager.SettingsTable["_playerOptions"];
 
+#if LEGATO_HECK_LEGACY_GAMEPLAY
+                    var modifiedPlayerSettings = (PlayerSpecificSettings)_memberwiseClone.Invoke(playerSettings, null);
+#else
                     PlayerSpecificSettings modifiedPlayerSettings = playerSettings.CopyWith();
+#endif
 
                     foreach (Dictionary<string, object> settablePlayerSetting in settablePlayerSettings)
                     {
@@ -144,6 +151,18 @@ internal class SettingsSetterViewController : BSMLResourceViewController, IPlayV
                             continue;
                         }
 
+#if LEGATO_HECK_LEGACY_GAMEPLAY
+                        FieldInfo? field = typeof(PlayerSpecificSettings).GetField(fieldName, BindingFlags.Instance | BindingFlags.NonPublic);
+                        if (field == null)
+                        {
+                            continue;
+                        }
+
+                        object activeValue = field.GetValue(playerSettings);
+                        json = json is string text && field.FieldType.IsEnum
+                            ? Enum.Parse(field.FieldType, text)
+                            : Convert.ChangeType(json, field.FieldType);
+#else
                         FieldInfo field =
                             typeof(PlayerSpecificSettings).GetField(
                                 fieldName,
@@ -160,6 +179,7 @@ internal class SettingsSetterViewController : BSMLResourceViewController, IPlayV
                             IConvertible => Convert.ChangeType(json, activeValue.GetType()),
                             _ => json
                         };
+#endif
 
                         if (json.Equals(activeValue))
                         {
@@ -180,7 +200,11 @@ internal class SettingsSetterViewController : BSMLResourceViewController, IPlayV
                     List<Dictionary<string, object>> settableGameplayModifiers =
                         SettingSetterSettableSettingsManager.SettingsTable["_modifiers"];
 
+#if LEGATO_HECK_LEGACY_GAMEPLAY
+                    GameplayModifiers modifiedGameplayModifiers = new(gameplayModifiers);
+#else
                     GameplayModifiers modifiedGameplayModifiers = gameplayModifiers.CopyWith();
+#endif
 
                     foreach (Dictionary<string, object> settableGameplayModifier in settableGameplayModifiers)
                     {
@@ -193,11 +217,19 @@ internal class SettingsSetterViewController : BSMLResourceViewController, IPlayV
                             continue;
                         }
 
-                        FieldInfo field =
+                        FieldInfo? field =
                             typeof(GameplayModifiers).GetField(
                                 fieldName,
-                                BindingFlags.Instance | BindingFlags.NonPublic) ??
+                                BindingFlags.Instance | BindingFlags.NonPublic);
+                        if (field == null)
+                        {
+#if LEGATO_HECK_LEGACY_GAMEPLAY
+                            continue;
+#else
                             throw new InvalidOperationException($"Unable to find field with name {fieldName}.");
+#endif
+                        }
+
                         object activeValue = field.GetValue(gameplayModifiers);
                         json = json switch
                         {
@@ -289,7 +321,11 @@ internal class SettingsSetterViewController : BSMLResourceViewController, IPlayV
                         _contents.Add(new ListObject($"[Colors] {settingName}", $"{activeValue} -> {json}"));
 
                         _modifiedParameters.OverrideColorScheme =
+#if LEGATO_HECK_LEGACY_GAMEPLAY
+                            json.Value ? _colorSchemesSettings.GetSelectedColorScheme() : null;
+#else
                             json.Value ? _colorSchemesSettings.GetOverrideColorScheme() : null;
+#endif
                     }
                 }
 

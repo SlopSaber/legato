@@ -20,6 +20,7 @@ public class ReLoader : ITickable
     private static readonly MethodInfo _despawnObstacle = AccessTools.Method(typeof(BeatmapObjectManager), "Despawn", new[] { typeof(ObstacleController) });
     private static readonly FieldInfo[] _notePools = new[] { "_noteAPool", "_noteBPool", "_bombNotePool" }
         .Select(name => AccessTools.Field(typeof(BeatmapObjectManager), name)).ToArray();
+
     private static readonly FieldInfo _obstaclePool = AccessTools.Field(typeof(BeatmapObjectManager), "_obstaclePool");
     private static readonly FieldInfo _soundPool = AccessTools.Field(typeof(NoteCutSoundEffectManager), "_noteCutSoundEffectPool");
     private static readonly FieldInfo _previousLeftSound = AccessTools.Field(typeof(NoteCutSoundEffectManager), "_prevNoteATime");
@@ -125,8 +126,11 @@ public class ReLoader : ITickable
             original = _loader.ReadChart(difficulty);
             if (original != null)
             {
-                transformed = BeatDataTransformHelper.CreateTransformedBeatmapData(original, _setup.gameplayModifiers,
-                    _setup.practiceSettings, _setup.playerSpecificSettings) as CustomBeatmapData;
+                transformed = BeatDataTransformHelper.CreateTransformedBeatmapData(
+                    original,
+                    _setup.gameplayModifiers,
+                    _setup.practiceSettings,
+                    _setup.playerSpecificSettings) as CustomBeatmapData;
                 if (transformed == null)
                 {
                     _log.Error("Chart custom data was lost during transformation");

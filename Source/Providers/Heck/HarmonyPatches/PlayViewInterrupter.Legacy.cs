@@ -13,10 +13,14 @@ namespace Heck.HarmonyPatches;
 internal sealed class PlayViewInterrupter : IAffinity, IDisposable
 {
     private static readonly MethodInfo _startLevel = AccessTools.Method(
-        typeof(MenuTransitionsHelper), nameof(MenuTransitionsHelper.StartStandardLevel),
-        new[] { typeof(IDifficultyBeatmap), typeof(OverrideEnvironmentSettings), typeof(ColorScheme), typeof(GameplayModifiers),
+        typeof(MenuTransitionsHelper),
+        nameof(MenuTransitionsHelper.StartStandardLevel),
+        new[]
+        {
+            typeof(IDifficultyBeatmap), typeof(OverrideEnvironmentSettings), typeof(ColorScheme), typeof(GameplayModifiers),
             typeof(PlayerSpecificSettings), typeof(PracticeSettings), typeof(string), typeof(bool), typeof(Action),
-            typeof(Action<StandardLevelScenesTransitionSetupData, LevelCompletionResults>) });
+            typeof(Action<StandardLevelScenesTransitionSetupData, LevelCompletionResults>)
+        });
 
     private readonly PlayViewManager _playViewManager;
     private readonly CodeInstruction _interceptStart;
@@ -56,7 +60,7 @@ internal sealed class PlayViewInterrupter : IAffinity, IDisposable
     [AffinityPatch(typeof(LevelSelectionFlowCoordinator), "TopViewControllerWillChange")]
     private bool PreparePlayView(LevelSelectionFlowCoordinator __instance, ViewController newViewController, bool immediately)
     {
-        if (newViewController != _playViewManager.ActiveView?.ViewController as ViewController)
+        if (_playViewManager.ActiveView?.ViewController is not ViewController activeView || newViewController != activeView)
         {
             return true;
         }
@@ -97,9 +101,19 @@ internal sealed class PlayViewInterrupter : IAffinity, IDisposable
         LevelSelectionFlowCoordinator flowCoordinator)
     {
         string gameMode = flowCoordinator is PartyFreePlayFlowCoordinator ? "Party" : "Solo";
-        _playViewManager.Init(new StartStandardLevelParameters(gameMode, difficultyBeatmap, overrideEnvironmentSettings,
-            overrideColorScheme, gameplayModifiers, playerSpecificSettings, practiceSettings, backButtonText,
-            useTestNoteCutSoundEffects, beforeSceneSwitchCallback, levelFinishedCallback), flowCoordinator);
+        var parameters = new StartStandardLevelParameters(
+            gameMode,
+            difficultyBeatmap,
+            overrideEnvironmentSettings,
+            overrideColorScheme,
+            gameplayModifiers,
+            playerSpecificSettings,
+            practiceSettings,
+            backButtonText,
+            useTestNoteCutSoundEffects,
+            beforeSceneSwitchCallback,
+            levelFinishedCallback);
+        _playViewManager.Init(parameters, flowCoordinator);
     }
 }
 #endif

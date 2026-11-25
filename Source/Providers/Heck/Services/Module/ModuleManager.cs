@@ -173,12 +173,18 @@ public class ModuleManager : IDisposable
                 PlayerSensitivityFlag.Unknown,
                 null!,
                 null!),
-#else
+#elif !LEGATO_HECK_LEGACY_GAMEPLAY
             difficultyBeatmap ?? new EmptyDifficultyBeatmap(),
 #endif
             moduleArgs,
             levelType
         };
+#if LEGATO_HECK_LEGACY_GAMEPLAY
+        if (difficultyBeatmap != null)
+        {
+            inputs = inputs.AddToArray(difficultyBeatmap);
+        }
+#endif
 
         if (!_sorted)
         {

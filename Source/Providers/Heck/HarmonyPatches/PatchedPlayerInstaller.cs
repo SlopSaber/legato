@@ -32,13 +32,15 @@ internal class PatchedPlayerInstaller : IAffinity
         typeof(PatchedPlayerInstaller),
         nameof(BindHeckMultiPlayer));*/
 
-    private readonly DeserializerManager _deserializerManager;
-
 #if LEGATO_HECK_LEGACY_GAMEPLAY
     private static readonly MethodInfo _transformChart = AccessTools.Method(
         typeof(BeatDataTransformHelper), nameof(BeatDataTransformHelper.CreateTransformedBeatmapData));
 
     private static readonly FieldInfo _sceneSetupData = AccessTools.Field(typeof(GameplayCoreSceneSetup), "_sceneSetupData");
+#endif
+    private readonly DeserializerManager _deserializerManager;
+
+#if LEGATO_HECK_LEGACY_GAMEPLAY
     private readonly CodeInstruction _bindChart;
 
     private PatchedPlayerInstaller(DeserializerManager deserializerManager)

@@ -22,15 +22,17 @@ internal class MovementDataBaseProvider : IBaseProvider
 
 internal class MovementDataGetter : IInitializable, ITickable
 {
+#if LEGATO_HECK_LEGACY_GAMEPLAY
+    private static readonly FieldInfo _movementField = AccessTools.Field(typeof(BeatmapObjectSpawnController), "_beatmapObjectSpawnMovementData");
+    private static readonly AccessTools.FieldRef<BeatmapObjectSpawnMovementData, float> _speedField = AccessTools.FieldRefAccess<BeatmapObjectSpawnMovementData, float>("_noteJumpMovementSpeed");
+    private static readonly AccessTools.FieldRef<BeatmapObjectSpawnMovementData, float> _distanceField = AccessTools.FieldRefAccess<BeatmapObjectSpawnMovementData, float>("_jumpDistance");
+#endif
     private readonly MovementDataBaseProvider _movementDataBaseProvider;
     private readonly PlayerSpecificSettings _playerSpecificSettings;
     private readonly PlayerHeightDetector? _playerHeightDetector;
     private readonly bool _automaticPlayerHeight;
 
 #if LEGATO_HECK_LEGACY_GAMEPLAY
-    private static readonly FieldInfo _movementField = AccessTools.Field(typeof(BeatmapObjectSpawnController), "_beatmapObjectSpawnMovementData");
-    private static readonly FieldInfo _speedField = AccessTools.Field(typeof(BeatmapObjectSpawnMovementData), "_noteJumpMovementSpeed");
-    private static readonly FieldInfo _distanceField = AccessTools.Field(typeof(BeatmapObjectSpawnMovementData), "_jumpDistance");
     private readonly BeatmapObjectSpawnMovementData _beatmapObjectSpawnMovementData;
     private readonly BeatmapObjectSpawnController.InitData _initData;
 #elif !PRE_V1_40_8
@@ -81,9 +83,9 @@ internal class MovementDataGetter : IInitializable, ITickable
     public void Tick()
     {
 #if LEGATO_HECK_LEGACY_GAMEPLAY
-        _movementDataBaseProvider.NoteJumpMovementSpeed[0] = (float)_speedField.GetValue(_beatmapObjectSpawnMovementData);
+        _movementDataBaseProvider.NoteJumpMovementSpeed[0] = _speedField(_beatmapObjectSpawnMovementData);
         _movementDataBaseProvider.NoteJumpStartBeatOffset[0] = _initData.noteJumpStartBeatOffset;
-        _movementDataBaseProvider.JumpDistance[0] = (float)_distanceField.GetValue(_beatmapObjectSpawnMovementData);
+        _movementDataBaseProvider.JumpDistance[0] = _distanceField(_beatmapObjectSpawnMovementData);
 #elif !PRE_V1_40_8
         _movementDataBaseProvider.NoteJumpMovementSpeed[0] = _variableMovementDataProvider.noteJumpSpeed;
         _movementDataBaseProvider.NoteJumpStartBeatOffset[0] = _initData.noteJumpValue;
