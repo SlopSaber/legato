@@ -5,6 +5,7 @@ using JetBrains.Annotations;
 using SiraUtil.Affinity;
 using SiraUtil.Logging;
 using UnityEngine;
+using UnityEngine.Experimental.Rendering;
 using UnityEngine.Rendering;
 using UnityEngine.Rendering.Universal;
 using UnityEngine.Rendering.Universal.Internal;
@@ -18,6 +19,8 @@ internal sealed class LegacyShaderRendering : IAffinity, IDisposable
     private readonly LegacyLightingPass? _lightingPass;
     private readonly LegacyGrabTexturePass? _grabPass;
     private readonly LegacyExtraPassRenderPass? _extraPass;
+    private readonly AreaLitLightMeshPass? _lightMeshPass;
+    private readonly AreaLitProjectorPass? _projectorPass;
     private readonly SiraLog _log;
     private readonly bool _hasNamedForwardGrabs;
 
@@ -45,6 +48,10 @@ internal sealed class LegacyShaderRendering : IAffinity, IDisposable
 
         HashSet<Shader> shaders = [];
         HashSet<string> namedForwardGrabs = new(StringComparer.Ordinal);
+        HashSet<RenderTexture> cameraTargets = [];
+        HashSet<RenderTexture> lightMeshTargets = [];
+        Material? lightMeshClear = null;
+        Material? lightMesh = null;
         List<Material> materials = [];
         foreach (UnityEngine.Object asset in assetBundleManager.Assets)
         {
@@ -54,6 +61,23 @@ internal sealed class LegacyShaderRendering : IAffinity, IDisposable
             }
             else if (asset is GameObject prefab)
             {
+                foreach (Camera camera in prefab.GetComponentsInChildren<Camera>(true))
+                {
+                    if (camera.targetTexture != null)
+                    {
+                        cameraTargets.Add(camera.targetTexture);
+                    }
+                }
+
+                foreach (Projector projector in prefab.GetComponentsInChildren<Projector>(true))
+                {
+                    if (AreaLitProjector.IsSupported(projector) && !projector.TryGetComponent(out AreaLitProjector _))
+                    {
+                        projector.gameObject.AddComponent<AreaLitProjector>();
+                        _projectorPass ??= new AreaLitProjectorPass();
+                    }
+                }
+
                 foreach (Renderer renderer in prefab.GetComponentsInChildren<Renderer>(true))
                 {
                     renderer.GetSharedMaterials(materials);
@@ -74,6 +98,36 @@ internal sealed class LegacyShaderRendering : IAffinity, IDisposable
                     }
                 }
             }
+        }
+
+        int repairedTargets = 0;
+        foreach (RenderTexture target in cameraTargets)
+        {
+            if (target.depthStencilFormat != GraphicsFormat.None)
+            {
+                continue;
+            }
+
+            target.Release();
+            target.depthStencilFormat = SystemInfo.GetGraphicsFormat(DefaultFormat.DepthStencil);
+            repairedTargets++;
+        }
+
+        if (repairedTargets > 0)
+        {
+            log.Info($"Added depth attachments to {repairedTargets} bundled camera target(s).");
+        }
+
+        lightMeshTargets.IntersectWith(cameraTargets);
+        if (lightMeshClear != null && lightMesh != null && lightMeshTargets.Count > 0)
+        {
+            _lightMeshPass = new AreaLitLightMeshPass(lightMeshClear, lightMesh, lightMeshTargets);
+            log.Info("Enabled AreaLit vertex lighting passes for bundled light-mesh cameras.");
+        }
+
+        if (_projectorPass != null)
+        {
+            log.Info("Enabled AreaLit projector rendering for bundled projectors.");
         }
 
         if (_extraPass != null)
@@ -109,6 +163,21 @@ internal sealed class LegacyShaderRendering : IAffinity, IDisposable
             }
 
             shaders.Add(shader);
+            if (shader.name == "AreaLit/LightMeshClear")
+            {
+                lightMeshClear ??= material;
+            }
+            else if (shader.name == "AreaLit/LightMesh")
+            {
+                lightMesh ??= material;
+            }
+
+            if (shader.name.StartsWith("AreaLit/", StringComparison.Ordinal) && material.HasProperty(AreaLitLightMeshPass.LightMeshProperty) &&
+                material.GetTexture(AreaLitLightMeshPass.LightMeshProperty) is RenderTexture target)
+            {
+                lightMeshTargets.Add(target);
+            }
+
             if (material.renderQueue > 2500)
             {
                 LegacyGrabPasses.CollectForwardGrabTextures(shader, namedForwardGrabs);
@@ -131,9 +200,30 @@ internal sealed class LegacyShaderRendering : IAffinity, IDisposable
     }
 
     [AffinityPrefix]
+    [AffinityPatch(
+        typeof(UniversalRenderPipeline),
+        "RenderSingleCamera",
+        AffinityMethodType.Normal,
+        new[] { typeof(ScriptableRenderContext), typeof(UniversalCameraData) })]
+    private void CullProjectors(ScriptableRenderContext context, UniversalCameraData cameraData)
+    {
+        _projectorPass?.Cull(context, cameraData.camera, _lightMeshPass?.Matches(cameraData.camera) == true);
+    }
+
+    [AffinityPrefix]
     [AffinityPatch(typeof(ScriptableRenderer), "AddRenderPasses")]
     private void AddLightingPass(ScriptableRenderer __instance)
     {
+        if (_lightMeshPass != null)
+        {
+            __instance.EnqueuePass(_lightMeshPass);
+        }
+
+        if (_projectorPass?.HasReceivers == true)
+        {
+            __instance.EnqueuePass(_projectorPass);
+        }
+
         if (_lightingPass != null)
         {
             __instance.EnqueuePass(_lightingPass);
@@ -164,6 +254,13 @@ internal sealed class LegacyShaderRendering : IAffinity, IDisposable
         new[] { typeof(List<ShaderTagId>), typeof(UniversalRenderingData), typeof(UniversalCameraData), typeof(UniversalLightData), typeof(SortingCriteria) })]
     private void AddLegacyFallback(List<ShaderTagId> shaderTagIdList, UniversalCameraData cameraData, ref DrawingSettings __result)
     {
+        if (_lightMeshPass?.Matches(cameraData.camera) == true && shaderTagIdList.Contains(AreaLitLightMeshPass.UniversalForward))
+        {
+            // The light-mesh target stores data from the Vertex passes. ForwardBase draws would overwrite it.
+            __result = new DrawingSettings(AreaLitLightMeshPass.SkipForward, __result.sortingSettings);
+            return;
+        }
+
         if (_lightingPass == null ||
             !Legato.Rendering.LegacyShaderSupport.AppendForwardBase(shaderTagIdList, ref __result))
         {
