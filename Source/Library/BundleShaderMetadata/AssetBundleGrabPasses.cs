@@ -7,13 +7,15 @@ using UnityEngine;
 
 namespace Legato.Rendering;
 
-// Unity exposes no runtime information about GrabPass passes, so the texture names they write are read
-// from the serialized shaders in the bundle.
+// Unity's runtime shader API doesn't expose GrabPass texture names or allow editing pass metadata.
 internal static class AssetBundleGrabPasses
 {
     private const int ShaderClassId = 48;
+    private const int DrawPassType = 0;
+    private const int UsePassType = 1;
     private const int GrabPassType = 2;
     private const int AlignFlag = 0x4000;
+    private const string LegacyShadowCaster = "Legacy Shaders/VertexLit/SHADOWCASTER";
 
     private const string CommonStrings =
         "AABB\0AnimationClip\0AnimationCurve\0AnimationState\0Array\0Base\0BitField\0bitset\0bool\0char\0ColorRGBA\0" +
@@ -35,25 +37,32 @@ internal static class AssetBundleGrabPasses
 
     internal static int Count { get; private set; }
 
-    internal static void Load(string? bundlePath, Action<string>? debug = null)
+    internal static bool HasGrabPass(Shader shader) => _grabPasses.ContainsKey(shader.name);
+
+    internal static byte[]? Load(string? bundlePath, bool applyCompatibility, bool hasLegacyShadowCaster, Action<string>? debug = null)
     {
         _grabPasses.Clear();
         Count = 0;
         if (bundlePath == null || !File.Exists(bundlePath))
         {
-            return;
+            return null;
         }
 
         try
         {
-            foreach (byte[] file in ReadSerializedFiles(File.ReadAllBytes(bundlePath)))
-            {
-                ReadShaders(file);
-            }
+            byte[] bundle = File.ReadAllBytes(bundlePath);
+            return ReadBundle(bundle, applyCompatibility, hasLegacyShadowCaster);
         }
         catch (Exception e)
         {
+            if (applyCompatibility)
+            {
+                debug?.Invoke($"Could not prepare legacy shader passes for URP: {e.Message}");
+                return Load(bundlePath, false, hasLegacyShadowCaster, debug);
+            }
+
             debug?.Invoke($"Could not read GrabPass names from the bundle: {e.Message}");
+            return null;
         }
     }
 
@@ -78,17 +87,18 @@ internal static class AssetBundleGrabPasses
         return strings;
     }
 
-    private static IEnumerable<byte[]> ReadSerializedFiles(byte[] bundle)
+    private static byte[]? ReadBundle(byte[] bundle, bool applyCompatibility, bool hasLegacyShadowCaster)
     {
         Reader reader = new(bundle, true);
         if (reader.CString() != "UnityFS")
         {
-            yield break;
+            return null;
         }
 
         int version = reader.Int32();
         reader.CString();
         reader.CString();
+        int sizeOffset = reader.Position;
         reader.Int64();
         int compressedInfoSize = reader.Int32();
         int infoSize = reader.Int32();
@@ -98,15 +108,17 @@ internal static class AssetBundleGrabPasses
             reader.Align(16);
         }
 
-        int infoStart = (flags & 0x80) != 0 ? bundle.Length - compressedInfoSize : reader.Position;
+        int readerHeaderEnd = reader.Position;
+        int infoStart = (flags & 0x80) != 0 ? bundle.Length - compressedInfoSize : readerHeaderEnd;
         byte[] info = Decompress(bundle, infoStart, compressedInfoSize, infoSize, flags & 0x3F, infoSize);
         if ((flags & 0x80) == 0)
         {
             reader.Position = infoStart + compressedInfoSize;
-            if ((flags & 0x200) != 0)
-            {
-                reader.Align(16);
-            }
+        }
+
+        if ((flags & 0x200) != 0)
+        {
+            reader.Align(16);
         }
 
         Reader infoReader = new(info, true) { Position = 16 };
@@ -116,7 +128,7 @@ internal static class AssetBundleGrabPasses
         for (int i = 0; i < blockCount; i++)
         {
             blocks[i] = (infoReader.Int32(), infoReader.Int32(), infoReader.Int16());
-            dataSize += blocks[i].Size;
+            dataSize = checked(dataSize + blocks[i].Size);
         }
 
         List<(long Offset, long Size)> files = [];
@@ -141,6 +153,7 @@ internal static class AssetBundleGrabPasses
         }
 
         byte[] data = new byte[dataSize];
+        List<(int Offset, byte[] File)>? repairedFiles = null;
         long blockStart = 0;
         int position = reader.Position;
         foreach ((int size, int compressedSize, int blockFlags) in blocks)
@@ -161,8 +174,56 @@ internal static class AssetBundleGrabPasses
         {
             byte[] file = new byte[size];
             Buffer.BlockCopy(data, (int)offset, file, 0, (int)size);
-            yield return file;
+            if (ReadShaders(file, applyCompatibility, hasLegacyShadowCaster))
+            {
+                (repairedFiles ??= []).Add(((int)offset, file));
+            }
         }
+
+        if (repairedFiles == null)
+        {
+            return null;
+        }
+
+        // Reuse the directory and original block boundaries. Copy any resource bytes skipped by
+        // the metadata reader before writing the modified archive as an uncompressed UnityFS bundle.
+        blockStart = 0;
+        position = reader.Position;
+        infoReader.Position = 16 + sizeof(int);
+        foreach ((int size, int compressedSize, int blockFlags) in blocks)
+        {
+            long blockEnd = blockStart + size;
+            if (blockEnd > filesEnd || !files.Exists(file => file.Offset < blockEnd && file.Offset + file.Size > blockStart))
+            {
+                byte[] block = Decompress(bundle, position, compressedSize, size, blockFlags & 0x3F, size);
+                Buffer.BlockCopy(block, 0, data, (int)blockStart, size);
+            }
+
+            infoReader.Position += sizeof(int);
+            infoReader.WriteInt32(size);
+            infoReader.WriteInt16(blockFlags & ~0x3F);
+            blockStart = blockEnd;
+            position += compressedSize;
+        }
+
+        foreach ((int offset, byte[] file) in repairedFiles)
+        {
+            Buffer.BlockCopy(file, 0, data, offset, file.Length);
+        }
+
+        Array.Clear(info, 0, 16);
+        int outputFlags = flags & ~0xBF;
+        int outputDataStart = (flags & 0x200) != 0 ? (readerHeaderEnd + infoSize + 15) & ~15 : readerHeaderEnd + infoSize;
+        byte[] output = new byte[checked(outputDataStart + data.Length)];
+        Buffer.BlockCopy(bundle, 0, output, 0, sizeOffset);
+        Reader outputHeader = new(output, true) { Position = sizeOffset };
+        outputHeader.WriteInt64(output.Length);
+        outputHeader.WriteInt32(infoSize);
+        outputHeader.WriteInt32(infoSize);
+        outputHeader.WriteInt32(outputFlags);
+        Buffer.BlockCopy(info, 0, output, readerHeaderEnd, infoSize);
+        Buffer.BlockCopy(data, 0, output, outputDataStart, data.Length);
+        return output;
     }
 
     private static byte[] Decompress(byte[] source, int offset, int compressedSize, int size, int compression, int needed)
@@ -237,7 +298,7 @@ internal static class AssetBundleGrabPasses
         }
     }
 
-    private static void ReadShaders(byte[] file)
+    private static bool ReadShaders(byte[] file, bool applyCompatibility, bool hasLegacyShadowCaster)
     {
         Reader header = new(file, true);
         header.Int32();
@@ -246,7 +307,7 @@ internal static class AssetBundleGrabPasses
         long dataOffset = header.Int32();
         if (version < 19)
         {
-            return;
+            return false;
         }
 
         bool bigEndian = header.Byte() != 0;
@@ -265,7 +326,7 @@ internal static class AssetBundleGrabPasses
         bool typeTree = reader.Byte() != 0;
         if (!typeTree)
         {
-            return;
+            return false;
         }
 
         int typeCount = reader.Int32();
@@ -289,20 +350,23 @@ internal static class AssetBundleGrabPasses
             }
         }
 
+        bool repaired = false;
         int objectCount = reader.Int32();
         for (int i = 0; i < objectCount; i++)
         {
             reader.Align(4);
             reader.Int64();
             long start = version >= 22 ? reader.Int64() : reader.UInt32();
-            reader.Int32();
+            int sizeOffset = reader.Position;
+            int size = reader.Int32();
             int typeIndex = reader.Int32();
             if (types[typeIndex].ClassId != ShaderClassId)
             {
                 continue;
             }
 
-            Reader objectReader = new(file, bigEndian) { Position = (int)(dataOffset + start) };
+            int objectStart = checked((int)(dataOffset + start));
+            Reader objectReader = new(file, bigEndian) { Position = objectStart };
             Node[] nodes = types[typeIndex].Nodes;
             int parsedForm = FindChild(nodes, 0, "m_ParsedForm");
             if (parsedForm < 0)
@@ -317,8 +381,82 @@ internal static class AssetBundleGrabPasses
 
             if (ReadValue(objectReader, nodes, parsedForm) is Dictionary<string, object?> shader)
             {
+                if (applyCompatibility)
+                {
+                    int remainingSize = PreparePasses(file, bigEndian, objectStart, size, shader, hasLegacyShadowCaster);
+                    if (remainingSize != size)
+                    {
+                        Reader sizeWriter = new(file, bigEndian) { Position = sizeOffset };
+                        sizeWriter.WriteInt32(remainingSize);
+                        repaired = true;
+                    }
+                }
+
                 AddShader(shader);
             }
+        }
+
+        return repaired;
+    }
+
+    private static int PreparePasses(byte[] file, bool bigEndian, int start, int size, Dictionary<string, object?> shader, bool hasLegacyShadowCaster)
+    {
+        if (Get(shader, "m_SubShaders") is not List<object?> subShaders)
+        {
+            return size;
+        }
+
+        int end = checked(start + size);
+        int newEnd = end;
+        for (int sub = subShaders.Count - 1; sub >= 0; sub--)
+        {
+            if (subShaders[sub] is not Dictionary<string, object?> fields ||
+                Get(fields, "m_Passes") is not PassList list ||
+                !list.Passes.Exists(pass => pass.Type == DrawPassType))
+            {
+                continue;
+            }
+
+            int originalCount = list.Passes.Count;
+            for (int i = originalCount - 1; i >= 0; i--)
+            {
+                PassInfo pass = list.Passes[i];
+                if (!hasLegacyShadowCaster && pass.Type == UsePassType &&
+                    string.Equals(pass.UseName, LegacyShadowCaster, StringComparison.Ordinal))
+                {
+                    RemoveRange(pass.Start, pass.End);
+                    list.Passes.RemoveAt(i);
+                }
+                else if (pass.Type == DrawPassType && pass.AlwaysTag is TagEntry tag)
+                {
+                    // URP selects an untagged pass as SRPDefaultUnlit. Keep the existing pass index.
+                    RemoveRange(tag.Start, tag.End);
+                    Reader countWriter = new(file, bigEndian) { Position = tag.CountOffset };
+                    countWriter.WriteInt32(tag.Count - 1);
+                }
+            }
+
+            if (list.Passes.Count != originalCount)
+            {
+                Reader countWriter = new(file, bigEndian) { Position = list.CountOffset };
+                countWriter.WriteInt32(list.Passes.Count);
+            }
+        }
+
+        Array.Clear(file, newEnd, end - newEnd);
+        return newEnd - start;
+
+        void RemoveRange(int rangeStart, int rangeEnd)
+        {
+            int length = rangeEnd - rangeStart;
+            if (rangeStart < start || rangeEnd > newEnd || newEnd > file.Length || length <= 0 || length % 4 != 0)
+            {
+                throw new InvalidDataException("Invalid serialized shader range.");
+            }
+
+            // Compact within this object so neighboring object offsets and resource indexes stay valid.
+            Buffer.BlockCopy(file, rangeEnd, file, rangeStart, newEnd - rangeEnd);
+            newEnd -= length;
         }
     }
 
@@ -327,17 +465,17 @@ internal static class AssetBundleGrabPasses
         if (Get(shader, "m_Name") is not string name ||
             Get(shader, "m_SubShaders") is not List<object?> { Count: > 0 } subShaders ||
             subShaders[0] is not Dictionary<string, object?> subShader ||
-            Get(subShader, "m_Passes") is not List<object?> passes)
+            Get(subShader, "m_Passes") is not PassList list)
         {
             return;
         }
 
-        for (int i = 0; i < passes.Count; i++)
+        for (int i = 0; i < list.Passes.Count; i++)
         {
-            if (passes[i] is Dictionary<string, object?> pass &&
-                Get(pass, "m_Type") is GrabPassType)
+            PassInfo pass = list.Passes[i];
+            if (pass.Type == GrabPassType)
             {
-                string textureName = Get(pass, "m_TextureName") as string ?? string.Empty;
+                string textureName = pass.TextureName;
                 if (!_grabPasses.TryGetValue(name, out Dictionary<int, string> grabPasses))
                 {
                     grabPasses = new Dictionary<int, string>();
@@ -450,8 +588,44 @@ internal static class AssetBundleGrabPasses
         {
             int array = index + 1;
             int element = NextSibling(nodes, array + 1);
+            int countOffset = reader.Position;
             int size = reader.Int32();
-            if (!HasChildren(nodes, element) && nodes[element].ByteSize > 0)
+            if (keep && node.Name == "m_Passes")
+            {
+                List<PassInfo> passes = new(size);
+                for (int i = 0; i < size; i++)
+                {
+                    int start = reader.Position;
+                    if (ReadValue(reader, nodes, element) is not Dictionary<string, object?> pass)
+                    {
+                        throw new InvalidDataException("Invalid serialized shader pass.");
+                    }
+
+                    passes.Add(new PassInfo(
+                        start,
+                        reader.Position,
+                        Get(pass, "m_Type") is int type ? type : -1,
+                        Get(pass, "m_TextureName") as string ?? string.Empty,
+                        Get(pass, "m_UseName") as string ?? string.Empty,
+                        ReadAlwaysTag(pass)));
+                }
+
+                value = new PassList(countOffset, passes);
+            }
+            else if (keep && node.Name == "tags")
+            {
+                for (int i = 0; i < size; i++)
+                {
+                    int start = reader.Position;
+                    if (ReadValue(reader, nodes, element) is Dictionary<string, object?> pair &&
+                        Get(pair, "first") is string key && string.Equals(key, "LightMode", StringComparison.OrdinalIgnoreCase) &&
+                        Get(pair, "second") is string mode && string.Equals(mode, "Always", StringComparison.OrdinalIgnoreCase))
+                    {
+                        value = new TagEntry(countOffset, size, start, reader.Position);
+                    }
+                }
+            }
+            else if (!HasChildren(nodes, element) && nodes[element].ByteSize > 0)
             {
                 reader.Position += size * nodes[element].ByteSize;
             }
@@ -477,7 +651,9 @@ internal static class AssetBundleGrabPasses
             Dictionary<string, object?>? fields = keep ? new Dictionary<string, object?>() : null;
             for (int child = index + 1; child < nodes.Length && nodes[child].Level > node.Level; child = NextSibling(nodes, child))
             {
-                bool wanted = keep && nodes[child].Name is "m_Name" or "m_SubShaders" or "m_Passes" or "m_Type" or "m_TextureName";
+                bool wanted = keep && nodes[child].Name is
+                    "m_Name" or "m_SubShaders" or "m_Passes" or "m_Type" or "m_TextureName" or "m_UseName" or
+                    "m_State" or "m_Tags" or "tags" or "first" or "second";
                 object? item = ReadValue(reader, nodes, child, wanted);
                 if (fields != null && wanted)
                 {
@@ -505,6 +681,35 @@ internal static class AssetBundleGrabPasses
         }
 
         return value;
+    }
+
+    private static TagEntry? ReadAlwaysTag(Dictionary<string, object?> pass) =>
+        Get(pass, "m_State") is Dictionary<string, object?> state &&
+        Get(state, "m_Tags") is Dictionary<string, object?> tags &&
+        Get(tags, "tags") is TagEntry tag ? tag : null;
+
+    private readonly struct PassList(int countOffset, List<PassInfo> passes)
+    {
+        internal readonly int CountOffset = countOffset;
+        internal readonly List<PassInfo> Passes = passes;
+    }
+
+    private readonly struct PassInfo(int start, int end, int type, string textureName, string useName, TagEntry? alwaysTag)
+    {
+        internal readonly int Start = start;
+        internal readonly int End = end;
+        internal readonly int Type = type;
+        internal readonly string TextureName = textureName;
+        internal readonly string UseName = useName;
+        internal readonly TagEntry? AlwaysTag = alwaysTag;
+    }
+
+    private readonly struct TagEntry(int countOffset, int count, int start, int end)
+    {
+        internal readonly int CountOffset = countOffset;
+        internal readonly int Count = count;
+        internal readonly int Start = start;
+        internal readonly int End = end;
     }
 
     private readonly struct Node
@@ -832,6 +1037,12 @@ internal static class AssetBundleGrabPasses
 
         internal long Int64() => (long)ReadInteger(8);
 
+        internal void WriteInt16(int value) => WriteInteger((ushort)value, 2);
+
+        internal void WriteInt32(int value) => WriteInteger((uint)value, 4);
+
+        internal void WriteInt64(long value) => WriteInteger((ulong)value, 8);
+
         internal void Align(int alignment) => Position = (Position + alignment - 1) / alignment * alignment;
 
         internal string CString()
@@ -853,6 +1064,14 @@ internal static class AssetBundleGrabPasses
 
             Position += size;
             return value;
+        }
+
+        private void WriteInteger(ulong value, int size)
+        {
+            for (int i = 0; i < size; i++)
+            {
+                Data[Position++] = (byte)(value >> ((_bigEndian ? size - 1 - i : i) * 8));
+            }
         }
     }
 }

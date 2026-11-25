@@ -35,7 +35,6 @@ internal sealed class LegacyShaderRendering : IAffinity, IDisposable
 
         // A GrabPass is only reported by Unity when it is drawn, from a render job thread.
         _grabPass = new LegacyGrabTexturePass();
-        LegacyGrabPasses.Load(assetBundleManager.BundlePath);
         LegacyExtraPasses.ClearCache();
         if (LegacyGrabPasses.Count > 0)
         {
@@ -120,6 +119,7 @@ internal sealed class LegacyShaderRendering : IAffinity, IDisposable
         if (_extraPass != null)
         {
             __instance.EnqueuePass(_extraPass);
+            __instance.EnqueuePass(_extraPass.TransparentPass);
         }
 
         if (_grabPass != null && _grabPassRequested)

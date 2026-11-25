@@ -7,6 +7,9 @@ using Heck;
 using JetBrains.Annotations;
 using SiraUtil.Logging;
 using UnityEngine;
+#if BEAT_SABER_1453
+using Vivify.PostProcessing;
+#endif
 using static Vivify.VivifyController;
 using Object = UnityEngine.Object;
 
@@ -68,30 +71,19 @@ internal class AssetBundleManager : IDisposable
 #endif
         if (!File.Exists(path))
         {
+#if BEAT_SABER_1453
+            LegacyGrabPasses.Load(null);
+#endif
             _log.Error($"[{BUNDLE_FILE}] not found");
             return;
         }
 
-        if (HeckController.DebugMode)
-        {
-            _mainBundle = AssetBundle.LoadFromFile(path);
-        }
-        else
-        {
-            CustomData levelCustomData = customBeatmapData.levelCustomData;
-            uint? assetBundleChecksum = levelCustomData.Get<CustomData>(ASSET_BUNDLE)?.Get<uint>(BUNDLE_CHECKSUM);
-            if (assetBundleChecksum != null)
-            {
-                _mainBundle = AssetBundle.LoadFromFile(path, assetBundleChecksum.Value);
-            }
-            else
-            {
-                _log.Error("Checksum not defined");
-            }
-        }
-
+        _mainBundle = LoadBundle(path, customBeatmapData.levelCustomData);
         if (_mainBundle == null)
         {
+#if BEAT_SABER_1453
+            LegacyGrabPasses.Load(null);
+#endif
             _log.Error($"Failed to load [{path}]");
             return;
         }
@@ -144,5 +136,44 @@ internal class AssetBundleManager : IDisposable
 
         asset = default;
         return false;
+    }
+
+    private AssetBundle? LoadBundle(string path, CustomData levelCustomData)
+    {
+        uint? checksum = HeckController.DebugMode ? 0u : levelCustomData.Get<CustomData>(ASSET_BUNDLE)?.Get<uint>(BUNDLE_CHECKSUM);
+        if (checksum == null)
+        {
+            _log.Error("Checksum not defined");
+            return null;
+        }
+
+        AssetBundle? original = AssetBundle.LoadFromFile(path, checksum.Value);
+#if BEAT_SABER_1453
+        if (original == null || !Legato.Rendering.LegacyShaderSupport.IsUniversalPipeline())
+        {
+            return original;
+        }
+
+        byte[]? repaired = LegacyGrabPasses.Load(path, applyCompatibility: true);
+        if (repaired == null)
+        {
+            return original;
+        }
+
+        // Unity validates the original checksum before any in-memory compatibility edits.
+        original.Unload(true);
+        AssetBundle? compatible = AssetBundle.LoadFromMemory(repaired);
+        if (compatible != null)
+        {
+            _log.Info("Prepared legacy shader passes for URP.");
+            return compatible;
+        }
+
+        _log.Warn("Could not load the repaired shader bundle. Loading the original bundle.");
+        LegacyGrabPasses.Load(path);
+        return AssetBundle.LoadFromFile(path, checksum.Value);
+#else
+        return original;
+#endif
     }
 }

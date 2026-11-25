@@ -16,10 +16,12 @@ internal sealed class LegacyExtraPassRenderPass : ScriptableRenderPass
     private static readonly List<ShaderTagId> _shaderTags = [new("SRPDefaultUnlit"), new("UniversalForward"), new("UniversalForwardOnly"), new("Always"), new("ForwardBase")];
 
     private readonly List<(Renderer Renderer, LegacyExtraPasses.Draw Draw)> _plainDraws = [];
+    private readonly List<(Renderer Renderer, LegacyExtraPasses.Draw Draw)> _lateDraws = [];
     private readonly List<(Renderer Renderer, LegacyExtraPasses.Draw Draw)> _grabDraws = [];
     private readonly List<int> _grabTextures = [];
     private readonly List<int> _grabTexelSizes = [];
     private readonly List<(uint Layer, LegacyExtraPasses.Draw Draw)> _plainParticles = [];
+    private readonly List<(uint Layer, LegacyExtraPasses.Draw Draw)> _lateParticles = [];
     private readonly List<(uint Layer, LegacyExtraPasses.Draw Draw)> _grabParticles = [];
     private readonly HashSet<(uint Layer, int Pass)> _particleKeys = [];
     private readonly Plane[] _frustum = new Plane[6];
@@ -27,10 +29,15 @@ internal sealed class LegacyExtraPassRenderPass : ScriptableRenderPass
     internal LegacyExtraPassRenderPass()
     {
         renderPassEvent = RenderPassEvent.AfterRenderingSkybox;
+        TransparentPass = new TransparentExtraPass(this);
     }
+
+    internal ScriptableRenderPass TransparentPass { get; }
 
     public override void RecordRenderGraph(RenderGraph renderGraph, ContextContainer frameData)
     {
+        _lateDraws.Clear();
+        _lateParticles.Clear();
         UniversalCameraData cameraData = frameData.Get<UniversalCameraData>();
         if (LegacyExtraPasses.Active.Count == 0 || !CollectDraws(cameraData.camera))
         {
@@ -106,13 +113,16 @@ internal sealed class LegacyExtraPassRenderPass : ScriptableRenderPass
 
                 if (draw.GrabTextures == null)
                 {
+                    // Plain transparent extras follow URP's first pass. Shaders using a grab
+                    // still draw in the sequence that produces their scene-color input.
+                    bool afterTransparents = !draw.HasGrabPass && draw.Material.renderQueue > 2500;
                     if (particleLayer != 0)
                     {
-                        _plainParticles.Add((particleLayer, draw));
+                        (afterTransparents ? _lateParticles : _plainParticles).Add((particleLayer, draw));
                     }
                     else
                     {
-                        _plainDraws.Add((renderer, draw));
+                        (afterTransparents ? _lateDraws : _plainDraws).Add((renderer, draw));
                     }
 
                     continue;
@@ -224,6 +234,36 @@ internal sealed class LegacyExtraPassRenderPass : ScriptableRenderPass
     private sealed class CopyData
     {
         internal TextureHandle Source { get; set; }
+    }
+
+    private sealed class TransparentExtraPass : ScriptableRenderPass
+    {
+        private readonly LegacyExtraPassRenderPass _owner;
+
+        internal TransparentExtraPass(LegacyExtraPassRenderPass owner)
+        {
+            _owner = owner;
+            renderPassEvent = RenderPassEvent.AfterRenderingTransparents;
+        }
+
+        public override void RecordRenderGraph(RenderGraph renderGraph, ContextContainer frameData)
+        {
+            if (_owner._lateDraws.Count == 0 && _owner._lateParticles.Count == 0)
+            {
+                return;
+            }
+
+            UniversalResourceData resources = frameData.Get<UniversalResourceData>();
+            _owner.AddDrawPass(
+                renderGraph,
+                frameData,
+                "Vivify transparent extra passes",
+                resources.activeColorTexture,
+                resources.activeDepthTexture,
+                _owner._lateDraws,
+                _owner._lateParticles,
+                TextureHandle.nullHandle);
+        }
     }
 
     private sealed class DrawData

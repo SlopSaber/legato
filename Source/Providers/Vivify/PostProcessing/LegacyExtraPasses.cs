@@ -153,9 +153,16 @@ internal sealed class LegacyExtraPasses : MonoBehaviour
                 continue;
             }
 
-            foreach (PassPlan plan in GetExtraPasses(material.shader))
+            Shader shader = material.shader;
+            if (shader == null)
             {
-                _draws.Add(new Draw(material, Math.Min(i, Math.Max(submeshes - 1, 0)), plan.Pass, plan.GrabTextures));
+                continue;
+            }
+
+            bool hasGrabPass = LegacyGrabPasses.HasGrabPass(shader);
+            foreach (PassPlan plan in GetExtraPasses(shader))
+            {
+                _draws.Add(new Draw(material, Math.Min(i, Math.Max(submeshes - 1, 0)), plan.Pass, plan.GrabTextures, hasGrabPass));
             }
         }
 
@@ -210,13 +217,15 @@ internal sealed class LegacyExtraPasses : MonoBehaviour
         internal readonly int Submesh;
         internal readonly int Pass;
         internal readonly string[]? GrabTextures;
+        internal readonly bool HasGrabPass;
 
-        internal Draw(Material material, int submesh, int pass, string[]? grabTextures)
+        internal Draw(Material material, int submesh, int pass, string[]? grabTextures, bool hasGrabPass)
         {
             Material = material;
             Submesh = submesh;
             Pass = pass;
             GrabTextures = grabTextures;
+            HasGrabPass = hasGrabPass;
         }
     }
 
