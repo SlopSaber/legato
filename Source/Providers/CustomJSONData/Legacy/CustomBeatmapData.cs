@@ -1,11 +1,18 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 
 namespace CustomJSONData.CustomBeatmap
 {
     public sealed class CustomBeatmapData : BeatmapData, ICustomData, IVersionable
     {
+        private static readonly PropertyInfo[] _nativeChartProperties = new[]
+        {
+            nameof(beatmapLinesData), nameof(beatmapEventData), nameof(notesCount),
+            nameof(obstaclesCount), nameof(bombsCount), nameof(spawnRotationEventsCount)
+        }.Select(name => typeof(BeatmapData).GetProperty(name)).ToArray();
+
         internal CustomBeatmapData(
             BeatmapData original,
             CustomData data,
@@ -19,19 +26,40 @@ namespace CustomJSONData.CustomBeatmap
             beatmapObjectDatas = beatmapLinesData.SelectMany(line => line.beatmapObjectsData).OrderBy(item => item.time).ToArray();
         }
 
-        public CustomData customData { get; }
+        public CustomData customData { get; private set; }
 
         public CustomData beatmapCustomData { get; internal set; } = new();
 
         public CustomData levelCustomData { get; internal set; } = new();
 
-        public Version version { get; }
+        public Version version { get; private set; }
 
-        public IReadOnlyList<CustomEventData> customEventDatas { get; }
+        public IReadOnlyList<CustomEventData> customEventDatas { get; private set; }
 
-        public IReadOnlyList<BeatmapObjectData> beatmapObjectDatas { get; }
+        public IReadOnlyList<BeatmapObjectData> beatmapObjectDatas { get; private set; }
 
         public IReadOnlyList<BeatmapEventData> beatmapEventDatas => beatmapEventData;
+
+        public void ApplyLevelMetadata(CustomLevelInfoSaveData info, CustomLevelInfoSaveData.DifficultyBeatmap difficulty)
+        {
+            levelCustomData = info.customData.Copy();
+            beatmapCustomData = difficulty.customData.Copy();
+        }
+
+        public void ReplaceChartFrom(CustomBeatmapData chart)
+        {
+            foreach (PropertyInfo property in _nativeChartProperties)
+            {
+                property.SetValue(this, property.GetValue(chart));
+            }
+
+            customData = chart.customData;
+            version = chart.version;
+            customEventDatas = chart.customEventDatas;
+            beatmapObjectDatas = chart.beatmapObjectDatas;
+            levelCustomData = chart.levelCustomData;
+            beatmapCustomData = chart.beatmapCustomData;
+        }
 
         internal CustomBeatmapData CopyDataTo(BeatmapData result)
         {

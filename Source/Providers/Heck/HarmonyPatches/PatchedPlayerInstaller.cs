@@ -11,9 +11,9 @@ using System.Reflection;
 using System.Reflection.Emit;
 #else
 using Heck.HarmonyPatches.UntransformedData;
-using Heck.ReLoad;
 using SiraUtil.Logging;
 #endif
+using Heck.ReLoad;
 using DeserializerManager = Heck.Deserialize.DeserializerManager;
 
 namespace Heck.HarmonyPatches;
@@ -140,12 +140,10 @@ internal class PatchedPlayerInstaller : IAffinity
                 out beatmapTracks,
                 out deserializedDatas);
 
-#if !LEGATO_HECK_LEGACY_GAMEPLAY
             if (HeckController.DebugMode && sceneSetupData.practiceSettings != null)
             {
                 container.BindInterfacesAndSelfTo<ReLoader>().AsSingle().NonLazy();
             }
-#endif
         }
         else
         {

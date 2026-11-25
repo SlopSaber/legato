@@ -26,8 +26,7 @@ namespace CustomJSONData.HarmonyPatches
             CustomDifficultyBeatmap result = await load.ConfigureAwait(false);
             if (result?.beatmapData is CustomBeatmapData beatmap)
             {
-                beatmap.levelCustomData = info.customData.Copy();
-                beatmap.beatmapCustomData = difficulty.customData.Copy();
+                beatmap.ApplyLevelMetadata(info, difficulty);
             }
 
             return result!;
