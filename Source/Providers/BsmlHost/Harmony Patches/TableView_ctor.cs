@@ -1,5 +1,5 @@
 #if !BEAT_SABER_1_29_0
-﻿using HarmonyLib;
+using HarmonyLib;
 using HMUI;
 
 namespace BeatSaberMarkupLanguage.Harmony_Patches

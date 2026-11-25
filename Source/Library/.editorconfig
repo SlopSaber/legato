@@ -1,0 +1,2 @@
+[{Unity/ObjectDiscovery.cs,LegacyLayoutRepair/PruneDestroyedChildren.cs}]
+dotnet_diagnostic.SA1633.severity = silent

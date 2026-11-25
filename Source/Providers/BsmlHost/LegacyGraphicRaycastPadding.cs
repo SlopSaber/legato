@@ -10,6 +10,9 @@ using VRUIControls;
 
 namespace BeatSaberMarkupLanguage.Harmony_Patches
 {
+    /// <summary>
+    /// Applies BSML's raycast padding to the legacy UI raycasters.
+    /// </summary>
     [HarmonyPatch]
     internal static class LegacyGraphicRaycastPadding
     {

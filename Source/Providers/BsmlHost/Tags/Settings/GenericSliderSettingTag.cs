@@ -12,23 +12,28 @@ using UnityEngine.UI;
 
 namespace BeatSaberMarkupLanguage.Tags.Settings
 {
+    /// <summary>
+    /// Builds slider settings from the game's controller settings template.
+    /// </summary>
+    /// <typeparam name="T">The component that supplies the slider behavior.</typeparam>
     public abstract class GenericSliderSettingTag<T> : BSMLTag
         where T : GenericSliderSetting
     {
         private LayoutElement controllersTransformTemplate;
 
+        /// <inheritdoc />
         public override GameObject CreateObject(Transform parent)
         {
-            if (controllersTransformTemplate == null)
+            if (this.controllersTransformTemplate == null)
             {
-                #if BEAT_SABER_1_29_0
-                controllersTransformTemplate = Resources.FindObjectsOfTypeAll<LayoutElement>().First(x => x.name == "PositionX");
+#if BEAT_SABER_1_29_0
+                this.controllersTransformTemplate = Resources.FindObjectsOfTypeAll<LayoutElement>().First(x => x.name == "PositionX");
 #else
-                controllersTransformTemplate = DiContainer.Resolve<MainSettingsMenuViewController>()._settingsSubMenuInfos.First(m => m.viewController is ControllerProfilesSettingsViewController).viewController.transform.Find("Content/MainContent/Sliders/PositionX").GetComponent<LayoutElement>();
+                this.controllersTransformTemplate = this.DiContainer.Resolve<MainSettingsMenuViewController>()._settingsSubMenuInfos.First(m => m.viewController is ControllerProfilesSettingsViewController).viewController.transform.Find("Content/MainContent/Sliders/PositionX").GetComponent<LayoutElement>();
 #endif
             }
 
-            LayoutElement baseSetting = Object.Instantiate(controllersTransformTemplate, parent, false);
+            LayoutElement baseSetting = Object.Instantiate(this.controllersTransformTemplate, parent, false);
             baseSetting.name = "BSMLSliderSetting";
 
             RectTransform rectTransform = (RectTransform)baseSetting.transform;
@@ -39,6 +44,7 @@ namespace BeatSaberMarkupLanguage.Tags.Settings
             {
                 Object.Destroy(sliderLeft.gameObject);
             }
+
             Object.Destroy(baseSetting.GetComponent<CanvasGroup>());
 
             GameObject gameObject = baseSetting.gameObject;
@@ -58,7 +64,7 @@ namespace BeatSaberMarkupLanguage.Tags.Settings
             sliderTransform.anchoredPosition = new Vector2(0, 0);
 
             GameObject titleObject = gameObject.transform.Find("Title").gameObject;
-            LocalizedTextMeshProUGUI localizedText = ConfigureLocalizedText(titleObject);
+            LocalizedTextMeshProUGUI localizedText = this.ConfigureLocalizedText(titleObject);
 
             RectTransform titleTransform = (RectTransform)titleObject.transform;
             titleTransform.anchorMin = Vector3.zero;

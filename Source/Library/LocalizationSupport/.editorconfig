@@ -277,5 +277,9 @@ csharp_space_between_square_brackets = false
 csharp_preserve_single_line_blocks = true
 csharp_preserve_single_line_statements = true
 
-# We don't care about file headers (at least for the time being)
-dotnet_diagnostic.SA1633.severity = silent # The file header is missing or not located at the top of the file.
+# Shared code follows the repository license.
+dotnet_diagnostic.SA1633.severity = silent
+
+[NativeAliases.cs]
+# The same alias set serves multiple optional localization adapters.
+dotnet_diagnostic.IDE0005.severity = silent

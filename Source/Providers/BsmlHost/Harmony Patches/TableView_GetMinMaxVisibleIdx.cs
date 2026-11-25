@@ -1,5 +1,5 @@
 #if !BEAT_SABER_1_29_0
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Reflection;
 using System.Reflection.Emit;
 using HarmonyLib;
@@ -7,6 +7,9 @@ using HMUI;
 
 namespace BeatSaberMarkupLanguage.Harmony_Patches
 {
+    /// <summary>
+    /// Corrects the scroll position used to calculate the visible table rows.
+    /// </summary>
     [HarmonyPatch]
     internal class TableView_GetMinMaxVisibleIdx
     {

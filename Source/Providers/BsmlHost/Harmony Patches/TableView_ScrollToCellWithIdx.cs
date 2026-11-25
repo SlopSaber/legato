@@ -5,6 +5,9 @@ using UnityEngine;
 
 namespace BeatSaberMarkupLanguage.Harmony_Patches
 {
+    /// <summary>
+    /// Clamps the cell index and calculates the legacy table's scroll offset.
+    /// </summary>
     [HarmonyPatch(typeof(TableView), nameof(TableView.ScrollToCellWithIdx))]
     internal static class TableView_ScrollToCellWithIdx
     {
@@ -38,7 +41,7 @@ namespace BeatSaberMarkupLanguage.Harmony_Patches
     }
 }
 #else
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Reflection;
 using System.Reflection.Emit;
 using HarmonyLib;
@@ -58,6 +61,11 @@ namespace BeatSaberMarkupLanguage.Harmony_Patches
         private static readonly MethodInfo ClampIndexMethod = typeof(TableView_ScrollToCellWithIdx).GetMethod(nameof(ClampIndex), BindingFlags.NonPublic | BindingFlags.Static);
         private static readonly MethodInfo GetTargetScrollPositionMethod = typeof(TableView_ScrollToCellWithIdx).GetMethod(nameof(GetTargetScrollPosition), BindingFlags.NonPublic | BindingFlags.Static);
 
+        /// <summary>
+        /// Replaces native scrolling with clamped cell index and position calculations.
+        /// </summary>
+        /// <param name="instructions">The native scroll implementation.</param>
+        /// <returns>The updated instructions.</returns>
         public static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
         {
             /*

@@ -1,5 +1,5 @@
 #if !BEAT_SABER_1_29_0
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Reflection.Emit;
 using HarmonyLib;
 using TMPro;
@@ -7,9 +7,17 @@ using UnityEngine;
 
 namespace BeatSaberMarkupLanguage.Harmony_Patches
 {
+    /// <summary>
+    /// Supplies a sprite material for TextMeshPro emoji fonts.
+    /// </summary>
     [HarmonyPatch]
     internal class EmojiSupport
     {
+        /// <summary>
+        /// Replaces the sprite shader lookup with the provided material.
+        /// </summary>
+        /// <param name="instructions">The native font creation instructions.</param>
+        /// <returns>The updated instructions.</returns>
         [HarmonyPatch(typeof(TMP_FontAsset), nameof(TMP_FontAsset.CreateFontAssetInstance))]
         [HarmonyTranspiler]
         public static IEnumerable<CodeInstruction> TMP_FontAsset_CreateFontAssetInstance_Transpiler(IEnumerable<CodeInstruction> instructions)

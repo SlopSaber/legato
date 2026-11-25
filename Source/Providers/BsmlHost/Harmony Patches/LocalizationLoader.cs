@@ -5,6 +5,9 @@ using HarmonyLib;
 
 namespace BeatSaberMarkupLanguage.Harmony_Patches
 {
+    /// <summary>
+    /// Imports BSML's strings after the legacy localization files.
+    /// </summary>
     [HarmonyPatch(typeof(Polyglot.LocalizationImporter), nameof(Polyglot.LocalizationImporter.ImportInputFiles))]
     internal class LocalizationLoader
     {
@@ -25,9 +28,16 @@ using UnityEngine;
 
 namespace BeatSaberMarkupLanguage.Harmony_Patches
 {
+    /// <summary>
+    /// Adds BSML's strings to the localization installer's resources.
+    /// </summary>
     [HarmonyPatch(typeof(LocalizationAsyncInstaller), "LoadResourcesBeforeInstall")]
     internal class LocalizationLoader
     {
+        /// <summary>
+        /// Adds the embedded localization CSV to the resource list.
+        /// </summary>
+        /// <param name="assets">The native localization resources.</param>
         public static void Prefix(IList<TextAsset> assets)
         {
             using (Stream stream = Assembly.GetExecutingAssembly().GetManifestResourceStream("BeatSaberMarkupLanguage.Resources.beat-saber-markup-language.csv"))

@@ -7,6 +7,9 @@ using UnityEngine;
 
 namespace BeatSaberMarkupLanguage.Harmony_Patches
 {
+    /// <summary>
+    /// Skips native warnings about missing localization keys.
+    /// </summary>
     [HarmonyPatch(typeof(LocalizationModel))]
     internal static class LocalizationModelSilencer
     {

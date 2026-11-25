@@ -2,6 +2,10 @@
   <Import Project="$(MSBuildThisFileDirectory)AssetBundles.targets" />
   <Import Project="$(MSBuildProjectFullPath).user" Condition="'$(LegatoMetadataOnly)' != 'true' AND '$(BeatSaberDir)' == '' AND Exists('$(MSBuildProjectFullPath).user')" />
 
+  <ItemGroup Condition="'$(LegatoEnableObjectDiscovery)' == 'true' OR '$(LegatoEnableUnityCompatibility)' == 'true' OR '$(LegatoEnableLegacyLayoutRepair)' == 'true'">
+    <EditorConfigFiles Include="$(LegatoSourceRoot)Library\.editorconfig" />
+  </ItemGroup>
+
   <PropertyGroup>
     <LegatoTargetVersion Condition="'$(LegatoTargetVersion)' == ''">$(LegatoCurrentVersion)</LegatoTargetVersion>
     <LegatoSourceVersion Condition="'$(LegatoSourceVersion)' == '' AND '$(GameVersion)' != ''">$(GameVersion)</LegatoSourceVersion>
