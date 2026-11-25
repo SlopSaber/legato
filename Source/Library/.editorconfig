@@ -4,3 +4,24 @@ dotnet_diagnostic.SA1633.severity = silent
 [{Unity/ObjectDiscovery.cs,LightRegistry/*.cs,JsonCompatibility/*.cs,CameraEffectsLifecycle/*.cs,SerializedBeatmapKeys/SerializedBeatmapKey.cs,TextWrapping/TextWrapping.cs}]
 dotnet_diagnostic.SA1200.severity = none
 dotnet_diagnostic.SA1633.severity = none
+
+# Keep Legato's source conventions when consumers compile platform adapters with StyleCop.
+[PlatformAuthentication/*.cs]
+dotnet_diagnostic.SA1101.severity = none
+dotnet_diagnostic.SA1107.severity = none
+dotnet_diagnostic.SA1114.severity = none
+dotnet_diagnostic.SA1132.severity = none
+dotnet_diagnostic.SA1136.severity = none
+dotnet_diagnostic.SA1200.severity = none
+dotnet_diagnostic.SA1201.severity = none
+dotnet_diagnostic.SA1202.severity = none
+dotnet_diagnostic.SA1204.severity = none
+dotnet_diagnostic.SA1210.severity = none
+dotnet_diagnostic.SA1309.severity = none
+dotnet_diagnostic.SA1401.severity = none
+dotnet_diagnostic.SA1500.severity = none
+dotnet_diagnostic.SA1502.severity = none
+dotnet_diagnostic.SA1503.severity = none
+dotnet_diagnostic.SA1513.severity = none
+dotnet_diagnostic.SA1516.severity = none
+dotnet_diagnostic.SA1633.severity = none
