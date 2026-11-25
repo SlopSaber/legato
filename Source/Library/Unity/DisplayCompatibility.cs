@@ -22,7 +22,7 @@ namespace Legato.Unity {
 #endif
 
         internal static void GetDisplays(List<XRDisplaySubsystem> displays) {
-#if BEAT_SABER_1_45_1 || BEAT_SABER_1_45_3
+#if BEAT_SABER_1_45_1 || BEAT_SABER_1_45_3 || LEGATO_UNITY_6_OBJECT_QUERIES
             SubsystemManager.GetSubsystems(displays);
 #else
             SubsystemManager.GetInstances(displays);
