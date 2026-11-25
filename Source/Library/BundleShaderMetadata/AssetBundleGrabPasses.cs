@@ -1,6 +1,7 @@
 #if BEAT_SABER_1453
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Text;
 using UnityEngine;
@@ -36,11 +37,16 @@ internal static class AssetBundleGrabPasses
 
     private static readonly Dictionary<string, Dictionary<int, string>> _grabPasses = new();
     private static readonly Dictionary<string, HashSet<string>> _forwardGrabTextures = new();
+    private static readonly Dictionary<string, string> _nativeGrabTags = new();
     private static readonly Dictionary<int, string> _commonStrings = BuildCommonStrings();
 
     internal static int Count { get; private set; }
 
+    internal static int NativeGrabCount => _nativeGrabTags.Count;
+
     internal static bool HasGrabPass(Shader shader) => _grabPasses.ContainsKey(shader.name);
+
+    internal static string? GetNativeGrabTag(Shader shader) => _nativeGrabTags.TryGetValue(shader.name, out string tag) ? tag : null;
 
     internal static void CollectForwardGrabTextures(Shader shader, HashSet<string> textures)
     {
@@ -54,6 +60,7 @@ internal static class AssetBundleGrabPasses
     {
         _grabPasses.Clear();
         _forwardGrabTextures.Clear();
+        _nativeGrabTags.Clear();
         Count = 0;
         if (bundlePath == null || !File.Exists(bundlePath))
         {
@@ -395,6 +402,7 @@ internal static class AssetBundleGrabPasses
             {
                 if (applyCompatibility)
                 {
+                    repaired |= TagNativeGrabDraw(file, bigEndian, shader);
                     int remainingSize = PreparePasses(file, bigEndian, objectStart, size, shader, hasLegacyShadowCaster);
                     if (remainingSize != size)
                     {
@@ -409,6 +417,45 @@ internal static class AssetBundleGrabPasses
         }
 
         return repaired;
+    }
+
+    private static bool TagNativeGrabDraw(byte[] file, bool bigEndian, Dictionary<string, object?> shader)
+    {
+        if (Get(shader, "m_Name") is not string name ||
+            Get(shader, "m_SubShaders") is not List<object?> { Count: 1 } subShaders ||
+            subShaders[0] is not Dictionary<string, object?> subShader ||
+            Get(subShader, "m_Passes") is not PassList list ||
+            ReadTags(subShader).RenderType is not TagEntry subRenderType)
+        {
+            return false;
+        }
+
+        int grabIndex = list.Passes.FindIndex(pass => pass.Type == GrabPassType && !string.IsNullOrEmpty(pass.TextureName));
+        if (grabIndex != 0 || list.Passes.Count < 2 || !HasForwardColor(list.Passes[1]) ||
+            list.Passes.FindIndex(2, HasForwardColor) >= 0 || list.Passes.FindIndex(1, pass => pass.Type == GrabPassType) >= 0)
+        {
+            return false;
+        }
+
+        PassInfo draw = list.Passes[1];
+        if (draw.Type != DrawPassType || draw.LightMode != null || draw.RenderType is not TagEntry renderType ||
+            renderType.Mode != subRenderType.Mode || renderType.End - renderType.Start != 28 ||
+            (draw.ProgramMask & VertexAndFragmentPrograms) != VertexAndFragmentPrograms)
+        {
+            return false;
+        }
+
+        // The subshader retains RenderType. Reuse the redundant pass tag's aligned space without moving any objects.
+        if (!_nativeGrabTags.TryGetValue(name, out string tag))
+        {
+            tag = "VY" + _nativeGrabTags.Count.ToString("X6", CultureInfo.InvariantCulture);
+            _nativeGrabTags.Add(name, tag);
+        }
+
+        Reader writer = new(file, bigEndian) { Position = renderType.Start };
+        writer.WriteAlignedString("LIGHTMODE");
+        writer.WriteAlignedString(tag);
+        return true;
     }
 
     private static int PreparePasses(byte[] file, bool bigEndian, int start, int size, Dictionary<string, object?> shader, bool hasLegacyShadowCaster)
@@ -647,23 +694,34 @@ internal static class AssetBundleGrabPasses
                         Get(pass, "m_TextureName") as string ?? string.Empty,
                         Get(pass, "m_UseName") as string ?? string.Empty,
                         Get(pass, "m_ProgramMask") is int mask ? mask : 0,
-                        ReadLightMode(pass)));
+                        ReadPassTags(pass)));
                 }
 
                 value = new PassList(countOffset, passes);
             }
             else if (keep && node.Name == "tags")
             {
+                TagEntry? lightMode = null;
+                TagEntry? renderType = null;
                 for (int i = 0; i < size; i++)
                 {
                     int start = reader.Position;
                     if (ReadValue(reader, nodes, element) is Dictionary<string, object?> pair &&
-                        Get(pair, "first") is string key && string.Equals(key, "LightMode", StringComparison.OrdinalIgnoreCase) &&
+                        Get(pair, "first") is string key &&
                         Get(pair, "second") is string mode)
                     {
-                        value = new TagEntry(countOffset, size, start, reader.Position, mode.ToUpperInvariant());
+                        if (string.Equals(key, "LightMode", StringComparison.OrdinalIgnoreCase))
+                        {
+                            lightMode = new TagEntry(countOffset, size, start, reader.Position, mode.ToUpperInvariant());
+                        }
+                        else if (string.Equals(key, "RenderType", StringComparison.OrdinalIgnoreCase))
+                        {
+                            renderType = new TagEntry(countOffset, size, start, reader.Position, mode);
+                        }
                     }
                 }
+
+                value = new PassTags(lightMode, renderType);
             }
             else if (!HasChildren(nodes, element) && nodes[element].ByteSize > 0)
             {
@@ -723,10 +781,11 @@ internal static class AssetBundleGrabPasses
         return value;
     }
 
-    private static TagEntry? ReadLightMode(Dictionary<string, object?> pass) =>
-        Get(pass, "m_State") is Dictionary<string, object?> state &&
-        Get(state, "m_Tags") is Dictionary<string, object?> tags &&
-        Get(tags, "tags") is TagEntry tag ? tag : null;
+    private static PassTags ReadPassTags(Dictionary<string, object?> pass) =>
+        Get(pass, "m_State") is Dictionary<string, object?> state ? ReadTags(state) : default;
+
+    private static PassTags ReadTags(Dictionary<string, object?> fields) =>
+        Get(fields, "m_Tags") is Dictionary<string, object?> tags && Get(tags, "tags") is PassTags entries ? entries : default;
 
     private readonly struct PassList(int countOffset, List<PassInfo> passes)
     {
@@ -734,7 +793,7 @@ internal static class AssetBundleGrabPasses
         internal readonly List<PassInfo> Passes = passes;
     }
 
-    private readonly struct PassInfo(int start, int end, int type, string textureName, string useName, int programMask, TagEntry? lightMode)
+    private readonly struct PassInfo(int start, int end, int type, string textureName, string useName, int programMask, PassTags tags)
     {
         internal readonly int Start = start;
         internal readonly int End = end;
@@ -742,7 +801,14 @@ internal static class AssetBundleGrabPasses
         internal readonly string TextureName = textureName;
         internal readonly string UseName = useName;
         internal readonly int ProgramMask = programMask;
+        internal readonly TagEntry? LightMode = tags.LightMode;
+        internal readonly TagEntry? RenderType = tags.RenderType;
+    }
+
+    private readonly struct PassTags(TagEntry? lightMode, TagEntry? renderType)
+    {
         internal readonly TagEntry? LightMode = lightMode;
+        internal readonly TagEntry? RenderType = renderType;
     }
 
     private readonly struct TagEntry(int countOffset, int count, int start, int end, string mode)
@@ -1084,6 +1150,15 @@ internal static class AssetBundleGrabPasses
         internal void WriteInt32(int value) => WriteInteger((uint)value, 4);
 
         internal void WriteInt64(long value) => WriteInteger((ulong)value, 8);
+
+        internal void WriteAlignedString(string value)
+        {
+            WriteInt32(value.Length);
+            Position += Encoding.ASCII.GetBytes(value, 0, value.Length, Data, Position);
+            int end = (Position + 3) & ~3;
+            Array.Clear(Data, Position, end - Position);
+            Position = end;
+        }
 
         internal void Align(int alignment) => Position = (Position + alignment - 1) / alignment * alignment;
 

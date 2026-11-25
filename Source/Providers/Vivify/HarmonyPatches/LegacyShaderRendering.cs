@@ -43,6 +43,11 @@ internal sealed class LegacyShaderRendering : IAffinity, IDisposable
             log.Info($"Emulating {LegacyGrabPasses.Count} GrabPass pass(es) from bundled shaders.");
         }
 
+        if (LegacyGrabPasses.NativeGrabCount > 0)
+        {
+            log.Info($"Using native renderer lists for {LegacyGrabPasses.NativeGrabCount} legacy GrabPass shader(s).");
+        }
+
         // Unity logs native GrabPass failures from a render job thread.
         Application.logMessageReceivedThreaded += OnLogMessage;
 
@@ -93,6 +98,12 @@ internal sealed class LegacyShaderRendering : IAffinity, IDisposable
 
                     if (extraPasses && !renderer.TryGetComponent(out LegacyExtraPasses _))
                     {
+                        if (renderer is ParticleSystemRenderer { enableGPUInstancing: true, renderMode: ParticleSystemRenderMode.Mesh } &&
+                            materials.Count == 1 && materials[0] != null && LegacyExtraPasses.NeedsParticleLayer(materials[0].shader))
+                        {
+                            LegacyExtraPasses.PrepareParticleLayers();
+                        }
+
                         renderer.gameObject.AddComponent<LegacyExtraPasses>();
                         _extraPass ??= new LegacyExtraPassRenderPass();
                     }

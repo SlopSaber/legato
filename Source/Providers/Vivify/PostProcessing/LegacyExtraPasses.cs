@@ -16,7 +16,7 @@ internal sealed class LegacyExtraPasses : MonoBehaviour
     private static readonly List<Material> _materials = [];
     private static readonly Dictionary<(Shader Shader, bool Transparent), uint> _particleLayers = new();
 
-    private static uint _availableParticleLayers;
+    private static uint? _availableParticleLayers;
     private static bool _reportedParticleFallback;
 
     private readonly List<Draw> _draws = [];
@@ -34,15 +34,32 @@ internal sealed class LegacyExtraPasses : MonoBehaviour
 
     internal static bool HasExtraPasses(Shader? shader) => shader != null && GetExtraPasses(shader).Length > 0;
 
+    internal static bool NeedsParticleLayer(Shader shader) => Array.Exists(GetExtraPasses(shader), plan => plan.NativeTag == null);
+
     internal static void ClearCache()
     {
         _extraPasses.Clear();
         _particleLayers.Clear();
         _reportedParticleFallback = false;
+        _availableParticleLayers = null;
+    }
+
+    internal static void PrepareParticleLayers()
+    {
+        if (_availableParticleLayers.HasValue)
+        {
+            return;
+        }
+
         uint used = 0;
         foreach (Renderer renderer in Resources.FindObjectsOfTypeAll<Renderer>())
         {
             used |= renderer.renderingLayerMask;
+            if (used == uint.MaxValue)
+            {
+                _availableParticleLayers = 0;
+                return;
+            }
         }
 
         foreach (Light light in Resources.FindObjectsOfTypeAll<Light>())
@@ -65,7 +82,9 @@ internal sealed class LegacyExtraPasses : MonoBehaviour
             return layer;
         }
 
-        if (_availableParticleLayers == 0)
+        PrepareParticleLayers();
+        uint available = _availableParticleLayers.GetValueOrDefault();
+        if (available == 0)
         {
             if (!_reportedParticleFallback)
             {
@@ -77,12 +96,12 @@ internal sealed class LegacyExtraPasses : MonoBehaviour
         }
 
         layer = 1u << 31;
-        while ((_availableParticleLayers & layer) == 0)
+        while ((available & layer) == 0)
         {
             layer >>= 1;
         }
 
-        _availableParticleLayers &= ~layer;
+        _availableParticleLayers = available & ~layer;
         _particleLayers.Add(key, layer);
         Plugin.Log.Debug($"Using native instanced legacy passes for [{material.shader.name}].");
         return layer;
@@ -99,12 +118,14 @@ internal sealed class LegacyExtraPasses : MonoBehaviour
 
         List<PassPlan> plans = [];
         List<string> grabs = [];
+        string? nativeGrabTag = LegacyGrabPasses.GetNativeGrabTag(shader);
         bool first = true;
         int count = shader.subshaderCount > 0 ? shader.GetPassCountInSubshader(0) : 0;
         for (int pass = 0; pass < count; pass++)
         {
             string mode = shader.FindPassTagValue(0, pass, _lightMode).name;
-            if (!string.IsNullOrEmpty(mode) && !string.Equals(mode, "Always", StringComparison.OrdinalIgnoreCase))
+            bool nativeGrab = nativeGrabTag != null && string.Equals(mode, nativeGrabTag, StringComparison.OrdinalIgnoreCase);
+            if (!nativeGrab && !string.IsNullOrEmpty(mode) && !string.Equals(mode, "Always", StringComparison.OrdinalIgnoreCase))
             {
                 continue;
             }
@@ -118,7 +139,7 @@ internal sealed class LegacyExtraPasses : MonoBehaviour
             }
             else if (!first)
             {
-                plans.Add(new PassPlan(pass, grabs.Count > 0 ? grabs.ToArray() : null));
+                plans.Add(new PassPlan(pass, grabs.Count > 0 ? grabs.ToArray() : null, nativeGrab ? new ShaderTagId(nativeGrabTag!) : null));
             }
 
             first = false;
@@ -162,13 +183,13 @@ internal sealed class LegacyExtraPasses : MonoBehaviour
             bool hasGrabPass = LegacyGrabPasses.HasGrabPass(shader);
             foreach (PassPlan plan in GetExtraPasses(shader))
             {
-                _draws.Add(new Draw(material, Math.Min(i, Math.Max(submeshes - 1, 0)), plan.Pass, plan.GrabTextures, hasGrabPass));
+                _draws.Add(new Draw(material, Math.Min(i, Math.Max(submeshes - 1, 0)), plan.Pass, plan.GrabTextures, hasGrabPass, plan.NativeTag));
             }
         }
 
         if (_draws.Count > 0)
         {
-            if (_renderer is ParticleSystemRenderer particles && particles.enableGPUInstancing)
+            if (_renderer is ParticleSystemRenderer particles && particles.enableGPUInstancing && _draws.Exists(draw => draw.NativeTag == null))
             {
                 _particles = particles;
                 if (particles.renderMode == ParticleSystemRenderMode.Mesh && _materials.Count == 1 &&
@@ -218,14 +239,16 @@ internal sealed class LegacyExtraPasses : MonoBehaviour
         internal readonly int Pass;
         internal readonly string[]? GrabTextures;
         internal readonly bool HasGrabPass;
+        internal readonly ShaderTagId? NativeTag;
 
-        internal Draw(Material material, int submesh, int pass, string[]? grabTextures, bool hasGrabPass)
+        internal Draw(Material material, int submesh, int pass, string[]? grabTextures, bool hasGrabPass, ShaderTagId? nativeTag)
         {
             Material = material;
             Submesh = submesh;
             Pass = pass;
             GrabTextures = grabTextures;
             HasGrabPass = hasGrabPass;
+            NativeTag = nativeTag;
         }
     }
 
@@ -233,11 +256,13 @@ internal sealed class LegacyExtraPasses : MonoBehaviour
     {
         internal readonly int Pass;
         internal readonly string[]? GrabTextures;
+        internal readonly ShaderTagId? NativeTag;
 
-        internal PassPlan(int pass, string[]? grabTextures)
+        internal PassPlan(int pass, string[]? grabTextures, ShaderTagId? nativeTag)
         {
             Pass = pass;
             GrabTextures = grabTextures;
+            NativeTag = nativeTag;
         }
     }
 }

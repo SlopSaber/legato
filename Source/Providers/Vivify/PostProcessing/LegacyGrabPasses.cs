@@ -8,6 +8,8 @@ internal static class LegacyGrabPasses
 {
     internal static int Count => Legato.Rendering.AssetBundleGrabPasses.Count;
 
+    internal static int NativeGrabCount => Legato.Rendering.AssetBundleGrabPasses.NativeGrabCount;
+
     internal static byte[]? Load(string? path, bool applyCompatibility = false) =>
         Legato.Rendering.AssetBundleGrabPasses.Load(
             path,
@@ -19,6 +21,8 @@ internal static class LegacyGrabPasses
         Legato.Rendering.AssetBundleGrabPasses.TryGetTextureName(shader, pass, out textureName);
 
     internal static bool HasGrabPass(Shader shader) => Legato.Rendering.AssetBundleGrabPasses.HasGrabPass(shader);
+
+    internal static string? GetNativeGrabTag(Shader shader) => Legato.Rendering.AssetBundleGrabPasses.GetNativeGrabTag(shader);
 
     internal static void CollectForwardGrabTextures(Shader shader, HashSet<string> textures) =>
         Legato.Rendering.AssetBundleGrabPasses.CollectForwardGrabTextures(shader, textures);

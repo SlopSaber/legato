@@ -23,6 +23,8 @@ internal sealed class LegacyExtraPassRenderPass : ScriptableRenderPass
     private readonly List<(uint Layer, LegacyExtraPasses.Draw Draw)> _plainParticles = [];
     private readonly List<(uint Layer, LegacyExtraPasses.Draw Draw)> _lateParticles = [];
     private readonly List<(uint Layer, LegacyExtraPasses.Draw Draw)> _grabParticles = [];
+    private readonly HashSet<(ShaderTagId Tag, bool Transparent)> _nativeGrabs = [];
+    private readonly Dictionary<Material, bool> _nativeGrabQueues = [];
     private readonly HashSet<(uint Layer, int Pass)> _particleKeys = [];
     private readonly Plane[] _frustum = new Plane[6];
 
@@ -47,12 +49,19 @@ internal sealed class LegacyExtraPassRenderPass : ScriptableRenderPass
         UniversalResourceData resources = frameData.Get<UniversalResourceData>();
         TextureHandle color = resources.activeColorTexture;
         TextureHandle depth = resources.activeDepthTexture;
+        if (!color.IsValid() || !depth.IsValid())
+        {
+            _lateDraws.Clear();
+            _lateParticles.Clear();
+            return;
+        }
+
         if (_plainDraws.Count > 0 || _plainParticles.Count > 0)
         {
             AddDrawPass(renderGraph, frameData, "Vivify legacy extra passes", color, depth, _plainDraws, _plainParticles, TextureHandle.nullHandle);
         }
 
-        if (_grabDraws.Count == 0 && _grabParticles.Count == 0)
+        if (_grabDraws.Count == 0 && _grabParticles.Count == 0 && _nativeGrabs.Count == 0)
         {
             return;
         }
@@ -92,19 +101,47 @@ internal sealed class LegacyExtraPassRenderPass : ScriptableRenderPass
         _plainParticles.Clear();
         _grabParticles.Clear();
         _particleKeys.Clear();
-        GeometryUtility.CalculateFrustumPlanes(camera.cullingMatrix, _frustum);
+        _nativeGrabs.Clear();
+        _nativeGrabQueues.Clear();
+        int cullingMask = camera.cullingMask;
+        bool useFrustum = !camera.stereoEnabled;
+        bool frustumReady = false;
         foreach (LegacyExtraPasses extra in LegacyExtraPasses.Active)
         {
             Renderer? renderer = extra == null ? null : extra.Renderer;
-            if (renderer == null || !renderer.enabled || renderer.forceRenderingOff || !renderer.isVisible ||
-                (camera.cullingMask & (1 << renderer.gameObject.layer)) == 0 ||
-                (!camera.stereoEnabled && !GeometryUtility.TestPlanesAABB(_frustum, renderer.bounds)))
+            if (renderer == null || !renderer.enabled || renderer.forceRenderingOff ||
+                (cullingMask & (1 << renderer.gameObject.layer)) == 0)
             {
                 continue;
             }
 
-            foreach (LegacyExtraPasses.Draw draw in extra!.Draws)
+            bool? visible = null;
+            IReadOnlyList<LegacyExtraPasses.Draw> draws = extra!.Draws;
+            for (int i = 0; i < draws.Count; i++)
             {
+                LegacyExtraPasses.Draw draw = draws[i];
+                if (draw.NativeTag is ShaderTagId tag)
+                {
+                    if (!_nativeGrabQueues.TryGetValue(draw.Material, out bool transparent))
+                    {
+                        transparent = draw.Material.renderQueue > 2500;
+                        _nativeGrabQueues.Add(draw.Material, transparent);
+                    }
+
+                    if (_nativeGrabs.Add((tag, transparent)))
+                    {
+                        AddGrabTextures(draw.GrabTextures);
+                    }
+
+                    continue;
+                }
+
+                visible ??= IsVisible(renderer);
+                if (!visible.Value)
+                {
+                    continue;
+                }
+
                 uint particleLayer = extra.ParticleLayer;
                 if (particleLayer != 0 && !_particleKeys.Add((particleLayer, draw.Pass)))
                 {
@@ -137,24 +174,55 @@ internal sealed class LegacyExtraPassRenderPass : ScriptableRenderPass
                     _grabDraws.Add((renderer, draw));
                 }
 
-                foreach (string name in draw.GrabTextures)
-                {
-                    if (!_propertyIds.TryGetValue(name, out (int Texture, int TexelSize) ids))
-                    {
-                        ids = (Shader.PropertyToID(name), Shader.PropertyToID(name + "_TexelSize"));
-                        _propertyIds[name] = ids;
-                    }
-
-                    if (!_grabTextures.Contains(ids.Texture))
-                    {
-                        _grabTextures.Add(ids.Texture);
-                        _grabTexelSizes.Add(ids.TexelSize);
-                    }
-                }
+                AddGrabTextures(draw.GrabTextures);
             }
         }
 
-        return _plainDraws.Count > 0 || _grabDraws.Count > 0 || _plainParticles.Count > 0 || _grabParticles.Count > 0;
+        return _plainDraws.Count > 0 || _grabDraws.Count > 0 || _plainParticles.Count > 0 || _grabParticles.Count > 0 || _nativeGrabs.Count > 0;
+
+        bool IsVisible(Renderer renderer)
+        {
+            if (!renderer.isVisible)
+            {
+                return false;
+            }
+
+            if (!useFrustum)
+            {
+                return true;
+            }
+
+            if (!frustumReady)
+            {
+                GeometryUtility.CalculateFrustumPlanes(camera.cullingMatrix, _frustum);
+                frustumReady = true;
+            }
+
+            return GeometryUtility.TestPlanesAABB(_frustum, renderer.bounds);
+        }
+    }
+
+    private void AddGrabTextures(string[]? names)
+    {
+        if (names == null)
+        {
+            return;
+        }
+
+        foreach (string name in names)
+        {
+            if (!_propertyIds.TryGetValue(name, out (int Texture, int TexelSize) ids))
+            {
+                ids = (Shader.PropertyToID(name), Shader.PropertyToID(name + "_TexelSize"));
+                _propertyIds[name] = ids;
+            }
+
+            if (!_grabTextures.Contains(ids.Texture))
+            {
+                _grabTextures.Add(ids.Texture);
+                _grabTexelSizes.Add(ids.TexelSize);
+            }
+        }
     }
 
     private void AddDrawPass(
@@ -200,6 +268,25 @@ internal sealed class LegacyExtraPassRenderPass : ScriptableRenderPass
         builder.SetRenderAttachmentDepth(depth);
         if (grab.IsValid())
         {
+            UniversalRenderingData renderingData = frameData.Get<UniversalRenderingData>();
+            UniversalCameraData cameraData = frameData.Get<UniversalCameraData>();
+            UniversalLightData lightData = frameData.Get<UniversalLightData>();
+            foreach ((ShaderTagId tag, bool transparent) in _nativeGrabs)
+            {
+                DrawingSettings settings = RenderingUtils.CreateDrawingSettings(
+                    tag,
+                    renderingData,
+                    cameraData,
+                    lightData,
+                    transparent ? SortingCriteria.CommonTransparent : cameraData.defaultOpaqueSortFlags);
+                settings.enableInstancing = true;
+                RenderQueueRange range = transparent ? RenderQueueRange.transparent : RenderQueueRange.opaque;
+                RendererListHandle list = renderGraph.CreateRendererList(new RendererListParams(
+                    renderingData.cullResults, settings, new FilteringSettings(range, cameraData.camera.cullingMask)));
+                data.Particles.Add(list);
+                builder.UseRendererList(list);
+            }
+
             builder.UseTexture(grab);
             builder.AllowGlobalStateModification(true);
         }
