@@ -327,7 +327,10 @@ namespace CP_SDK_BS.Game
         /// </summary>
         /// <param name="p_LevelID">Level ID</param>
         /// <returns></returns>
-        public static async Task<bool> OwnDLCLevelByLevelID(string p_LevelID)
+        public static Task<bool> OwnDLCLevelByLevelID(string p_LevelID) =>
+            OwnDLCLevelByLevelID(p_LevelID, CancellationToken.None);
+
+        private static async Task<bool> OwnDLCLevelByLevelID(string p_LevelID, CancellationToken p_CancellationToken)
         {
             if (LevelID_IsCustom(p_LevelID))
                 return true;
@@ -337,10 +340,13 @@ namespace CP_SDK_BS.Game
 
             if (m_BeatmapLevelsModel != null && Entitlements(m_BeatmapLevelsModel) != null)
             {
-                m_GetLevelEntitlementStatusTokenSource?.Cancel();
-                m_GetLevelEntitlementStatusTokenSource = new CancellationTokenSource();
-
-                var l_Token = m_GetLevelEntitlementStatusTokenSource.Token;
+                var l_Token = p_CancellationToken;
+                if (!l_Token.CanBeCanceled)
+                {
+                    m_GetLevelEntitlementStatusTokenSource?.Cancel();
+                    m_GetLevelEntitlementStatusTokenSource = new CancellationTokenSource();
+                    l_Token = m_GetLevelEntitlementStatusTokenSource.Token;
+                }
                 return await Entitlements(m_BeatmapLevelsModel).GetLevelEntitlementStatusAsync(p_LevelID, l_Token) == EntitlementStatus.Owned;
             }
             else
@@ -543,35 +549,49 @@ namespace CP_SDK_BS.Game
         /// </summary>
         /// <param name="p_LevelID">ID of the level</param>
         /// <param name="p_LoadCallback">Load callback</param>
-        public static async Task LoadBeatmapLevelDataByLevelID(string p_LevelID, Action<BeatmapLevel, IBeatmapLevelData> p_LoadCallback)
+        public static Task LoadBeatmapLevelDataByLevelID(string p_LevelID, Action<BeatmapLevel, IBeatmapLevelData> p_LoadCallback) =>
+            LoadBeatmapLevelDataByLevelID(p_LevelID, p_LoadCallback, CancellationToken.None);
+
+        /// <summary>Load level data with a caller-owned cancellation token.</summary>
+        public static async Task LoadBeatmapLevelDataByLevelID(string p_LevelID, Action<BeatmapLevel, IBeatmapLevelData> p_LoadCallback,
+            CancellationToken p_CancellationToken)
         {
             await Task.Yield();
+            p_CancellationToken.ThrowIfCancellationRequested();
+
+            void NotifyLoaded(BeatmapLevel level, IBeatmapLevelData data)
+            {
+                if (!p_CancellationToken.IsCancellationRequested)
+                    p_LoadCallback(level, data);
+            }
 
             var l_LevelID = SanitizeLevelID(p_LevelID);
             if (!TryGetBeatmapLevelForLevelID(l_LevelID, out var l_BeatmapLevel, silentFail: true))
             {
-                p_LoadCallback(null, null);
+                NotifyLoaded(null, null);
                 return;
             }
 
             if (!LevelID_IsCustom(p_LevelID))
             {
-                if (!await OwnDLCLevelByLevelID(p_LevelID).ConfigureAwait(false))
+                if (!await OwnDLCLevelByLevelID(p_LevelID, p_CancellationToken).ConfigureAwait(false))
                 {
-                    p_LoadCallback(null, null);
+                    NotifyLoaded(null, null);
                     return; /// In the case of unowned DLC, just bail out and do nothing
                 }
             }
 
-            var l_Result = await LoadIBeatmapLevelDataAsync(p_LevelID).ConfigureAwait(false);
+            p_CancellationToken.ThrowIfCancellationRequested();
+            var l_Result = await LoadIBeatmapLevelDataAsync(p_LevelID, p_CancellationToken).ConfigureAwait(false);
+            p_CancellationToken.ThrowIfCancellationRequested();
             if (l_Result != null && !(l_Result?.isError == true))
 #if BEAT_SABER_1_29_0
-                CP_SDK.Unity.MTMainThreadInvoker.Enqueue(() => p_LoadCallback(l_Result.Value.level, l_Result.Value.beatmapLevelData));
+                CP_SDK.Unity.MTMainThreadInvoker.Enqueue(() => NotifyLoaded(l_Result.Value.level, l_Result.Value.beatmapLevelData));
 #else
-                CP_SDK.Unity.MTMainThreadInvoker.Enqueue(() => p_LoadCallback(l_BeatmapLevel, l_Result.Value.beatmapLevelData));
+                CP_SDK.Unity.MTMainThreadInvoker.Enqueue(() => NotifyLoaded(l_BeatmapLevel, l_Result.Value.beatmapLevelData));
 #endif
             else
-                CP_SDK.Unity.MTMainThreadInvoker.Enqueue(() => p_LoadCallback(null, null));
+                CP_SDK.Unity.MTMainThreadInvoker.Enqueue(() => NotifyLoaded(null, null));
         }
         /// <summary>
         /// Start a BeatmapLevel
@@ -686,9 +706,9 @@ namespace CP_SDK_BS.Game
             internal IBeatmapLevelData beatmapLevelData;
             internal IBeatmapLevel level;
         }
-        private static async Task<LoadedLevelData?> LoadIBeatmapLevelDataAsync(string p_LevelID)
+        private static async Task<LoadedLevelData?> LoadIBeatmapLevelDataAsync(string p_LevelID, CancellationToken p_CancellationToken)
 #else
-        private static async Task<LoadBeatmapLevelDataResult?> LoadIBeatmapLevelDataAsync(string p_LevelID)
+        private static async Task<LoadBeatmapLevelDataResult?> LoadIBeatmapLevelDataAsync(string p_LevelID, CancellationToken p_CancellationToken)
 #endif
         {
             if (m_BeatmapLevelsModel == null)
@@ -699,10 +719,13 @@ namespace CP_SDK_BS.Game
 
             if (m_BeatmapLevelsModel != null)
             {
-                m_GetLevelCancellationTokenSource?.Cancel();
-                m_GetLevelCancellationTokenSource = new CancellationTokenSource();
-
-                var l_Token = m_GetLevelCancellationTokenSource.Token;
+                var l_Token = p_CancellationToken;
+                if (!l_Token.CanBeCanceled)
+                {
+                    m_GetLevelCancellationTokenSource?.Cancel();
+                    m_GetLevelCancellationTokenSource = new CancellationTokenSource();
+                    l_Token = m_GetLevelCancellationTokenSource.Token;
+                }
 
 #if BEAT_SABER_1_29_0
                 LoadedLevelData? l_Result = null;
@@ -721,7 +744,7 @@ namespace CP_SDK_BS.Game
                     l_Result = await m_BeatmapLevelsModel.LoadBeatmapLevelDataAsync(p_LevelID, l_BeatmapLevelDataVersion, l_Token).ConfigureAwait(false);
 #endif
                 }
-                catch (OperationCanceledException l_Exception)
+                catch (OperationCanceledException l_Exception) when (!p_CancellationToken.IsCancellationRequested)
                 {
                     CP_SDK.ChatPlexSDK.Logger.Error($"[CP_SDK_BS.Game][Level.LoadIBeatmapLevelDataAsync] Error:");
                     CP_SDK.ChatPlexSDK.Logger.Error(l_Exception);
