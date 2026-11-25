@@ -18,7 +18,7 @@ namespace CustomJSONData
         private static void Reset(BeatmapObjectCallbackController __instance, BeatmapData beatmapData)
         {
             _cursors.Remove(__instance);
-            if (beatmapData is CustomBeatmapData { customEventDatas.Count: > 0 } customMap)
+            if (beatmapData is CustomBeatmapData customMap && customMap.customEventDatas.Count > 0)
             {
                 _cursors.Add(__instance, new EventCursor(customMap.customEventDatas));
             }

@@ -639,7 +639,12 @@
       <Compile Include="$(LegatoSourceRoot)Providers\Vivify\**\*.cs"
                Condition="'$(LegatoEnableVivifyProviders)' == 'true'" />
       <Compile Include="$(LegatoSourceRoot)Providers\CustomJSONData\**\*.cs"
-               Condition="'$(LegatoEnableCustomJsonDataProviders)' == 'true'" />
+               Exclude="$(LegatoSourceRoot)Providers\CustomJSONData\Legacy\**\*.cs"
+               Condition="'$(LegatoEnableCustomJsonDataProviders)' == 'true' AND '$(LegatoTargetVersion)' != '1.11.1'" />
+      <Compile Include="$(LegatoSourceRoot)Providers\CustomJSONData\Legacy\**\*.cs;$(LegatoSourceRoot)Providers\CustomJSONData\CustomBeatmap\CustomDataConverter.cs;$(LegatoSourceRoot)Providers\CustomJSONData\CustomBeatmap\SaveData\CustomLevelInfoSaveData.cs;$(LegatoSourceRoot)Providers\CustomJSONData\Utils\DictionaryExtensions.cs"
+               Condition="'$(LegatoEnableCustomJsonDataProviders)' == 'true' AND '$(LegatoTargetVersion)' == '1.11.1'" />
+      <Compile Remove="CustomBeatmap\CustomBeatmapDataSortedListForTypes.cs;CustomBeatmap\CustomEventData.cs;CustomBeatmap\EventData\**\*.cs"
+               Condition="'$(LegatoEnableCustomJsonDataProviders)' == 'true' AND '$(LegatoTargetVersion)' == '1.11.1'" />
       <Compile Include="$(LegatoSourceRoot)Library\BundleShaderMetadata\**\*.cs"
                Condition="'$(LegatoEnableBundleShaderMetadata)' == 'true'" />
       <Compile Include="$(LegatoSourceRoot)Library\SaberModels\**\*.cs"

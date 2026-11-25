@@ -28,7 +28,7 @@ namespace CustomJSONData.HarmonyPatches
             {
                 using JsonTextReader reader = new(new StringReader(json)) { DateParseHandling = DateParseHandling.None };
                 JObject chart = JObject.Load(reader);
-                if (chart.Property("version") != null || !chart.TryGetValue("_notes", out JToken notesToken) || notesToken is not JArray notes)
+                if (chart.Property("version") != null || chart["_notes"] is not JArray notes)
                 {
                     return;
                 }
@@ -91,6 +91,7 @@ namespace CustomJSONData.HarmonyPatches
                 {
                     float beat = ReadNumber(item["_time"]);
                     float bpm = ReadNumber(item["_value"]);
+
                     // The 1.11.1 loader starts each change at the time calculated with the new BPM from beat zero.
                     changes.Add((beat, _convertTime(loader, beat, bpm, shuffle, shufflePeriod), bpm));
                 }
@@ -99,7 +100,7 @@ namespace CustomJSONData.HarmonyPatches
             List<CustomEventData> result = new();
             foreach (JObject item in customEvents.OfType<JObject>())
             {
-                if (item["_type"] is not JValue { Type: JTokenType.String } type || string.IsNullOrEmpty((string?)type))
+                if (item["_type"] is not JValue { Type: JTokenType.String, Value: string type } || string.IsNullOrEmpty(type))
                 {
                     continue;
                 }
@@ -113,7 +114,7 @@ namespace CustomJSONData.HarmonyPatches
 
                 (float startBeat, float startTime, float bpm) = changes[changeIndex];
                 float seconds = startTime + _convertTime(loader, beat - startBeat, bpm, shuffle, shufflePeriod);
-                result.Add(new CustomEventData(seconds, (string)type!, ReadData(item["_data"]), version));
+                result.Add(new CustomEventData(seconds, type, ReadData(item["_data"]), version));
             }
 
             return result.OrderBy(item => item.time).ToArray();

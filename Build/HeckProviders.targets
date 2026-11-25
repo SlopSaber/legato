@@ -25,6 +25,9 @@
     <ItemGroup Condition="'$(LegatoTargetProfile)' == '1.29.0' AND '$(LegatoEnableCustomJsonDataProviders)' == 'true'">
       <Reference Remove="AdditionalContentModel.Interfaces;DataModels;Tweening" />
     </ItemGroup>
+    <ItemGroup Condition="'$(LegatoTargetVersion)' == '1.11.1' AND '$(LegatoEnableCustomJsonDataProviders)' == 'true'">
+      <Reference Remove="AdditionalContentModel.Interfaces;BeatmapCore;DataModels;GameplayCore;Tweening" />
+    </ItemGroup>
   </Target>
   <Target Name="LegatoSuiteLegacyReferences" BeforeTargets="ResolveAssemblyReferences" DependsOnTargets="LegatoConfigure">
     <ItemGroup Condition="'$(LegatoEnableHeckProviders)' == 'true' OR '$(LegatoEnableChromaProviders)' == 'true' OR '$(LegatoEnableNoodleExtensionsProviders)' == 'true' OR '$(LegatoEnableVivifyProviders)' == 'true'">
@@ -76,6 +79,7 @@
       <DefineConstants Condition="$(LegatoTargetOrder) &gt;= 3">$(DefineConstants);LEGATO_BEATMAP_OBJECT_ROTATION</DefineConstants>
       <DefineConstants Condition="$(LegatoTargetOrder) &gt;= 4 OR ($(LegatoTargetOrder) &gt;= 3 AND '$(LegatoEnableHeckProviders)' != 'true')">$(DefineConstants);LATEST</DefineConstants>
       <DefineConstants Condition="$(LegatoTargetOrder) &gt;= 2">$(DefineConstants);LEGATO_BEATMAP_OBJECT_BEAT</DefineConstants>
+      <DefineConstants Condition="'$(LegatoTargetVersion)' == '1.11.1' AND '$(LegatoEnableCustomJsonDataProviders)' == 'true'">$(DefineConstants);LEGATO_CUSTOM_JSON_LEGACY_LOADER</DefineConstants>
       <DefineConstants Condition="'$(LegatoTargetProfile)' == '1.45.3'">$(DefineConstants);BEAT_SABER_1453</DefineConstants>
       <DefineConstants Condition="$([MSBuild]::VersionGreaterThanOrEquals('$(LegatoTargetVersion)', '1.46.0'))">$(DefineConstants);BEAT_SABER_1460</DefineConstants>
       <GameVersion>$(LegatoTargetVersion)</GameVersion>
