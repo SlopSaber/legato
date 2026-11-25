@@ -39,11 +39,21 @@
     </ItemGroup>
   </Target>
   <Target Name="LegatoVivifyLegacyReferences" BeforeTargets="ResolveAssemblyReferences" DependsOnTargets="LegatoConfigure">
+    <PropertyGroup Condition="'$(LegatoEnableVivifyProviders)' == 'true'">
+      <LegatoUseReferencePublicizeMetadata>true</LegatoUseReferencePublicizeMetadata>
+    </PropertyGroup>
     <ItemGroup Condition="'$(LegatoEnableVivifyProviders)' == 'true'">
       <Reference Remove="ZenjectExtension" Condition="!Exists('$(LegatoReferenceRoot)\Beat Saber_Data\Managed\ZenjectExtension.dll')" />
     </ItemGroup>
     <ItemGroup Condition="'$(LegatoTargetProfile)' == '1.29.0' AND '$(LegatoEnableVivifyProviders)' == 'true'">
       <Reference Remove="Unity.XR.OpenXR" />
+    </ItemGroup>
+    <ItemGroup Condition="'$(LegatoEnableLegacyShaderRendering)' == 'true' AND ('$(LegatoTargetProfile)' == '1.45.1' OR '$(LegatoTargetProfile)' == '1.45.3')">
+      <Reference Include="Unity.Collections;Unity.RenderPipelines.Core.Runtime;Unity.RenderPipelines.Core.Runtime.Shared;Unity.RenderPipelines.Universal.Runtime"
+                 Exclude="@(Reference)">
+        <HintPath>$(LegatoReferenceRoot)\Beat Saber_Data\Managed\%(Identity).dll</HintPath>
+        <Private>false</Private>
+      </Reference>
     </ItemGroup>
   </Target>
   <!-- Keep the suite's original version ordering while selecting it from Legato's target. -->

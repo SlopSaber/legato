@@ -42,7 +42,7 @@ internal static class BeatmapDataFakeCount
         __result = new BeatmapDataBasicInfo(
             4,
             count,
-#if !PRE_V1_40_8
+#if LEGATO_CUTTABLE_SCORING_OBJECT_COUNT
             count,
 #endif
             count2,

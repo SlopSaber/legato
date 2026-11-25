@@ -81,7 +81,7 @@ namespace Legato.Audio {
 #endif
         }
         internal static bool IsPlaying(AudioTimeSyncController controller) =>
-#if BEAT_SABER_1_29_0
+#if LEGATO_SYNC_CONTROLLER_AUDIO_STATE
             controller.state == AudioTimeSyncController.State.Playing;
 #else
             controller.state == IAudioTimeSource.State.Playing;

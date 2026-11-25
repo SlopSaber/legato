@@ -120,10 +120,10 @@ internal static class SaberResources
     }
 
     internal static SaberTrailRenderer InstantiateRenderer(DiContainer container, SaberTrailRenderer prefab) =>
-#if BEAT_SABER_1_29_0
-        container.InstantiatePrefabForComponent<SaberTrailRenderer>(prefab, Vector3.zero, Quaternion.identity, null);
-#else
+#if LEGATO_NATIVE_ZENJECT_COMPONENT_BINDER
         container.InstantiatePrefabForComponentAt<SaberTrailRenderer>(prefab, Vector3.zero, Quaternion.identity, null);
+#else
+        container.InstantiatePrefabForComponent<SaberTrailRenderer>(prefab, Vector3.zero, Quaternion.identity, null);
 #endif
 
     internal static GameObject CreateModel(GameObject prefab, string name)

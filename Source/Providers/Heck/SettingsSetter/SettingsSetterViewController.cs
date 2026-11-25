@@ -44,7 +44,7 @@ internal class SettingsSetterViewController : BSMLResourceViewController, IPlayV
 
     private SiraLog _log = null!;
     private BSMLParser _bsmlParser = null!;
-#if !PRE_V1_40_8
+#if LEGATO_QUALITY_SETTINGS_MANAGER
     private SettingsManager _settingsManager = null!;
 #elif LEGATO_APPLY_PERFORMANCE_PRESET
     private GraphicSettingsHandler _graphicSettingsHandler = null!;
@@ -301,7 +301,7 @@ internal class SettingsSetterViewController : BSMLResourceViewController, IPlayV
                     List<Dictionary<string, object>> settableGraphicsSettings =
                         SettingSetterSettableSettingsManager.SettingsTable["_graphics"];
 
-#if !PRE_V1_40_8
+#if LEGATO_QUALITY_SETTINGS_MANAGER
                     BeatSaber.Settings.QualitySettings qualitySettings = _settingsManager.settings.quality;
                     _cachedMainSettings = new SettableMainSettings(
                         (int)qualitySettings.mirror,
@@ -459,7 +459,7 @@ internal class SettingsSetterViewController : BSMLResourceViewController, IPlayV
         {
             _log.Trace("Main settings modified");
 
-#if !PRE_V1_40_8
+#if LEGATO_QUALITY_SETTINGS_MANAGER
             _settingsManager.settings.quality.mirror =
                 (BeatSaber.Settings.QualitySettings.MirrorQuality)_modifiedMainSettings.MirrorGraphicsSettings;
             _settingsManager.settings.quality.mainEffect =
@@ -534,7 +534,7 @@ internal class SettingsSetterViewController : BSMLResourceViewController, IPlayV
 
         _log.Trace("Main settings restored");
 
-#if !PRE_V1_40_8
+#if LEGATO_QUALITY_SETTINGS_MANAGER
         _settingsManager.settings.quality.mirror =
             (BeatSaber.Settings.QualitySettings.MirrorQuality)_cachedMainSettings.MirrorGraphicsSettings;
         _settingsManager.settings.quality.mainEffect =
@@ -569,7 +569,7 @@ internal class SettingsSetterViewController : BSMLResourceViewController, IPlayV
 #if LEGATO_BSML_CURRENT || !V1_29_1
         BSMLParser bsmlParser,
 #endif
-#if !PRE_V1_40_8
+#if LEGATO_QUALITY_SETTINGS_MANAGER
         SettingsManager settingsManager,
 #elif LEGATO_APPLY_PERFORMANCE_PRESET
         GraphicSettingsHandler graphicSettingsHandler,
@@ -584,7 +584,7 @@ internal class SettingsSetterViewController : BSMLResourceViewController, IPlayV
 #else
         _bsmlParser = BSMLParser.instance;
 #endif
-#if !PRE_V1_40_8
+#if LEGATO_QUALITY_SETTINGS_MANAGER
         _settingsManager = settingsManager;
 #elif LEGATO_APPLY_PERFORMANCE_PRESET
         _graphicSettingsHandler = graphicSettingsHandler;

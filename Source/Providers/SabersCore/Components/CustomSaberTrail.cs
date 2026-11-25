@@ -79,7 +79,7 @@ public class CustomSaberTrail : SaberTrail
             MaterialProperties.Color);
     }
     
-#if BEAT_SABER_1_29_0
+#if !LEGATO_INJECTED_SABER_TRAIL
     private new void Awake()
     {
         // TrailFactory creates and assigns the renderer after component construction.
@@ -108,7 +108,7 @@ public class CustomSaberTrail : SaberTrail
         customTrailMovementData.AddNewData(
             topPos,
             bottomPos,
-#if BEAT_SABER_1_29_0
+#if LEGATO_STATIC_TIME_HELPER
             TimeHelper.time);
 #else
             timeHelper.Time);

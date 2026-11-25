@@ -214,7 +214,7 @@ public class ReLoader : ITickable
 #else
         EnvironmentName environmentName = beatmapLevel.GetEnvironmentName(beatmapKey.beatmapCharacteristic, beatmapKey.difficulty);
 #endif
-#if !PRE_V1_40_8
+#if !LEGATO_SINGLE_BEATMAP_ENVIRONMENT
         EnvironmentInfoSO targetEnvironmentInfo = _gameplayCoreSceneSetupData.targetEnvironmentInfo;
 #else
         EnvironmentInfoSO targetEnvironmentInfo = _gameplayCoreSceneSetupData.environmentInfo;
@@ -229,7 +229,7 @@ public class ReLoader : ITickable
                 beatsPerMinute,
                 environmentName == targetEnvironmentInfo.serializedName,
                 targetEnvironmentInfo,
-#if !PRE_V1_40_8
+#if !LEGATO_SINGLE_BEATMAP_ENVIRONMENT
                 _gameplayCoreSceneSetupData.originalEnvironmentInfo,
 #endif
                 BeatmapLevelDataVersion.Original,

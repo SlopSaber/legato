@@ -2,7 +2,7 @@
 using Vivify.Managers;
 using Vivify.PostProcessing;
 using Vivify.TrackGameObject;
-#if !PRE_V1_40_8
+#if LEGATO_DEPTH_TEXTURE_SETTINGS_INIT
 using JetBrains.Annotations;
 using Zenject;
 #elif PRE_V1_37_1
@@ -24,7 +24,7 @@ internal class CameraPropertyController : MonoBehaviour
 
     private CullingCameraController _cullingCameraController = null!;
     private BloomPrePass? _bloomPrePass;
-#if !PRE_V1_40_8
+#if LEGATO_DEPTH_TEXTURE_SETTINGS_INIT
     private SettingsManager _settingsManager = null!;
     private bool _injected;
 #endif
@@ -46,7 +46,7 @@ internal class CameraPropertyController : MonoBehaviour
 #if !PRE_V1_37_1
                 if (_depthTextureController != null)
                 {
-#if !PRE_V1_40_8
+#if LEGATO_DEPTH_TEXTURE_SETTINGS_INIT
                     _depthTextureController.Init(_settingsManager);
 #else
                     _depthTextureController.Start();
@@ -115,7 +115,7 @@ internal class CameraPropertyController : MonoBehaviour
         MainEffect = null;
     }
 
-#if !PRE_V1_40_8
+#if LEGATO_DEPTH_TEXTURE_SETTINGS_INIT
     [UsedImplicitly]
     [Inject]
     private void Construct(
@@ -167,7 +167,7 @@ internal class CameraPropertyController : MonoBehaviour
 
     private void OnEnable()
     {
-#if !PRE_V1_40_8
+#if LEGATO_DEPTH_TEXTURE_SETTINGS_INIT
         if (!_injected)
         {
             return;
