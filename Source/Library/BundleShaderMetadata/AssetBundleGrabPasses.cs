@@ -883,6 +883,24 @@ internal static class AssetBundleGrabPasses
         internal readonly string Mode = mode;
     }
 
+    private readonly struct Node
+    {
+        internal readonly int Level;
+        internal readonly string Type;
+        internal readonly string Name;
+        internal readonly int ByteSize;
+        internal readonly int MetaFlag;
+
+        internal Node(int level, string type, string name, int byteSize, int metaFlag)
+        {
+            Level = level;
+            Type = type;
+            Name = name;
+            ByteSize = byteSize;
+            MetaFlag = metaFlag;
+        }
+    }
+
     private sealed class LegacyWrappingEdit(int treeStart, int field)
     {
         private const string OldName = "m_enableWordWrapping";
@@ -962,24 +980,6 @@ internal static class AssetBundleGrabPasses
             }
 
             return _values.Count;
-        }
-    }
-
-    private readonly struct Node
-    {
-        internal readonly int Level;
-        internal readonly string Type;
-        internal readonly string Name;
-        internal readonly int ByteSize;
-        internal readonly int MetaFlag;
-
-        internal Node(int level, string type, string name, int byteSize, int metaFlag)
-        {
-            Level = level;
-            Type = type;
-            Name = name;
-            ByteSize = byteSize;
-            MetaFlag = metaFlag;
         }
     }
 
