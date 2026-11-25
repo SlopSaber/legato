@@ -114,7 +114,7 @@ namespace CustomJSONData.HarmonyPatches
 
                 (float startBeat, float startTime, float bpm) = changes[changeIndex];
                 float seconds = startTime + _convertTime(loader, beat - startBeat, bpm, shuffle, shufflePeriod);
-                result.Add(new CustomEventData(seconds, type, ReadData(item["_data"]), version));
+                result.Add(new CustomEventData(seconds, type, ReadData(item["_data"]), version, bpm));
             }
 
             return result.OrderBy(item => item.time).ToArray();

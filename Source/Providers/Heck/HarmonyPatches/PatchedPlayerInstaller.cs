@@ -3,16 +3,26 @@ using CustomJSONData.CustomBeatmap;
 using HarmonyLib;
 using Heck.Animation;
 using Heck.Deserialize;
+using SiraUtil.Affinity;
+using Zenject;
+#if LEGATO_HECK_LEGACY_GAMEPLAY
+using System;
+using System.Reflection;
+using System.Reflection.Emit;
+#else
 using Heck.HarmonyPatches.UntransformedData;
 using Heck.ReLoad;
-using SiraUtil.Affinity;
 using SiraUtil.Logging;
-using Zenject;
+#endif
 using DeserializerManager = Heck.Deserialize.DeserializerManager;
 
 namespace Heck.HarmonyPatches;
 
+#if LEGATO_HECK_LEGACY_GAMEPLAY
+internal class PatchedPlayerInstaller : IAffinity, IDisposable
+#else
 internal class PatchedPlayerInstaller : IAffinity
+#endif
 {
     /*private static readonly MethodInfo _getContainer = AccessTools.PropertyGetter(
         typeof(MonoInstallerBase),
@@ -24,6 +34,43 @@ internal class PatchedPlayerInstaller : IAffinity
 
     private readonly DeserializerManager _deserializerManager;
 
+#if LEGATO_HECK_LEGACY_GAMEPLAY
+    private static readonly MethodInfo _transformChart = AccessTools.Method(
+        typeof(BeatDataTransformHelper), nameof(BeatDataTransformHelper.CreateTransformedBeatmapData));
+
+    private static readonly FieldInfo _sceneSetupData = AccessTools.Field(typeof(GameplayCoreSceneSetup), "_sceneSetupData");
+    private readonly CodeInstruction _bindChart;
+
+    private PatchedPlayerInstaller(DeserializerManager deserializerManager)
+    {
+        _deserializerManager = deserializerManager;
+        _bindChart = InstanceTranspilers.EmitInstanceDelegate<Action<BeatmapData, GameplayCoreSceneSetup>>(BindLegacyChart);
+    }
+
+    public void Dispose() => InstanceTranspilers.DisposeDelegate(_bindChart);
+
+    private void BindLegacyChart(BeatmapData chart, GameplayCoreSceneSetup installer)
+    {
+        var setup = (GameplayCoreSceneSetupData)_sceneSetupData.GetValue(installer);
+        BindHeckSinglePlayer(setup, installer.Container, chart);
+    }
+
+    [AffinityTranspiler]
+    [AffinityPatch(typeof(GameplayCoreSceneSetup), nameof(GameplayCoreSceneSetup.InstallBindings))]
+    private IEnumerable<CodeInstruction> CaptureChart(IEnumerable<CodeInstruction> instructions)
+    {
+        foreach (CodeInstruction instruction in instructions)
+        {
+            yield return instruction;
+            if (instruction.opcode == OpCodes.Call && Equals(instruction.operand, _transformChart))
+            {
+                yield return new CodeInstruction(OpCodes.Dup);
+                yield return new CodeInstruction(OpCodes.Ldarg_0);
+                yield return new CodeInstruction(_bindChart.opcode, _bindChart.operand);
+            }
+        }
+    }
+#else
     private readonly SiraLog _log;
 
     private PatchedPlayerInstaller(SiraLog log, DeserializerManager deserializerManager)
@@ -31,6 +78,7 @@ internal class PatchedPlayerInstaller : IAffinity
         _log = log;
         _deserializerManager = deserializerManager;
     }
+#endif
 
     /*private static void BindHeckMultiPlayer(
         PlayerSpecificSettingsNetSerializable playerSpecificSettings,
@@ -39,15 +87,24 @@ internal class PatchedPlayerInstaller : IAffinity
         container.Bind<bool>().WithId(HeckController.LEFT_HANDED_ID).FromInstance(playerSpecificSettings.leftHanded);
     }*/
 
+#if LEGATO_HECK_LEGACY_GAMEPLAY
+    private void BindHeckSinglePlayer(GameplayCoreSceneSetupData sceneSetupData, DiContainer container, BeatmapData transformedBeatmapData)
+#else
     private void BindHeckSinglePlayer(
         GameplayCoreSceneSetupData sceneSetupData,
         DiContainer container)
+#endif
     {
         bool leftHanded = sceneSetupData.playerSpecificSettings.leftHanded;
         container.Bind<bool>().WithId(HeckController.LEFT_HANDED_ID).FromInstance(leftHanded);
 
         Dictionary<string, Track> beatmapTracks;
         HashSet<(object? Id, DeserializedData DeserializedData)> deserializedDatas;
+#if LEGATO_HECK_LEGACY_GAMEPLAY
+        if (transformedBeatmapData is CustomBeatmapData customBeatmapData)
+        {
+            BeatmapData untransformedBeatmapData = sceneSetupData.difficultyBeatmap.beatmapData;
+#else
         if (sceneSetupData.transformedBeatmapData is CustomBeatmapData customBeatmapData)
         {
             IReadonlyBeatmapData untransformedBeatmapData;
@@ -68,6 +125,7 @@ internal class PatchedPlayerInstaller : IAffinity
                 _log.Debug("Failed to get untransformedBeatmapData, falling back");
                 untransformedBeatmapData = customBeatmapData;
             }
+#endif
 
 #if !PRE_V1_37_1
             _deserializerManager.DeserializeBeatmapData(
@@ -82,10 +140,12 @@ internal class PatchedPlayerInstaller : IAffinity
                 out beatmapTracks,
                 out deserializedDatas);
 
+#if !LEGATO_HECK_LEGACY_GAMEPLAY
             if (HeckController.DebugMode && sceneSetupData.practiceSettings != null)
             {
                 container.BindInterfacesAndSelfTo<ReLoader>().AsSingle().NonLazy();
             }
+#endif
         }
         else
         {
@@ -102,12 +162,14 @@ internal class PatchedPlayerInstaller : IAffinity
         container.BindInstance(deserializedDatas);
     }
 
+#if !LEGATO_HECK_LEGACY_GAMEPLAY
     [AffinityPostfix]
     [AffinityPatch(typeof(GameplayCoreInstaller), nameof(GameplayCoreInstaller.InstallBindings))]
     private void GameplayCoreBinder(MonoInstallerBase __instance, GameplayCoreSceneSetupData ____sceneSetupData)
     {
         BindHeckSinglePlayer(____sceneSetupData, __instance.Container);
     }
+#endif
 
     /*[AffinityTranspiler]
     [AffinityPatch(

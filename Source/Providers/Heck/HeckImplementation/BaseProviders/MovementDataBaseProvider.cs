@@ -1,6 +1,10 @@
 using Heck.BaseProvider;
 using JetBrains.Annotations;
 using Zenject;
+#if LEGATO_HECK_LEGACY_GAMEPLAY
+using System.Reflection;
+using HarmonyLib;
+#endif
 
 namespace Heck.BaseProviders;
 
@@ -23,7 +27,13 @@ internal class MovementDataGetter : IInitializable, ITickable
     private readonly PlayerHeightDetector? _playerHeightDetector;
     private readonly bool _automaticPlayerHeight;
 
-#if !PRE_V1_40_8
+#if LEGATO_HECK_LEGACY_GAMEPLAY
+    private static readonly FieldInfo _movementField = AccessTools.Field(typeof(BeatmapObjectSpawnController), "_beatmapObjectSpawnMovementData");
+    private static readonly FieldInfo _speedField = AccessTools.Field(typeof(BeatmapObjectSpawnMovementData), "_noteJumpMovementSpeed");
+    private static readonly FieldInfo _distanceField = AccessTools.Field(typeof(BeatmapObjectSpawnMovementData), "_jumpDistance");
+    private readonly BeatmapObjectSpawnMovementData _beatmapObjectSpawnMovementData;
+    private readonly BeatmapObjectSpawnController.InitData _initData;
+#elif !PRE_V1_40_8
     private readonly IVariableMovementDataProvider _variableMovementDataProvider;
     private readonly BeatmapObjectSpawnController.InitData _initData;
 #else
@@ -35,7 +45,10 @@ internal class MovementDataGetter : IInitializable, ITickable
         MovementDataBaseProvider movementDataBaseProvider,
         GameplayCoreSceneSetupData gameplayCoreSceneSetupData,
         [InjectOptional] PlayerHeightDetector? playerHeightDetector,
-#if !PRE_V1_40_8
+#if LEGATO_HECK_LEGACY_GAMEPLAY
+        BeatmapObjectSpawnController beatmapObjectSpawnController,
+        BeatmapObjectSpawnController.InitData initData)
+#elif !PRE_V1_40_8
         IVariableMovementDataProvider variableMovementDataProvider,
         BeatmapObjectSpawnController.InitData initData)
 #else
@@ -46,7 +59,10 @@ internal class MovementDataGetter : IInitializable, ITickable
         _playerSpecificSettings = gameplayCoreSceneSetupData.playerSpecificSettings;
         _playerHeightDetector = playerHeightDetector;
         _automaticPlayerHeight = _playerSpecificSettings.automaticPlayerHeight;
-#if !PRE_V1_40_8
+#if LEGATO_HECK_LEGACY_GAMEPLAY
+        _beatmapObjectSpawnMovementData = (BeatmapObjectSpawnMovementData)_movementField.GetValue(beatmapObjectSpawnController);
+        _initData = initData;
+#elif !PRE_V1_40_8
         _variableMovementDataProvider = variableMovementDataProvider;
         _initData = initData;
 #else
@@ -64,7 +80,11 @@ internal class MovementDataGetter : IInitializable, ITickable
 
     public void Tick()
     {
-#if !PRE_V1_40_8
+#if LEGATO_HECK_LEGACY_GAMEPLAY
+        _movementDataBaseProvider.NoteJumpMovementSpeed[0] = (float)_speedField.GetValue(_beatmapObjectSpawnMovementData);
+        _movementDataBaseProvider.NoteJumpStartBeatOffset[0] = _initData.noteJumpStartBeatOffset;
+        _movementDataBaseProvider.JumpDistance[0] = (float)_distanceField.GetValue(_beatmapObjectSpawnMovementData);
+#elif !PRE_V1_40_8
         _movementDataBaseProvider.NoteJumpMovementSpeed[0] = _variableMovementDataProvider.noteJumpSpeed;
         _movementDataBaseProvider.NoteJumpStartBeatOffset[0] = _initData.noteJumpValue;
         _movementDataBaseProvider.JumpDistance[0] = _variableMovementDataProvider.jumpDistance;

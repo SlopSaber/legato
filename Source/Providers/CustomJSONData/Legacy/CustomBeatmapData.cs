@@ -46,11 +46,17 @@ namespace CustomJSONData.CustomBeatmap
     public sealed class CustomEventData : ICustomData, IVersionable
     {
         public CustomEventData(float time, string type, CustomData data, Version version)
+            : this(time, type, data, version, null)
+        {
+        }
+
+        internal CustomEventData(float time, string type, CustomData data, Version version, float? beatsPerMinute)
         {
             this.time = time;
             eventType = type;
             customData = data;
             this.version = version;
+            this.beatsPerMinute = beatsPerMinute;
         }
 
         public float time { get; }
@@ -61,7 +67,9 @@ namespace CustomJSONData.CustomBeatmap
 
         public Version version { get; }
 
-        public CustomEventData GetCopy() => new(time, eventType, customData.Copy(), version);
+        public float? beatsPerMinute { get; }
+
+        public CustomEventData GetCopy() => new(time, eventType, customData.Copy(), version, beatsPerMinute);
     }
 
     public sealed class CustomNoteData : NoteData, ICustomData, IVersionable

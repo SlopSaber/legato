@@ -1,4 +1,4 @@
-#if PRE_V1_37_1
+#if PRE_V1_37_1 && !LEGATO_HECK_LEGACY_GAMEPLAY
 using System;
 using System.Collections.Generic;
 using System.Reflection;

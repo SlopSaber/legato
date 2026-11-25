@@ -8,6 +8,9 @@ using IPA.Utilities;
 using JetBrains.Annotations;
 using SiraUtil.Logging;
 using static Heck.HeckController;
+#if LEGATO_HECK_LEGACY_GAMEPLAY
+using IReadonlyBeatmapData = BeatmapData;
+#endif
 
 namespace Heck.Deserialize;
 
@@ -45,10 +48,15 @@ internal class DeserializerManager
 
         // tracks are built based off the untransformed beatmapdata so modifiers like "no walls" do not prevent track creation
         TrackBuilder trackManager = new();
-        foreach (BeatmapObjectData beatmapObjectData in
-                 ((CustomBeatmapData)untransformedBeatmapData).beatmapObjectDatas)
+        var originalChart = untransformedBeatmapData as CustomBeatmapData ?? customBeatmapData;
+        foreach (BeatmapObjectData beatmapObjectData in originalChart.beatmapObjectDatas)
         {
-            CustomData customData = ((ICustomData)beatmapObjectData).customData;
+            if (beatmapObjectData is not ICustomData customObject)
+            {
+                continue;
+            }
+
+            CustomData customData = customObject.customData;
 
             // for epic tracks thing
             object? trackNameRaw = customData.Get<object>(v2 ? V2_TRACK : TRACK);

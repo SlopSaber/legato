@@ -1,6 +1,11 @@
 #if PRE_V1_37_1
 using Heck.Module;
 using SiraUtil.Affinity;
+#if LEGATO_HECK_LEGACY_GAMEPLAY
+using MissionLevelScenesTransitionSetupData = MissionLevelScenesTransitionSetupDataSO;
+using StandardLevelScenesTransitionSetupData = StandardLevelScenesTransitionSetupDataSO;
+using TutorialScenesTransitionSetupData = TutorialScenesTransitionSetupDataSO;
+#endif
 
 namespace Heck.HarmonyPatches.ModuleActivator;
 
@@ -17,12 +22,19 @@ internal class SceneTransitionModuleActivator : IAffinity
     [AffinityPatch(
         typeof(MissionLevelScenesTransitionSetupData),
         nameof(MissionLevelScenesTransitionSetupData.Init))]
+#if LEGATO_HECK_LEGACY_GAMEPLAY
+    private void MissionPrefix(IDifficultyBeatmap difficultyBeatmap, ref OverrideEnvironmentSettings? overrideEnvironmentSettings)
+#else
     private void MissionPrefix(IDifficultyBeatmap difficultyBeatmap)
+#endif
     {
+#if !LEGATO_HECK_LEGACY_GAMEPLAY
         OverrideEnvironmentSettings? overrideEnvironmentSettings = null;
+#endif
         _moduleManager.Activate(difficultyBeatmap, LevelType.Mission, ref overrideEnvironmentSettings);
     }
 
+#if !LEGATO_HECK_LEGACY_GAMEPLAY
     [AffinityPrefix]
     [AffinityPatch(
         typeof(MultiplayerLevelScenesTransitionSetupData),
@@ -32,6 +44,7 @@ internal class SceneTransitionModuleActivator : IAffinity
         OverrideEnvironmentSettings? overrideEnvironmentSettings = null;
         _moduleManager.Activate(difficultyBeatmap, LevelType.Multiplayer, ref overrideEnvironmentSettings);
     }
+#endif
 
     [AffinityPrefix]
     [AffinityPatch(
