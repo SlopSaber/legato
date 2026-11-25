@@ -1,4 +1,29 @@
-#if BEAT_SABER_1_29_0 || LEGATO_FIXED_TABLE_CELL_SIZE
+#if LEGATO_HMUI_TABLE_SCROLLER
+using HarmonyLib;
+using HMUI;
+using UnityEngine;
+
+namespace BeatSaberMarkupLanguage.Harmony_Patches
+{
+    /// <summary>
+    /// Clamps the cell index before the native scroller calculates alignment and position.
+    /// </summary>
+    [HarmonyPatch(typeof(TableView), nameof(TableView.ScrollToCellWithIdx))]
+    internal static class TableView_ScrollToCellWithIdx
+    {
+        private static bool Prefix(TableView __instance, ref int __0)
+        {
+            if (__instance.numberOfCells == 0)
+            {
+                return false;
+            }
+
+            __0 = Mathf.Clamp(__0, 0, __instance.numberOfCells - 1);
+            return true;
+        }
+    }
+}
+#elif BEAT_SABER_1_29_0 || LEGATO_FIXED_TABLE_CELL_SIZE
 using HarmonyLib;
 using HMUI;
 using UnityEngine;
