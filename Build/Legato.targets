@@ -90,6 +90,10 @@
     <ItemGroup>
       <Reference Include="Interactable" HintPath="$(LegatoReferenceRoot)\Beat Saber_Data\Managed\Interactable.dll" Private="false"
                  Condition="'@(Reference->WithMetadataValue('Filename', 'HMUI'))' != '' AND '@(Reference->WithMetadataValue('Filename', 'Interactable'))' == '' AND Exists('$(LegatoReferenceRoot)\Beat Saber_Data\Managed\Interactable.dll')" />
+      <Reference Include="BGLib.SaveDataCore" HintPath="$(LegatoReferenceRoot)\Beat Saber_Data\Managed\BGLib.SaveDataCore.dll" Private="false"
+                 Condition="'$(LegatoEnableScreenDisplacement)' == 'true' AND '@(Reference->WithMetadataValue('Filename', 'BGLib.SaveDataCore'))' == '' AND Exists('$(LegatoReferenceRoot)\Beat Saber_Data\Managed\BGLib.SaveDataCore.dll')" />
+      <Reference Include="BeatSaber.PerformancePresets" HintPath="$(LegatoReferenceRoot)\Beat Saber_Data\Managed\BeatSaber.PerformancePresets.dll" Private="false"
+                 Condition="'$(LegatoEnableScreenDisplacement)' == 'true' AND '@(Reference->WithMetadataValue('Filename', 'BeatSaber.PerformancePresets'))' == '' AND Exists('$(LegatoReferenceRoot)\Beat Saber_Data\Managed\BeatSaber.PerformancePresets.dll')" />
       <Reference Include="Colors" HintPath="$(LegatoReferenceRoot)\Beat Saber_Data\Managed\Colors.dll" Private="false"
                  Condition="'$(LegatoEnableBeatmapKeys)' == 'true' AND '@(Reference->WithMetadataValue('Identity', 'Colors'))' == '' AND Exists('$(LegatoReferenceRoot)\Beat Saber_Data\Managed\Colors.dll')" />
       <Reference Include="BGNet" HintPath="$(LegatoReferenceRoot)\Beat Saber_Data\Managed\BGNet.dll" Private="false"
