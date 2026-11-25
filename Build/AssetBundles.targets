@@ -1,7 +1,8 @@
 <Project>
   <Target Name="LegatoSelectProfileAssetBundles" BeforeTargets="AssignTargetPaths" DependsOnTargets="LegatoConfigure" Condition="'@(LegatoAssetBundle)' != ''">
     <ItemGroup>
-      <_LegatoProfileAsset Include="@(LegatoAssetBundle)" Condition="'%(LegatoAssetBundle.Profile)' == '$(LegatoTargetProfile)'" />
+      <_LegatoProfileAsset Include="@(LegatoAssetBundle)"
+                           Condition="'%(LegatoAssetBundle.Profile)' == '$(LegatoTargetProfile)' OR ('%(LegatoAssetBundle.BuiltInRendering)' == 'true' AND '$(LegatoUsesBuiltInRendering)' == 'true')" />
       <EmbeddedResource Remove="@(_LegatoProfileAsset->'%(OriginalResource)')" />
       <EmbeddedResource Include="@(_LegatoProfileAsset)" LogicalName="%(_LegatoProfileAsset.LogicalName)" />
     </ItemGroup>

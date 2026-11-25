@@ -3,20 +3,20 @@ using UnityEngine;
 namespace Legato.Gameplay {
     internal static class NativeGameState {
         internal static void SetPaused(PauseController controller, bool paused, bool resuming = false) {
-#if BEAT_SABER_1_29_0
-            controller._paused = paused;
-#else
+#if LEGATO_ENUM_PAUSE_STATE
             controller._paused = resuming ? PauseController.PauseState.Resuming : paused ? PauseController.PauseState.Paused : PauseController.PauseState.Playing;
+#else
+            controller._paused = paused;
 #endif
         }
         internal static bool ContinueWithZeroEnergy(StandardLevelGameplayManager.InitData data) =>
-#if BEAT_SABER_1_29_0
+#if LEGATO_FAIL_ON_ZERO_ENERGY
             !data.failOn0Energy;
 #else
             data.continueGameplayWith0Energy;
 #endif
         internal static bool IsAudioPaused(AudioTimeSyncController controller) =>
-#if BEAT_SABER_1_29_0
+#if LEGATO_SYNC_CONTROLLER_AUDIO_STATE
             controller.state == AudioTimeSyncController.State.Paused;
 #else
             controller.state == IAudioTimeSource.State.Paused;

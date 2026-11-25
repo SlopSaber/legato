@@ -24,7 +24,7 @@ namespace Legato.Beatmaps {
 #if BEAT_SABER_1_45_1
                     pair.Item1 == BeatmapCharacteristic.Standard)
 #else
-                    pair.Item1.serializedName == "Standard")
+                    string.Equals(pair.Item1.serializedName, "Standard", System.StringComparison.Ordinal))
 #endif
                 .Select(pair => new BeatmapKey(level.levelID, pair.Item1, pair.Item2));
 #endif

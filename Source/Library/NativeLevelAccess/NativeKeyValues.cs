@@ -14,6 +14,20 @@ namespace Legato.Beatmaps {
 #else
             key.beatmapCharacteristic;
 #endif
+        internal static string EnvironmentName(BeatmapLevel level, BeatmapKey key) =>
+#if BEAT_SABER_1_29_0
+            key.GetEnvironmentInfo().environmentName;
+#elif BEAT_SABER_1_45_3
+            level.GetEnvironmentName(in key);
+#else
+            level.GetEnvironmentName(Characteristic(key), key.difficulty);
+#endif
+        internal static string ActiveEnvironmentName(GameplayCoreSceneSetupData scene) =>
+#if LEGATO_SINGLE_BEATMAP_ENVIRONMENT
+            scene.environmentInfo.environmentName;
+#else
+            scene.targetEnvironmentInfo.environmentName;
+#endif
         internal static bool IsValid(BeatmapKey key) =>
 #if BEAT_SABER_1_29_0
             key != null && key.level != null && key.parentDifficultyBeatmapSet != null;

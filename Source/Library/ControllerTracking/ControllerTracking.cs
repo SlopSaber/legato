@@ -16,7 +16,7 @@ namespace Legato.XR {
         private static readonly FieldAccessor<VRController, Quaternion>.Accessor Rotation = FieldAccessor<VRController, Quaternion>.GetAccessor("_lastTrackedRotation");
 #endif
         internal static int NodeIndex(VRController controller) =>
-#if BEAT_SABER_1_29_0
+#if LEGATO_CONTROLLER_NODE_IDX
             controller.nodeIdx;
 #else
             controller.nodeIndex;
@@ -55,7 +55,7 @@ namespace Legato.XR {
 #endif
         }
         internal static void HideHint(HMUI.HoverHintController controller, HMUI.HoverHint hint) {
-#if BEAT_SABER_1_29_0
+#if LEGATO_PARAMETERLESS_HIDE_HINT
             controller.HideHintInstant();
 #else
             controller.HideHintInstant(hint);
@@ -65,13 +65,7 @@ namespace Legato.XR {
             var platform = Platform(ref controller);
             position = Vector3.zero;
             rotation = Quaternion.identity;
-            if (platform != null && platform.GetNodePose(controller.node,
-#if BEAT_SABER_1_29_0
-                controller.nodeIdx,
-#else
-                controller.nodeIndex,
-#endif
-                out position, out rotation)) {
+            if (platform != null && platform.GetNodePose(controller.node, NodeIndex(controller), out position, out rotation)) {
                 Position(ref controller) = position;
 #if BEAT_SABER_1_29_0
                 Rotations.GetOrCreateValue(controller).value = rotation;
@@ -97,45 +91,50 @@ namespace Legato.XR {
 #endif
         }
         internal static Pose LegacyModelOffset(IVRPlatformHelper platform, XRNode node) =>
-#if BEAT_SABER_1_29_0
-            Pose.identity;
-#else
+#if LEGATO_LEGACY_CONTROLLER_MODEL_OFFSET
             platform.GetRootPositionOffsetForLegacyNodePose(node);
+#else
+            Pose.identity;
 #endif
         internal static IDisposable SubscribeChanges(DiContainer container, Action callback) => new Subscription(container, callback);
         private sealed class Subscription : IDisposable {
             private readonly Action _callback;
             private bool _disposed;
-#if !BEAT_SABER_1_29_0
+#if BEAT_SABER_1_45_1 || BEAT_SABER_1_45_3
             private readonly IXRSystemState _state;
 #endif
             internal Subscription(DiContainer container, Action callback) {
                 _callback = callback;
-#if BEAT_SABER_1_29_0
+#if BEAT_SABER_1_45_1 || BEAT_SABER_1_45_3
+                _state = container.Resolve<IXRSystemState>();
+                _state.AddListener(StateChanged);
+#else
                 InputDevices.deviceConnected += DeviceChanged;
                 InputDevices.deviceDisconnected += DeviceChanged;
                 InputDevices.deviceConfigChanged += DeviceChanged;
-#else
-                _state = container.Resolve<IXRSystemState>();
-                _state.AddListener(StateChanged);
 #endif
             }
-#if BEAT_SABER_1_29_0
-            private void DeviceChanged(InputDevice _) { Offsets = new(); _callback(); }
-#else
+#if BEAT_SABER_1_45_1 || BEAT_SABER_1_45_3
             private void StateChanged(XRSystemEventType type) {
                 if (type == XRSystemEventType.ControllersDidChangeReference || type == XRSystemEventType.ControllersDidDisconnect) _callback();
+            }
+#else
+            private void DeviceChanged(InputDevice _) {
+#if BEAT_SABER_1_29_0
+                Offsets = new();
+#endif
+                _callback();
             }
 #endif
             public void Dispose() {
                 if (_disposed) return;
                 _disposed = true;
-#if BEAT_SABER_1_29_0
+#if BEAT_SABER_1_45_1 || BEAT_SABER_1_45_3
+                _state.RemoveListener(StateChanged);
+#else
                 InputDevices.deviceConnected -= DeviceChanged;
                 InputDevices.deviceDisconnected -= DeviceChanged;
                 InputDevices.deviceConfigChanged -= DeviceChanged;
-#else
-                _state.RemoveListener(StateChanged);
 #endif
             }
         }

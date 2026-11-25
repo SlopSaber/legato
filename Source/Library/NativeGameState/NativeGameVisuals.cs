@@ -17,10 +17,10 @@ namespace Legato.Rendering {
 #endif
         }
         internal static bool IsModalShown(HMUI.ModalView modal) =>
-#if BEAT_SABER_1_29_0
-            modal._isShown;
-#else
+#if LEGATO_MODAL_IS_SHOWN
             modal.isShown;
+#else
+            modal._isShown;
 #endif
         internal static void CopyLegacyExposure(BloomFogEnvironmentParams target, BloomFogEnvironmentParams source) {
 #if !BEAT_SABER_1_29_0
@@ -33,7 +33,7 @@ namespace Legato.Rendering {
 #endif
         }
         internal static float ShaderTime =>
-#if BEAT_SABER_1_29_0
+#if LEGATO_STATIC_TIME_HELPER
             TimeHelper.time;
 #else
             TimeHelper.GetShaderTimeValue();

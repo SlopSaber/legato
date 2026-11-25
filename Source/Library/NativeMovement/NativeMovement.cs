@@ -1,4 +1,4 @@
-#if BEAT_SABER_1_29_0
+#if !LEGATO_VARIABLE_MOVEMENT_DATA
 global using VariableMovementDataProvider = global::BeatmapObjectSpawnMovementData;
 global using IVariableMovementDataProvider = global::BeatmapObjectSpawnMovementData;
 global using NoteSpawnData = global::BeatmapObjectSpawnMovementData.NoteSpawnData;
@@ -7,7 +7,7 @@ global using NoteSpawnData = global::BeatmapObjectSpawnMovementData.NoteSpawnDat
 namespace Legato.Gameplay {
     internal static class NativeMovement {
         internal static float HalfJumpDuration(IVariableMovementDataProvider movement) =>
-#if BEAT_SABER_1_29_0
+#if !LEGATO_VARIABLE_MOVEMENT_DATA
             movement.jumpDuration * 0.5f;
 #else
             movement.halfJumpDuration;
