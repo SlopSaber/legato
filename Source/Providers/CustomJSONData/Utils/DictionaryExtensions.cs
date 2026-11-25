@@ -6,7 +6,19 @@ namespace CustomJSONData
 {
     public static class DictionaryExtensions
     {
-#if !PRE_V1_37_1
+#if LEGATO_CUSTOM_JSON_LEGACY_LOADER
+        [PublicAPI]
+        public static CustomData GetBeatmapCustomData(this IDifficultyBeatmap difficultyBeatmap)
+        {
+            return (difficultyBeatmap.beatmapData as CustomBeatmapData)?.beatmapCustomData ?? new CustomData();
+        }
+
+        [PublicAPI]
+        public static CustomData GetLevelCustomData(this IDifficultyBeatmap difficultyBeatmap)
+        {
+            return (difficultyBeatmap.beatmapData as CustomBeatmapData)?.levelCustomData ?? new CustomData();
+        }
+#elif !PRE_V1_37_1
         [PublicAPI]
         public static CustomData GetBeatmapCustomData(this IBeatmapLevelData beatmapLevelData, in BeatmapKey beatmapKey)
         {
