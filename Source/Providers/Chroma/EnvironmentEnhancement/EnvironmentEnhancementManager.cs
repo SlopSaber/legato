@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -34,7 +34,7 @@ internal enum LookupMethod
 internal class EnvironmentEnhancementManager : IAffinity
 {
     private readonly CustomBeatmapData? _beatmapData;
-#if PRE_V1_37_1
+#if PRE_V1_37_1 && !LEGATO_CHROMA_LEGACY_LIGHTS
     private readonly BeatmapObjectsAvoidanceTransformOverride _beatmapObjectsAvoidanceTransformOverride;
 #endif
     private readonly ComponentCustomizer _componentCustomizer;
@@ -58,7 +58,7 @@ internal class EnvironmentEnhancementManager : IAffinity
         GeometryFactory geometryFactory,
         TrackLaneRingOffset trackLaneRingOffset,
         ParametricBoxControllerTransformOverride parametricBoxControllerTransformOverride,
-#if PRE_V1_37_1
+#if PRE_V1_37_1 && !LEGATO_CHROMA_LEGACY_LIGHTS
         BeatmapObjectsAvoidanceTransformOverride beatmapObjectsAvoidanceTransformOverride,
 #endif
         DuplicateInitializer duplicateInitializer,
@@ -75,7 +75,7 @@ internal class EnvironmentEnhancementManager : IAffinity
         _geometryFactory = geometryFactory;
         _trackLaneRingOffset = trackLaneRingOffset;
         _parametricBoxControllerTransformOverride = parametricBoxControllerTransformOverride;
-#if PRE_V1_37_1
+#if PRE_V1_37_1 && !LEGATO_CHROMA_LEGACY_LIGHTS
         _beatmapObjectsAvoidanceTransformOverride = beatmapObjectsAvoidanceTransformOverride;
 #endif
         _duplicateInitializer = duplicateInitializer;
@@ -326,7 +326,7 @@ internal class EnvironmentEnhancementManager : IAffinity
                         _parametricBoxControllerTransformOverride.SetTransform(parametricBoxController, spawnData);
                     }
 
-#if PRE_V1_37_1
+#if PRE_V1_37_1 && !LEGATO_CHROMA_LEGACY_LIGHTS
                     // Handle BeatmapObjectsAvoidance
                     BeatmapObjectsAvoidance beatmapObjectsAvoidance =
                         gameObject.GetComponentInChildren<BeatmapObjectsAvoidance>();

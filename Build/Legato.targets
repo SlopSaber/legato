@@ -626,7 +626,9 @@
                Condition="'$(LegatoEnableHeckProviders)' == 'true' AND '$(LegatoTargetVersion)' == '1.11.1'" />
       <Compile Include="$(LegatoSourceRoot)Providers\Chroma\**\*.cs"
                Condition="'$(LegatoEnableChromaProviders)' == 'true'" />
-      <Compile Remove="$(LegatoSourceRoot)Providers\Chroma\EnvironmentEnhancement\Saved\Features.cs;$(LegatoSourceRoot)Providers\Chroma\HarmonyPatches\SavedEnvironmentLoading.cs"
+      <Compile Remove="$(LegatoSourceRoot)Providers\Chroma\EnvironmentEnhancement\Saved\Features.cs;$(LegatoSourceRoot)Providers\Chroma\HarmonyPatches\SavedEnvironmentLoading.cs;$(LegatoSourceRoot)Providers\Chroma\HarmonyPatches\EnvironmentComponent\BeatmapObjectsAvoidanceTransformOverride.cs;Colorizer\SliderColorizer.cs;HarmonyPatches\Mirror\*.cs;HarmonyPatches\ZenModeWalls\*.cs;HarmonyPatches\Events\MovementBeatmapChromafier.cs"
+               Condition="'$(LegatoEnableChromaProviders)' == 'true' AND '$(LegatoTargetVersion)' == '1.11.1'" />
+      <Compile Remove="HarmonyPatches\DebrisSpawnerSkip.cs;HarmonyPatches\BeatEffectSpawnerSkip.cs;HarmonyPatches\Colorizer\NoteEffectsColorize.cs"
                Condition="'$(LegatoEnableChromaProviders)' == 'true' AND '$(LegatoTargetVersion)' == '1.11.1'" />
       <Compile Include="$(LegatoSourceRoot)Providers\NoodleExtensions\**\*.cs"
                Condition="'$(LegatoEnableNoodleExtensionsProviders)' == 'true'" />

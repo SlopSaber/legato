@@ -7,8 +7,10 @@ using Chroma.HarmonyPatches.Colorizer;
 using Chroma.HarmonyPatches.Colorizer.Initialize;
 using Chroma.HarmonyPatches.EnvironmentComponent;
 using Chroma.HarmonyPatches.Events;
+#if !LEGATO_CHROMA_LEGACY_LIGHTS
 using Chroma.HarmonyPatches.Mirror;
 using Chroma.HarmonyPatches.ZenModeWalls;
+#endif
 using Chroma.Lighting;
 using Chroma.Modules;
 using Heck;
@@ -62,8 +64,10 @@ internal class ChromaPlayerInstaller : Installer
             Container.Bind<SaberColorizerManager>().AsSingle();
             Container.BindFactory<Saber, SaberColorizer, SaberColorizer.Factory>().AsSingle();
             Container.Bind<SaberColorizerIntialize>().AsSingle().NonLazy();
+#if !LEGATO_CHROMA_LEGACY_LIGHTS
             Container.Bind<SliderColorizerManager>().AsSingle();
             Container.BindFactory<SliderController, SliderColorizer, SliderColorizer.Factory>().AsSingle();
+#endif
             Container.BindInterfacesTo<ObjectInitializer>().AsSingle();
 
             // Colorizer Initialize
@@ -77,8 +81,10 @@ internal class ChromaPlayerInstaller : Installer
             Container.BindInterfacesTo<ObstacleEffectsColorize>().AsSingle();
 
             // Mirror
+#if !LEGATO_CHROMA_LEGACY_LIGHTS
             Container.BindInterfacesTo<MirroredNoteChromaTracker>().AsSingle();
             Container.BindInterfacesTo<MirroredObstacleChromaTracker>().AsSingle();
+#endif
         }
 
         if (_featuresModule.Active)
@@ -92,7 +98,9 @@ internal class ChromaPlayerInstaller : Installer
             Container.BindInterfacesTo<LightRotationChromafier>().AsSingle();
             Container.BindInterfacesTo<RingRotationChromafier>().AsSingle();
             Container.BindInterfacesTo<RingStepChromafier>().AsSingle();
+#if !LEGATO_CHROMA_LEGACY_LIGHTS
             Container.BindInterfacesTo<MovementBeatmapChromafier>().AsSingle();
+#endif
             Container.Bind<ChromaRingsRotationEffect.Factory>().AsSingle();
 
             // Custom Events
@@ -110,7 +118,7 @@ internal class ChromaPlayerInstaller : Installer
         if (_environmentModule.Active)
         {
             // EnvironmentComponent
-#if PRE_V1_37_1
+#if PRE_V1_37_1 && !LEGATO_CHROMA_LEGACY_LIGHTS
             Container.BindInterfacesAndSelfTo<BeatmapObjectsAvoidanceTransformOverride>().AsSingle();
 #endif
             Container.BindInterfacesAndSelfTo<ParametricBoxControllerTransformOverride>().AsSingle();
@@ -128,8 +136,10 @@ internal class ChromaPlayerInstaller : Installer
             Container.Bind<LightWithIdCustomizer>().AsSingle();
         }
 
+#if !LEGATO_CHROMA_LEGACY_LIGHTS
         // Zen mode
         Container.BindInterfacesTo<ObstacleHeadCollisionDisable>().AsSingle();
         Container.BindInterfacesTo<ZenModeBinder>().AsSingle();
+#endif
     }
 }

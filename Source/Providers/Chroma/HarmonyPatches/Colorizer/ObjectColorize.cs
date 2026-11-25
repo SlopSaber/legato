@@ -13,15 +13,21 @@ internal class ObjectColorize : IAffinity
 {
     private readonly DeserializedData _deserializedData;
     private readonly ObstacleColorizerManager _obstacleManager;
+#if !LEGATO_CHROMA_LEGACY_LIGHTS
     private readonly SliderColorizerManager _sliderManager;
+#endif
 
     private ObjectColorize(
         ObstacleColorizerManager obstacleManager,
+#if !LEGATO_CHROMA_LEGACY_LIGHTS
         SliderColorizerManager sliderManager,
+#endif
         [Inject(Id = ChromaController.ID)] DeserializedData deserializedData)
     {
         _obstacleManager = obstacleManager;
+#if !LEGATO_CHROMA_LEGACY_LIGHTS
         _sliderManager = sliderManager;
+#endif
         _deserializedData = deserializedData;
     }
 
@@ -83,6 +89,7 @@ internal class ObjectColorize : IAffinity
         }
     }
 
+#if !LEGATO_CHROMA_LEGACY_LIGHTS
     [AffinityPostfix]
     [AffinityPatch(typeof(SliderController), nameof(SliderController.Init))]
     private void SliderColorize(SliderController __instance, SliderData sliderData)
@@ -127,4 +134,5 @@ internal class ObjectColorize : IAffinity
             _sliderManager.Colorize(__instance, colorOffset.Value);
         }
     }
+#endif
 }
