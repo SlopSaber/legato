@@ -1,9 +1,13 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using JetBrains.Annotations;
 using Newtonsoft.Json;
-#if !V1_29_1
+#if LEGATO_CUSTOM_JSON_LEGACY_LOADER
+using System.Reflection;
+using HarmonyLib;
+#endif
+#if !V1_29_1 && !LEGATO_CUSTOM_JSON_LEGACY_LOADER
 using System;
 using UnityEngine;
 #endif
@@ -12,6 +16,10 @@ namespace CustomJSONData.CustomBeatmap
 {
     public class CustomLevelInfoSaveData : StandardLevelInfoSaveData
     {
+#if LEGATO_CUSTOM_JSON_LEGACY_LOADER
+        private static readonly FieldInfo _versionField = AccessTools.Field(typeof(StandardLevelInfoSaveData), "_version");
+
+#endif
         internal CustomLevelInfoSaveData(
             string version,
             string songName,
@@ -28,7 +36,7 @@ namespace CustomJSONData.CustomBeatmap
             string coverImageFilename,
             string environmentName,
             string allDirectionsEnvironmentName,
-#if !V1_29_1
+#if !V1_29_1 && !LEGATO_CUSTOM_JSON_LEGACY_LOADER
             string[] environmentNames,
             BeatmapLevelColorSchemeSaveData[] colorSchemes,
 #endif
@@ -49,13 +57,17 @@ namespace CustomJSONData.CustomBeatmap
                   coverImageFilename,
                   environmentName,
                   allDirectionsEnvironmentName,
-#if !V1_29_1
+#if !V1_29_1 && !LEGATO_CUSTOM_JSON_LEGACY_LOADER
                   environmentNames,
                   colorSchemes,
 #endif
                   difficultyBeatmapSets)
         {
+#if LEGATO_CUSTOM_JSON_LEGACY_LOADER
+            _versionField.SetValue(this, version);
+#else
             _version = version;
+#endif
             this.customData = customData;
         }
 
@@ -80,7 +92,7 @@ namespace CustomJSONData.CustomBeatmap
             string coverImageFilename = string.Empty;
             string environmentName = string.Empty;
             string allDirectionsEnvironmentName = string.Empty;
-#if !V1_29_1
+#if !V1_29_1 && !LEGATO_CUSTOM_JSON_LEGACY_LOADER
             string[] environmentNames = Array.Empty<string>();
             List<BeatmapLevelColorSchemeSaveData> colorSchemes = new();
 #endif
@@ -158,7 +170,7 @@ namespace CustomJSONData.CustomBeatmap
                             allDirectionsEnvironmentName = reader.ReadAsString() ?? allDirectionsEnvironmentName;
                             break;
 
-#if !V1_29_1
+#if !V1_29_1 && !LEGATO_CUSTOM_JSON_LEGACY_LOADER
                         case "_environmentNames":
                             environmentNames = reader.ReadAsStringArray(false);
                             break;
@@ -255,8 +267,10 @@ namespace CustomJSONData.CustomBeatmap
                                                 string beatmapFilename = string.Empty;
                                                 float noteJumpMovementSpeed = default;
                                                 float noteJumpStartBeatOffset = default;
+#if !LEGATO_CUSTOM_JSON_LEGACY_LOADER
                                                 int beatmapColorSchemeIdx = default;
                                                 int environmentNameIdx = default;
+#endif
                                                 CustomData data = new();
                                                 return reader.ReadObject(difficultyBeatmapObjectName =>
                                                 {
@@ -282,6 +296,7 @@ namespace CustomJSONData.CustomBeatmap
                                                             noteJumpStartBeatOffset = (float?)reader.ReadAsDouble() ?? noteJumpStartBeatOffset;
                                                             break;
 
+#if !LEGATO_CUSTOM_JSON_LEGACY_LOADER
                                                         case "_beatmapColorSchemeIdx":
                                                             beatmapColorSchemeIdx = reader.ReadAsInt32Safe() ?? beatmapColorSchemeIdx;
                                                             break;
@@ -290,6 +305,7 @@ namespace CustomJSONData.CustomBeatmap
                                                             environmentNameIdx = reader.ReadAsInt32Safe() ?? environmentNameIdx;
                                                             break;
 
+#endif
                                                         case "_customData":
                                                             reader.ReadToDictionary(data);
                                                             break;
@@ -306,7 +322,7 @@ namespace CustomJSONData.CustomBeatmap
                                                         beatmapFilename,
                                                         noteJumpMovementSpeed,
                                                         noteJumpStartBeatOffset,
-#if !V1_29_1
+#if !V1_29_1 && !LEGATO_CUSTOM_JSON_LEGACY_LOADER
                                                         beatmapColorSchemeIdx,
                                                         environmentNameIdx,
 #endif
@@ -350,7 +366,7 @@ namespace CustomJSONData.CustomBeatmap
                 coverImageFilename,
                 environmentName,
                 allDirectionsEnvironmentName,
-#if !V1_29_1
+#if !V1_29_1 && !LEGATO_CUSTOM_JSON_LEGACY_LOADER
                 environmentNames,
                 colorSchemes.ToArray(),
 #endif
@@ -366,7 +382,7 @@ namespace CustomJSONData.CustomBeatmap
                 string beatmapFilename,
                 float noteJumpMovementSpeed,
                 float noteJumpStartBeatOffset,
-#if !V1_29_1
+#if !V1_29_1 && !LEGATO_CUSTOM_JSON_LEGACY_LOADER
                 int beatmapColorSchemeIdx,
                 int environmentNameIdx,
 #endif
@@ -376,7 +392,7 @@ namespace CustomJSONData.CustomBeatmap
                 difficultyRank,
                 beatmapFilename,
                 noteJumpMovementSpeed,
-#if !V1_29_1
+#if !V1_29_1 && !LEGATO_CUSTOM_JSON_LEGACY_LOADER
                 noteJumpStartBeatOffset,
                 beatmapColorSchemeIdx,
                 environmentNameIdx)
