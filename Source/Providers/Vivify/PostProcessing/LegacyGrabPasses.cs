@@ -1,4 +1,5 @@
 #if BEAT_SABER_1453
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace Vivify.PostProcessing;
@@ -18,6 +19,9 @@ internal static class LegacyGrabPasses
         Legato.Rendering.AssetBundleGrabPasses.TryGetTextureName(shader, pass, out textureName);
 
     internal static bool HasGrabPass(Shader shader) => Legato.Rendering.AssetBundleGrabPasses.HasGrabPass(shader);
+
+    internal static void CollectForwardGrabTextures(Shader shader, HashSet<string> textures) =>
+        Legato.Rendering.AssetBundleGrabPasses.CollectForwardGrabTextures(shader, textures);
 
     private static bool HasLegacyShadowCaster()
     {

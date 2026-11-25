@@ -15,7 +15,9 @@ internal static class AssetBundleGrabPasses
     private const int UsePassType = 1;
     private const int GrabPassType = 2;
     private const int AlignFlag = 0x4000;
+    private const int VertexAndFragmentPrograms = 6;
     private const string LegacyShadowCaster = "Legacy Shaders/VertexLit/SHADOWCASTER";
+    private const string LegacyShadowCasterAlias = "VertexLit/SHADOWCASTER";
 
     private const string CommonStrings =
         "AABB\0AnimationClip\0AnimationCurve\0AnimationState\0Array\0Base\0BitField\0bitset\0bool\0char\0ColorRGBA\0" +
@@ -33,15 +35,25 @@ internal static class AssetBundleGrabPasses
         "m_PrefabAsset\0FileSize\0Hash128\0";
 
     private static readonly Dictionary<string, Dictionary<int, string>> _grabPasses = new();
+    private static readonly Dictionary<string, HashSet<string>> _forwardGrabTextures = new();
     private static readonly Dictionary<int, string> _commonStrings = BuildCommonStrings();
 
     internal static int Count { get; private set; }
 
     internal static bool HasGrabPass(Shader shader) => _grabPasses.ContainsKey(shader.name);
 
+    internal static void CollectForwardGrabTextures(Shader shader, HashSet<string> textures)
+    {
+        if (_forwardGrabTextures.TryGetValue(shader.name, out HashSet<string> names))
+        {
+            textures.UnionWith(names);
+        }
+    }
+
     internal static byte[]? Load(string? bundlePath, bool applyCompatibility, bool hasLegacyShadowCaster, Action<string>? debug = null)
     {
         _grabPasses.Clear();
+        _forwardGrabTextures.Clear();
         Count = 0;
         if (bundlePath == null || !File.Exists(bundlePath))
         {
@@ -418,16 +430,19 @@ internal static class AssetBundleGrabPasses
             }
 
             int originalCount = list.Passes.Count;
+            bool hasForwardColor = list.Passes.Exists(HasForwardColor);
             for (int i = originalCount - 1; i >= 0; i--)
             {
                 PassInfo pass = list.Passes[i];
-                if (!hasLegacyShadowCaster && pass.Type == UsePassType &&
-                    string.Equals(pass.UseName, LegacyShadowCaster, StringComparison.Ordinal))
+                if (!hasLegacyShadowCaster && IsLegacyShadowImport(pass))
                 {
                     RemoveRange(pass.Start, pass.End);
                     list.Passes.RemoveAt(i);
                 }
-                else if (pass.Type == DrawPassType && pass.AlwaysTag is TagEntry tag)
+                else if (pass.Type == DrawPassType && pass.LightMode is TagEntry tag &&
+                         (tag.Mode == "ALWAYS" ||
+                          (!hasForwardColor && tag.Mode == "VERTEX" &&
+                           (pass.ProgramMask & VertexAndFragmentPrograms) == VertexAndFragmentPrograms)))
                 {
                     // URP selects an untagged pass as SRPDefaultUnlit. Keep the existing pass index.
                     RemoveRange(tag.Start, tag.End);
@@ -460,6 +475,14 @@ internal static class AssetBundleGrabPasses
         }
     }
 
+    private static bool IsLegacyShadowImport(PassInfo pass) =>
+        pass.Type == UsePassType && pass.UseName is LegacyShadowCaster or LegacyShadowCasterAlias;
+
+    private static bool HasForwardColor(PassInfo pass) =>
+        (pass.Type == UsePassType && !IsLegacyShadowImport(pass)) ||
+        (pass.Type == DrawPassType &&
+         pass.LightMode?.Mode is null or "ALWAYS" or "FORWARDBASE" or "UNIVERSALFORWARD" or "UNIVERSALFORWARDONLY" or "SRPDEFAULTUNLIT");
+
     private static void AddShader(Dictionary<string, object?> shader)
     {
         if (Get(shader, "m_Name") is not string name ||
@@ -470,6 +493,7 @@ internal static class AssetBundleGrabPasses
             return;
         }
 
+        List<string>? precedingNames = null;
         for (int i = 0; i < list.Passes.Count; i++)
         {
             PassInfo pass = list.Passes[i];
@@ -483,7 +507,22 @@ internal static class AssetBundleGrabPasses
                 }
 
                 grabPasses[i] = string.IsNullOrEmpty(textureName) ? "_GrabTexture" : textureName;
+                if (grabPasses[i] != "_GrabTexture")
+                {
+                    (precedingNames ??= []).Add(grabPasses[i]);
+                }
+
                 Count++;
+            }
+            else if (pass.Type == DrawPassType && pass.LightMode?.Mode == "FORWARDBASE" &&
+                     precedingNames != null)
+            {
+                if (!_forwardGrabTextures.TryGetValue(name, out HashSet<string> textures))
+                {
+                    _forwardGrabTextures[name] = textures = new HashSet<string>(StringComparer.Ordinal);
+                }
+
+                textures.UnionWith(precedingNames);
             }
         }
     }
@@ -607,7 +646,8 @@ internal static class AssetBundleGrabPasses
                         Get(pass, "m_Type") is int type ? type : -1,
                         Get(pass, "m_TextureName") as string ?? string.Empty,
                         Get(pass, "m_UseName") as string ?? string.Empty,
-                        ReadAlwaysTag(pass)));
+                        Get(pass, "m_ProgramMask") is int mask ? mask : 0,
+                        ReadLightMode(pass)));
                 }
 
                 value = new PassList(countOffset, passes);
@@ -619,9 +659,9 @@ internal static class AssetBundleGrabPasses
                     int start = reader.Position;
                     if (ReadValue(reader, nodes, element) is Dictionary<string, object?> pair &&
                         Get(pair, "first") is string key && string.Equals(key, "LightMode", StringComparison.OrdinalIgnoreCase) &&
-                        Get(pair, "second") is string mode && string.Equals(mode, "Always", StringComparison.OrdinalIgnoreCase))
+                        Get(pair, "second") is string mode)
                     {
-                        value = new TagEntry(countOffset, size, start, reader.Position);
+                        value = new TagEntry(countOffset, size, start, reader.Position, mode.ToUpperInvariant());
                     }
                 }
             }
@@ -653,7 +693,7 @@ internal static class AssetBundleGrabPasses
             {
                 bool wanted = keep && nodes[child].Name is
                     "m_Name" or "m_SubShaders" or "m_Passes" or "m_Type" or "m_TextureName" or "m_UseName" or
-                    "m_State" or "m_Tags" or "tags" or "first" or "second";
+                    "m_State" or "m_Tags" or "tags" or "first" or "second" or "m_ProgramMask";
                 object? item = ReadValue(reader, nodes, child, wanted);
                 if (fields != null && wanted)
                 {
@@ -683,7 +723,7 @@ internal static class AssetBundleGrabPasses
         return value;
     }
 
-    private static TagEntry? ReadAlwaysTag(Dictionary<string, object?> pass) =>
+    private static TagEntry? ReadLightMode(Dictionary<string, object?> pass) =>
         Get(pass, "m_State") is Dictionary<string, object?> state &&
         Get(state, "m_Tags") is Dictionary<string, object?> tags &&
         Get(tags, "tags") is TagEntry tag ? tag : null;
@@ -694,22 +734,24 @@ internal static class AssetBundleGrabPasses
         internal readonly List<PassInfo> Passes = passes;
     }
 
-    private readonly struct PassInfo(int start, int end, int type, string textureName, string useName, TagEntry? alwaysTag)
+    private readonly struct PassInfo(int start, int end, int type, string textureName, string useName, int programMask, TagEntry? lightMode)
     {
         internal readonly int Start = start;
         internal readonly int End = end;
         internal readonly int Type = type;
         internal readonly string TextureName = textureName;
         internal readonly string UseName = useName;
-        internal readonly TagEntry? AlwaysTag = alwaysTag;
+        internal readonly int ProgramMask = programMask;
+        internal readonly TagEntry? LightMode = lightMode;
     }
 
-    private readonly struct TagEntry(int countOffset, int count, int start, int end)
+    private readonly struct TagEntry(int countOffset, int count, int start, int end, string mode)
     {
         internal readonly int CountOffset = countOffset;
         internal readonly int Count = count;
         internal readonly int Start = start;
         internal readonly int End = end;
+        internal readonly string Mode = mode;
     }
 
     private readonly struct Node

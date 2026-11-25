@@ -19,6 +19,7 @@ internal sealed class LegacyShaderRendering : IAffinity, IDisposable
     private readonly LegacyGrabTexturePass? _grabPass;
     private readonly LegacyExtraPassRenderPass? _extraPass;
     private readonly SiraLog _log;
+    private readonly bool _hasNamedForwardGrabs;
 
     private bool _reportedFallback;
     private volatile bool _grabPassRequested;
@@ -33,23 +34,23 @@ internal sealed class LegacyShaderRendering : IAffinity, IDisposable
             return;
         }
 
-        // A GrabPass is only reported by Unity when it is drawn, from a render job thread.
-        _grabPass = new LegacyGrabTexturePass();
         LegacyExtraPasses.ClearCache();
         if (LegacyGrabPasses.Count > 0)
         {
             log.Info($"Emulating {LegacyGrabPasses.Count} GrabPass pass(es) from bundled shaders.");
         }
 
+        // Unity logs native GrabPass failures from a render job thread.
         Application.logMessageReceivedThreaded += OnLogMessage;
 
         HashSet<Shader> shaders = [];
+        HashSet<string> namedForwardGrabs = new(StringComparer.Ordinal);
         List<Material> materials = [];
         foreach (UnityEngine.Object asset in assetBundleManager.Assets)
         {
             if (asset is Material material)
             {
-                shaders.Add(material.shader);
+                AddMaterial(material);
             }
             else if (asset is GameObject prefab)
             {
@@ -61,7 +62,7 @@ internal sealed class LegacyShaderRendering : IAffinity, IDisposable
                     {
                         if (sharedMaterial != null)
                         {
-                            shaders.Add(sharedMaterial.shader);
+                            AddMaterial(sharedMaterial);
                             extraPasses |= LegacyExtraPasses.HasExtraPasses(sharedMaterial.shader);
                         }
                     }
@@ -80,6 +81,13 @@ internal sealed class LegacyShaderRendering : IAffinity, IDisposable
             log.Info("Enabled additional untagged shader passes for bundled renderers.");
         }
 
+        _grabPass = new LegacyGrabTexturePass(namedForwardGrabs);
+        _hasNamedForwardGrabs = namedForwardGrabs.Count > 0;
+        if (_hasNamedForwardGrabs)
+        {
+            log.Info($"Providing {namedForwardGrabs.Count} named GrabPass texture(s) for transparent legacy ForwardBase shaders.");
+        }
+
         foreach (Shader shader in shaders)
         {
             if (shader == null || !Legato.Rendering.LegacyShaderSupport.HasForwardBase(shader))
@@ -90,6 +98,21 @@ internal sealed class LegacyShaderRendering : IAffinity, IDisposable
             _lightingPass = new LegacyLightingPass();
             log.Info("Enabled legacy ForwardBase rendering for bundled shaders.");
             return;
+        }
+
+        void AddMaterial(Material material)
+        {
+            Shader shader = material.shader;
+            if (shader == null)
+            {
+                return;
+            }
+
+            shaders.Add(shader);
+            if (material.renderQueue > 2500)
+            {
+                LegacyGrabPasses.CollectForwardGrabTextures(shader, namedForwardGrabs);
+            }
         }
     }
 
@@ -122,10 +145,10 @@ internal sealed class LegacyShaderRendering : IAffinity, IDisposable
             __instance.EnqueuePass(_extraPass.TransparentPass);
         }
 
-        if (_grabPass != null && _grabPassRequested)
+        if (_grabPass != null && (_grabPassRequested || _hasNamedForwardGrabs))
         {
             __instance.EnqueuePass(_grabPass);
-            if (!_reportedGrabPass)
+            if (_grabPassRequested && !_reportedGrabPass)
             {
                 _reportedGrabPass = true;
                 _log.Info("Bundled shaders use GrabPass; providing the camera opaque texture as _GrabTexture.");
