@@ -4,7 +4,7 @@
   </ItemGroup>
   <Target Name="LegatoBsmlNativeReferences" BeforeTargets="ResolveAssemblyReferences" DependsOnTargets="LegatoConfigure">
     <PropertyGroup Condition="'$(LegatoTargetVersion)' == '1.11.1'">
-      <DefineConstants>$(DefineConstants);LEGATO_HMUI_ACTIVATION_ENUMS;LEGATO_HMUI_TABLE_SCROLLER;LEGATO_HMUI_LEGACY_SCROLL_VIEW;LEGATO_FIXED_TABLE_CELL_SIZE</DefineConstants>
+      <DefineConstants>$(DefineConstants);LEGATO_HMUI_ACTIVATION_ENUMS;LEGATO_HMUI_TABLE_SCROLLER;LEGATO_HMUI_LEGACY_SCROLL_VIEW;LEGATO_FIXED_TABLE_CELL_SIZE;LEGATO_NATIVE_POLYGLOT;LEGATO_LEGACY_TEXTMESH_PRO;LEGATO_HMUI_PLAIN_TMP</DefineConstants>
     </PropertyGroup>
     <ItemGroup>
       <Reference Remove="BeatSaber.ViewSystem" Condition="!Exists('$(LegatoReferenceRoot)\Beat Saber_Data\Managed\BeatSaber.ViewSystem.dll')" />
@@ -14,7 +14,7 @@
       <Reference Remove="MenuSystem" Condition="!Exists('$(LegatoReferenceRoot)\Beat Saber_Data\Managed\MenuSystem.dll')" />
       <Reference Remove="SegmentedControl" Condition="!Exists('$(LegatoReferenceRoot)\Beat Saber_Data\Managed\SegmentedControl.dll')" />
     </ItemGroup>
-    <ItemGroup Condition="'$(LegatoTargetProfile)' == '1.29.0'">
+    <ItemGroup Condition="'$(LegatoTargetProfile)' == '1.29.0' OR '$(LegatoTargetVersion)' == '1.11.1'">
       <Reference Remove="BGLib.AppFlow;BGLib.Polyglot;BGLib.UnityExtension;BeatSaber.GameSettings;BeatSaber.Init;Menu.ColorSettings;Menu.CommonLib;UnityEngine.TextCoreFontEngineModule" />
       <Reference Include="Polyglot" HintPath="$(LegatoReferenceRoot)\Beat Saber_Data\Managed\Polyglot.dll" Private="false" Publicize="true" />
       <Reference Include="UnityEngine.TextCoreModule" HintPath="$(LegatoReferenceRoot)\Beat Saber_Data\Managed\UnityEngine.TextCoreModule.dll" Private="false" />

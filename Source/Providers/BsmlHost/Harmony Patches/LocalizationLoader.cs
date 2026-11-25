@@ -1,4 +1,4 @@
-#if BEAT_SABER_1_29_0
+#if BEAT_SABER_1_29_0 || LEGATO_NATIVE_POLYGLOT
 using System.IO;
 using System.Reflection;
 using HarmonyLib;

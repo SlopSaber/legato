@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using BeatSaberMarkupLanguage.Components;
 using BeatSaberMarkupLanguage.Components.Settings;
-#if !BEAT_SABER_1_29_0 && !BEAT_SABER_1_37_1 && !BEAT_SABER_1_38_0
+#if !BEAT_SABER_1_29_0 && !BEAT_SABER_1_37_1 && !BEAT_SABER_1_38_0 && !LEGATO_HMUI_TABLE_SCROLLER
 using BeatSaber.GameSettings;
 #endif
 using HMUI;
@@ -26,7 +26,10 @@ namespace BeatSaberMarkupLanguage.Tags.Settings
         {
             if (this.controllersTransformTemplate == null)
             {
-#if BEAT_SABER_1_29_0
+#if LEGATO_HMUI_TABLE_SCROLLER
+                ControllersTransformSettingsViewController controller = Resources.FindObjectsOfTypeAll<ControllersTransformSettingsViewController>().First();
+                this.controllersTransformTemplate = controller._posXSlider.GetComponentInParent<LayoutElement>();
+#elif BEAT_SABER_1_29_0
                 this.controllersTransformTemplate = Resources.FindObjectsOfTypeAll<LayoutElement>().First(x => x.name == "PositionX");
 #elif BEAT_SABER_1_37_1 || BEAT_SABER_1_38_0
                 this.controllersTransformTemplate = this.DiContainer.Resolve<MainSettingsMenuViewController>()._settingsSubMenuInfos.First(m => m.viewController is ControllersTransformSettingsViewController).viewController.transform.Find("Content/PositionX").GetComponent<LayoutElement>();
@@ -53,7 +56,11 @@ namespace BeatSaberMarkupLanguage.Tags.Settings
 
             T sliderSetting = gameObject.AddComponent<T>();
 
+#if LEGATO_HMUI_TABLE_SCROLLER
+            sliderSetting.Slider = baseSetting.GetComponentInChildren<RangeValuesTextSlider>(true);
+#else
             sliderSetting.Slider = baseSetting.GetComponentInChildren<CustomFormatRangeValuesSlider>();
+#endif
             sliderSetting.Slider.name = "BSMLSlider";
             Legato.Unity.TextCompatibility.SetWrapping(sliderSetting.Slider.GetComponentInChildren<TextMeshProUGUI>(), false);
             sliderSetting.Slider._enableDragging = true;
