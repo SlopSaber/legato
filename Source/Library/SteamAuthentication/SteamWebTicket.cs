@@ -79,7 +79,7 @@ namespace Legato.Platform {
 #endif
             try {
                 SteamUser.CancelAuthTicket(ticket);
-            } catch (InvalidOperationException exception) when (exception.Message == "Steamworks is not initialized.") {
+            } catch (InvalidOperationException exception) when (string.Equals(exception.Message, "Steamworks is not initialized.", StringComparison.Ordinal)) {
                 // Steam invalidates outstanding tickets before its shutdown callback.
             }
         }

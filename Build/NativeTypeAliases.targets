@@ -39,8 +39,8 @@
   </Target>
   <Target Name="LegatoSteamIdentityReferences" BeforeTargets="ResolveAssemblyReferences" DependsOnTargets="LegatoLegacyTypeReferences" Condition="'$(LegatoEnableSteamIdentity)' == 'true'">
     <PropertyGroup>
-      <_LegatoSteamIdentityAssembly Condition="'$(LegatoTargetProfile)' == '1.29.0'">Steamworks.NET</_LegatoSteamIdentityAssembly>
-      <_LegatoSteamIdentityAssembly Condition="'$(LegatoTargetProfile)' != '1.29.0'">com.rlabrecque.steamworks.net</_LegatoSteamIdentityAssembly>
+      <_LegatoSteamIdentityAssembly>com.rlabrecque.steamworks.net</_LegatoSteamIdentityAssembly>
+      <_LegatoSteamIdentityAssembly Condition="'$(LegatoTargetProfile)' == '1.29.0' OR (!Exists('$(LegatoReferenceRoot)\Beat Saber_Data\Managed\com.rlabrecque.steamworks.net.dll') AND Exists('$(LegatoReferenceRoot)\Beat Saber_Data\Managed\Steamworks.NET.dll'))">Steamworks.NET</_LegatoSteamIdentityAssembly>
     </PropertyGroup>
     <ItemGroup>
       <Reference Remove="Steamworks.NET;com.rlabrecque.steamworks.net" />
