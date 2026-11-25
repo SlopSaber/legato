@@ -20,11 +20,11 @@ namespace BetterPause.Patches
         public void Dispose() => _nativeSetupSubscription?.Dispose();
 #else
         [AffinityPostfix]
-        [AffinityPatch(typeof(LevelBar), "Setup", AffinityMethodType.Normal, null, new[] { typeof(NativePauseLevel), typeof(BeatmapDifficulty), typeof(NativePauseCharacteristic) })]
+        [AffinityPatch(typeof(LevelBar), "Setup", AffinityMethodType.Normal, new[] { typeof(NativePauseLevel), typeof(BeatmapDifficulty), typeof(NativePauseCharacteristic) })]
         private void NativeSetupPostfix(LevelBar __instance, NativePauseLevel beatmapLevel) => Postfix(__instance, beatmapLevel);
 
         [AffinityPostfix]
-        [AffinityPatch(typeof(LevelBar), "SetupData", AffinityMethodType.Normal, null, new[] { typeof(NativePauseLevel), typeof(BeatmapDifficulty), typeof(NativePauseCharacteristic) })]
+        [AffinityPatch(typeof(LevelBar), "SetupData", AffinityMethodType.Normal, new[] { typeof(NativePauseLevel), typeof(BeatmapDifficulty), typeof(NativePauseCharacteristic) })]
         private void NativeSetupDataPostfix(LevelBar __instance, NativePauseLevel beatmapLevel, ref Task __result) => SetupDataPostfix(__instance, beatmapLevel, ref __result);
 #endif
     }
