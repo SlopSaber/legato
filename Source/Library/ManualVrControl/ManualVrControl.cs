@@ -3,28 +3,28 @@ using UnityEngine;
 namespace Legato.XR {
     internal static class ManualVrControl {
         internal static Behaviour FocusCapture(PlayerVRControllersManager controllers) =>
-#if BEAT_SABER_1_29_0
-            null;
-#else
+#if LEGATO_CONTROLLER_FOCUS_CAPTURE
             controllers.GetComponent<DeactivateVRControllersOnFocusCapture>();
+#else
+            null;
 #endif
         internal static bool Autoplay(VRController controller) =>
-#if BEAT_SABER_1_29_0
-            false;
-#else
+#if LEGATO_CONTROLLER_AUTOPLAY
             controller.autoPlayActive;
+#else
+            false;
 #endif
         internal static void SetAutoplay(VRController controller, bool active) {
-#if !BEAT_SABER_1_29_0
+#if LEGATO_CONTROLLER_AUTOPLAY
             controller.autoPlayActive = active;
 #endif
         }
         internal static void Prepare(PlayerVRControllersManager controllers) {
-#if BEAT_SABER_1_29_0
+#if LEGATO_CONTROLLER_AUTOPLAY
+            controllers.SetupAutoplayForAllControllers();
+#else
             controllers.leftHandVRController.enabled = false;
             controllers.rightHandVRController.enabled = false;
-#else
-            controllers.SetupAutoplayForAllControllers();
 #endif
         }
     }

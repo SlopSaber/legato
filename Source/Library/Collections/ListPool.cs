@@ -5,14 +5,14 @@ namespace Legato.Collections
 {
     internal static class ListPool<T>
     {
-#if BEAT_SABER_1_29_0
+#if BEAT_SABER_1_29_0 || LEGATO_HISTORICAL_GAME
         private const int MaximumRetained = 10000;
         private static readonly Stack<List<T>> Inactive = new Stack<List<T>>(10);
 #endif
 
         internal static List<T> Get()
         {
-#if BEAT_SABER_1_29_0
+#if BEAT_SABER_1_29_0 || LEGATO_HISTORICAL_GAME
             return Inactive.Count == 0 ? new List<T>() : Inactive.Pop();
 #else
             return UnityEngine.Pool.ListPool<T>.Get();
@@ -21,7 +21,7 @@ namespace Legato.Collections
 
         internal static void Release(List<T> collection)
         {
-#if BEAT_SABER_1_29_0
+#if BEAT_SABER_1_29_0 || LEGATO_HISTORICAL_GAME
             if (collection == null)
             {
                 throw new ArgumentNullException(nameof(collection));

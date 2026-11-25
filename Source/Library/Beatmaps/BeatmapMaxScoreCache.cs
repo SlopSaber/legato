@@ -54,7 +54,7 @@ namespace Legato.Beatmaps {
                                                                             beatmapKey: beatmapKey,
                                                                             startBpm: beatmapLevel.beatsPerMinute,
                                                                             loadingForDesignatedEnvironment: false,
-#if BEAT_SABER_1_37_1
+#if LEGATO_SINGLE_BEATMAP_ENVIRONMENT
                                                                             environmentInfo: null,
 #else
                                                                             originalEnvironmentInfo: null,
@@ -63,7 +63,7 @@ namespace Legato.Beatmaps {
                                                                             beatmapLevelDataVersion: beatmapLevelDataVersion,
                                                                             gameplayModifiers: null,
                                                                             playerSpecificSettings: null
-#if !BEAT_SABER_1_45_1 && !BEAT_SABER_1_45_3
+#if !LEGATO_NATIVE_BEATMAP_CACHE
                                                                             , enableBeatmapDataCaching: false
 #endif
                                                                             );

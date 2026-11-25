@@ -5,14 +5,14 @@ namespace Legato.Collections
 {
     internal static class HashSetPool<T>
     {
-#if BEAT_SABER_1_29_0
+#if BEAT_SABER_1_29_0 || LEGATO_HISTORICAL_GAME
         private const int MaximumRetained = 10000;
         private static readonly Stack<HashSet<T>> Inactive = new Stack<HashSet<T>>(10);
 #endif
 
         internal static HashSet<T> Get()
         {
-#if BEAT_SABER_1_29_0
+#if BEAT_SABER_1_29_0 || LEGATO_HISTORICAL_GAME
             return Inactive.Count == 0 ? new HashSet<T>() : Inactive.Pop();
 #else
             return UnityEngine.Pool.HashSetPool<T>.Get();
@@ -21,7 +21,7 @@ namespace Legato.Collections
 
         internal static void Release(HashSet<T> collection)
         {
-#if BEAT_SABER_1_29_0
+#if BEAT_SABER_1_29_0 || LEGATO_HISTORICAL_GAME
             if (collection == null)
             {
                 throw new ArgumentNullException(nameof(collection));

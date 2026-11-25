@@ -56,6 +56,7 @@
       <DefineConstants Condition="'$(_LegatoApiVersion)' != '' AND $([MSBuild]::VersionLessThan('$(_LegatoApiVersion)', '1.40.0'))">$(DefineConstants);LEGATO_SINGLE_COLOR_OVERRIDE;LEGATO_SLIDER_SCORING_TYPES;LEGATO_LEGACY_OBSTACLE_PROPERTIES</DefineConstants>
       <DefineConstants Condition="'$(_LegatoApiVersion)' != '' AND $([MSBuild]::VersionGreaterThanOrEquals('$(_LegatoApiVersion)', '1.40.0'))">$(DefineConstants);LEGATO_VARIABLE_MOVEMENT_DATA</DefineConstants>
       <DefineConstants Condition="'$(_LegatoApiVersion)' != '' AND $([MSBuild]::VersionLessThan('$(_LegatoApiVersion)', '1.40.2'))">$(DefineConstants);LEGATO_QUERY_CONTROLLER_POSE</DefineConstants>
+      <DefineConstants Condition="'$(_LegatoApiVersion)' != '' AND $([MSBuild]::VersionGreaterThanOrEquals('$(_LegatoApiVersion)', '1.40.2'))">$(DefineConstants);LEGATO_CONTROLLER_FOCUS_CAPTURE</DefineConstants>
       <DefineConstants Condition="'$(_LegatoApiVersion)' != '' AND $([MSBuild]::VersionLessThan('$(_LegatoApiVersion)', '1.40.4'))">$(DefineConstants);LEGATO_MONOBEHAVIOUR_INTERACTABLE</DefineConstants>
       <DefineConstants Condition="'$(LegatoTargetVersion)' == '1.40.0'">$(DefineConstants);LEGATO_INITIAL_MOVE_DISTANCE</DefineConstants>
       <DefineConstants Condition="'$(LegatoTargetVersion)' == '1.40.0' OR '$(LegatoTargetVersion)' == '1.40.1'">$(DefineConstants);LEGATO_LEGACY_HEAD_Z_FIELD_NAME</DefineConstants>
@@ -64,6 +65,7 @@
       <DefineConstants Condition="'$(_LegatoApiVersion)' != '' AND $([MSBuild]::VersionLessThan('$(_LegatoApiVersion)', '1.40.11'))">$(DefineConstants);LEGATO_SYNC_CONTROLLER_AUDIO_STATE</DefineConstants>
       <DefineConstants Condition="'$(_LegatoApiVersion)' != '' AND $([MSBuild]::VersionLessThan('$(_LegatoApiVersion)', '1.41.1'))">$(DefineConstants);LEGATO_CHARACTERISTIC_NAME_PROPERTY;LEGATO_LEGACY_SCENE_NAMES;LEGATO_BUILT_IN_RENDERING;LEGATO_PLATFORM_USER_MODEL;LEGATO_GAMEPLAY_WITHOUT_ADDITIONAL_INFORMATION;LEGATO_BURN_MARKS_START</DefineConstants>
       <DefineConstants Condition="'$(_LegatoApiVersion)' != '' AND $([MSBuild]::VersionGreaterThanOrEquals('$(_LegatoApiVersion)', '1.41.1'))">$(DefineConstants);LEGATO_BEATMAP_LOAD_ERROR_MESSAGE</DefineConstants>
+      <DefineConstants Condition="'$(_LegatoApiVersion)' != '' AND $([MSBuild]::VersionGreaterThanOrEquals('$(_LegatoApiVersion)', '1.41.1'))">$(DefineConstants);LEGATO_CONTROLLER_AUTOPLAY</DefineConstants>
       <DefineConstants Condition="'$(LegatoTargetVersion)' == '1.41.1'">$(DefineConstants);LEGATO_TUTORIAL_WITHOUT_ADDITIONAL_INFORMATION</DefineConstants>
       <DefineConstants Condition="'$(_LegatoApiVersion)' != '' AND $([MSBuild]::VersionLessThan('$(_LegatoApiVersion)', '1.42.0'))">$(DefineConstants);LEGATO_SINGLE_UI_AUDIO_SOURCE</DefineConstants>
       <DefineConstants Condition="'$(_LegatoApiVersion)' != '' AND $([MSBuild]::VersionGreaterThanOrEquals('$(_LegatoApiVersion)', '1.29.4')) AND $([MSBuild]::VersionLessThan('$(_LegatoApiVersion)', '1.43.0'))">$(DefineConstants);LEGATO_ENABLED_LAST_SELECTED_POINTER</DefineConstants>
