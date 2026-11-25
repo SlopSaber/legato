@@ -12,7 +12,7 @@ namespace SiraUtil.Submissions
         private CurvedTextMeshPro? _curvedText;
 
 #if LEGATO_HMUI_ACTIVATION_ENUMS
-        protected override void DidActivate(bool firstActivation, ActivationType activationType)
+        public override void DidActivate(bool firstActivation, ActivationType activationType)
         {
             base.DidActivate(firstActivation, activationType);
             if (firstActivation)
