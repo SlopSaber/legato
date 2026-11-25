@@ -38,6 +38,7 @@ internal static class AssetBundleGrabPasses
     private static readonly Dictionary<string, Dictionary<int, string>> _grabPasses = new();
     private static readonly Dictionary<string, HashSet<string>> _forwardGrabTextures = new();
     private static readonly Dictionary<string, string> _nativeGrabTags = new();
+    private static readonly Dictionary<string, int?> _textColorMasks = new(StringComparer.Ordinal);
     private static readonly Dictionary<int, string> _commonStrings = BuildCommonStrings();
 
     internal static int Count { get; private set; }
@@ -47,6 +48,9 @@ internal static class AssetBundleGrabPasses
     internal static bool HasGrabPass(Shader shader) => _grabPasses.ContainsKey(shader.name);
 
     internal static string? GetNativeGrabTag(Shader shader) => _nativeGrabTags.TryGetValue(shader.name, out string tag) ? tag : null;
+
+    internal static int? GetFixedTextColorMask(Shader shader) =>
+        _textColorMasks.TryGetValue(shader.name, out int? mask) ? mask : null;
 
     internal static void CollectForwardGrabTextures(Shader shader, HashSet<string> textures)
     {
@@ -61,6 +65,7 @@ internal static class AssetBundleGrabPasses
         _grabPasses.Clear();
         _forwardGrabTextures.Clear();
         _nativeGrabTags.Clear();
+        _textColorMasks.Clear();
         Count = 0;
         if (bundlePath == null || !File.Exists(bundlePath))
         {
@@ -540,6 +545,14 @@ internal static class AssetBundleGrabPasses
             return;
         }
 
+        if (name is "TextMeshPro/Distance Field" or "TextMeshPro/Mobile/Distance Field")
+        {
+            int? mask = subShaders.Count == 1 && list.Passes.Count == 1 && list.Passes[0].Type == DrawPassType
+                ? list.Passes[0].FixedColorMask
+                : null;
+            _textColorMasks[name] = _textColorMasks.TryGetValue(name, out int? existing) && existing != mask ? null : mask;
+        }
+
         List<string>? precedingNames = null;
         for (int i = 0; i < list.Passes.Count; i++)
         {
@@ -694,7 +707,8 @@ internal static class AssetBundleGrabPasses
                         Get(pass, "m_TextureName") as string ?? string.Empty,
                         Get(pass, "m_UseName") as string ?? string.Empty,
                         Get(pass, "m_ProgramMask") is int mask ? mask : 0,
-                        ReadPassTags(pass)));
+                        ReadPassTags(pass),
+                        ReadFixedColorMask(pass)));
                 }
 
                 value = new PassList(countOffset, passes);
@@ -749,13 +763,15 @@ internal static class AssetBundleGrabPasses
             Dictionary<string, object?>? fields = keep ? new Dictionary<string, object?>() : null;
             for (int child = index + 1; child < nodes.Length && nodes[child].Level > node.Level; child = NextSibling(nodes, child))
             {
-                bool wanted = keep && nodes[child].Name is
+                string childName = nodes[child].Name;
+                bool wanted = keep && (childName is
                     "m_Name" or "m_SubShaders" or "m_Passes" or "m_Type" or "m_TextureName" or "m_UseName" or
-                    "m_State" or "m_Tags" or "tags" or "first" or "second" or "m_ProgramMask";
+                    "m_State" or "m_Tags" or "tags" or "first" or "second" or "m_ProgramMask" or "rtBlend0" or "colMask" ||
+                    (node.Name == "colMask" && childName is "name" or "val"));
                 object? item = ReadValue(reader, nodes, child, wanted);
                 if (fields != null && wanted)
                 {
-                    fields[nodes[child].Name] = item;
+                    fields[childName] = item;
                 }
             }
 
@@ -784,6 +800,23 @@ internal static class AssetBundleGrabPasses
     private static PassTags ReadPassTags(Dictionary<string, object?> pass) =>
         Get(pass, "m_State") is Dictionary<string, object?> state ? ReadTags(state) : default;
 
+    private static int? ReadFixedColorMask(Dictionary<string, object?> pass)
+    {
+        if (Get(pass, "m_State") is Dictionary<string, object?> state &&
+            Get(state, "rtBlend0") is Dictionary<string, object?> blend &&
+            Get(blend, "colMask") is Dictionary<string, object?> mask &&
+            Get(mask, "name") is "" or "<noninit>" && Get(mask, "val") is int bits)
+        {
+            float value = BitConverter.ToSingle(BitConverter.GetBytes(bits), 0);
+            if (value is >= 0f and <= 15f && value == (int)value)
+            {
+                return (int)value;
+            }
+        }
+
+        return null;
+    }
+
     private static PassTags ReadTags(Dictionary<string, object?> fields) =>
         Get(fields, "m_Tags") is Dictionary<string, object?> tags && Get(tags, "tags") is PassTags entries ? entries : default;
 
@@ -793,7 +826,7 @@ internal static class AssetBundleGrabPasses
         internal readonly List<PassInfo> Passes = passes;
     }
 
-    private readonly struct PassInfo(int start, int end, int type, string textureName, string useName, int programMask, PassTags tags)
+    private readonly struct PassInfo(int start, int end, int type, string textureName, string useName, int programMask, PassTags tags, int? fixedColorMask)
     {
         internal readonly int Start = start;
         internal readonly int End = end;
@@ -801,6 +834,7 @@ internal static class AssetBundleGrabPasses
         internal readonly string TextureName = textureName;
         internal readonly string UseName = useName;
         internal readonly int ProgramMask = programMask;
+        internal readonly int? FixedColorMask = fixedColorMask;
         internal readonly TagEntry? LightMode = tags.LightMode;
         internal readonly TagEntry? RenderType = tags.RenderType;
     }
