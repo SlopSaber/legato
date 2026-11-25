@@ -3,7 +3,7 @@ using BeatSaberMarkupLanguage.ViewControllers;
 
 namespace Legato.UI {
     public abstract class FlowLifecycle : FlowCoordinator {
-#if BEAT_SABER_1_29_0
+#if LEGATO_HMUI_VIEW_LIFECYCLE
         public override void DidActivate(bool first, bool added, bool enabling) => OnActivated(first, added, enabling);
         public override void BackButtonWasPressed(ViewController view) => OnBack(view);
 #else
@@ -14,7 +14,7 @@ namespace Legato.UI {
         protected abstract void OnBack(ViewController view);
     }
     public abstract class ResourceViewLifecycle : BSMLResourceViewController {
-#if BEAT_SABER_1_29_0
+#if LEGATO_HMUI_VIEW_LIFECYCLE
         public override void DidDeactivate(bool removed, bool disabling) {
 #else
         protected override void DidDeactivate(bool removed, bool disabling) {

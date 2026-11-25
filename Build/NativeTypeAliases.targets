@@ -36,7 +36,7 @@
       <Reference Include="UnityEngine.ImageConversionModule" HintPath="$(LegatoReferenceRoot)\Beat Saber_Data\Managed\UnityEngine.ImageConversionModule.dll" Private="false" />
     </ItemGroup>
   </Target>
-  <Target Name="LegatoEditorReferences" BeforeTargets="ResolveAssemblyReferences" DependsOnTargets="LegatoConfigure" Condition="'$(LegatoEnableEditorAccess)' == 'true' AND '$(LegatoTargetProfile)' == '1.29.0'">
+  <Target Name="LegatoEditorReferences" BeforeTargets="ResolveAssemblyReferences" DependsOnTargets="LegatoConfigure" Condition="'$(LegatoEnableEditorAccess)' == 'true' AND Exists('$(LegatoReferenceRoot)\Beat Saber_Data\Managed\BeatmapEditor3D.dll') AND !Exists('$(LegatoReferenceRoot)\Beat Saber_Data\Managed\BeatSaber.BeatmapEditor.dll')">
     <ItemGroup>
       <Reference Remove="BeatSaber.BeatmapEditor" />
       <Reference Include="BeatmapEditor3D" HintPath="$(LegatoReferenceRoot)\Beat Saber_Data\Managed\BeatmapEditor3D.dll" Publicize="true" Private="false" />

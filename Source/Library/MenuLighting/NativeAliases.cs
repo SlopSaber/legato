@@ -1,4 +1,4 @@
-#if BEAT_SABER_1_29_0
+#if LEGATO_NESTED_MENU_LIGHT_PAIR
 global using NativeMenuLightPair = global::MenuLightsPresetSO.LightIdColorPair;
 #else
 global using NativeMenuLightPair = global::LightIdColorPair;

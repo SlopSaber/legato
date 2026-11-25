@@ -29,12 +29,12 @@
       <_LegatoTargetVersion Include="@(LegatoGameVersion->WithMetadataValue('Identity', '$(LegatoTargetVersion)'))" />
       <_LegatoSourceVersion Include="@(LegatoGameVersion->WithMetadataValue('Identity', '$(LegatoSourceVersion)'))" />
       <_LegatoPortableShaderProfile Include="@(LegatoPortableShaderProfile->WithMetadataValue('Identity', '$(LegatoTargetVersion)'))"
-                                   Condition="'$(LegatoEnablePortableRendering)' == 'true'" />
+                                   Condition="'$(LegatoEnablePortableRendering)' == 'true' OR '$(LegatoEnableCinemaAssets)' == 'true'" />
     </ItemGroup>
     <PropertyGroup>
       <LegatoTargetProfile>@(_LegatoTargetVersion->'%(Profile)')</LegatoTargetProfile>
       <LegatoPortableShaderBundleTarget>@(_LegatoPortableShaderProfile->'%(BundleTarget)')</LegatoPortableShaderBundleTarget>
-      <_LegatoPortablePipeline>@(_LegatoPortableShaderProfile->'%(Pipeline)')</_LegatoPortablePipeline>
+      <_LegatoPortablePipeline Condition="'$(LegatoEnablePortableRendering)' == 'true'">@(_LegatoPortableShaderProfile->'%(Pipeline)')</_LegatoPortablePipeline>
       <LegatoTargetOrder>@(_LegatoTargetVersion->'%(Order)')</LegatoTargetOrder>
       <LegatoSourceProfile>@(_LegatoSourceVersion->'%(Profile)')</LegatoSourceProfile>
       <LegatoSourceOrder>@(_LegatoSourceVersion->'%(Order)')</LegatoSourceOrder>
@@ -56,6 +56,7 @@
       <DefineConstants Condition="'$(_LegatoApiVersion)' != '' AND $([MSBuild]::VersionGreaterThanOrEquals('$(_LegatoApiVersion)', '1.37.4'))">$(DefineConstants);LEGATO_ENVIRONMENT_COLOR_PROVIDER</DefineConstants>
       <DefineConstants Condition="'$(_LegatoApiVersion)' != '' AND $([MSBuild]::VersionGreaterThanOrEquals('$(_LegatoApiVersion)', '1.37.4'))">$(DefineConstants);LEGATO_SABER_VISUAL_ENDPOINTS</DefineConstants>
       <DefineConstants Condition="'$(_LegatoApiVersion)' != '' AND $([MSBuild]::VersionGreaterThanOrEquals('$(_LegatoApiVersion)', '1.38.0'))">$(DefineConstants);LEGATO_DEPTH_TEXTURE_SETTINGS_INIT</DefineConstants>
+      <DefineConstants Condition="'$(_LegatoApiVersion)' != '' AND $([MSBuild]::VersionLessThan('$(_LegatoApiVersion)', '1.38.0'))">$(DefineConstants);LEGATO_HMUI_VIEW_LIFECYCLE;LEGATO_NESTED_MENU_LIGHT_PAIR</DefineConstants>
       <DefineConstants Condition="'$(_LegatoApiVersion)' != '' AND $([MSBuild]::VersionGreaterThanOrEquals('$(_LegatoApiVersion)', '1.38.0'))">$(DefineConstants);LEGATO_STANDARD_LEVEL_RESTART_CALLBACK</DefineConstants>
       <DefineConstants Condition="'$(_LegatoApiVersion)' != '' AND $([MSBuild]::VersionLessThan('$(_LegatoApiVersion)', '1.37.4'))">$(DefineConstants);LEGATO_UNTYPED_SCENE_TRANSITIONS;LEGATO_LEGACY_AVAILABLE_CHARACTERISTICS_FIELD;LEGATO_PRIVATE_POINTER_CURSOR;LEGATO_SELECT_ROW_EVENT;LEGATO_FAIL_ON_ZERO_ENERGY;LEGATO_LEGACY_FLOW_OVERRIDE</DefineConstants>
       <DefineConstants Condition="'$(_LegatoApiVersion)' != '' AND $([MSBuild]::VersionLessThan('$(_LegatoApiVersion)', '1.37.4'))">$(DefineConstants);LEGATO_PARAMETERLESS_HIDE_HINT</DefineConstants>
@@ -81,6 +82,7 @@
       <DefineConstants Condition="'$(_LegatoApiVersion)' != '' AND $([MSBuild]::VersionGreaterThanOrEquals('$(_LegatoApiVersion)', '1.41.1'))">$(DefineConstants);LEGATO_LOCALIZATION_REMOVE_LISTENER</DefineConstants>
       <DefineConstants Condition="'$(_LegatoApiVersion)' != '' AND $([MSBuild]::VersionGreaterThanOrEquals('$(_LegatoApiVersion)', '1.45.1'))">$(DefineConstants);LEGATO_XR_APP_FOCUS_QUERY;LEGATO_XR_URP_RENDER_SCALE</DefineConstants>
       <DefineConstants Condition="'$(_LegatoApiVersion)' != '' AND $([MSBuild]::VersionLessThan('$(_LegatoApiVersion)', '1.45.1'))">$(DefineConstants);LEGATO_LEGACY_MIRROR_RENDERER</DefineConstants>
+      <DefineConstants Condition="'$(_LegatoApiVersion)' != '' AND $([MSBuild]::VersionLessThan('$(_LegatoApiVersion)', '1.44.2'))">$(DefineConstants);LEGATO_BLOOM_RENDER_TEXTURE</DefineConstants>
       <DefineConstants Condition="'$(_LegatoApiVersion)' != '' AND $([MSBuild]::VersionGreaterThanOrEquals('$(_LegatoApiVersion)', '1.45.1'))">$(DefineConstants);LEGATO_URP_DRAW_MAIN_OPAQUE_FLAG</DefineConstants>
       <DefineConstants Condition="'$(_LegatoApiVersion)' != '' AND $([MSBuild]::VersionGreaterThanOrEquals('$(_LegatoApiVersion)', '1.45.1'))">$(DefineConstants);LEGATO_LINE_RENDERER_COLOR_SPACE</DefineConstants>
       <DefineConstants Condition="'$(_LegatoApiVersion)' != '' AND $([MSBuild]::VersionLessThan('$(_LegatoApiVersion)', '1.41.1'))">$(DefineConstants);LEGATO_CHARACTERISTIC_NAME_PROPERTY;LEGATO_LEGACY_SCENE_NAMES;LEGATO_PLATFORM_USER_MODEL;LEGATO_GAMEPLAY_WITHOUT_ADDITIONAL_INFORMATION;LEGATO_BURN_MARKS_START</DefineConstants>
@@ -745,10 +747,14 @@
   <Import Project="$(MSBuildThisFileDirectory)Tweaks55Providers.targets" Condition="'$(LegatoEnableTweaks55Providers)' == 'true'" />
   <Import Project="$(MSBuildThisFileDirectory)MappingExtensionsProviders.targets" Condition="'$(LegatoEnableMappingExtensionsProviders)' == 'true'" />
   <Import Project="$(MSBuildThisFileDirectory)PlaylistManagerProviders.targets" />
-  <Target Name="LegatoCinemaAssetProfile" BeforeTargets="AssignTargetPaths" DependsOnTargets="LegatoConfigure" Condition="'$(LegatoEnableCinemaAssets)' == 'true' AND '$(LegatoTargetProfile)' == '1.29.0'">
-    <ItemGroup>
+  <Target Name="LegatoCinemaAssetProfile" BeforeTargets="AssignTargetPaths" DependsOnTargets="LegatoConfigure" Condition="'$(LegatoEnableCinemaAssets)' == 'true'">
+    <PropertyGroup>
+      <_LegatoCinemaShaderBundle Condition="'$(LegatoTargetProfile)' == '1.29.0'">$(MSBuildThisFileDirectory)Resources\CinemaLegacy\bscinema.bundle</_LegatoCinemaShaderBundle>
+      <_LegatoCinemaShaderBundle Condition="'$(LegatoPortableShaderBundleTarget)' == '1.37.1' OR '$(LegatoPortableShaderBundleTarget)' == '1.37.2' OR '$(LegatoPortableShaderBundleTarget)' == '1.42.0'">$(MSBuildThisFileDirectory)Resources\Cinema\$(LegatoPortableShaderBundleTarget)\bscinema.bundle</_LegatoCinemaShaderBundle>
+    </PropertyGroup>
+    <ItemGroup Condition="'$(_LegatoCinemaShaderBundle)' != ''">
       <EmbeddedResource Remove="Resources\bscinema.bundle" />
-      <EmbeddedResource Include="$(MSBuildThisFileDirectory)Resources\CinemaLegacy\bscinema.bundle" LogicalName="BeatSaberCinema.Resources.bscinema.bundle" />
+      <EmbeddedResource Include="$(_LegatoCinemaShaderBundle)" LogicalName="BeatSaberCinema.Resources.bscinema.bundle" />
     </ItemGroup>
   </Target>
   <Target Name="LegatoSelectProfileResources" BeforeTargets="AssignTargetPaths" DependsOnTargets="LegatoConfigure" Condition="'@(LegatoProfileResource)' != ''">

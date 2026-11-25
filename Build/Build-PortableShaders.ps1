@@ -44,9 +44,9 @@ if ($urp) {
     if (!$PackageManifestPath) { throw 'The URP target requires the maintained source project PackageManifestPath.' }
     $manifest = Get-Content -LiteralPath $PackageManifestPath -Raw
     $packages = $manifest | ConvertFrom-Json
-    if (!$packages.dependencies.'com.unity.render-pipelines.universal') { throw 'The package manifest does not declare URP.' }
-    if ($profile[0].UrpVersion) {
-        $packages.dependencies.'com.unity.render-pipelines.universal' = $profile[0].UrpVersion
+    if (!$packages.dependencies.'com.unity.render-pipelines.universal' -and !$profile[0].UrpVersion) { throw 'The package manifest does not declare URP.' }
+    if ($profile[0].UrpVersion -and $packages.dependencies.'com.unity.render-pipelines.universal' -ne $profile[0].UrpVersion) {
+        $packages.dependencies | Add-Member -NotePropertyName 'com.unity.render-pipelines.universal' -NotePropertyValue $profile[0].UrpVersion -Force
         $manifest = $packages | ConvertTo-Json -Depth 16
     }
 }
@@ -75,8 +75,9 @@ foreach ($file in $files) {
             $content = [regex]::Replace($content, '"RenderPipeline"\s*=\s*"UniversalPipeline"', '')
             $content = [regex]::Replace($content, '("LightMode"\s*=\s*")UniversalForward(?:Only)?"', '${1}ForwardBase"')
             $content = [regex]::Replace($content, '("LightMode"\s*=\s*")DepthOnly"', '${1}ShadowCaster"')
+            $content = [regex]::Replace($content, '("LightMode"\s*=\s*")SRPDefaultUnlit"', '${1}Always"')
             foreach ($match in [regex]::Matches($content, '"LightMode"\s*=\s*"([^"]+)"')) {
-                if ($match.Groups[1].Value -notin 'ForwardBase','ShadowCaster','Always','SRPDefaultUnlit') {
+                if ($match.Groups[1].Value -notin 'ForwardBase','ShadowCaster','Always','Meta') {
                     throw "Unsupported pass '$($match.Groups[1].Value)' in $relative."
                 }
             }

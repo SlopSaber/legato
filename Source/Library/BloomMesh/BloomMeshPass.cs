@@ -5,7 +5,7 @@ using UnityEngine.Rendering;
 namespace Legato.Rendering {
     public abstract class BloomMeshPass : BloomPrePassNonLightPass {
         protected abstract bool TryGetDraw(Matrix4x4 view, out Mesh mesh, out Matrix4x4 model, out Material material, out MaterialPropertyBlock properties);
-#if BEAT_SABER_1_29_0
+#if LEGATO_BLOOM_RENDER_TEXTURE
         private CommandBuffer? _commands;
         private Material? _singlePassMaterial;
         private Material? _sourceMaterial;

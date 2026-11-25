@@ -15,6 +15,8 @@ namespace Legato.Beatmaps {
         internal static IEnumerable<BeatmapLevel> OfficialLevels(BeatmapLevelsModel model) =>
 #if BEAT_SABER_1_29_0
             model.allLoadedBeatmapLevelWithoutCustomLevelPackCollection.beatmapLevelPacks.SelectMany(pack => pack.beatmapLevelCollection.beatmapLevels);
+#elif BEAT_SABER_1_37_1 && !LEGATO_ADDITIONAL_PACK_LEVELS
+            model.ostAndExtrasBeatmapLevelsRepository.beatmapLevelPacks.Concat(model.dlcBeatmapLevelsRepository.beatmapLevelPacks).SelectMany(pack => pack.beatmapLevels);
 #else
             model.ostAndExtrasBeatmapLevelsRepository.beatmapLevelPacks.Concat(model.dlcBeatmapLevelsRepository.beatmapLevelPacks).SelectMany(pack => pack._beatmapLevels);
 #endif
