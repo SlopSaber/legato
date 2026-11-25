@@ -27,7 +27,7 @@ namespace CP_SDK_BS.Game
         {
             get
             {
-#if BEAT_SABER_1_29_0
+#if LEGATO_SPAWN_ROTATION_EVENTS
                 var l_SpawnRotationEventsCount = Data?.transformedBeatmapData?.GetBeatmapDataItems<SpawnRotationBeatmapEventData>(0).Count(x => x.rotation != 0);
 #else
                 var l_SpawnRotationEventsCount = Data?.transformedBeatmapData?.allBeatmapDataItems.Count(

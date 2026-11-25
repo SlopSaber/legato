@@ -849,10 +849,10 @@ namespace CP_SDK_BS.UI
                     m_LimitedBeatmapDifficulty == null
                     ? 
                         m_LocalBeatMap.GetBeatmapKeys()
-                            .Where(x => x.characteristic == SelectedBeatmapCharacteristic)
+                            .Where(x => Legato.ChatPlex.NativeAccess.Characteristic(x) == SelectedBeatmapCharacteristic)
                     :
                         m_LocalBeatMap.GetBeatmapKeys()
-                            .Where(x => x.characteristic == SelectedBeatmapCharacteristic && x.difficulty == m_LimitedBeatmapDifficulty);
+                            .Where(x => Legato.ChatPlex.NativeAccess.Characteristic(x) == SelectedBeatmapCharacteristic && x.difficulty == m_LimitedBeatmapDifficulty);
 
                 if (p_Index < 0 || p_Index >= l_Difficulties.Count())
                 {
@@ -943,6 +943,8 @@ namespace CP_SDK_BS.UI
                 {
 #if BEAT_SABER_1_29_0
                     _ = PublishLegacyDifficulty(l_LevelID, SelectedBeatmapCharacteristicSO, SelectedBeatmapDifficulty, ++_legacyDifficultyVersion, false);
+#elif LEGATO_SCRIPTABLE_CHARACTERISTICS
+                    OnActiveDifficultyChanged.Invoke(new BeatmapKey(l_LevelID, SelectedBeatmapCharacteristicSO, SelectedBeatmapDifficulty));
 #else
                     OnActiveDifficultyChanged.Invoke(Legato.BeatmapKeyFactory.Create(l_LevelID, SelectedBeatmapCharacteristicSO.AsEnum(), SelectedBeatmapDifficulty));
 #endif

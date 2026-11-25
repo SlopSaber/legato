@@ -143,7 +143,7 @@ namespace BS_Utils.Utilities
         }
 
         private void OnMenuSceneWasLoaded(
-#if !BEAT_SABER_1_29_0
+#if !LEGATO_UNTYPED_SCENE_TRANSITIONS
             SceneTransitionType sceneTransitionType,
 #endif
             ScenesTransitionSetupData transitionSetupData, DiContainer diContainer)
@@ -153,7 +153,7 @@ namespace BS_Utils.Utilities
         }
 
         private void OnMenuSceneWasLoadedFresh(
-#if !BEAT_SABER_1_29_0
+#if !LEGATO_UNTYPED_SCENE_TRANSITIONS
             SceneTransitionType sceneTransitionType,
 #endif
             ScenesTransitionSetupData transitionSetupData, DiContainer diContainer)
@@ -168,7 +168,7 @@ namespace BS_Utils.Utilities
 #endif
 
             var characteristicSelect = Legato.Unity.ObjectDiscovery.FindLoaded<BeatmapCharacteristicSegmentedControlController>().FirstOrDefault();
-#if BEAT_SABER_1_29_0
+#if LEGATO_SCRIPTABLE_CHARACTERISTICS
             characteristicSelect.didSelectBeatmapCharacteristicEvent += delegate (BeatmapCharacteristicSegmentedControlController controller, BeatmapCharacteristicSO characteristic)
             {
                 InvokeSafely(characteristicSelected, controller, characteristic);
@@ -193,7 +193,7 @@ namespace BS_Utils.Utilities
         }
 
         private void GameSceneLoadedCallback(
-#if !BEAT_SABER_1_29_0
+#if !LEGATO_UNTYPED_SCENE_TRANSITIONS
             SceneTransitionType sceneTransitionType,
 #endif
             ScenesTransitionSetupData transitionSetupData, DiContainer diContainer)

@@ -200,11 +200,11 @@ namespace CP_SDK_BS.Game
 
         public static Sprite GetBeatmapCharacteristicIcon(BeatmapCharacteristic p_Characteristic)
         {
-            if (m_BeatmapCharacteristicCollection == null)
-                TryGetBeatmapCharacteristicSOBySerializedName(p_Characteristic.SerializedName(), out _);
-#if BEAT_SABER_1_29_0
+#if LEGATO_SCRIPTABLE_CHARACTERISTICS
             return p_Characteristic?.icon;
 #else
+            if (m_BeatmapCharacteristicCollection == null)
+                TryGetBeatmapCharacteristicSOBySerializedName(p_Characteristic.SerializedName(), out _);
             return m_BeatmapCharacteristicCollection?.GetBeatmapCharacteristicIcon(p_Characteristic);
 #endif
         }
@@ -627,6 +627,16 @@ namespace CP_SDK_BS.Game
                         overrideEnvironmentSettings, colorScheme, gameplayModifiers ?? new GameplayModifiers(),
                         playerSettings ?? new PlayerSpecificSettings(), null, menuButtonText, false, false,
                         null, songFinishedCallback, null);
+#elif LEGATO_GAMEPLAY_WITHOUT_ADDITIONAL_INFORMATION
+                    if (!l_BeatmapKey.IsValid()) return;
+                    m_MenuTransitionsHelper.StartStandardLevel(Legato.GameModes.Solo, in l_BeatmapKey, level,
+                        overrideEnvironmentSettings, colorScheme,
+#if !LEGATO_SINGLE_COLOR_OVERRIDE
+                        colorOverrideType == LegatoColorOverrideType.All,
+#endif
+                        null, gameplayModifiers ?? new GameplayModifiers(), playerSettings ?? new PlayerSpecificSettings(),
+                        null, m_SimpleLevelStarter._environmentsListModel, menuButtonText, false, false,
+                        null, null, songFinishedCallback, null);
 #else
                     var gameplayAdditionInfo = new GameplayAdditionalInformation(
                         backButtonText: menuButtonText

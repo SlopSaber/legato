@@ -2,8 +2,8 @@
   <Target Name="LegatoSongCoreNativeReferences" BeforeTargets="ResolveAssemblyReferences" DependsOnTargets="LegatoConfigure">
     <PropertyGroup>
       <DefineConstants Condition="$([MSBuild]::VersionLessThan('$(_LegatoApiVersion)', '1.37.4'))">$(DefineConstants);LEGATO_LEVEL_ROW_WITHOUT_INTERACTABLE</DefineConstants>
-      <DefineConstants Condition="$([MSBuild]::VersionLessThan('$(_LegatoApiVersion)', '1.38.0'))">$(DefineConstants);LEGATO_INLINE_AUDIO_CHECK;LEGATO_INLINE_SPRITE_DISPOSAL;LEGATO_SINGLE_BEATMAP_ENVIRONMENT</DefineConstants>
-      <DefineConstants Condition="$([MSBuild]::VersionLessThan('$(_LegatoApiVersion)', '1.40.0'))">$(DefineConstants);LEGATO_FIXED_NOTE_JUMP_SPEED;LEGATO_SINGLE_COLOR_OVERRIDE;LEGATO_UNMIGRATED_V4_LEVEL_INFO</DefineConstants>
+      <DefineConstants Condition="$([MSBuild]::VersionLessThan('$(_LegatoApiVersion)', '1.38.0'))">$(DefineConstants);LEGATO_INLINE_AUDIO_CHECK;LEGATO_INLINE_SPRITE_DISPOSAL</DefineConstants>
+      <DefineConstants Condition="$([MSBuild]::VersionLessThan('$(_LegatoApiVersion)', '1.40.0'))">$(DefineConstants);LEGATO_FIXED_NOTE_JUMP_SPEED;LEGATO_UNMIGRATED_V4_LEVEL_INFO</DefineConstants>
       <DefineConstants Condition="$([MSBuild]::VersionLessThan('$(_LegatoApiVersion)', '1.40.9'))">$(DefineConstants);LEGATO_CASE_SENSITIVE_LEVEL_LOOKUP</DefineConstants>
       <DefineConstants Condition="$([MSBuild]::VersionLessThan('$(_LegatoApiVersion)', '1.41.1'))">$(DefineConstants);LEGATO_LOAD_RESULT_WITHOUT_ERROR_MESSAGE</DefineConstants>
       <DefineConstants Condition="$([MSBuild]::VersionGreaterThanOrEquals('$(_LegatoApiVersion)', '1.37.1')) AND $([MSBuild]::VersionLessThan('$(_LegatoApiVersion)', '1.41.1'))">$(DefineConstants);LEGATO_SPLIT_SCENE_COLOR_SETUP</DefineConstants>

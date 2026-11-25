@@ -9,7 +9,7 @@ namespace Legato.ChatPlex {
         internal static BeatmapCharacteristic Characteristic(BeatmapKey key) =>
 #if BEAT_SABER_1_29_0
             key.parentDifficultyBeatmapSet.beatmapCharacteristic;
-#elif BEAT_SABER_1_37_1 || BEAT_SABER_1_38_0 || BEAT_SABER_1_40_0 || BEAT_SABER_1_42_0
+#elif LEGATO_SCRIPTABLE_CHARACTERISTICS
             key.beatmapCharacteristic;
 #else
             key.characteristic;
@@ -25,7 +25,7 @@ namespace Legato.ChatPlex {
 #if BEAT_SABER_1_29_0
             level.previewDifficultyBeatmapSets.Where(set => set.beatmapCharacteristic == characteristic).SelectMany(set => set.beatmapDifficulties);
 #else
-            level.GetBeatmapKeys().Where(key => key.characteristic == characteristic).Select(key => key.difficulty);
+            level.GetBeatmapKeys().Where(key => Characteristic(key) == characteristic).Select(key => key.difficulty);
 #endif
         internal static string PreviewAudioPath(BeatmapLevel level) =>
 #if BEAT_SABER_1_29_0
@@ -61,8 +61,15 @@ namespace Legato.ChatPlex {
 #if BEAT_SABER_1_29_0
         internal static IEnumerable<BeatmapKey> GetBeatmapKeys(this BeatmapLevel level) =>
             level is IBeatmapLevel full ? full.beatmapLevelData.difficultyBeatmapSets.SelectMany(set => set.difficultyBeatmaps) : Enumerable.Empty<BeatmapKey>();
+#endif
+#if LEGATO_CHARACTERISTIC_NAME_PROPERTY
         internal static string SerializedName(this BeatmapCharacteristicSO characteristic) => characteristic.serializedName;
+#endif
+#if LEGATO_SCRIPTABLE_CHARACTERISTICS
         internal static string HintLocalizationKey(this BeatmapCharacteristicSO characteristic) => characteristic.descriptionLocalizationKey;
+#endif
+#if BEAT_SABER_1_37_1 && !LEGATO_ADDITIONAL_PACK_LEVELS
+        internal static BeatmapLevel[] AllBeatmapLevels(this BeatmapLevelPack pack) => pack.beatmapLevels;
 #endif
     }
 }

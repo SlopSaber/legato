@@ -3,9 +3,10 @@ using System;
 using UnityEngine;
 using Logger = BS_Utils.Utilities.Logger;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using BS_Utils.Utilities;
-#if BEAT_SABER_1_29_0
+#if LEGATO_PLATFORM_USER_MODEL
 using IPlatform = global::IPlatformUserModel;
 #else
 using OculusStudios.Platform.Core;
@@ -63,7 +64,7 @@ namespace BS_Utils.Gameplay
 
         private static IPlatform NativePlatform(PlatformLeaderboardsModel model)
         {
-#if BEAT_SABER_1_29_0
+#if LEGATO_PLATFORM_USER_MODEL
             return model._platformUserModel;
 #else
             return model._platform;
@@ -121,6 +122,8 @@ namespace BS_Utils.Gameplay
         {
 #if BEAT_SABER_1_29_0
             UserInfo userInfo = await _platformUserModel.GetUserInfo();
+#elif LEGATO_PLATFORM_USER_MODEL
+            UserInfo userInfo = await _platformUserModel.GetUserInfo(CancellationToken.None);
 #else
             // taken from NetworkPlayerModel<T>.InitAuthenticationTokenProvider()
             var platformKey = _platformUserModel.key;
@@ -162,6 +165,8 @@ namespace BS_Utils.Gameplay
         {
 #if BEAT_SABER_1_29_0
             if (SteamManager.Initialized)
+#elif LEGATO_PLATFORM_USER_MODEL
+            if (_platformUserModel is SteamPlatformUserModel steamModel && steamModel._platformInit.IsInitialized)
 #else
             var steamPlatformUserModel = (SteamPlatform)_platformUserModel;
             if (steamPlatformUserModel.isInitialized)

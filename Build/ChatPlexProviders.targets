@@ -3,6 +3,12 @@
     <ItemGroup>
       <Compile Remove="CP_SDK\Unity\EnhancedImageParticleMaterialProvider.cs;CP_SDK_BS\Game\LevelSelection.cs;CP_SDK_BS\Game\UserPlatform.cs;CP_SDK_BS\UI\DefaultComponentsOverrides\Subs\SubFloatingPanelMover.cs;CP_SDK_BS\UI\Data\SongListItem.cs;CP_SDK\Network\WebResponse.cs;CP_SDK\UI\Components\CText.cs;CP_SDK\Unity\FontManager.cs;CP_SDK\Misc\ICSharpCode.SharpZipLib\Encryption\ZipAESTransform.cs;Compatibility\LatestCompatibility.cs;CP_SDK_BS\Game\LevelData.cs;CP_SDK_BS\Game\Levels.cs;CP_SDK_BS\Game\Logic.cs;CP_SDK_BS\UI\LevelDetail.cs;CP_SDK_BS\UI\Patches\PVRPointer.cs" />
       <Compile Include="$(LegatoSourceRoot)Providers\ChatPlex\**\*.cs" />
+      <Reference Remove="BeatSaber.Multiplayer.Core" Condition="!Exists('$(LegatoReferenceRoot)\Beat Saber_Data\Managed\BeatSaber.Multiplayer.Core.dll')" />
+      <Reference Remove="BeatSaber.ViewSystem" Condition="!Exists('$(LegatoReferenceRoot)\Beat Saber_Data\Managed\BeatSaber.ViewSystem.dll')" />
+      <Reference Remove="OculusStudios.Platform.Core" Condition="!Exists('$(LegatoReferenceRoot)\Beat Saber_Data\Managed\OculusStudios.Platform.Core.dll')" />
+      <Reference Remove="SegmentedControl" Condition="!Exists('$(LegatoReferenceRoot)\Beat Saber_Data\Managed\SegmentedControl.dll')" />
+      <Reference Include="Interactable" HintPath="$(LegatoReferenceRoot)\Beat Saber_Data\Managed\Interactable.dll" Private="false"
+                 Condition="Exists('$(LegatoReferenceRoot)\Beat Saber_Data\Managed\Interactable.dll') AND '@(Reference->WithMetadataValue('Identity', 'Interactable'))' == ''" />
     </ItemGroup>
     <ItemGroup Condition="'$(LegatoTargetProfile)' == '1.29.0'">
       <Reference Remove="PlatformUserModel;System.Data.DataSetExtensions;UnityEngine.TextCoreFontEngineModule" />

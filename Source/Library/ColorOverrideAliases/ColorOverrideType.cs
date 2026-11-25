@@ -1,4 +1,4 @@
-#if BEAT_SABER_1_29_0
+#if LEGATO_SINGLE_COLOR_OVERRIDE
 global using LegatoColorOverrideType = Legato.Gameplay.LegacyColorOverride;
 #elif BEAT_SABER_1_45_3
 global using LegatoColorOverrideType = global::ColorOverrideType;
@@ -6,7 +6,7 @@ global using LegatoColorOverrideType = global::ColorOverrideType;
 global using LegatoColorOverrideType = global::ColorSchemesSettings.ColorOverrideType;
 #endif
 
-#if BEAT_SABER_1_29_0
+#if LEGATO_SINGLE_COLOR_OVERRIDE
 namespace Legato.Gameplay {
     /// <summary>Color override choices for the legacy transition adapter.</summary>
     public enum LegacyColorOverride {

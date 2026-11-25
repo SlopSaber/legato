@@ -141,14 +141,11 @@ namespace CP_SDK_BS.Game
         /// <summary>
         /// On menu scene loaded
         /// </summary>
-        /// <param name="p_SceneTransitionType">Scene transition type</param>
-        /// <param name="p_Object">Transition object</param>
-        /// <param name="p_DiContainer">Container</param>
-#if BEAT_SABER_1_29_0
-        private static void OnMenuSceneLoadedFresh(ScenesTransitionSetupDataSO p_Object, DiContainer p_DiContainer)
-#else
-        private static void OnMenuSceneLoadedFresh(SceneTransitionType p_SceneTransitionType, ScenesTransitionSetupDataSO p_Object, DiContainer p_DiContainer)
+        private static void OnMenuSceneLoadedFresh(
+#if !LEGATO_UNTYPED_SCENE_TRANSITIONS
+            SceneTransitionType p_SceneTransitionType,
 #endif
+            ScenesTransitionSetupDataSO p_Object, DiContainer p_DiContainer)
         {
 #if DEBUG_SCENES || DEBUG
             CP_SDK.ChatPlexSDK.Logger?.Error("====== [SDK.Game][Logic.OnMenuSceneLoadedFresh] ======");

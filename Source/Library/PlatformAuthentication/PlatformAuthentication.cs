@@ -1,5 +1,5 @@
 #nullable enable
-#if BEAT_SABER_1_29_0
+#if LEGATO_PLATFORM_USER_MODEL
 global using NativePlatformService = global::IPlatformUserModel;
 #else
 global using NativePlatformService = global::OculusStudios.Platform.Core.IPlatform;
@@ -7,7 +7,7 @@ global using NativePlatformService = global::OculusStudios.Platform.Core.IPlatfo
 using System.Threading.Tasks;
 using System.Threading;
 using IPA.Utilities;
-#if !BEAT_SABER_1_29_0
+#if !LEGATO_PLATFORM_USER_MODEL
 using OculusStudios.Platform.Core;
 #endif
 
@@ -24,6 +24,8 @@ namespace Legato.Platform {
             var user = await _model.GetUserInfo().ConfigureAwait(true);
             token.ThrowIfCancellationRequested();
             return user;
+#elif LEGATO_PLATFORM_USER_MODEL
+            return await _model.GetUserInfo(token).ConfigureAwait(true);
 #else
             await Task.CompletedTask.ConfigureAwait(true);
             var user = _model.user;
@@ -57,14 +59,14 @@ namespace Legato.Platform {
         }
 
         internal static PlatformAuthentication FromLeaderboards(PlatformLeaderboardsModel model) => new PlatformAuthentication(
-#if BEAT_SABER_1_29_0
+#if LEGATO_PLATFORM_USER_MODEL
             model.GetField<NativePlatformService, PlatformLeaderboardsModel>("_platformUserModel"));
 #else
             model.GetField<NativePlatformService, PlatformLeaderboardsModel>("_platform"));
 #endif
-#if BEAT_SABER_1_29_0
+#if LEGATO_PLATFORM_USER_MODEL
         private async Task<UserIdentity> ReadIdentity() {
-            UserInfo user = await _model.GetUserInfo().ConfigureAwait(true);
+            UserInfo? user = await GetGameUserInfo(CancellationToken.None).ConfigureAwait(true);
             if (user == null) return new UserIdentity(AuthenticationPlatform.Unknown, string.Empty, string.Empty);
             AuthenticationPlatform platform = user.platform == UserInfo.Platform.Steam ? AuthenticationPlatform.Steam
                 : user.platform == UserInfo.Platform.Oculus ? AuthenticationPlatform.Meta : AuthenticationPlatform.Unknown;
@@ -79,7 +81,7 @@ namespace Legato.Platform {
 #endif
         internal async Task<UserCredentials> GetCredentials() {
             UserIdentity identity = await GetIdentity().ConfigureAwait(true);
-#if BEAT_SABER_1_29_0
+#if LEGATO_PLATFORM_USER_MODEL
             string proof = (await _model.GetUserAuthToken().ConfigureAwait(true)).token;
 #else
             string proof = await _model.user.GetAccessTokenAsync().ConfigureAwait(true);
