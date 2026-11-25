@@ -165,7 +165,12 @@ internal class AssetBundleManager : IDisposable
         AssetBundle? compatible = AssetBundle.LoadFromMemory(repaired);
         if (compatible != null)
         {
-            _log.Info("Prepared legacy shader passes for URP.");
+            _log.Info("Prepared legacy bundle compatibility for URP.");
+            if (Legato.Rendering.AssetBundleGrabPasses.LegacyTextWrappingCount > 0)
+            {
+                _log.Info($"Restored word wrapping settings for {Legato.Rendering.AssetBundleGrabPasses.LegacyTextWrappingCount} bundled TextMeshPro component(s).");
+            }
+
             return compatible;
         }
 
