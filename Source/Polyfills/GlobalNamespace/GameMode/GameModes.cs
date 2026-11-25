@@ -24,6 +24,22 @@ namespace Legato {
 #endif
         }
 
+        internal static bool IsSoloOrPractice(StandardLevelScenesTransitionSetupData data) {
+#if BEAT_SABER_1_45_3
+            return data.gameMode is GameMode.Solo or GameMode.Practice;
+#else
+            return string.Equals(data.gameMode, Solo, System.StringComparison.OrdinalIgnoreCase) || IsPractice(data);
+#endif
+        }
+
+        internal static bool IsPractice(StandardLevelScenesTransitionSetupData data) {
+#if BEAT_SABER_1_45_3
+            return data.gameMode == GameMode.Practice;
+#else
+            return string.Equals(data.gameMode, "Practice", System.StringComparison.OrdinalIgnoreCase);
+#endif
+        }
+
         internal static string? Name(object? mode) => mode?.ToString();
 
 #if LEGATO_DIFFICULTY_BEATMAPS || BEAT_SABER_1_37_1 || BEAT_SABER_1_38_0
