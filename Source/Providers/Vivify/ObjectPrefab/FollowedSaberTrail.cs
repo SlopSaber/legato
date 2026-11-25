@@ -19,7 +19,7 @@ internal class FollowedSaberTrail : SaberTrail
     {
         if (_trailRenderer == null)
         {
-#if LATEST
+#if LEGATO_INJECTED_SABER_TRAIL
             _trailRenderer = _container.InstantiatePrefabForComponentAt<SaberTrailRenderer>(
                 followed._trailRendererPrefab,
                 Vector3.zero,
@@ -52,7 +52,7 @@ internal class FollowedSaberTrail : SaberTrail
         _granularity = trailProperties.Granularity ?? 60;
     }
 
-#if LATEST
+#if LEGATO_INJECTED_SABER_TRAIL
     private new void Start()
     {
     }

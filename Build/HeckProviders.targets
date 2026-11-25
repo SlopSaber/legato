@@ -51,7 +51,7 @@
     <PropertyGroup>
       <_LegatoHeckCodeVersion>$(LegatoTargetVersion)</_LegatoHeckCodeVersion>
       <_LegatoHeckCodeVersion Condition="'$(LegatoTargetProfile)' == '1.29.0'">1.29.1</_LegatoHeckCodeVersion>
-      <_LegatoHeckCodeVersion Condition="'$(LegatoTargetProfile)' == '1.40.0' AND '$(LegatoEnableHeckProviders)' == 'true' AND $([MSBuild]::VersionLessThanOrEquals('$(_LegatoApiVersion)', '1.40.8'))">1.40.8</_LegatoHeckCodeVersion>
+      <_LegatoHeckCodeVersion Condition="'$(LegatoTargetProfile)' == '1.40.0' AND '$(LegatoEnableCustomJsonDataProviders)' != 'true' AND $([MSBuild]::VersionLessThanOrEquals('$(_LegatoApiVersion)', '1.40.8'))">1.40.8</_LegatoHeckCodeVersion>
       <_LegatoHeckConfiguration>Release-$(_LegatoHeckCodeVersion)</_LegatoHeckConfiguration>
       <_LegatoHeckConfiguration Condition="$(Configuration.StartsWith('Debug'))">Debug-$(_LegatoHeckCodeVersion)</_LegatoHeckConfiguration>
       <_LegatoHeckConfigurations>$(Configurations)</_LegatoHeckConfigurations>

@@ -99,10 +99,10 @@ internal class EnvironmentOverrideChecker
             return false;
         }
 
-#if LATEST
-        string sceneName = environmentInfo.environmentSceneName;
-#else
+#if LEGATO_LEGACY_SCENE_NAMES
         string sceneName = environmentInfo.sceneInfo.sceneName;
+#else
+        string sceneName = environmentInfo.environmentSceneName;
 #endif
         return Legato.Lighting.EnvironmentSceneAccess.ContainsScene(_gameScenesManager, sceneName);
     }

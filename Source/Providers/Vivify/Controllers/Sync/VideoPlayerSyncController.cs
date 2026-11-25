@@ -5,10 +5,10 @@ using SiraUtil.Logging;
 using UnityEngine;
 using UnityEngine.Video;
 using Zenject;
-#if LATEST
-using AudioState = IAudioTimeSource;
-#else
+#if LEGATO_SYNC_CONTROLLER_AUDIO_STATE
 using AudioState = AudioTimeSyncController;
+#else
+using AudioState = IAudioTimeSource;
 #endif
 
 namespace Vivify.Controllers.Sync;

@@ -174,7 +174,7 @@ internal static class ProcessNotesNoodleDataInTimeRow
                     }
 
                     noteData.SetCutDirectionAngleOffset(num);
-#if LATEST
+#if LEGATO_SLIDER_ANGLE_OFFSETS
                     sliderData.SetHeadCutDirectionAngleOffset(noteData.GetCutDirectionAngleOffsetForSlider());
 #else
                     sliderData.SetCutDirectionAngleOffset(num, num);
@@ -194,7 +194,7 @@ internal static class ProcessNotesNoodleDataInTimeRow
         CustomSliderData[] sliderTailDatasInTimeRow = (from object sliderTailData in _getSliderTailDatas(containerItems)
             select _sliderField.GetValue(sliderTailData)).OfType<CustomSliderData>().ToArray();
 
-#if LATEST
+#if LEGATO_SLIDER_ANGLE_OFFSETS
         foreach (CustomSliderData sliderData in slidersInTimeRow)
         {
             IEnumerable<float?>? headPosition =
@@ -263,7 +263,7 @@ internal static class ProcessNotesNoodleDataInTimeRow
                 sliderTailData.customData[INTERNAL_TAILSTARTNOTELINELAYER] =
                     noteData.customData[INTERNAL_STARTNOTELINELAYER];
                 sliderTailData.SetTailBeforeJumpLineLayer(noteData.beforeJumpNoteLineLayer);
-#if LATEST
+#if LEGATO_SLIDER_ANGLE_OFFSETS
                 sliderTailData.SetTailCutDirectionAngleOffset(noteData.GetCutDirectionAngleOffsetForSlider());
 #endif
 #if !PRE_V1_37_1

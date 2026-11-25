@@ -155,8 +155,12 @@ internal class NoodleMovementDataProvider : IVariableMovementDataProvider
         Vector3 center = _movementData.centerPos;
         Vector3 forward = Vector3.forward;
 
-        _moveStartPositionOverride =
-            center + (forward * (VariableMovementDataProvider.kMoveDistance + halfJumpDistance));
+#if LEGATO_INITIAL_MOVE_DISTANCE
+        const float moveDistance = VariableMovementDataProvider.kInitMoveDistance;
+#else
+        const float moveDistance = VariableMovementDataProvider.kMoveDistance;
+#endif
+        _moveStartPositionOverride = center + (forward * (moveDistance + halfJumpDistance));
         _moveEndPositionOverride = center + (forward * halfJumpDistance);
         _jumpEndPositionOverride = center - (forward * halfJumpDistance);
     }

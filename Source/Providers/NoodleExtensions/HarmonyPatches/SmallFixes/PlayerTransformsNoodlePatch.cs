@@ -21,7 +21,11 @@ internal class PlayerTransformsNoodlePatch : IAffinity
 #if !PRE_V1_40_8
         BeatmapKey? ____beatmapKey,
         Transform ____originParentTransform,
+#if LEGATO_LEGACY_HEAD_Z_FIELD_NAME
+        ref Vector3 ____headPseudLocalZOnlyPos,
+#else
         ref Vector3 ____headPseudoLocalZOnlyPos,
+#endif
 #endif
         bool ____overrideHeadPos,
         Transform ____headTransform,
@@ -52,14 +56,21 @@ internal class PlayerTransformsNoodlePatch : IAffinity
         ____leftHandPseudoLocalRot = _noodlePlayerTransformManager.LeftHand.InverseTransformRotation(____leftHandTransform.rotation);
 
 #if !PRE_V1_40_8
-        if (____beatmapKey != null &&
-            (____beatmapKey.Value.characteristic == BeatmapCharacteristic.Degree90 ||
-             ____beatmapKey.Value.characteristic == BeatmapCharacteristic.Degree360))
+#if LEGATO_SCRIPTABLE_CHARACTERISTICS
+        if (____beatmapKey?.beatmapCharacteristic.containsRotationEvents == true)
+#else
+        if (____beatmapKey?.characteristic.ContainsRotationEvents() == true)
+#endif
         {
             return false;
         }
 
-        ____headPseudoLocalZOnlyPos = HeadOffsetZ(____headPseudoLocalPos, ____originParentTransform) * _parentTransform!.forward;
+#if LEGATO_LEGACY_HEAD_Z_FIELD_NAME
+        ____headPseudLocalZOnlyPos =
+#else
+        ____headPseudoLocalZOnlyPos =
+#endif
+            HeadOffsetZ(____headPseudoLocalPos, ____originParentTransform) * _parentTransform!.forward;
 #endif
 
         return false;

@@ -142,11 +142,7 @@ internal class SpawnDataManager
 
         float? height = noodleData.Height;
         float obstacleHeight;
-#if LATEST
         const float layerHeight = StaticBeatmapObjectSpawnMovementData.kNoteLinesDistance;
-#else
-        float layerHeight = StaticBeatmapObjectSpawnMovementData.layerHeight;
-#endif
         if (height.HasValue)
         {
             obstacleHeight = height.Value * layerHeight;
