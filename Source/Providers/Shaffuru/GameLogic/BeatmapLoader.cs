@@ -8,11 +8,12 @@ namespace Shaffuru.GameLogic {
 		static BeatmapLevelsModel beatmapLevelsModel;
 
 #if !BEAT_SABER_1_29_0
-		static BeatmapLevelLoader beatmapLevelLoader;
-		static BeatmapDataLoader beatmapDataLoader;
-		static BeatmapLevelsEntitlementModel beatmapLevelsEntitlementModel;
-		static AudioClipAsyncLoader audioClipAsyncLoader;
-		static SettingsManager settingsManager;
+		readonly BeatmapLevelLoader beatmapLevelLoader;
+		readonly BeatmapDataLoader beatmapDataLoader;
+		readonly AudioClipAsyncLoader audioClipAsyncLoader;
+#if !LEGATO_MAIN_SETTINGS_HANDLER
+		readonly NativeAudioSettings settingsManager;
+#endif
 #endif
 		static bool reloadLevelpacksOnExit = false;
 
@@ -20,30 +21,32 @@ namespace Shaffuru.GameLogic {
 			GameplayCoreSceneSetupData _sceneSetupData,
 			BeatmapLevelsModel beatmapLevelsModel
 #if !BEAT_SABER_1_29_0
-            ,
-
-			BeatmapLevelLoader beatmapLevelLoader,
+			, BeatmapLevelLoader beatmapLevelLoader,
 			BeatmapDataLoader beatmapDataLoader,
-			BeatmapLevelsEntitlementModel beatmapLevelsEntitlementModel,
-			AudioClipAsyncLoader audioClipAsyncLoader,
-			SettingsManager settingsManager
+			AudioClipAsyncLoader audioClipAsyncLoader
+#if !LEGATO_MAIN_SETTINGS_HANDLER
+			, NativeAudioSettings settingsManager
+#endif
 #endif
 		) {
 			this._sceneSetupData = _sceneSetupData;
 			BeatmapLoader.beatmapLevelsModel = beatmapLevelsModel;
 
 #if !BEAT_SABER_1_29_0
-			BeatmapLoader.beatmapLevelLoader = beatmapLevelLoader;
-			BeatmapLoader.beatmapDataLoader = beatmapDataLoader;
-			BeatmapLoader.beatmapLevelsEntitlementModel = beatmapLevelsEntitlementModel;
-			BeatmapLoader.audioClipAsyncLoader = audioClipAsyncLoader;
-			BeatmapLoader.settingsManager = settingsManager;
+			this.beatmapLevelLoader = beatmapLevelLoader;
+			this.beatmapDataLoader = beatmapDataLoader;
+			this.audioClipAsyncLoader = audioClipAsyncLoader;
+#if !LEGATO_MAIN_SETTINGS_HANDLER
+			this.settingsManager = settingsManager;
+#endif
 #endif
 		}
 
 		public static void AddBeatmapToLoadedPreviewBeatmaps(string levelId, BeatmapLevel level) {
 #if BEAT_SABER_1_29_0
             beatmapLevelsModel._loadedPreviewBeatmapLevels[levelId] = level;
+#elif BEAT_SABER_1_37_1 && !LEGATO_ADDITIONAL_PACK_LEVELS
+            beatmapLevelsModel._allLoadedBeatmapLevelsRepository._idToBeatmapLevel[levelId] = level;
 #else
             beatmapLevelsModel._allLoadedBeatmapLevelsRepository.AddBeatmapLevel(level, SongCore.Loader.CustomLevelsPack.packID);
 #endif
@@ -76,14 +79,15 @@ namespace Shaffuru.GameLogic {
 
 
 
-        public async Task<BeatmapLevel> LoadBeatmapLevel(string levelId) {
 #if BEAT_SABER_1_29_0
+        public async Task<BeatmapLevel> LoadBeatmapLevel(string levelId) {
             var loaded = await beatmapLevelsModel.GetBeatmapLevelAsync(levelId, CancellationToken.None);
             return loaded.isError ? null : loaded.beatmapLevel;
-#else
-            return GetPreviewBeatmapFromLevelId(levelId);
-#endif
         }
+#else
+        public Task<BeatmapLevel> LoadBeatmapLevel(string levelId) =>
+            Task.FromResult(GetPreviewBeatmapFromLevelId(levelId));
+#endif
 
 		// Loads and transforms a difficulty the same way the game does when starting a level, so that
 		// left-handed mode, environment filtering and wall merging apply to every queued map.
@@ -107,6 +111,7 @@ namespace Shaffuru.GameLogic {
 				return (null, null);
 			}
 
+#if LEGATO_TRANSFORMED_BEATMAP_LOADER
 			var transformedBeatmapData = await beatmapDataLoader.CreateOrGetTransformedBeatmapDataAsync(
 				key,
 				level,
@@ -119,6 +124,32 @@ namespace Shaffuru.GameLogic {
 				beatmapLevelData,
 				BeatmapLevelDataVersion.Original
 			);
+#else
+			var playerSettings = _sceneSetupData.playerSpecificSettings;
+			var modifiers = _sceneSetupData.gameplayModifiers;
+#if LEGATO_SINGLE_BEATMAP_ENVIRONMENT
+			var environment = _sceneSetupData.environmentInfo;
+#else
+			var environment = _sceneSetupData.targetEnvironmentInfo;
+#endif
+			var data = await beatmapDataLoader.LoadBeatmapDataAsync(
+				beatmapLevelData, key, level.beatsPerMinute,
+				level.GetEnvironmentName(key.beatmapCharacteristic, key.difficulty) == (EnvironmentName)environment.serializedName,
+				environment,
+#if !LEGATO_SINGLE_BEATMAP_ENVIRONMENT
+				_sceneSetupData.originalEnvironmentInfo,
+#endif
+				BeatmapLevelDataVersion.Original, modifiers, playerSettings, enableBeatmapDataCaching: false);
+			var preset = key.difficulty == BeatmapDifficulty.ExpertPlus
+				? playerSettings.environmentEffectsFilterExpertPlusPreset : playerSettings.environmentEffectsFilterDefaultPreset;
+			var transformedBeatmapData = BeatmapDataTransformHelper.CreateTransformedBeatmapData(
+				data, level, modifiers, playerSettings.leftHanded, preset,
+#if LEGATO_SINGLE_BEATMAP_ENVIRONMENT
+				environment.environmentIntensityReductionOptions, _sceneSetupData._performancePreset);
+#else
+				_sceneSetupData.originalEnvironmentInfo.environmentIntensityReductionOptions, in settingsManager.settings);
+#endif
+#endif
 
 			var audioClip = await audioClipAsyncLoader.LoadSong(beatmapLevelData);
 

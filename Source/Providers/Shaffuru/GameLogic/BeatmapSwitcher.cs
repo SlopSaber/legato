@@ -34,7 +34,7 @@ namespace Shaffuru.GameLogic {
 		public readonly CustomAudioSource customAudioSource;
 
 		readonly BeatmapObjectSpawnMovementData beatmapObjectSpawnMovementData;
-#if !BEAT_SABER_1_29_0
+#if LEGATO_VARIABLE_MOVEMENT_DATA
 		readonly VariableMovementDataProvider variableMovementDataProvider;
 #endif
 
@@ -65,7 +65,7 @@ namespace Shaffuru.GameLogic {
 				beatmapObjectCallbackController_callbacksInTimes = beatmapCallbacksController._callbacksInTimes;
 
 			if(beatmapObjectSpawnController != null) {
-#if BEAT_SABER_1_29_0
+#if !LEGATO_VARIABLE_MOVEMENT_DATA
                 beatmapObjectSpawnMovementData = beatmapObjectSpawnController._beatmapObjectSpawnMovementData;
                 startBeatmapCallbackAheadTime = beatmapObjectSpawnMovementData.spawnAheadTime;
 #else
@@ -78,7 +78,7 @@ namespace Shaffuru.GameLogic {
 
 		void UpdateBeatmapObjectSpawnControllerInitData(float bpm, float njs, float mapOffset, IReadonlyBeatmapData beatmapData) {
 			BeatmapObjectSpawnControllerHelpers.GetNoteJumpValues(sceneSetupData.playerSpecificSettings, mapOffset, out var noteJumpValueType, out var noteJumpValue);
-#if BEAT_SABER_1_29_0
+#if !LEGATO_VARIABLE_MOVEMENT_DATA
             beatmapObjectSpawnMovementData.Init(beatmapData.numberOfLines, njs, bpm, noteJumpValueType,
                 noteJumpValue, jumpOffsetYProvider, Vector3.right, Vector3.forward);
 #else
@@ -224,7 +224,7 @@ namespace Shaffuru.GameLogic {
 				// Update to the new maps stuffs
 				var replacementBeatmapBasicData = BeatmapLoader.GetDifficultyBeatmapData(replacementLevel, replacementKey);
 
-				#if BEAT_SABER_1_29_0
+#if !LEGATO_VARIABLE_MOVEMENT_DATA
                 var njs = replacementBeatmapBasicData.noteJumpMovementSpeed;
                 if (njs <= 0 || sceneSetupData.gameplayModifiers.fastNotes)
                     njs = BeatmapDifficultyMethods.NoteJumpMovementSpeed(replacementKey.difficulty);
@@ -248,12 +248,12 @@ namespace Shaffuru.GameLogic {
 					// I hate that i actually have to do this. Writes the correct / new aheadTime to the callbacks for the object spawns
 					if(x.Key == startBeatmapCallbackAheadTime) {
 						var cbs = v._callbacks;
-#if BEAT_SABER_1_29_0
+#if !LEGATO_VARIABLE_MOVEMENT_DATA
                         aheadTime = beatmapObjectSpawnMovementData.spawnAheadTime;
 #else
                         aheadTime = variableMovementDataProvider?.spawnAheadTime ?? aheadTime;
 #endif
-#if BEAT_SABER_1_29_0
+#if LEGATO_DICTIONARY_BEATMAP_CALLBACKS
                         foreach(var cbl in cbs.Values) {
 #else
                         foreach(var cbl in cbs) {

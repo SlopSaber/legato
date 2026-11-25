@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 #if !BEAT_SABER_1_29_0
 using BeatmapEditor3D;
@@ -24,9 +26,11 @@ namespace Shaffuru.MenuLogic {
 		public static BeatmapKey beatmapKey { get; private set; }
 #if BEAT_SABER_1_29_0
         static readonly BeatmapDataSO beatmapLevelData = ScriptableObject.CreateInstance<BeatmapDataSO>();
-        readonly BeatmapCharacteristicCollectionSO characteristics;
 #else
         static BeatmapEditor3D.BeatmapLevelData beatmapLevelData;
+#endif
+#if LEGATO_SCRIPTABLE_CHARACTERISTICS
+        readonly BeatmapCharacteristicCollectionSO characteristics;
 #endif
 		static AudioClip fakeAudioClip;
 
@@ -43,7 +47,7 @@ namespace Shaffuru.MenuLogic {
 			CustomLevelLoader customLevelLoader,
 			[InjectOptional] MenuTransitionsHelper menuTransitionsHelper,
 			[InjectOptional] EnvironmentsListModel environmentsListModel,
-#if BEAT_SABER_1_29_0
+#if LEGATO_SCRIPTABLE_CHARACTERISTICS
             BeatmapCharacteristicCollectionSO characteristics,
 #endif
             UBinder<Plugin, System.Random> rng
@@ -54,8 +58,10 @@ namespace Shaffuru.MenuLogic {
 
 			rngSource = rng;
 
-#if BEAT_SABER_1_29_0
+#if LEGATO_SCRIPTABLE_CHARACTERISTICS
             this.characteristics = characteristics;
+#endif
+#if BEAT_SABER_1_29_0
             defaultEnvironment = customLevelLoader.LoadEnvironmentInfo("", false);
 #else
             defaultEnvironment = customLevelLoader.CreateEnvironmentName("", customLevelLoader._defaultEnvironmentInfo);
@@ -67,8 +73,15 @@ namespace Shaffuru.MenuLogic {
 #if !BEAT_SABER_1_29_0
 		// Bare-bones IPreviewMediaData for our fake level - we don't have (or need) a real preview clip
 		class FakePreviewMediaData : IPreviewMediaData {
+#if LEGATO_CANCELLABLE_COVER_LOADING
+			public Task<Sprite> GetCoverSpriteAsync(CancellationToken cancellationToken) => cancellationToken.IsCancellationRequested
+				? Task.FromCanceled<Sprite>(cancellationToken) : Task.FromResult(SongCore.Loader.defaultCoverImage);
+			public Task<AudioClip> GetPreviewAudioClip(CancellationToken cancellationToken) => cancellationToken.IsCancellationRequested
+				? Task.FromCanceled<AudioClip>(cancellationToken) : Task.FromResult(fakeAudioClip);
+#else
 			public Task<Sprite> GetCoverSpriteAsync() => Task.FromResult(SongCore.Loader.defaultCoverImage);
 			public Task<AudioClip> GetPreviewAudioClip() => Task.FromResult(fakeAudioClip);
+#endif
 			public void UnloadPreviewAudioClip() { }
 			public void UnloadCoverSprite() { }
 		}
@@ -135,16 +148,29 @@ namespace Shaffuru.MenuLogic {
 				environmentName: defaultEnvironment,
 				beatmapColorScheme: null,
 				notesCount: comedy ? 2 : 5,
+#if !LEGATO_LEGACY_BEATMAP_NOTE_COUNT
 				cuttableObjectsCount: comedy ? 2 : 5,
+#endif
 				obstaclesCount: comedy ? 6 : 3,
 				bombsCount: 0,
 				mappers: new[] { "Kinsi55" },
 				lighters: new[] { "Kinsi55" }
 			);
 
+#if LEGATO_SCRIPTABLE_CHARACTERISTICS
+			var standard = characteristics.allBeatmapCharacteristics.First(characteristic => characteristic.serializedName == "Standard");
+#else
+			var standard = BeatmapCharacteristic.Standard;
+#endif
+#if BEAT_SABER_1_45_3
 			var beatmapBasicDatas = new Dictionary<(GameplayType, BeatmapCharacteristic, BeatmapDifficulty), BeatmapBasicData> {
-				[(GameplayType.BeatSaber, BeatmapCharacteristic.Standard, difficulty)] = beatmapBasicData
+				[(GameplayType.BeatSaber, standard, difficulty)] = beatmapBasicData
 			};
+#else
+			var beatmapBasicDatas = new Dictionary<(BeatmapCharacteristic, BeatmapDifficulty), BeatmapBasicData> {
+				[(standard, difficulty)] = beatmapBasicData
+			};
+#endif
 
 			beatmapLevel = new BeatmapLevel(
 				version: 1,
@@ -166,7 +192,11 @@ namespace Shaffuru.MenuLogic {
 				beatmapBasicData: beatmapBasicDatas
 			);
 
-			beatmapKey = new BeatmapKey(levelId, GameplayType.BeatSaber, BeatmapCharacteristic.Standard, difficulty);
+#if BEAT_SABER_1_45_3
+			beatmapKey = new BeatmapKey(levelId, GameplayType.BeatSaber, standard, difficulty);
+#else
+			beatmapKey = new BeatmapKey(levelId, standard, difficulty);
+#endif
 #endif
 		}
 
@@ -202,9 +232,18 @@ namespace Shaffuru.MenuLogic {
                 playerDataModel.playerData.overrideEnvironmentSettings, colorSchemesSettings.GetOverrideColorScheme(),
                 playerDataModel.playerData.gameplayModifiers, playerDataModel.playerData.playerSpecificSettings,
                 null, "Exit", false, false, null, endCallback, null);
+#elif LEGATO_GAMEPLAY_WITHOUT_ADDITIONAL_INFORMATION
+			menuTransitionsHelper.StartStandardLevel(
+				Legato.GameModes.Solo, in key, beatmapLevel, beatmapLevelData,
+				playerDataModel.playerData.overrideEnvironmentSettings, colorSchemesSettings.GetOverrideColorScheme(),
+#if !LEGATO_SINGLE_COLOR_OVERRIDE
+				colorSchemesSettings.ShouldOverrideLightshowColors(),
+#endif
+				null, playerDataModel.playerData.gameplayModifiers, playerDataModel.playerData.playerSpecificSettings,
+				null, environmentsListModel, "Menu", false, false, null, null, endCallback, null);
 #else
 			menuTransitionsHelper.StartStandardLevel(
-				GameMode.Solo,
+				Legato.GameModes.Solo,
 				in key,
 				beatmapLevel,
 				playerDataModel.playerData.overrideEnvironmentSettings,
