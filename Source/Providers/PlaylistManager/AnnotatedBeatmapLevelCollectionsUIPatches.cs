@@ -212,7 +212,7 @@ namespace PlaylistManager.AffinityPatches {
         }
     }
 }
-#else
+#elif !LEGATO_BEFORE_MULTIPLAYER
 ﻿using System;
 using System.Collections.Generic;
 using SiraUtil.Affinity;
