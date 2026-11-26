@@ -10,7 +10,11 @@ namespace Legato.Gameplay {
             bool overrideLights, Color environmentColor0, Color environmentColor1, Color environmentColorW,
             bool supportsEnvironmentColorBoost, Color environmentColor0Boost, Color environmentColor1Boost,
             Color environmentColorWBoost, Color obstaclesColor) {
-#if BEAT_SABER_1_29_0
+#if LEGATO_BEFORE_MULTIPLAYER
+            return new ColorScheme(colorSchemeId, useNonLocalizedName ? nonLocalizedName : colorSchemeNameLocalizationKey,
+                isEditable, saberAColor, saberBColor, environmentColor0, environmentColor1, supportsEnvironmentColorBoost,
+                environmentColor0Boost, environmentColor1Boost, obstaclesColor);
+#elif BEAT_SABER_1_29_0
             var scheme = new ColorScheme(colorSchemeId, colorSchemeNameLocalizationKey, useNonLocalizedName,
                 nonLocalizedName, isEditable, saberAColor, saberBColor, environmentColor0, environmentColor1,
                 supportsEnvironmentColorBoost, environmentColor0Boost, environmentColor1Boost, obstaclesColor);
@@ -47,8 +51,12 @@ namespace Legato.Gameplay {
                 return null;
             }
 
+#if LEGATO_BEFORE_MULTIPLAYER
+            ColorScheme? baseScheme = playerData.colorSchemesSettings.GetSelectedColorScheme();
+#else
             ColorScheme? baseScheme = playerData.colorSchemesSettings.GetOverrideColorScheme()
                 ?? playerData.colorSchemesSettings.GetSelectedColorScheme();
+#endif
             if (baseScheme == null) {
                 return null;
             }
@@ -64,7 +72,7 @@ namespace Legato.Gameplay {
             Color replayEnvironmentColor0Boost = hasLightColors ? environmentColor0Boost.GetValueOrDefault() : baseScheme.environmentColor0Boost;
             Color replayEnvironmentColor1Boost = hasLightColors ? environmentColor1Boost.GetValueOrDefault() : baseScheme.environmentColor1Boost;
             bool replaySupportsEnvironmentColorBoost = hasLightColors ? supportsEnvironmentColorBoost : baseScheme.supportsEnvironmentColorBoost;
-#if BEAT_SABER_1_29_0
+#if BEAT_SABER_1_29_0 || LEGATO_BEFORE_MULTIPLAYER
             return new ColorScheme(
                 baseScheme,
                 leftSaberColor.GetValueOrDefault(),
