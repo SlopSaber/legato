@@ -83,6 +83,7 @@ internal class AssetBundleDownloadViewController : BSMLResourceViewController, I
         _downloadFinished = false;
         _downloadProgress = 0;
         _currentView = View.None;
+        _newView = View.None;
 
 #if !PRE_V1_37_1
         if (standardLevelParameters.BeatmapLevel == null ||
@@ -231,7 +232,6 @@ internal class AssetBundleDownloadViewController : BSMLResourceViewController, I
         _log = log;
         _config = config;
         _assetDownloader = assetDownloader;
-        _newView = config.AllowDownload ? View.Downloading : View.Tos;
     }
 
     // TODO: figure out a way to resolve the fact that multiplayer does NOT have enough time to download bundles
@@ -437,8 +437,14 @@ internal class AssetBundleDownloadViewController : BSMLResourceViewController, I
         }
     }
 
-    private void Start()
+    [UIAction("#post-parse")]
+    private void InitializeView()
     {
+        _currentView = View.None;
+        _tosGroup.gameObject.SetActive(false);
+        _downloadingGroup.gameObject.SetActive(false);
+        _error.gameObject.SetActive(false);
+
         Vector2 loadingBarSize = new(0, 8);
 
         // shamelessly stolen from songcore
@@ -462,6 +468,11 @@ internal class AssetBundleDownloadViewController : BSMLResourceViewController, I
 
     private void Update()
     {
+        if (_loadingBar == null)
+        {
+            return;
+        }
+
         if (_currentView != _newView)
         {
             _currentView = _newView;
