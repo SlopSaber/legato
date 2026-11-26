@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
@@ -13,7 +13,9 @@ using Hitbloq.Sources;
 using Hitbloq.Utilities;
 using HMUI;
 using IPA.Utilities.Async;
+#if !LEGATO_BEFORE_MULTIPLAYER
 using Tweening;
+#endif
 using UnityEngine;
 using Zenject;
 
@@ -49,21 +51,31 @@ namespace Hitbloq.UI.ViewControllers
 		[Inject]
 		private readonly UserIDSource _userIDSource = null!;
 
+#if !LEGATO_BEFORE_MULTIPLAYER
 		[Inject]
 		private readonly TimeTweeningManager _uwuTweenyManager = null!;
+#endif
 
 		private CancellationTokenSource? _cancellationTokenSource;
 		private PoolLeaderboardPage? _currentPage;
 		private float? _currentScrollPosition;
 
+#if LEGATO_BEFORE_MULTIPLAYER
+		private TableViewScroller? _scrollView;
+#else
 		private ScrollView? _scrollView;
+#endif
 
 		protected override void DidActivate(bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling)
 		{
 			base.DidActivate(firstActivation, addedToHierarchy, screenSystemEnabling);
 			if (_scrollView != null)
 			{
+#if LEGATO_BEFORE_MULTIPLAYER
+				_scrollView.positionDidChangeEvent += OnScrollPositionChanged;
+#else
 				_scrollView.scrollPositionChangedEvent += OnScrollPositionChanged;
+#endif
 			}
 		}
 
@@ -72,7 +84,11 @@ namespace Hitbloq.UI.ViewControllers
 			base.DidDeactivate(removedFromHierarchy, screenSystemDisabling);
 			if (_scrollView != null)
 			{
+#if LEGATO_BEFORE_MULTIPLAYER
+				_scrollView.positionDidChangeEvent -= OnScrollPositionChanged;
+#else
 				_scrollView.scrollPositionChangedEvent -= OnScrollPositionChanged;
+#endif
 			}
 		}
 
@@ -90,7 +106,11 @@ namespace Hitbloq.UI.ViewControllers
 			_ = InitLeaderboard(poolID, _cancellationTokenSource.Token, true);
 		}
 
+#if LEGATO_BEFORE_MULTIPLAYER
+		private void OnScrollPositionChanged(TableViewScroller scroller, float newPos)
+#else
 		private void OnScrollPositionChanged(float newPos)
+#endif
 		{
 			if (_scrollView == null || _currentPage == null || _currentPage.ExhaustedPages || _currentScrollPosition == newPos || _leaderboardLoadSemaphore.CurrentCount == 0)
 			{
@@ -98,9 +118,12 @@ namespace Hitbloq.UI.ViewControllers
 			}
 
 			_currentScrollPosition = newPos;
+#if LEGATO_BEFORE_MULTIPLAYER
+			if (newPos >= scroller.scrollableSize - 0.001f)
+#else
 			_scrollView.RefreshButtons();
-
 			if (!Accessors.PageDownAccessor(ref _scrollView).interactable)
+#endif
 			{
 				_cancellationTokenSource?.Cancel();
 				_cancellationTokenSource?.Dispose();
@@ -112,6 +135,14 @@ namespace Hitbloq.UI.ViewControllers
 		[UIAction("#post-parse")]
 		private async Task PostParse()
 		{
+#if LEGATO_BEFORE_MULTIPLAYER
+			if (_customListTableData != null)
+			{
+				var table = BSMLCompat.TableView(_customListTableData);
+				table.dataSource = this;
+				_scrollView = table._scroller;
+			}
+#endif
 			var list = new List<IconSegmentedControl.DataItem>();
 			foreach (var leaderboardSource in _leaderboardSources)
 			{
@@ -120,11 +151,13 @@ namespace Hitbloq.UI.ViewControllers
 
 			_iconSegmentedControl!.SetData(list.ToArray());
 			
+#if !LEGATO_BEFORE_MULTIPLAYER
 			if (_customListTableData != null)
 			{
 				BSMLCompat.TableView(_customListTableData).SetDataSource(this, true);
 				_scrollView = BSMLCompat.TableView(_customListTableData).scrollView;
 			}
+#endif
 		}
 
 		[UIAction("list-select")]
@@ -193,7 +226,7 @@ namespace Hitbloq.UI.ViewControllers
 			{
 				Loaded = true;
 				await SiraUtil.Extras.Utilities.PauseChamp;
-				await UnityMainThreadTaskScheduler.Factory.StartNew(() => { BSMLCompat.TableView(_customListTableData).ReloadDataKeepingPosition(); });
+				await UnityMainThreadTaskScheduler.Factory.StartNew(() => { HitbloqUI.ReloadTableKeepingPosition(BSMLCompat.TableView(_customListTableData)); });
 				_leaderboardLoadSemaphore.Release();
 
 				if (firstPage && _currentPage is {ExhaustedPages: false})
@@ -264,7 +297,11 @@ namespace Hitbloq.UI.ViewControllers
 			if (tableCell == null)
 			{
 				var hitbloqPoolLeaderboardCell = new GameObject(nameof(HitbloqPoolLeaderboardCellController), typeof(Touchable)).AddComponent<HitbloqPoolLeaderboardCellController>();
-				hitbloqPoolLeaderboardCell.SetRequiredUtils(_userIDSource, _spriteLoader, _materialGrabber, _uwuTweenyManager);
+				hitbloqPoolLeaderboardCell.SetRequiredUtils(_userIDSource, _spriteLoader, _materialGrabber
+#if !LEGATO_BEFORE_MULTIPLAYER
+					, _uwuTweenyManager
+#endif
+				);
 				tableCell = hitbloqPoolLeaderboardCell;
 				tableCell.interactable = true;
 
@@ -280,7 +317,7 @@ namespace Hitbloq.UI.ViewControllers
 			return 7;
 		}
 
-#if HITBLOQ_BS_1_29_1 || LEGATO_FIXED_TABLE_CELL_SIZE
+#if HITBLOQ_BS_1_29_1 || LEGATO_FIXED_TABLE_CELL_SIZE || LEGATO_BEFORE_MULTIPLAYER
 		public float CellSize()
 		{
 			return 7;

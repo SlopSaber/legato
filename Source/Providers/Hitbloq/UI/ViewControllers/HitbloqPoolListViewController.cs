@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Threading;
@@ -13,7 +13,9 @@ using Hitbloq.Sources;
 using Hitbloq.Utilities;
 using HMUI;
 using IPA.Utilities.Async;
+#if !LEGATO_BEFORE_MULTIPLAYER
 using Tweening;
+#endif
 using UnityEngine;
 using Zenject;
 
@@ -41,8 +43,10 @@ namespace Hitbloq.UI.ViewControllers
 		[Inject]
 		private readonly SpriteLoader _spriteLoader = null!;
 
+#if !LEGATO_BEFORE_MULTIPLAYER
 		[Inject]
 		private readonly TimeTweeningManager _uwuTweenyManager = null!;
+#endif
 
 		private CancellationTokenSource? _poolCancellationTokenSource;
 		private CancellationTokenSource? _sortCancellationTokenSource;
@@ -150,7 +154,11 @@ namespace Hitbloq.UI.ViewControllers
 						_ = UnityMainThreadTaskScheduler.Factory.StartNew(() =>
 						{
 							BSMLCompat.TableView(_customListTableData).SelectCellWithIdx(i);
+#if LEGATO_BEFORE_MULTIPLAYER
+							BSMLCompat.TableView(_customListTableData).ScrollToCellWithIdx(i, TableViewScroller.ScrollPositionType.Center, true);
+#else
 							BSMLCompat.TableView(_customListTableData).ScrollToCellWithIdx(i, TableView.ScrollPositionType.Center, true);
+#endif
 							PoolSelectedEvent?.Invoke(_pools[i]);
 						});
 						break;
@@ -168,7 +176,11 @@ namespace Hitbloq.UI.ViewControllers
 			rectTransform.localPosition = Vector3.zero;
 			if (_customListTableData != null)
 			{
-				BSMLCompat.TableView(_customListTableData).SetDataSource(this, true);
+	#if LEGATO_BEFORE_MULTIPLAYER
+			BSMLCompat.TableView(_customListTableData).dataSource = this;
+#else
+			BSMLCompat.TableView(_customListTableData).SetDataSource(this, true);
+#endif
 			}
 		}
 
@@ -245,7 +257,11 @@ namespace Hitbloq.UI.ViewControllers
 			if (tableCell == null)
 			{
 				var hitbloqPoolCell = new GameObject(nameof(HitbloqPoolCellController), typeof(Touchable)).AddComponent<HitbloqPoolCellController>();
-				hitbloqPoolCell.SetRequiredUtils(_spriteLoader, _materialGrabber, _uwuTweenyManager);
+				hitbloqPoolCell.SetRequiredUtils(_spriteLoader, _materialGrabber
+#if !LEGATO_BEFORE_MULTIPLAYER
+					, _uwuTweenyManager
+#endif
+				);
 				tableCell = hitbloqPoolCell;
 				tableCell.interactable = true;
 
@@ -261,7 +277,7 @@ namespace Hitbloq.UI.ViewControllers
 			return 23;
 		}
 
-#if HITBLOQ_BS_1_29_1 || LEGATO_FIXED_TABLE_CELL_SIZE
+#if HITBLOQ_BS_1_29_1 || LEGATO_FIXED_TABLE_CELL_SIZE || LEGATO_BEFORE_MULTIPLAYER
 		public float CellSize()
 		{
 			return 23;

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
@@ -111,14 +111,14 @@ namespace Hitbloq.Managers
 		}
 
 		public void OnLeaderboardSet(
-#if HITBLOQ_BS_1_29_1
+#if HITBLOQ_BS_1_29_1 || LEGATO_BEFORE_MULTIPLAYER
 			IDifficultyBeatmap difficultyBeatmap
 #else
 			BeatmapKey beatmapKey
 #endif
 		)
 		{
-#if HITBLOQ_BS_1_29_1
+#if HITBLOQ_BS_1_29_1 || LEGATO_BEFORE_MULTIPLAYER
 			var beatmapKey = BeatmapKey.FromDifficultyBeatmap(difficultyBeatmap);
 #endif
 			_ = OnLeaderboardSetAsync(beatmapKey);
@@ -242,8 +242,16 @@ namespace Hitbloq.Managers
 			}
 		}
 
+#if LEGATO_BEFORE_MULTIPLAYER
+		private void OnViewActivated(bool firstActivation, HMUI.ViewController.ActivationType activationType)
+#else
 		private void OnViewActivated(bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling)
+#endif
 		{
+#if LEGATO_BEFORE_MULTIPLAYER
+			bool addedToHierarchy = activationType == HMUI.ViewController.ActivationType.AddedToHierarchy;
+			const bool screenSystemEnabling = false;
+#endif
 			foreach (var notifyViewActivated in _notifyViewActivateds)
 			{
 				notifyViewActivated.ViewActivated(_hitbloqLeaderboardViewController, firstActivation, addedToHierarchy, screenSystemEnabling);

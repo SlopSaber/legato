@@ -27,14 +27,14 @@ namespace Hitbloq.Utilities
 			SetMemberValue(cellInfo, sprite, "Icon", "icon");
 		}
 
-		public static ImageView Background(Backgroundable backgroundable)
+		public static HitbloqImage Background(Backgroundable backgroundable)
 		{
-			return (ImageView) GetMemberValue(backgroundable, "Background", "background")!;
+			return (HitbloqImage) GetMemberValue(backgroundable, "Background", "background")!;
 		}
 
-		public static ImageView ButtonImage(ButtonIconImage buttonIconImage)
+		public static HitbloqImage ButtonImage(ButtonIconImage buttonIconImage)
 		{
-			return (ImageView) GetMemberValue(buttonIconImage, "Image", "image")!;
+			return (HitbloqImage) GetMemberValue(buttonIconImage, "Image", "image")!;
 		}
 
 		public static DropdownWithTableView Dropdown(DropDownListSetting dropDownListSetting)

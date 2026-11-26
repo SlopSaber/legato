@@ -16,6 +16,7 @@
       <LegatoManifestFile Condition="'$(LegatoTargetProfile)' == '1.29.0'">manifest.1.29.1.json</LegatoManifestFile>
       <LegatoManifestFile Condition="'$(LegatoTargetProfile)' == '1.40.0'">manifest.1.40.8.json</LegatoManifestFile>
       <LegatoManifestFile Condition="'$(LegatoTargetVersion)' == '1.44.0'">manifest.1.44.0.json</LegatoManifestFile>
+      <LegatoManifestFile Condition="'$(LegatoTargetVersion)' == '1.11.1'">manifest.1.11.1.json</LegatoManifestFile>
       <HitbloqGameVersion>$(LegatoTargetVersion)</HitbloqGameVersion>
     </PropertyGroup>
     <Message Text="Legato Hitbloq profile: $(LegatoTargetVersion); $(_LegatoHitbloqApi)" Importance="high" />

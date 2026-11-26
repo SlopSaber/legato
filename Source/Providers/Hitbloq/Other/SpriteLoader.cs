@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
@@ -21,12 +21,12 @@ namespace Hitbloq.Other
 		private readonly object _queueLock;
 		private readonly IHttpService _siraHttpService;
 		private readonly Queue<Action> _spriteQueue;
-#if !HITBLOQ_BS_1_29_1
+#if !HITBLOQ_BS_1_29_1 && !LEGATO_BEFORE_MULTIPLAYER
 		private readonly ICoroutineStarter _coroutineStarter;
 #endif
 		private bool _coroutineRunning;
 
-#if HITBLOQ_BS_1_29_1
+#if HITBLOQ_BS_1_29_1 || LEGATO_BEFORE_MULTIPLAYER
 		public SpriteLoader(UBinder<Plugin, PluginMetadata> pluginMetadata, IHttpService siraHttpService)
 #else
 		public SpriteLoader(UBinder<Plugin, PluginMetadata> pluginMetadata, IHttpService siraHttpService, ICoroutineStarter coroutineStarter)
@@ -34,7 +34,7 @@ namespace Hitbloq.Other
 		{
 			_pluginMetadata = pluginMetadata.Value;
 			_siraHttpService = siraHttpService;
-#if !HITBLOQ_BS_1_29_1
+#if !HITBLOQ_BS_1_29_1 && !LEGATO_BEFORE_MULTIPLAYER
 			_coroutineStarter = coroutineStarter;
 #endif
 			_spriteQueue = new Queue<Action>();
@@ -172,7 +172,7 @@ namespace Hitbloq.Other
 
 			if (shouldStartCoroutine)
 			{
-#if HITBLOQ_BS_1_29_1
+#if HITBLOQ_BS_1_29_1 || LEGATO_BEFORE_MULTIPLAYER
 				_ = UnityMainThreadTaskScheduler.Factory.StartNew(ProcessSpriteQueue);
 #else
 				_coroutineStarter.StartCoroutine(SpriteLoadCoroutine());
@@ -182,7 +182,7 @@ namespace Hitbloq.Other
 			return taskCompletionSource.Task;
 		}
 
-#if HITBLOQ_BS_1_29_1
+#if HITBLOQ_BS_1_29_1 || LEGATO_BEFORE_MULTIPLAYER
 		private void ProcessSpriteQueue()
 		{
 			while (true)

@@ -1,4 +1,4 @@
-#if HITBLOQ_BS_1_29_1
+#if HITBLOQ_BS_1_29_1 || LEGATO_BEFORE_MULTIPLAYER
 global using HitbloqNativePack = global::IBeatmapLevelPack;
 public readonly struct BeatmapKey
 {

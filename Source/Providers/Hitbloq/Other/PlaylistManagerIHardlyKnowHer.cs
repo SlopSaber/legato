@@ -3,7 +3,6 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using BeatSaberPlaylistsLib.Types;
 using Hitbloq.Utilities;
 using HMUI;
 using IPA.Utilities;
@@ -12,36 +11,45 @@ using PlaylistManager;
 using PlaylistManager.Utilities;
 using SiraUtil.Web;
 using Zenject;
+using LibraryPlaylist = BeatSaberPlaylistsLib.Types.IPlaylist;
 using Utils = Hitbloq.Utilities.Utils;
 
 namespace Hitbloq.Other
 {
 	internal class PlaylistManagerIHardlyKnowHer : IInitializable, IDisposable
 	{
-		private readonly IconSegmentedControl _levelCategorySegmentedControl;
 		private readonly LevelFilteringNavigationController _levelFilteringNavigationController;
 		private readonly MainFlowCoordinator _mainFlowCoordinator;
+#if !LEGATO_BEFORE_MULTIPLAYER
+		private readonly IconSegmentedControl _levelCategorySegmentedControl;
 		private readonly MainMenuViewController _mainMenuViewController;
 		private readonly SelectLevelCategoryViewController _selectLevelCategoryViewController;
+#endif
 		private readonly IHttpService _siraHttpService;
 		private readonly SoloFreePlayFlowCoordinator _soloFreePlayFlowCoordinator;
 		private readonly PlaylistDataManager _playlistDataManager;
 
 		private CancellationTokenSource? _tokenSource;
 
-		public PlaylistManagerIHardlyKnowHer(IHttpService siraHttpService, MainFlowCoordinator mainFlowCoordinator, MainMenuViewController mainMenuViewController, SoloFreePlayFlowCoordinator soloFreePlayFlowCoordinator, LevelFilteringNavigationController levelFilteringNavigationController, SelectLevelCategoryViewController selectLevelCategoryViewController, PlaylistDataManager playlistDataManager)
+		public PlaylistManagerIHardlyKnowHer(IHttpService siraHttpService, MainFlowCoordinator mainFlowCoordinator, SoloFreePlayFlowCoordinator soloFreePlayFlowCoordinator, LevelFilteringNavigationController levelFilteringNavigationController, PlaylistDataManager playlistDataManager
+#if !LEGATO_BEFORE_MULTIPLAYER
+			, MainMenuViewController mainMenuViewController, SelectLevelCategoryViewController selectLevelCategoryViewController
+#endif
+			)
 		{
 			_siraHttpService = siraHttpService;
 			_mainFlowCoordinator = mainFlowCoordinator;
-			_mainMenuViewController = mainMenuViewController;
 			_soloFreePlayFlowCoordinator = soloFreePlayFlowCoordinator;
 			_levelFilteringNavigationController = levelFilteringNavigationController;
-			_selectLevelCategoryViewController = selectLevelCategoryViewController;
 			_playlistDataManager = playlistDataManager;
+#if !LEGATO_BEFORE_MULTIPLAYER
+			_selectLevelCategoryViewController = selectLevelCategoryViewController;
+			_mainMenuViewController = mainMenuViewController;
 			_levelCategorySegmentedControl = selectLevelCategoryViewController.GetField<IconSegmentedControl, SelectLevelCategoryViewController>("_levelFilterCategoryIconSegmentedControl");
+#endif
 		}
 
-		public IPlaylist? SelectedPlaylist =>
+		public LibraryPlaylist? SelectedPlaylist =>
 			_playlistDataManager.selectedPlaylist;
 
 
@@ -185,6 +193,18 @@ namespace Hitbloq.Other
 
 		public void OpenPlaylist(HitbloqNativePack beatmapLevelPack)
 		{
+#if LEGATO_BEFORE_MULTIPLAYER
+			var current = _mainFlowCoordinator.YoungestChildFlowCoordinatorOrSelf();
+			if (current is LevelSelectionFlowCoordinator)
+			{
+				SelectLegacyPack(beatmapLevelPack);
+			}
+			else if (current == _mainFlowCoordinator)
+			{
+				_soloFreePlayFlowCoordinator.Setup(null, null);
+				_mainFlowCoordinator.PresentFlowCoordinator(_soloFreePlayFlowCoordinator, () => SelectLegacyPack(beatmapLevelPack));
+			}
+#else
 			if (_mainFlowCoordinator.YoungestChildFlowCoordinatorOrSelf() is LevelSelectionFlowCoordinator)
 			{
 				_levelCategorySegmentedControl.SelectCellWithNumber(1);
@@ -196,9 +216,26 @@ namespace Hitbloq.Other
 				_soloFreePlayFlowCoordinator.Setup(Utils.GetStateForPlaylist(beatmapLevelPack));
 				_mainMenuViewController.HandleMenuButton(MainMenuViewController.MenuButton.SoloFreePlay);
 			}
+#endif
 		}
 
-		private void OnPlaylistSelected(IPlaylist playlist, BeatSaberPlaylistsLib.PlaylistManager parentManager)
+#if LEGATO_BEFORE_MULTIPLAYER
+		private void SelectLegacyPack(IBeatmapLevelPack beatmapLevelPack)
+		{
+			var tab = _levelFilteringNavigationController._customLevelsTabBarData;
+			if (tab == null)
+				return;
+
+			var packs = tab.annotatedBeatmapLevelCollections ?? Array.Empty<IAnnotatedBeatmapLevelCollection>();
+			if (!packs.OfType<IBeatmapLevelPack>().Any(pack => pack.packID == beatmapLevelPack.packID))
+			{
+				tab.annotatedBeatmapLevelCollections = packs.Append(beatmapLevelPack).ToArray();
+			}
+			_levelFilteringNavigationController.SelectAnnotatedBeatmapLevelCollection(beatmapLevelPack);
+		}
+#endif
+
+		private void OnPlaylistSelected(LibraryPlaylist playlist, BeatSaberPlaylistsLib.PlaylistManager parentManager)
 		{
             var pool = GetPlaylistPool(playlist);
 			if (pool is not null)
@@ -207,7 +244,7 @@ namespace Hitbloq.Other
 			}
 		}
 
-		public static string? GetPlaylistPool(IPlaylist playlist)
+		public static string? GetPlaylistPool(LibraryPlaylist playlist)
 		{
 			if (!playlist.TryGetCustomData("syncURL", out var url) || url is not string urlString)
 			{

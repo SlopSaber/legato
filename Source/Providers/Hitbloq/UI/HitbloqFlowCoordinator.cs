@@ -44,9 +44,19 @@ namespace Hitbloq.UI
 #else
 		protected
 #endif
+#if LEGATO_BEFORE_MULTIPLAYER
+		override void DidActivate(bool firstActivation, ActivationType activationType)
+#else
 		override void DidActivate(bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling)
+#endif
 		{
+#if LEGATO_BEFORE_MULTIPLAYER
+			if (activationType != ActivationType.AddedToHierarchy)
+				return;
+			title = "Hitbloq";
+#else
 			SetTitle("Hitbloq");
+#endif
 			showBackButton = true;
 			_flowAnimationComplete = false;
 			_currentPool = null;
@@ -65,9 +75,19 @@ namespace Hitbloq.UI
 #else
 		protected
 #endif
+#if LEGATO_BEFORE_MULTIPLAYER
+		override void DidDeactivate(DeactivationType deactivationType)
+#else
 		override void DidDeactivate(bool removedFromHierarchy, bool screenSystemDisabling)
+#endif
 		{
+#if LEGATO_BEFORE_MULTIPLAYER
+			base.DidDeactivate(deactivationType);
+			if (deactivationType != DeactivationType.RemovedFromHierarchy)
+				return;
+#else
 			base.DidDeactivate(removedFromHierarchy, screenSystemDisabling);
+#endif
 			_hitbloqPoolListViewController.PoolSelectedEvent -= OnPoolSelected;
 			_hitbloqPoolListViewController.DetailDismissRequested -= OnDetailDismissRequested;
 			_hitbloqPoolDetailViewController.FlowDismissRequested -= OnFlowDismissRequested;
@@ -83,8 +103,13 @@ namespace Hitbloq.UI
 					PushViewControllerToNavigationController(_hitbloqNavigationController, _hitbloqPoolDetailViewController);
 				}
 
+#if LEGATO_BEFORE_MULTIPLAYER
+				SetLeftScreenViewController(_hitbloqRankedListViewController, false);
+				SetRightScreenViewController(_hitbloqPoolLeaderboardViewController, false);
+#else
 				SetLeftScreenViewController(_hitbloqRankedListViewController, ViewController.AnimationType.In);
 				SetRightScreenViewController(_hitbloqPoolLeaderboardViewController, ViewController.AnimationType.In);
+#endif
 
 				_hitbloqPoolDetailViewController.SetPool(pool);
 				_hitbloqRankedListViewController.SetPool(pool.ID);
@@ -103,12 +128,20 @@ namespace Hitbloq.UI
 
 			if (_hitbloqRankedListViewController.isInViewControllerHierarchy)
 			{
+#if LEGATO_BEFORE_MULTIPLAYER
+				SetLeftScreenViewController(null, false);
+#else
 				SetLeftScreenViewController(null, ViewController.AnimationType.Out);
+#endif
 			}
 
 			if (_hitbloqPoolLeaderboardViewController.isInViewControllerHierarchy)
 			{
+#if LEGATO_BEFORE_MULTIPLAYER
+				SetRightScreenViewController(null, false);
+#else
 				SetRightScreenViewController(null, ViewController.AnimationType.Out);
+#endif
 			}
 		}
 

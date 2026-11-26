@@ -105,11 +105,13 @@ namespace Hitbloq.Utilities
 			return sb.ToString();
 		}
 
+#if !LEGATO_BEFORE_MULTIPLAYER
 		public static LevelSelectionFlowCoordinator.State GetStateForPlaylist(HitbloqNativePack beatmapLevelPack)
 		{
 			var state = new LevelSelectionFlowCoordinator.State(beatmapLevelPack);
 			Accessors.LevelCategoryAccessor(ref state) = SelectLevelCategoryViewController.LevelCategory.CustomSongs;
 			return state;
 		}
+#endif
 	}
 }
