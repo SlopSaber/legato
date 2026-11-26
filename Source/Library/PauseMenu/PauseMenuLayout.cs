@@ -71,12 +71,12 @@ namespace Legato.Presentation {
         private static PauseMenuManager.InitData? InitData(PauseMenuManager menu) =>
             menu != null ? menu.GetField<PauseMenuManager.InitData, PauseMenuManager>("_initData") : null;
 
-        internal static PauseMenuManager? GetManager(PauseController controller) =>
-            controller.GetField<PauseMenuManager, PauseController>("_pauseMenuManager");
-
         internal static Transform? FindCanvas(PauseMenuManager manager) =>
             manager.transform.Find("Wrapper/MenuWrapper/Canvas");
 #endif
+
+        internal static PauseMenuManager? GetManager(PauseController controller) =>
+            controller.GetField<PauseMenuManager, PauseController>("_pauseMenuManager");
 
         internal static Canvas? ParentCanvas(Component? component) {
             for (Transform? current = component != null ? component.transform : null; current != null; current = current.parent) {
