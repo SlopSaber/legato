@@ -9,6 +9,9 @@ using System.Reflection.Emit;
 using System.Runtime.CompilerServices;
 using Tweaks55.Util;
 using UnityEngine;
+#if LEGATO_BEFORE_MULTIPLAYER
+using BeatmapObjectsInstaller = global::GameplayCoreBeatmapObjectPoolsInstaller;
+#endif
 
 namespace Tweaks55.HarmonyPatches {
 	[HarmonyPatch]
@@ -52,7 +55,15 @@ namespace Tweaks55.HarmonyPatches {
 		}
 
 		[HarmonyPriority(int.MaxValue)]
-		static void Prefix(ObstacleController ____obstaclePrefab, GameplayCoreSceneSetupData ____sceneSetupData) {
+		static void Prefix(ObstacleController ____obstaclePrefab,
+#if LEGATO_BEFORE_MULTIPLAYER
+			BeatmapObjectsInstaller __instance) {
+			var ____sceneSetupData = __instance.Container.TryResolve<GameplayCoreSceneSetupData>();
+			if(____sceneSetupData == null)
+				return;
+#else
+			GameplayCoreSceneSetupData ____sceneSetupData) {
+#endif
 			WallVisualState.logNextObstacle = true;
 			Plugin.Log.Info($"Wall setup: level={Legato.BeatmapKeyExtensions.LevelId(Legato.Gameplay.GameplaySceneAccess.Key(____sceneSetupData))}, prefab={____obstaclePrefab.name}, fakeBloomDisabled={Config.Instance.disableFakeWallBloom}, transparent={Config.Instance.transparentWalls}, cameraNoiseDisabled={Config.Instance.disableCameraNoise}");
 
@@ -72,12 +83,15 @@ namespace Tweaks55.HarmonyPatches {
 
 			if(fakeGlow != null) {
 				var bloomIsOn = ConditionalActivation_value(ref fakeGlow);
-
+#if LEGATO_BEFORE_MULTIPLAYER
+				ConditionalActivation_activateOnFalse(ref fakeGlow) = bloomIsOn;
+#else
 				ConditionalActivation_activateOnFalse(ref fakeGlow) = !(!Config.Instance.disableFakeWallBloom != !bloomIsOn) || bloomIsOn;
+#endif
 			}
 		}
 
-		static MethodBase TargetMethod() => Resolver.GetMethod(nameof(BeatmapObjectsInstaller), "InstallBindings");
+		static MethodBase TargetMethod() => AccessTools.DeclaredMethod(typeof(BeatmapObjectsInstaller), "InstallBindings");
 		static Exception Cleanup(Exception ex) => Plugin.PatchFailed(ex);
 	}
 
@@ -126,13 +140,20 @@ namespace Tweaks55.HarmonyPatches {
 		}
 
 		[HarmonyPriority(int.MaxValue)]
-		static void Postfix(ObstacleController ____obstaclePrefab, GameplayCoreSceneSetupData ____sceneSetupData) {
+		static void Postfix(ObstacleController ____obstaclePrefab,
+#if LEGATO_BEFORE_MULTIPLAYER
+			BeatmapObjectsInstaller __instance) {
+			var ____sceneSetupData = __instance.Container.TryResolve<GameplayCoreSceneSetupData>();
+#else
+			GameplayCoreSceneSetupData ____sceneSetupData) {
+#endif
 			if(originalPrefab != ____obstaclePrefab) {
 				originalPrefab = ____obstaclePrefab;
 				visualWrappersOriginal = null;
 			}
 
 			bool transparentWalls = Config.Instance.transparentWalls &&
+				____sceneSetupData != null &&
 				!HasVisualMod(Legato.Gameplay.GameplaySceneAccess.Key(____sceneSetupData));
 
 			if(visualWrappersOriginal != null) {
@@ -149,17 +170,25 @@ namespace Tweaks55.HarmonyPatches {
 				return;
 
 			GameObject[] wrappers = ObstacleController_visualWrappers(ref ____obstaclePrefab);
+#if LEGATO_BEFORE_MULTIPLAYER
+			if(wrappers == null || wrappers.Length < 2 || wrappers[0] == null || wrappers[0].name != "ObstacleCore")
+#else
 			if(wrappers.Length != 2)
+#endif
 				return;
 
 			visualWrappersOriginal = wrappers;
 			originalWrapperActive = wrappers[0].activeSelf;
+#if LEGATO_BEFORE_MULTIPLAYER
+			ObstacleController_visualWrappers(ref ____obstaclePrefab) = wrappers.Skip(1).ToArray();
+#else
 			ObstacleController_visualWrappers(ref ____obstaclePrefab) = new[] { wrappers[1] };
+#endif
 
 			wrappers[0].SetActive(false);
 		}
 
-		static MethodBase TargetMethod() => Resolver.GetMethod(nameof(BeatmapObjectsInstaller), "InstallBindings");
+		static MethodBase TargetMethod() => AccessTools.DeclaredMethod(typeof(BeatmapObjectsInstaller), "InstallBindings");
 		static Exception Cleanup(Exception ex) => Plugin.PatchFailed(ex);
 	}
 

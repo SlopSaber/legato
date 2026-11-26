@@ -2,6 +2,9 @@ using HarmonyLib;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+#if LEGATO_BEFORE_MULTIPLAYER
+using System.Runtime.CompilerServices;
+#endif
 using UnityEngine;
 using UnityEngine.XR;
 #if LEGATO_MENU_CONTROLLER_FOCUS_CAPTURE
@@ -11,6 +14,33 @@ using OverlayControllerDeactivator = DeactivateVRControllersOnFocusCapture;
 #endif
 
 namespace Tweaks55.HarmonyPatches {
+#if LEGATO_BEFORE_MULTIPLAYER
+	[HarmonyPatch]
+	static class NativeOverlayFocus {
+		private sealed class CaptureState {
+			internal bool Captured;
+		}
+
+		private static readonly ConditionalWeakTable<VRPlatformHelper, CaptureState> States = new();
+
+		internal static bool HasFocus(VRPlatformHelper platform) =>
+			!States.TryGetValue(platform, out var state) || !state.Captured;
+
+		static IEnumerable<MethodBase> TargetMethods() {
+			yield return AccessTools.DeclaredMethod(typeof(VRPlatformHelper), "HandleInputFocusWasCaptured");
+			yield return AccessTools.DeclaredMethod(typeof(VRPlatformHelper), "HandleInputFocusWasReleased");
+		}
+
+		static void Postfix(VRPlatformHelper __instance, MethodBase __originalMethod) {
+			var state = States.GetValue(__instance, _ => new CaptureState());
+			state.Captured = __originalMethod.Name == "HandleInputFocusWasCaptured";
+		}
+
+		static Exception Cleanup(Exception ex) => Plugin.PatchFailed(ex);
+	}
+#endif
+
+#if !LEGATO_BEFORE_MULTIPLAYER
 #if !LEGATO_MENU_CONTROLLER_FOCUS_CAPTURE && !LEGATO_CONTROLLER_FOCUS_CAPTURE
     [HarmonyPatch]
     static class KeepSabersInOverlay {
@@ -78,6 +108,7 @@ namespace Tweaks55.HarmonyPatches {
 	}
 
 #endif
+#endif
 
 	// OpenXR stops updating input actions while another application has input focus,
 	// so the controllers would freeze. On SteamVR, follow OpenVR's raw poses instead,
@@ -99,9 +130,11 @@ namespace Tweaks55.HarmonyPatches {
 			var node = __instance._node;
 			if(node != XRNode.LeftHand && node != XRNode.RightHand)
 				return;
-			if(
+			if(__instance._vrPlatformHelper == null ||
 #if LEGATO_XR_SYSTEM_STATE
                 __instance._xrSystemState.hasInputFocus
+#elif LEGATO_BEFORE_MULTIPLAYER
+                NativeOverlayFocus.HasFocus(__instance._vrPlatformHelper)
 #else
                 __instance._vrPlatformHelper.hasInputFocus
 #endif
@@ -141,7 +174,7 @@ namespace Tweaks55.HarmonyPatches {
 				hasOffset[index] = true;
 			}
 			var pose = Multiply(raw, offset[index]);
-			#if BEAT_SABER_1_29_0
+#if BEAT_SABER_1_29_0 || LEGATO_BEFORE_MULTIPLAYER
             transform.localPosition = pose.position;
             transform.localRotation = pose.rotation;
 #else
@@ -159,6 +192,7 @@ namespace Tweaks55.HarmonyPatches {
 		static Exception Cleanup(Exception ex) => Plugin.PatchFailed(ex);
 	}
 
+#if !LEGATO_BEFORE_MULTIPLAYER
 #if !LEGATO_XR_SYSTEM_STATE
     [HarmonyPatch]
     static class KeepMusicInOverlay {
@@ -178,4 +212,5 @@ namespace Tweaks55.HarmonyPatches {
 
 		static Exception Cleanup(Exception ex) => Plugin.PatchFailed(ex);
 	}
+#endif
 }

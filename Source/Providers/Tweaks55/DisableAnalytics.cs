@@ -1,4 +1,4 @@
-﻿#if BEAT_SABER_1_29_0 || LEGATO_ANALYTICS_DISPATCHER
+﻿#if LEGATO_BEFORE_MULTIPLAYER || BEAT_SABER_1_29_0 || LEGATO_ANALYTICS_DISPATCHER
 #if LEGATO_ANALYTICS_DISPATCHER
 using BeatGames.Analytics;
 using OSCE.Analytics;
@@ -10,7 +10,12 @@ using System.Reflection;
 namespace Tweaks55.HarmonyPatches {
 	[HarmonyPatch]
 	static class DisableAnalytics {
-#if BEAT_SABER_1_29_0
+#if LEGATO_BEFORE_MULTIPLAYER
+        [HarmonyPriority(int.MaxValue)]
+        static bool Prefix() => !Config.Instance.disableTelemetry;
+
+        static MethodBase TargetMethod() => AccessTools.DeclaredMethod(typeof(UnityAnalyticsModel), nameof(UnityAnalyticsModel.LogEvent));
+#elif BEAT_SABER_1_29_0
         [HarmonyPriority(int.MaxValue)]
         static bool Prefix() => !Config.Instance.disableTelemetry;
 

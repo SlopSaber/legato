@@ -6,6 +6,25 @@ using UnityEngine;
 using UnityEngine.XR;
 
 namespace Tweaks55.HarmonyPatches {
+#if LEGATO_BEFORE_MULTIPLAYER
+	[HarmonyPatch(typeof(NoteCutHapticEffect), nameof(NoteCutHapticEffect.HitNote))]
+	static class CutRumble {
+		[HarmonyPriority(int.MinValue)]
+		static bool Prefix(HapticFeedbackController ____hapticFeedbackController, SaberType saberType) {
+			if(!Config.Instance.enableCustomRumble)
+				return true;
+
+			float strength = Config.Instance.cutRumbleStrength;
+			if(strength > 0f) {
+				XRNode hand = saberType == SaberType.SaberA ? XRNode.LeftHand : XRNode.RightHand;
+				____hapticFeedbackController.Rumble(hand, Mathf.Min(0.2f, 0.14f * strength), Mathf.Min(1f, 1.2f * strength), 0f);
+			}
+			return false;
+		}
+
+		static Exception Cleanup(Exception ex) => Plugin.PatchFailed(ex);
+	}
+#else
 	[HarmonyPatch]
 	static class CutRumble {
 		public const float STRENGTH_NORMAL = 1f;
@@ -80,4 +99,5 @@ namespace Tweaks55.HarmonyPatches {
 		static MethodBase TargetMethod() => Resolver.GetMethod(nameof(SliderHapticFeedbackInteractionEffect), nameof(SliderHapticFeedbackInteractionEffect.Vibrate));
 		static Exception Cleanup(Exception ex) => Plugin.PatchFailed(ex);
 	}
+#endif
 }
