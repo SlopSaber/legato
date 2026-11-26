@@ -1,4 +1,5 @@
-﻿using HarmonyLib;
+﻿#if !LEGATO_BEFORE_MULTIPLAYER
+using HarmonyLib;
 
 namespace BetterSongList.HarmonyPatches {
 	#if BEAT_SABER_1_29_0
@@ -18,3 +19,4 @@ namespace BetterSongList.HarmonyPatches {
 		}
 	}
 }
+#endif

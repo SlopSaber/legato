@@ -1,4 +1,5 @@
-﻿using BetterSongList.UI;
+﻿#if !LEGATO_BEFORE_MULTIPLAYER
+using BetterSongList.UI;
 using HarmonyLib;
 using System.Diagnostics;
 using System.Linq;
@@ -26,3 +27,4 @@ namespace BetterSongList.HarmonyPatches {
 		}
 	}
 }
+#endif

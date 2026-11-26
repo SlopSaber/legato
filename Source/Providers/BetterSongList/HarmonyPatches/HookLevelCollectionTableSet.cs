@@ -4,6 +4,7 @@ using BetterSongList.UI;
 using BetterSongList.Util;
 using HarmonyLib;
 using HMUI;
+using Legato.SongBrowser;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -78,6 +79,11 @@ namespace BetterSongList.HarmonyPatches {
 			var selectedSorter = sorter;
 			var ascending = Config.Instance.SortAsc;
 			var buildLegend = Config.Instance.EnableAlphabetScrollbar;
+#if LEGATO_BEFORE_MULTIPLAYER
+			var query = FilterUI.SearchQuery;
+			var searchMapper = Config.Instance.ModBasegameSearch;
+			bool hideUnowned = HideUnowned(table);
+#endif
 			SetLoading(true);
 			try {
 				// Let the current SetData call finish before publishing any completed work.
@@ -87,12 +93,21 @@ namespace BetterSongList.HarmonyPatches {
 					selectedSorter?.isReady == false ? selectedSorter.Prepare(token) : Task.CompletedTask,
 					selectedFilter?.isReady == false ? selectedFilter.Prepare(token) : Task.CompletedTask);
 				await AwaitPreparation(preparation, token);
+#if LEGATO_BEFORE_MULTIPLAYER
+				var unowned = hideUnowned ? await FindUnowned(table, input, token) : null;
+#endif
 				await processingSlot.WaitAsync(token);
 				ProcessedList result;
 				try {
 					token.ThrowIfCancellationRequested();
 					var snapshot = input.ToArray();
-					result = await Task.Run(() => Process(snapshot, selectedFilter, selectedSorter, ascending, buildLegend, token), token);
+					result = await Task.Run(() => Process(
+#if LEGATO_BEFORE_MULTIPLAYER
+						FilterLevels(snapshot, query, searchMapper, unowned),
+#else
+						snapshot,
+#endif
+						selectedFilter, selectedSorter, ascending, buildLegend, token), token);
 				} finally {
 					processingSlot.Release();
 				}
@@ -172,7 +187,14 @@ namespace BetterSongList.HarmonyPatches {
 
 		[HarmonyPriority(int.MaxValue)]
 		static void Prefix(LevelCollectionTableView __instance,
-#if BEAT_SABER_1_29_0
+#if LEGATO_BEFORE_MULTIPLAYER
+            ref BeatmapLevel[] previewBeatmapLevels,
+            HashSet<string> favoriteLevelIds, ref bool beatmapLevelsAreSorted) {
+            IReadOnlyList<BeatmapLevel> beatmapLevels = previewBeatmapLevels;
+            ProcessNative(__instance, ref beatmapLevels, favoriteLevelIds, ref beatmapLevelsAreSorted, true);
+            previewBeatmapLevels = beatmapLevels as BeatmapLevel[] ?? beatmapLevels.ToArray();
+        }
+#elif BEAT_SABER_1_29_0
             ref IReadOnlyList<BeatmapLevel> previewBeatmapLevels,
             HashSet<string> favoriteLevelIds, ref bool beatmapLevelsAreSorted) {
             var beatmapLevels = previewBeatmapLevels;
@@ -203,7 +225,9 @@ namespace BetterSongList.HarmonyPatches {
 				if(__instance == null)
 					return;
 				tryReselectLastSelectedLevel = true;
-				#if BEAT_SABER_1_29_0
+				#if LEGATO_BEFORE_MULTIPLAYER
+                __instance.SetData(levels as BeatmapLevel[] ?? levels.ToArray(), favoriteLevelIds, originallySorted);
+#elif BEAT_SABER_1_29_0
                 __instance.SetData(levels, favoriteLevelIds, originallySorted);
 #else
                 __instance.SetData(levels, favoriteLevelIds, originallySorted, sortBeatmapLevels);
@@ -224,13 +248,57 @@ namespace BetterSongList.HarmonyPatches {
 				return;
 			}
 
-			if(sorter?.isReady == false || filter?.isReady == false)
+			if(sorter?.isReady == false || filter?.isReady == false
+#if LEGATO_BEFORE_MULTIPLAYER
+				|| HideUnowned(__instance)
+#endif
+			)
 				Refresh(true);
+#if LEGATO_BEFORE_MULTIPLAYER
+			beatmapLevels = FilterLevels(beatmapLevels, FilterUI.SearchQuery, Config.Instance.ModBasegameSearch, null);
+#endif
 			var result = Process(beatmapLevels, filter, sorter, Config.Instance.SortAsc,
 				Config.Instance.EnableAlphabetScrollbar, CancellationToken.None);
 			beatmapLevels = result.levels;
 			customLegend = result.legend;
 		}
+
+#if LEGATO_BEFORE_MULTIPLAYER
+		static bool HideUnowned(LevelCollectionTableView table) =>
+			Config.Instance.AutoFilterUnowned && table._additionalContentModel != null &&
+			HookSelectedCategory.lastSelectedCategory == BetterSongList.Interfaces.LevelCategory.All;
+
+		static async Task<HashSet<string>> FindUnowned(LevelCollectionTableView table, IReadOnlyList<BeatmapLevel> levels,
+			CancellationToken token) {
+			var model = table._additionalContentModel;
+			var unowned = new HashSet<string>();
+			foreach(var level in levels) {
+				token.ThrowIfCancellationRequested();
+				if(level.levelID.StartsWith("custom_level_", StringComparison.OrdinalIgnoreCase))
+					continue;
+				if(await model.GetLevelEntitlementStatusAsync(level.levelID, token) == AdditionalContentModel.EntitlementStatus.NotOwned)
+					unowned.Add(level.levelID);
+			}
+			return unowned;
+		}
+
+		static IReadOnlyList<BeatmapLevel> FilterLevels(IReadOnlyList<BeatmapLevel> levels, string query,
+			bool searchMapper, HashSet<string> unowned) {
+			if(string.IsNullOrEmpty(query) && (unowned == null || unowned.Count == 0))
+				return levels;
+
+			return levels.Where(level => {
+				if(unowned?.Contains(level.levelID) == true)
+					return false;
+				if(string.IsNullOrEmpty(query))
+					return true;
+				var text = level.songName + " " + level.songSubName + " " + level.songAuthorName;
+				if(searchMapper)
+					text += " " + level.levelAuthorName;
+				return text.IndexOf(query, StringComparison.CurrentCultureIgnoreCase) >= 0;
+			}).ToArray();
+		}
+#endif
 
 		internal static void Suspend(LevelCollectionTableView table) {
 			if(table != lastTable)
@@ -261,14 +329,27 @@ namespace BetterSongList.HarmonyPatches {
 			yield return null;
 			if(table == null || !table.isActiveAndEnabled || table != lastTable || (lastOutMapList?.Count ?? 0) == 0)
 				yield break;
-			var index = Math.Max(0, Legato.SongBrowser.BrowserLevels.IndexOf(lastOutMapList, level => level.levelID == Config.Instance.LastSong) + (table._showLevelPackHeader ? 1 : 0));
+#if LEGATO_BEFORE_MULTIPLAYER
+			var levels = BrowserLevels.TableLevels(table);
+			var level = levels.FirstOrDefault(candidate => candidate.levelID == Config.Instance.LastSong) ?? levels.FirstOrDefault();
+			if(level != null)
+				table.SelectLevel(level);
+#else
+			var index = Math.Max(0, BrowserLevels.IndexOf(lastOutMapList, level => level.levelID == Config.Instance.LastSong) + (table._showLevelPackHeader ? 1 : 0));
 			table._selectedRow = index;
 			table._tableView.SelectCellWithIdx(index, false);
 			table._tableView.ScrollToCellWithIdx(index, TableView.ScrollPositionType.Center, false);
+#endif
 		}
 
-		static void Postfix(LevelCollectionTableView __instance, IReadOnlyList<BeatmapLevel> __0) {
-            var beatmapLevels = __0;
+		static void Postfix(LevelCollectionTableView __instance,
+#if LEGATO_BEFORE_MULTIPLAYER
+			BeatmapLevel[] __0
+#else
+			IReadOnlyList<BeatmapLevel> __0
+#endif
+		) {
+            IReadOnlyList<BeatmapLevel> beatmapLevels = __0;
 			lastOutMapList = beatmapLevels;
 			if(tryReselectLastSelectedLevel) {
 				SharedCoroutineStarter.instance.StartCoroutine(TryReselectLastSelectedSong(__instance));

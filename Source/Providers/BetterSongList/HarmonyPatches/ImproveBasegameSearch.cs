@@ -1,4 +1,5 @@
-﻿using System;
+﻿#if !LEGATO_BEFORE_MULTIPLAYER
+using System;
 using HarmonyLib;
 using System.Collections.Generic;
 using System.Linq;
@@ -58,3 +59,4 @@ namespace BetterSongList.HarmonyPatches {
 #endif
 	}
 }
+#endif

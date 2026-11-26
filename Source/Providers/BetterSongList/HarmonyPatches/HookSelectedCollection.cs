@@ -2,6 +2,7 @@ using BetterSongList.UI;
 using HarmonyLib;
 
 namespace BetterSongList.HarmonyPatches {
+#if !LEGATO_BEFORE_MULTIPLAYER
 	[HarmonyPatch(typeof(AnnotatedBeatmapLevelCollectionsViewController), nameof(AnnotatedBeatmapLevelCollectionsViewController.HandleDidSelectAnnotatedBeatmapLevelCollection))]
 	static class HookSelectedCollection {
 		public static NativeSongPack lastSelectedCollection { get; private set; }
@@ -54,4 +55,5 @@ namespace BetterSongList.HarmonyPatches {
 			}
 		}
 	}
+#endif
 }

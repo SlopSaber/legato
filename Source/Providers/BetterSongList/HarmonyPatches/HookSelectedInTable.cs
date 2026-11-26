@@ -5,7 +5,7 @@ namespace BetterSongList.HarmonyPatches {
 	static class HookSelectedInTable {
 		[HarmonyPriority(int.MinValue)]
 		static void Postfix(LevelCollectionTableView __instance) {
-			#if BEAT_SABER_1_29_0
+			#if BEAT_SABER_1_29_0 || LEGATO_BEFORE_MULTIPLAYER
             Config.Instance.LastSong = __instance._selectedPreviewBeatmapLevel?.levelID;
 #else
             Config.Instance.LastSong = __instance._selectedBeatmapLevel?.levelID;
