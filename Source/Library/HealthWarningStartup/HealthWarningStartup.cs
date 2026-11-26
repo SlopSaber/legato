@@ -35,14 +35,20 @@ namespace Legato.Gameplay
             if (transitions == null)
                 throw new TypeLoadException("Could not find the game startup transition.");
 
+#if LEGATO_BEFORE_MULTIPLAYER
+            MethodInfo? transition = AccessTools.DeclaredMethod(transitions, "TransitionToNextScene", new[] { typeof(bool) });
+            string prefix = nameof(SelectNativeMenuPath);
+#else
             MethodInfo? transition = AccessTools.DeclaredMethod(transitions, "TransitionToNextScene",
                 new[] { typeof(bool), typeof(bool), typeof(bool), typeof(Action) })
                 ?? AccessTools.DeclaredMethod(transitions, "TransitionToNextScene",
                     new[] { typeof(bool), typeof(bool), typeof(bool) });
+            string prefix = nameof(SelectLegacyMenuPath);
+#endif
             if (transition == null)
                 throw new MissingMethodException(transitions.FullName, "TransitionToNextScene");
 
-            harmony.Patch(transition, prefix: new HarmonyMethod(typeof(HealthWarningStartup), nameof(SelectLegacyMenuPath)));
+            harmony.Patch(transition, prefix: new HarmonyMethod(typeof(HealthWarningStartup), prefix));
         }
 
         private static IEnumerable<CodeInstruction> RewriteDestinationCheck(IEnumerable<CodeInstruction> instructions)
@@ -62,10 +68,18 @@ namespace Legato.Gameplay
 
         private static bool ShouldLoadWarning(bool requested) => requested && !_skipWarning();
 
+#if LEGATO_BEFORE_MULTIPLAYER
+        private static void SelectNativeMenuPath(ref bool __0)
+        {
+            if (!__0 && _skipWarning())
+                __0 = true;
+        }
+#else
         private static void SelectLegacyMenuPath(ref bool __0, bool __1, bool __2)
         {
             if (!__0 && !__1 && !__2 && _skipWarning())
                 __0 = true;
         }
+#endif
     }
 }

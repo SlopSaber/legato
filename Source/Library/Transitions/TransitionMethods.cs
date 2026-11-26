@@ -11,7 +11,7 @@ namespace Legato.Gameplay {
             (parameter.ParameterType == typeof(bool) || parameter.ParameterType == typeof(bool).MakeByRefType()));
 
         internal static MethodInfo? StandardLevelWithBeatmapData() => typeof(MenuTransitionsHelper).GetMethods()
-#if BEAT_SABER_1_29_0
+#if BEAT_SABER_1_29_0 || LEGATO_BEFORE_MULTIPLAYER
             .Where(method => method.Name == nameof(MenuTransitionsHelper.StartStandardLevel)
                 && method.GetParameters().Any(parameter => parameter.ParameterType == typeof(IDifficultyBeatmap)))
             .OrderByDescending(method => method.GetParameters().Length).FirstOrDefault();
