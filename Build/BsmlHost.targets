@@ -3,6 +3,17 @@
     <EditorConfigFiles Include="$(LegatoSourceRoot)Providers\BsmlHost\.editorconfig;$(LegatoSourceRoot)Library\LocalizationSupport\.editorconfig" />
   </ItemGroup>
   <Target Name="LegatoBsmlNativeReferences" BeforeTargets="ResolveAssemblyReferences" DependsOnTargets="LegatoConfigure">
+    <PropertyGroup Condition="'$(LegatoTargetVersion)' == '0.11.1'">
+      <DefineConstants>$(DefineConstants);LEGATO_EARLY_VR_UI;LEGATO_HMUI_PLAIN_TMP</DefineConstants>
+    </PropertyGroup>
+    <ItemGroup Condition="'$(LegatoTargetVersion)' == '0.11.1'">
+      <Reference Update="@(Reference)"
+                 Condition="'%(Reference.Identity)' == 'System.Xml.Linq' AND Exists('$(LegatoReferenceRoot)\IPA\CoreLibraries\System.Xml.Linq.dll')">
+        <HintPath>$(LegatoReferenceRoot)\IPA\CoreLibraries\System.Xml.Linq.dll</HintPath>
+        <Private>false</Private>
+      </Reference>
+      <Compile Remove="Harmony Patches\MainFlowCoordinator.cs" />
+    </ItemGroup>
     <PropertyGroup Condition="'$(LegatoTargetVersion)' == '1.11.1'">
       <DefineConstants>$(DefineConstants);LEGATO_HMUI_TABLE_SCROLLER;LEGATO_HMUI_LEGACY_SCROLL_VIEW;LEGATO_FIXED_TABLE_CELL_SIZE;LEGATO_LEGACY_TEXTMESH_PRO;LEGATO_HMUI_LEGACY_GRAPHICS</DefineConstants>
     </PropertyGroup>

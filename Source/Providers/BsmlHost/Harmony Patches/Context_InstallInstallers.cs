@@ -1,4 +1,5 @@
-﻿using System;
+﻿#if !LEGATO_EARLY_VR_UI
+using System;
 using BeatSaberMarkupLanguage.Animations;
 using BeatSaberMarkupLanguage.Macros;
 using BeatSaberMarkupLanguage.MenuButtons;
@@ -61,3 +62,4 @@ namespace BeatSaberMarkupLanguage.Harmony_Patches
         }
     }
 }
+#endif
