@@ -108,14 +108,7 @@ namespace Legato.Platform {
         internal async Task<UserCredentials> GetCredentials() {
             UserIdentity identity = await GetIdentity().ConfigureAwait(true);
 #if LEGATO_BEFORE_MULTIPLAYER
-            var completion = new TaskCompletionSource<string>(TaskCreationOptions.RunContinuationsAsynchronously);
-            _model.GetUserAuthToken((result, info) => {
-                if (result == PlatformUserModelSO.GetUserAuthTokenResult.OK && info != null && !string.IsNullOrEmpty(info.platformToken))
-                    completion.TrySetResult(info.platformToken);
-                else
-                    completion.TrySetException(new System.InvalidOperationException("The game platform did not return an authentication token."));
-            });
-            string proof = await completion.Task.ConfigureAwait(true);
+            string proof = await GetLegacyToken(CancellationToken.None).ConfigureAwait(true);
 #elif LEGATO_PLATFORM_USER_MODEL
             string proof = (await _model.GetUserAuthToken().ConfigureAwait(true)).token;
 #else
@@ -123,5 +116,26 @@ namespace Legato.Platform {
 #endif
             return new UserCredentials(identity.Platform, identity.UserId, proof);
         }
+#if LEGATO_BEFORE_MULTIPLAYER
+        internal async Task<string> GetLegacyToken(CancellationToken token) {
+            token.ThrowIfCancellationRequested();
+            var completion = new TaskCompletionSource<string>(TaskCreationOptions.RunContinuationsAsynchronously);
+            var request = _model.GetUserAuthToken((result, info) => {
+                if (result == PlatformUserModelSO.GetUserAuthTokenResult.OK && info != null && !string.IsNullOrEmpty(info.platformToken))
+                    completion.TrySetResult(info.platformToken);
+                else
+                    completion.TrySetException(new System.InvalidOperationException("The game platform did not return an authentication token."));
+            });
+            using var registration = token.Register(() => completion.TrySetCanceled());
+            try {
+                string proof = await completion.Task.ConfigureAwait(true);
+                token.ThrowIfCancellationRequested();
+                return proof;
+            } catch (System.OperationCanceledException) when (token.IsCancellationRequested) {
+                request?.Cancel();
+                throw;
+            }
+        }
+#endif
     }
 }

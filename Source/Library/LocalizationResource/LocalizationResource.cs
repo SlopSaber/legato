@@ -16,7 +16,7 @@ namespace Legato.LocalizationSupport {
                 using (var reader = new StreamReader(stream)) _asset = new TextAsset(reader.ReadToEnd());
             }
             _harmony = new Harmony(owner);
-#if BEAT_SABER_1_29_0
+#if BEAT_SABER_1_29_0 || LEGATO_NATIVE_POLYGLOT
             _harmony.Patch(AccessTools.DeclaredMethod(typeof(LocalizationImporter), "ImportInputFiles"), postfix: new HarmonyMethod(typeof(LocalizationResource), nameof(ImportLegacy)));
 #else
             _harmony.Patch(AccessTools.DeclaredMethod(typeof(LocalizationAsyncInstaller), "LoadResourcesBeforeInstall"), prefix: new HarmonyMethod(typeof(LocalizationResource), nameof(AddAsset)));
@@ -24,13 +24,13 @@ namespace Legato.LocalizationSupport {
         }
 
         internal static string Format(string key, params object[] values) =>
-#if BEAT_SABER_1_29_0
+#if BEAT_SABER_1_29_0 || LEGATO_NATIVE_POLYGLOT
             Localization.GetFormat(key, values);
 #else
             Localization.Instance.GetFormatOrKey(key, values);
 #endif
 
-#if BEAT_SABER_1_29_0
+#if BEAT_SABER_1_29_0 || LEGATO_NATIVE_POLYGLOT
         private static void ImportLegacy() => Polyglot.LocalizationImporter.ImportTextFile(_asset.text, Polyglot.GoogleDriveDownloadFormat.CSV);
 #else
         private static void AddAsset(IList<TextAsset> assets) => assets.Add(_asset);
