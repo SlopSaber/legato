@@ -7,7 +7,7 @@ namespace Shaffuru.GameLogic {
 		readonly GameplayCoreSceneSetupData _sceneSetupData;
 		static BeatmapLevelsModel beatmapLevelsModel;
 
-#if !BEAT_SABER_1_29_0
+#if !BEAT_SABER_1_29_0 && !LEGATO_BEFORE_MULTIPLAYER
 		readonly BeatmapLevelLoader beatmapLevelLoader;
 		readonly BeatmapDataLoader beatmapDataLoader;
 		readonly AudioClipAsyncLoader audioClipAsyncLoader;
@@ -20,7 +20,7 @@ namespace Shaffuru.GameLogic {
 		public BeatmapLoader(
 			GameplayCoreSceneSetupData _sceneSetupData,
 			BeatmapLevelsModel beatmapLevelsModel
-#if !BEAT_SABER_1_29_0
+#if !BEAT_SABER_1_29_0 && !LEGATO_BEFORE_MULTIPLAYER
 			, BeatmapLevelLoader beatmapLevelLoader,
 			BeatmapDataLoader beatmapDataLoader,
 			AudioClipAsyncLoader audioClipAsyncLoader
@@ -32,7 +32,7 @@ namespace Shaffuru.GameLogic {
 			this._sceneSetupData = _sceneSetupData;
 			BeatmapLoader.beatmapLevelsModel = beatmapLevelsModel;
 
-#if !BEAT_SABER_1_29_0
+#if !BEAT_SABER_1_29_0 && !LEGATO_BEFORE_MULTIPLAYER
 			this.beatmapLevelLoader = beatmapLevelLoader;
 			this.beatmapDataLoader = beatmapDataLoader;
 			this.audioClipAsyncLoader = audioClipAsyncLoader;
@@ -43,7 +43,7 @@ namespace Shaffuru.GameLogic {
 		}
 
 		public static void AddBeatmapToLoadedPreviewBeatmaps(string levelId, BeatmapLevel level) {
-#if BEAT_SABER_1_29_0
+#if BEAT_SABER_1_29_0 || LEGATO_BEFORE_MULTIPLAYER
             beatmapLevelsModel._loadedPreviewBeatmapLevels[levelId] = level;
 #elif BEAT_SABER_1_37_1 && !LEGATO_ADDITIONAL_PACK_LEVELS
             beatmapLevelsModel._allLoadedBeatmapLevelsRepository._idToBeatmapLevel[levelId] = level;
@@ -55,7 +55,7 @@ namespace Shaffuru.GameLogic {
 		}
 
 		public static BeatmapLevel GetPreviewBeatmapFromLevelId(string levelId) {
-#if BEAT_SABER_1_29_0
+#if BEAT_SABER_1_29_0 || LEGATO_BEFORE_MULTIPLAYER
             if (beatmapLevelsModel._loadedPreviewBeatmapLevels.TryGetValue(levelId, out var map))
 #else
             if(beatmapLevelsModel._allLoadedBeatmapLevelsRepository.TryGetBeatmapLevelById(levelId, out var map))
@@ -79,7 +79,7 @@ namespace Shaffuru.GameLogic {
 
 
 
-#if BEAT_SABER_1_29_0
+#if BEAT_SABER_1_29_0 || LEGATO_BEFORE_MULTIPLAYER
         public async Task<BeatmapLevel> LoadBeatmapLevel(string levelId) {
             var loaded = await beatmapLevelsModel.GetBeatmapLevelAsync(levelId, CancellationToken.None);
             return loaded.isError ? null : loaded.beatmapLevel;
@@ -91,6 +91,13 @@ namespace Shaffuru.GameLogic {
 
 		// Loads and transforms a difficulty the same way the game does when starting a level, so that
 		// left-handed mode, environment filtering and wall merging apply to every queued map.
+#if LEGATO_BEFORE_MULTIPLAYER
+		public Task<(IReadonlyBeatmapData beatmapData, UnityEngine.AudioClip audioClip)> LoadAndTransformBeatmapData(BeatmapLevel level, BeatmapKey key) {
+            var transformed = BeatDataTransformHelper.CreateTransformedBeatmapData(key.beatmapData,
+                _sceneSetupData.gameplayModifiers, null, _sceneSetupData.playerSpecificSettings);
+            return Task.FromResult((transformed, ((IBeatmapLevel)level).beatmapLevelData.audioClip));
+        }
+#else
 		public async Task<(IReadonlyBeatmapData beatmapData, UnityEngine.AudioClip audioClip)> LoadAndTransformBeatmapData(BeatmapLevel level, BeatmapKey key) {
 #if BEAT_SABER_1_29_0
             // Native difficulty loading retains custom JSON and SongCore's v4 translation hooks.
@@ -156,8 +163,9 @@ namespace Shaffuru.GameLogic {
 			return (transformedBeatmapData, audioClip);
 #endif
 		}
+#endif
 
-#if BEAT_SABER_1_29_0
+#if BEAT_SABER_1_29_0 || LEGATO_BEFORE_MULTIPLAYER
         public static IDifficultyBeatmap GetDifficultyBeatmapData(BeatmapLevel level, BeatmapKey key) => key;
 #else
 		public static BeatmapBasicData GetDifficultyBeatmapData(BeatmapLevel level, BeatmapKey key) =>

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-#if !BEAT_SABER_1_29_0
+#if !BEAT_SABER_1_29_0 && !LEGATO_BEFORE_MULTIPLAYER
 using BeatmapEditor3D;
 #endif
 using HarmonyLib;
@@ -24,7 +24,7 @@ namespace Shaffuru.MenuLogic {
 
 		public static BeatmapLevel beatmapLevel { get; private set; }
 		public static BeatmapKey beatmapKey { get; private set; }
-#if BEAT_SABER_1_29_0
+#if BEAT_SABER_1_29_0 || LEGATO_BEFORE_MULTIPLAYER
         static readonly BeatmapDataSO beatmapLevelData = ScriptableObject.CreateInstance<BeatmapDataSO>();
 #else
         static BeatmapEditor3D.BeatmapLevelData beatmapLevelData;
@@ -36,7 +36,7 @@ namespace Shaffuru.MenuLogic {
 
 		static UBinder<Plugin, System.Random> rngSource;
 
-#if BEAT_SABER_1_29_0
+#if BEAT_SABER_1_29_0 || LEGATO_BEFORE_MULTIPLAYER
         static EnvironmentInfoSO defaultEnvironment;
 #else
         static EnvironmentName defaultEnvironment;
@@ -61,7 +61,7 @@ namespace Shaffuru.MenuLogic {
 #if LEGATO_SCRIPTABLE_CHARACTERISTICS
             this.characteristics = characteristics;
 #endif
-#if BEAT_SABER_1_29_0
+#if BEAT_SABER_1_29_0 || LEGATO_BEFORE_MULTIPLAYER
             defaultEnvironment = customLevelLoader.LoadEnvironmentInfo("", false);
 #else
             defaultEnvironment = customLevelLoader.CreateEnvironmentName("", customLevelLoader._defaultEnvironmentInfo);
@@ -70,7 +70,7 @@ namespace Shaffuru.MenuLogic {
 
 		public event Action<LevelCompletionResults> finishedOrFailedCallback;
 
-#if !BEAT_SABER_1_29_0
+#if !BEAT_SABER_1_29_0 && !LEGATO_BEFORE_MULTIPLAYER
 		// Bare-bones IPreviewMediaData for our fake level - we don't have (or need) a real preview clip
 		class FakePreviewMediaData : IPreviewMediaData {
 #if LEGATO_CANCELLABLE_COVER_LOADING
@@ -113,19 +113,31 @@ namespace Shaffuru.MenuLogic {
 
 			string beatmapJson;
 
+#if LEGATO_BEFORE_MULTIPLAYER
+            beatmapJson = CreateLegacyIntro(comedy, a);
+#else
 			if(comedy) {
 				beatmapJson = @"{""version"":""3.0.0"",""basicBeatmapEvents"":[{""i"":3,""f"":3}],""colorNotes"":[{""b"":0.33,""x"":1,""y"":1,""d"":8},{""b"":" + a + @",""x"":1,""y"":1,""d"":8}],""bombNotes"":[],""obstacles"":[{""b"":0.33,""y"":2,""d"":0.02,""w"":1,""h"":-3},{""b"":0.33,""x"":2,""y"":2,""d"":0.02,""w"":1,""h"":-3},{""b"":0.33,""y"":2,""d"":0.02,""w"":3,""h"":1},{""b"":0.33,""x"":1,""y"":0,""d"":0.02,""w"":1,""h"":1},{""b"":0.33,""x"":3,""d"":0.02,""w"":1,""h"":2},{""b"":" + a + @",""x"":0,""d"":0.03,""w"":4,""h"":5}],""bpmEvents"":[],""rotationEvents"":[],""sliders"":[],""burstSliders"":[],""waypoints"":[],""colorBoostBeatmapEvents"":[],""lightColorEventBoxGroups"":[],""lightRotationEventBoxGroups"":[],""basicEventTypesWithKeywords"":[],""useNormalEventsAsCompatibleEvents"":true}";
 			} else {
 				beatmapJson = @"{""version"":""3.0.0"",""basicBeatmapEvents"":[{""b"":0,""et"":3,""i"":0,""f"":3}],""colorNotes"":[{""b"":0.5,""x"":1,""y"":0,""c"":1,""d"":1},{""b"":0.5,""x"":1,""y"":1,""c"":1,""d"":1},{""b"":0.5,""x"":1,""y"":2,""c"":1,""d"":1},{""b"":0.5,""x"":2,""y"":0,""c"":0,""d"":8},{""b"":" + a + @",""x"":1,""y"":1,""c"":0,""d"":8}],""bombNotes"":[],""obstacles"":[{""b"":0.4,""x"":3,""y"":0,""d"":3,""w"":1,""h"":5},{""b"":0.4,""x"":0,""y"":0,""d"":3,""w"":1,""h"":5},{""b"":" + a + @",""x"":0,""y"":0,""d"":0.1,""w"":4,""h"":5}],""bpmEvents"":[],""rotationEvents"":[],""sliders"":[],""burstSliders"":[],""waypoints"":[],""colorBoostBeatmapEvents"":[],""lightColorEventBoxGroups"":[],""lightRotationEventBoxGroups"":[],""basicEventTypesWithKeywords"":[],""useNormalEventsAsCompatibleEvents"":true}";
 			}
+#endif
 
-#if BEAT_SABER_1_29_0
+#if BEAT_SABER_1_29_0 || LEGATO_BEFORE_MULTIPLAYER
             beatmapLevelData.SetJsonData(beatmapJson);
+#if LEGATO_BEFORE_MULTIPLAYER
+            beatmapLevelData.beatmapData = null;
+#endif
             var nativeLevel = beatmapLevel as BeatmapLevelSO ?? ScriptableObject.CreateInstance<BeatmapLevelSO>();
             var nativeKey = new BeatmapLevelSO.DifficultyBeatmap(nativeLevel, difficulty, 0, 10, 0, beatmapLevelData);
             var standard = characteristics.GetBeatmapCharacteristicBySerializedName("Standard");
             nativeLevel.InitFull(levelId, $"Shaffuru ({lengthSeconds / 60} Minutes)", "", "Kinsi55", "Kinsi55",
-                fakeAudioClip, bpm, 0, 0, 0, 0, 0, SongCore.Loader.defaultCoverImage,
+                fakeAudioClip, bpm, 0, 0, 0, 0, 0,
+#if LEGATO_BEFORE_MULTIPLAYER
+                SongCore.Loader.defaultCoverImage?.texture,
+#else
+                SongCore.Loader.defaultCoverImage,
+#endif
                 defaultEnvironment, defaultEnvironment,
                 new[] { new BeatmapLevelSO.DifficultyBeatmapSet(standard, new[] { nativeKey }) });
             beatmapLevel = nativeLevel;
@@ -200,13 +212,41 @@ namespace Shaffuru.MenuLogic {
 #endif
 		}
 
+#if LEGATO_BEFORE_MULTIPLAYER
+        private static string CreateLegacyIntro(bool comedy, string endBeat) {
+            string events = comedy ? @"{""_time"":0,""_type"":0,""_value"":3}" : @"{""_time"":0,""_type"":3,""_value"":0}";
+            string header = @"{""_version"":""2.2.0"",""_events"" : [" + events + @"],""_notes"":[";
+            string notes = comedy
+                ? @"{""_time"":0.33,""_lineIndex"":1,""_lineLayer"":1,""_cutDirection"":8}"
+                : @"{""_time"":0.5,""_lineIndex"":1,""_type"":1,""_cutDirection"":1},
+                    {""_time"":0.5,""_lineIndex"":1,""_lineLayer"":1,""_type"":1,""_cutDirection"":1},
+                    {""_time"":0.5,""_lineIndex"":1,""_lineLayer"":2,""_type"":1,""_cutDirection"":1},
+                    {""_time"":0.5,""_lineIndex"":2,""_cutDirection"":8}";
+            string walls = comedy
+                ? @"],""_obstacles"":[{""_time"":0.33,""_lineIndex"":0,""_type"":1,""_duration"":0.02,""_width"":1},
+                    {""_time"":0.33,""_lineIndex"":2,""_type"":1,""_duration"":0.02,""_width"":1},
+                    {""_time"":0.33,""_lineIndex"":0,""_type"":1,""_duration"":0.02,""_width"":3},
+                    {""_time"":0.33,""_lineIndex"":1,""_duration"":0.02,""_width"":1},
+                    {""_time"":0.33,""_lineIndex"":3,""_duration"":0.02,""_width"":1},"
+                : @"],""_obstacles"":[{""_time"":0.4,""_lineIndex"":3,""_duration"":3,""_width"":1},
+                    {""_time"":0.4,""_lineIndex"":0,""_duration"":3,""_width"":1},";
+            string endDuration = comedy ? "0.03" : "0.1";
+            return header + notes + @",{""_time"":" + endBeat + @",""_lineIndex"":1,""_lineLayer"":1,""_cutDirection"":8}" +
+                walls + @"{""_time"":" + endBeat + @",""_lineIndex"":0,""_duration"":" + endDuration + @",""_width"":4}]}";
+        }
+#endif
+
 		public void Start(int lengthSeconds, int rngSeed = 0) {
 			if(rngSeed != 0)
 				rngSource.Value = new System.Random(rngSeed);
 
 			UpdateFakeBeatmap(lengthSeconds);
 
+#if LEGATO_BEFORE_MULTIPLAYER
+            var endCallback = new Action<StandardLevelScenesTransitionSetupDataSO, LevelCompletionResults>((a, b) => {
+#else
 			var endCallback = new Action<StandardLevelScenesTransitionSetupData, LevelCompletionResults>((a, b) => {
+#endif
 				if(b.levelEndAction == LevelCompletionResults.LevelEndAction.Restart) {
 					Start(lengthSeconds);
 					return;
@@ -227,7 +267,12 @@ namespace Shaffuru.MenuLogic {
 
 			var colorSchemesSettings = playerDataModel.playerData.colorSchemesSettings;
 
-#if BEAT_SABER_1_29_0
+#if LEGATO_BEFORE_MULTIPLAYER
+            menuTransitionsHelper.StartStandardLevel(key, playerDataModel.playerData.overrideEnvironmentSettings,
+                colorSchemesSettings.overrideDefaultColors ? colorSchemesSettings.GetSelectedColorScheme() : null,
+                playerDataModel.playerData.gameplayModifiers,
+                playerDataModel.playerData.playerSpecificSettings, null, "Exit", false, null, endCallback);
+#elif BEAT_SABER_1_29_0
             menuTransitionsHelper.StartStandardLevel("Shaffuru", key, beatmapLevel,
                 playerDataModel.playerData.overrideEnvironmentSettings, colorSchemesSettings.GetOverrideColorScheme(),
                 playerDataModel.playerData.gameplayModifiers, playerDataModel.playerData.playerSpecificSettings,

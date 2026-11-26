@@ -1,3 +1,4 @@
+#if !LEGATO_BEFORE_MULTIPLAYER
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -311,3 +312,4 @@ namespace Shaffuru.GameLogic {
 		}
 	}
 }
+#endif
