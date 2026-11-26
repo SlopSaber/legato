@@ -1,4 +1,5 @@
 #if LEGATO_BEFORE_MULTIPLAYER
+global using Legato.Runtime;
 global using NativeBeatmapCharacteristic = global::BeatmapCharacteristicSO;
 #elif BEAT_SABER_1_45_1 || BEAT_SABER_1_45_3
 global using HapticPresetSO = BeatSaber.Haptics.HapticPresetSO;

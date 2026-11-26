@@ -1,6 +1,8 @@
 #if LEGATO_BEFORE_MULTIPLAYER
 using System;
 
+namespace Legato.Runtime;
+
 internal static class LegacyTimeExtensions
 {
     private static readonly DateTime UnixEpoch = new(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);

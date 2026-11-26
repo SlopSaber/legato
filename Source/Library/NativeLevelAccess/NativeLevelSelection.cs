@@ -30,7 +30,14 @@ namespace Legato.UI {
 #endif
             return true;
         }
-#if !LEGATO_BEFORE_MULTIPLAYER
+#if LEGATO_BEFORE_MULTIPLAYER
+        internal static void OpenPack(MainFlowCoordinator menu, NativeSongPack pack) =>
+            menu.ProcessMenuDestinationRequest(new SelectLevelPackDestination(pack));
+
+        internal static void OpenLevel(MainFlowCoordinator menu, NativeSongPack pack, BeatmapLevel level, BeatmapKey key) =>
+            menu.ProcessMenuDestinationRequest(new SelectLevelDestination(
+                pack, level, key.difficulty, key.parentDifficultyBeatmapSet.beatmapCharacteristic));
+#else
         internal static LevelSelectionFlowCoordinator.State State(SelectLevelCategoryViewController.LevelCategory category, NativeSongPack pack, BeatmapKey key, BeatmapLevel level) =>
 #if BEAT_SABER_1_29_0
             new(category, pack, level, key);
