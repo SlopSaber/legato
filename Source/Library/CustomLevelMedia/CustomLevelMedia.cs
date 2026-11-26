@@ -4,14 +4,14 @@ using IPA.Utilities;
 
 namespace Legato.Beatmaps {
     internal static class CustomLevelMedia {
-#if !BEAT_SABER_1_29_0
+#if !BEAT_SABER_1_29_0 && !LEGATO_BEFORE_MULTIPLAYER
         private static readonly FieldAccessor<FileSystemPreviewMediaData, string>.Accessor Audio =
             FieldAccessor<FileSystemPreviewMediaData, string>.GetAccessor("_previewAudioClipPath");
         private static readonly FieldAccessor<FileSystemPreviewMediaData, string>.Accessor Cover =
             FieldAccessor<FileSystemPreviewMediaData, string>.GetAccessor("_coverSpritePath");
 #endif
         internal static bool TryGetPaths(BeatmapLevel level, out string? audioPath, out string? coverPath) {
-#if BEAT_SABER_1_29_0
+#if BEAT_SABER_1_29_0 || LEGATO_BEFORE_MULTIPLAYER
             string? folder = null;
             string? audio = null;
             string? cover = null;
