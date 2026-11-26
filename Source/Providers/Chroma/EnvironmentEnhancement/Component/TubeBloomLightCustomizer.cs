@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Linq;
 using CustomJSONData.CustomBeatmap;
 using Heck.Animation;
@@ -24,7 +24,22 @@ internal static class TubeBloomLightCustomizer
         tubeBloomPrePassLight._bakedGlowOnceParInitialized = false;
 #endif
         tubeBloomPrePassLight._colorAlphaMultiplier = value;
+#if LEGATO_CHROMA_LEGACY_LIGHTS
+        tubeBloomPrePassLight.Refresh();
+        UnityEngine.Color color = tubeBloomPrePassLight.color;
+        tubeBloomPrePassLight.color = color;
+#else
         tubeBloomPrePassLight.MarkDirty();
+#endif
+    }
+
+    internal static void SetBloomFogIntensityMultiplier(TubeBloomPrePassLight light, float value)
+    {
+#if LEGATO_CHROMA_LEGACY_LIGHTS
+        light._bloomFogIntensityMultiplier = value;
+#else
+        light.bloomFogIntensityMultiplier = value;
+#endif
     }
 
     internal static void TubeBloomPrePassLightInit(List<UnityEngine.Component> allComponents, CustomData customData)
@@ -50,7 +65,7 @@ internal static class TubeBloomLightCustomizer
 
             if (bloomFogIntensityMultiplier.HasValue)
             {
-                tubeBloomPrePassLight.bloomFogIntensityMultiplier = bloomFogIntensityMultiplier.Value;
+                SetBloomFogIntensityMultiplier(tubeBloomPrePassLight, bloomFogIntensityMultiplier.Value);
             }
         }
     }

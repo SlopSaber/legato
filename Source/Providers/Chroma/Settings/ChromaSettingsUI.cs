@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using BeatSaberMarkupLanguage.Attributes;
@@ -17,7 +17,9 @@ internal class ChromaSettingsUI : IInitializable, IDisposable
     private readonly GameplaySetup _gameplaySetup;
     private readonly SavedEnvironmentLoader _savedEnvironmentLoader;
 
-#if !PRE_V1_37_1
+#if LEGATO_CHROMA_LEGACY_LIGHTS
+    private readonly BeatmapLevelsModel _beatmapLevelsModel;
+#elif !PRE_V1_37_1
     private readonly BeatmapDataLoader _beatmapDataLoader;
 #else
     private readonly BeatmapDataCache _beatmapDataCache;
@@ -33,7 +35,9 @@ internal class ChromaSettingsUI : IInitializable, IDisposable
         GameplaySetup gameplaySetup,
 #endif
         SavedEnvironmentLoader savedEnvironmentLoader,
-#if !PRE_V1_37_1
+#if LEGATO_CHROMA_LEGACY_LIGHTS
+        BeatmapLevelsModel beatmapLevelsModel)
+#elif !PRE_V1_37_1
         BeatmapDataLoader beatmapDataLoader)
 #else
         BeatmapDataCache beatmapDataCache)
@@ -46,7 +50,9 @@ internal class ChromaSettingsUI : IInitializable, IDisposable
         _gameplaySetup = GameplaySetup.instance;
 #endif
         _savedEnvironmentLoader = savedEnvironmentLoader;
-#if !PRE_V1_37_1
+#if LEGATO_CHROMA_LEGACY_LIGHTS
+        _beatmapLevelsModel = beatmapLevelsModel;
+#elif !PRE_V1_37_1
         _beatmapDataLoader = beatmapDataLoader;
 #else
         _beatmapDataCache = beatmapDataCache;
@@ -66,7 +72,9 @@ internal class ChromaSettingsUI : IInitializable, IDisposable
 
     private void ClearCache()
     {
-#if !PRE_V1_37_1
+#if LEGATO_CHROMA_LEGACY_LIGHTS
+        _beatmapLevelsModel.ClearLoadedBeatmapLevelsCaches();
+#elif !PRE_V1_37_1
         _beatmapDataLoader._lastUsedBeatmapDataCache = default;
 #else
         _beatmapDataCache.difficultyBeatmap = null;
@@ -108,6 +116,16 @@ internal class ChromaSettingsUI : IInitializable, IDisposable
         get => _config.NoteColoringDisabled;
         set => _config.NoteColoringDisabled = value;
     }
+
+    [UsedImplicitly]
+    [UIValue("zenmodeavailable")]
+#pragma warning disable SA1201
+#if LEGATO_CHROMA_LEGACY_LIGHTS
+    public bool ZenModeAvailable => false;
+#else
+    public bool ZenModeAvailable => true;
+#endif
+#pragma warning restore SA1201
 
     [UsedImplicitly]
     [UIValue("zenwalls")]

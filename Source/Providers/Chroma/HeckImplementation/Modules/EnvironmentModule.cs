@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Linq;
 using Chroma.EnvironmentEnhancement.Saved;
 using Chroma.Settings;
@@ -117,11 +117,16 @@ internal class EnvironmentModule : IModule
             settingForce = settingForce || _nativeLightshowQuality.IsQuality(beatmapLevel, in beatmapKey);
 #endif
         }
+#elif LEGATO_CHROMA_LEGACY_LIGHTS
+        CustomBeatmapData? customBeatmapData = difficultyBeatmap.beatmapData as CustomBeatmapData;
+        bool settingForce = _config.ForceMapEnvironmentWhenQualityLights &&
+                            (customBeatmapData?.hasAuthoredEvents ??
+                             (difficultyBeatmap.beatmapData?.beatmapEventData.Length > 0));
 #else
         bool settingForce = _config.ForceMapEnvironmentWhenQualityLights && dependency;
 #endif
 
-#if PRE_V1_37_1
+#if PRE_V1_37_1 && !LEGATO_CHROMA_LEGACY_LIGHTS
         Version3CustomBeatmapSaveData? customBeatmapSaveData = difficultyBeatmap.GetBeatmapSaveData();
 #endif
         if (settingForce ||
@@ -129,6 +134,11 @@ internal class EnvironmentModule : IModule
 #if !PRE_V1_37_1
              // cant conditionally enable environment module without reading customdata
              dependency))
+#elif LEGATO_CHROMA_LEGACY_LIGHTS
+             customBeatmapData != null &&
+             ((customBeatmapData.beatmapCustomData.Get<List<object>>(V2_ENVIRONMENT_REMOVAL)?.Count ?? 0) > 0 ||
+              (customBeatmapData.customData.Get<List<object>>(V2_ENVIRONMENT)?.Count ?? 0) > 0 ||
+              (customBeatmapData.customData.Get<List<object>>(ENVIRONMENT)?.Count ?? 0) > 0)))
 #else
              customBeatmapSaveData != null &&
              ((customBeatmapSaveData.beatmapCustomData.Get<List<object>>(V2_ENVIRONMENT_REMOVAL)?.Count ?? 0) > 0 ||

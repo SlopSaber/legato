@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Chroma.EnvironmentEnhancement.Saved;
@@ -132,6 +132,10 @@ internal class MaterialsManager : IDisposable
     {
         string shaderName = shaderType switch
         {
+#if LEGATO_CHROMA_LEGACY_LIGHTS
+            ShaderType.OpaqueLight or ShaderType.TransparentLight or ShaderType.Glowing => "Custom/Glowing",
+            _ => "Custom/SimpleLit"
+#else
             ShaderType.OpaqueLight => "Custom/OpaqueNeonLight",
             ShaderType.TransparentLight => "Custom/TransparentNeonLight",
 #if PRE_V1_37_1
@@ -139,6 +143,7 @@ internal class MaterialsManager : IDisposable
 #endif
             ShaderType.Glowing => "Custom/Glowing",
             _ => "Custom/SimpleLit"
+#endif
         };
 #if !PRE_V1_37_1
         Shader shader = _allShaders.First(n => n.name == shaderName);
@@ -200,7 +205,14 @@ internal class MaterialsManager : IDisposable
         switch (shaderType)
         {
             case ShaderType.Standard:
+#if LEGATO_CHROMA_LEGACY_LIGHTS
+                if (material.HasProperty(_metallicPropertyID))
+                {
+                    material.SetFloat(_metallicPropertyID, 0);
+                }
+#else
                 material.SetFloat(_metallicPropertyID, 0);
+#endif
                 break;
 
             // Small fix to allow for infinite distance so it doesn't darken
@@ -233,7 +245,13 @@ internal class MaterialsManager : IDisposable
             ShaderType.Glowing => _glowingMaterial,
             _ => _environmentMaterialsManager.EnvironmentMaterials.TryGetValue(shaderType, out Material foundMat)
                 ? foundMat
+#if LEGATO_CHROMA_LEGACY_LIGHTS
+                : shaderType is ShaderType.BillieWater or ShaderType.WaterfallMirror
+                    ? _baseWaterMaterial
+                    : _standardMaterial
+#else
                 : throw new InvalidOperationException()
+#endif
         };
 
 #if !PRE_V1_40_8

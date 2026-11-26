@@ -1,4 +1,4 @@
-﻿using JetBrains.Annotations;
+using JetBrains.Annotations;
 using UnityEngine;
 using Zenject;
 
@@ -8,7 +8,9 @@ internal class ReloadListener : ITickable
 {
     private readonly SavedEnvironmentLoader _savedEnvironmentLoader;
 
-#if !PRE_V1_37_1
+#if LEGATO_CHROMA_LEGACY_LIGHTS
+    private readonly BeatmapLevelsModel _beatmapLevelsModel;
+#elif !PRE_V1_37_1
     private readonly BeatmapDataLoader _beatmapDataLoader;
 #else
     private readonly BeatmapDataCache _beatmapDataCache;
@@ -17,14 +19,18 @@ internal class ReloadListener : ITickable
     [UsedImplicitly]
     private ReloadListener(
         SavedEnvironmentLoader savedEnvironmentLoader,
-#if !PRE_V1_37_1
+#if LEGATO_CHROMA_LEGACY_LIGHTS
+        BeatmapLevelsModel beatmapLevelsModel)
+#elif !PRE_V1_37_1
         BeatmapDataLoader beatmapDataLoader)
 #else
         BeatmapDataCache beatmapDataCache)
 #endif
     {
         _savedEnvironmentLoader = savedEnvironmentLoader;
-#if !PRE_V1_37_1
+#if LEGATO_CHROMA_LEGACY_LIGHTS
+        _beatmapLevelsModel = beatmapLevelsModel;
+#elif !PRE_V1_37_1
         _beatmapDataLoader = beatmapDataLoader;
 #else
         _beatmapDataCache = beatmapDataCache;
@@ -38,7 +44,9 @@ internal class ReloadListener : ITickable
             return;
         }
 
-#if !PRE_V1_37_1
+#if LEGATO_CHROMA_LEGACY_LIGHTS
+        _beatmapLevelsModel.ClearLoadedBeatmapLevelsCaches();
+#elif !PRE_V1_37_1
         _beatmapDataLoader._lastUsedBeatmapDataCache = default;
 #else
         _beatmapDataCache.difficultyBeatmap = null;

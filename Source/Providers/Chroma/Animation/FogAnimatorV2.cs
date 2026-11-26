@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using CustomJSONData.CustomBeatmap;
 using Heck;
 using Heck.Animation;
@@ -19,6 +19,11 @@ internal class FogAnimatorV2 : ITickable, IDisposable, ICustomEvent
     private readonly DeserializedData _deserializedData;
 
     private readonly BloomFogEnvironmentParams _transitionFogParams;
+#if LEGATO_CHROMA_LEGACY_LIGHTS
+    private BloomFogEnvironmentParams? _previousFogParams;
+    private float _previousTransition;
+#endif
+
     private Track? _track;
 
     [UsedImplicitly]
@@ -30,6 +35,7 @@ internal class FogAnimatorV2 : ITickable, IDisposable, ICustomEvent
         _deserializedData = deserializedData;
 
         _transitionFogParams = ScriptableObject.CreateInstance<BloomFogEnvironmentParams>();
+#if !LEGATO_CHROMA_LEGACY_LIGHTS
         BloomFogEnvironmentParams defaultParams = bloomFog.defaultForParams;
         _transitionFogParams.attenuation = defaultParams.attenuation;
         _transitionFogParams.offset = defaultParams.offset;
@@ -41,6 +47,7 @@ internal class FogAnimatorV2 : ITickable, IDisposable, ICustomEvent
         _transitionFogParams.legacyAutoExposure = defaultParams.legacyAutoExposure;
 #endif
         bloomFog.transitionFogParams = _transitionFogParams;
+#endif
     }
 
     public void Callback(CustomEventData customEventData)
@@ -53,8 +60,17 @@ internal class FogAnimatorV2 : ITickable, IDisposable, ICustomEvent
 
     public void Dispose()
     {
+#if LEGATO_CHROMA_LEGACY_LIGHTS
+        if (_bloomFog.fog1Params == _transitionFogParams)
+        {
+            _bloomFog.fog1Params = _previousFogParams;
+            _bloomFog.transition = _previousTransition;
+            _bloomFog.UpdateShaderParams();
+        }
+#else
         _bloomFog.transition = 0;
         _bloomFog.transitionFogParams = null;
+#endif
         Object.Destroy(_transitionFogParams);
     }
 
@@ -65,6 +81,21 @@ internal class FogAnimatorV2 : ITickable, IDisposable, ICustomEvent
             return;
         }
 
+#if LEGATO_CHROMA_LEGACY_LIGHTS
+        if (_bloomFog.fog0Params == null)
+        {
+            return;
+        }
+
+        if (_bloomFog.fog1Params != _transitionFogParams)
+        {
+            _previousFogParams = _bloomFog.fog1Params;
+            _previousTransition = _bloomFog.transition;
+            _transitionFogParams.attenuation = _bloomFog.fog0Params.attenuation;
+            _transitionFogParams.offset = _bloomFog.fog0Params.offset;
+            _bloomFog.fog1Params = _transitionFogParams;
+        }
+#endif
         float? attenuation = _track.GetProperty<float>(V2_ATTENUATION);
         if (attenuation.HasValue)
         {
@@ -77,6 +108,10 @@ internal class FogAnimatorV2 : ITickable, IDisposable, ICustomEvent
             _transitionFogParams.offset = offset.Value;
         }
 
+#if LEGATO_CHROMA_LEGACY_LIGHTS
+        _bloomFog.transition = 1;
+        _bloomFog.UpdateShaderParams();
+#else
         float? startY = _track.GetProperty<float>(V2_HEIGHT_FOG_STARTY);
         if (startY.HasValue)
         {
@@ -90,5 +125,6 @@ internal class FogAnimatorV2 : ITickable, IDisposable, ICustomEvent
         }
 
         _bloomFog._transition = 1;
+#endif
     }
 }

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -21,7 +21,9 @@ namespace Chroma.EnvironmentEnhancement;
 internal class EnvironmentMaterialsManager : MonoBehaviour
 {
     private Dictionary<ShaderType, Material>? _environmentMaterials;
+#if !LEGATO_CHROMA_LEGACY_LIGHTS
     private SiraLog _log = null!;
+#endif
 
 #if !PRE_V1_37_1
     private Shader? _waterLit;
@@ -62,6 +64,10 @@ internal class EnvironmentMaterialsManager : MonoBehaviour
             yield break;
         }
 
+#if LEGATO_CHROMA_LEGACY_LIGHTS
+        _environmentMaterials = new Dictionary<ShaderType, Material>();
+        yield break;
+#else
         string[] environments = ["BTSEnvironment", "BillieEnvironment", "InterscopeEnvironment"];
         IEnumerable<_AsyncOperation> loads = environments.Select(Load).ToArray();
         foreach (_AsyncOperation asyncOperationHandle in loads)
@@ -116,14 +122,17 @@ internal class EnvironmentMaterialsManager : MonoBehaviour
                    throw new InvalidOperationException($"Failed to load scene {environmentName}");
 #endif
         }
+#endif
     }
 
+#if !LEGATO_CHROMA_LEGACY_LIGHTS
     [UsedImplicitly]
     [Inject]
     private void Construct(SiraLog log)
     {
         _log = log;
     }
+#endif
 
     private void Initialize()
     {

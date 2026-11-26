@@ -9,6 +9,8 @@ public abstract class LegacyColorTween
 {
     private float _progress;
 
+    // Match the tween properties used by Chroma on releases with the native tween manager.
+#pragma warning disable SA1300
     public Color fromValue { get; set; }
 
     public Color toValue { get; set; }
@@ -18,6 +20,7 @@ public abstract class LegacyColorTween
     public float duration { get; set; }
 
     public bool isKilled { get; private set; } = true;
+#pragma warning restore SA1300
 
     public abstract Color GetValue(float time);
 

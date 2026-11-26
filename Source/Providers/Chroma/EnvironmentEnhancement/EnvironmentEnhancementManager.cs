@@ -360,7 +360,7 @@ internal class EnvironmentEnhancementManager : IAffinity
                         controller.ScaleUpdated += () =>
                             _parametricBoxControllerTransformOverride.UpdateScale(parametricBoxController);
                     }
-#if PRE_V1_37_1
+#if PRE_V1_37_1 && !LEGATO_CHROMA_LEGACY_LIGHTS
                     else if (beatmapObjectsAvoidance != null)
                     {
                         controller.RotationUpdated += () =>
