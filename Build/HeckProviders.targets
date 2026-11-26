@@ -30,6 +30,9 @@
     </ItemGroup>
   </Target>
   <Target Name="LegatoSuiteLegacyReferences" BeforeTargets="ResolveAssemblyReferences" DependsOnTargets="LegatoConfigure">
+    <ItemGroup Condition="'$(LegatoTargetVersion)' == '1.11.1' AND '$(LegatoEnableNoodleExtensionsProviders)' == 'true'">
+      <Reference Remove="BeatmapCore;BGLib.DotnetExtension;BGLib.UnityExtension;BGNetCore;DataModels;GameplayCore" />
+    </ItemGroup>
     <ItemGroup Condition="'$(LegatoTargetVersion)' == '1.11.1' AND '$(LegatoEnableChromaProviders)' == 'true'">
       <Reference Remove="AdditionalContentModel.Interfaces;BeatmapCore;BGLib.AppFlow;BGLib.DotnetExtension;BGLib.UnityExtension;DataModels;GameplayCore;Tweening;Unity.Addressables;Unity.ResourceManager" />
     </ItemGroup>
@@ -90,6 +93,7 @@
       <DefineConstants Condition="'$(LegatoTargetVersion)' == '1.11.1' AND '$(LegatoEnableCustomJsonDataProviders)' == 'true'">$(DefineConstants);LEGATO_CUSTOM_JSON_LEGACY_LOADER</DefineConstants>
       <DefineConstants Condition="'$(LegatoTargetVersion)' == '1.11.1' AND '$(LegatoEnableHeckProviders)' == 'true'">$(DefineConstants);LEGATO_HECK_LEGACY_GAMEPLAY</DefineConstants>
       <DefineConstants Condition="'$(LegatoTargetVersion)' == '1.11.1' AND '$(LegatoEnableChromaProviders)' == 'true'">$(DefineConstants);LEGATO_CHROMA_LEGACY_LIGHTS</DefineConstants>
+      <DefineConstants Condition="'$(LegatoTargetVersion)' == '1.11.1' AND '$(LegatoEnableNoodleExtensionsProviders)' == 'true'">$(DefineConstants);LEGATO_NOODLE_LEGACY_GAMEPLAY</DefineConstants>
       <DefineConstants Condition="'$(LegatoTargetProfile)' == '1.45.3'">$(DefineConstants);BEAT_SABER_1453</DefineConstants>
       <DefineConstants Condition="$([MSBuild]::VersionGreaterThanOrEquals('$(LegatoTargetVersion)', '1.46.0'))">$(DefineConstants);BEAT_SABER_1460</DefineConstants>
       <GameVersion>$(LegatoTargetVersion)</GameVersion>

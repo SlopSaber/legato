@@ -632,6 +632,22 @@
                Condition="'$(LegatoEnableChromaProviders)' == 'true' AND '$(LegatoTargetVersion)' == '1.11.1'" />
       <Compile Include="$(LegatoSourceRoot)Providers\NoodleExtensions\**\*.cs"
                Condition="'$(LegatoEnableNoodleExtensionsProviders)' == 'true'" />
+      <Compile Remove="$(LegatoSourceRoot)Providers\NoodleExtensions\HarmonyPatches\FakeNotes\BeatmapDataFakeCount.cs;
+                       $(LegatoSourceRoot)Providers\NoodleExtensions\HeckImplementation\FakeNotesJSON.cs;
+                       $(LegatoSourceRoot)Providers\NoodleExtensions\HarmonyPatches\ObjectProcessing\NoodledSpawnMovementData.cs;
+                       $(LegatoSourceRoot)Providers\NoodleExtensions\HarmonyPatches\ObjectProcessing\ProcessNotesNoodleDataInTimeRow.cs;
+                       $(LegatoSourceRoot)Providers\NoodleExtensions\HarmonyPatches\SmallFixes\InitializedSpawnMovementData.cs;
+                       $(LegatoSourceRoot)Providers\NoodleExtensions\Managers\SpawnDataManager.cs;
+                       HarmonyPatches\ObjectProcessing\ObjectCallbackAheadTimeReorder.cs;
+                       HarmonyPatches\ObjectProcessing\NoodleBeatmapObjectsInTimeRowProcessor.cs;
+                       Managers\NoodleObjectsCallbacksManager.cs;
+                       $(LegatoSourceRoot)Providers\NoodleExtensions\HarmonyPatches\Objects\SliderInitNoodlifier.cs;
+                       $(LegatoSourceRoot)Providers\NoodleExtensions\HarmonyPatches\Objects\SliderUpdateNoodlifier.cs;
+                       HarmonyPatches\FakeNotes\FakeNotePatches.cs;
+                       HarmonyPatches\FakeNotes\MiscFakePatches.cs;
+                       HarmonyPatches\Mirror\*.cs;
+                       HarmonyPatches\SmallFixes\SliderMeshHeightUncapper.cs"
+               Condition="'$(LegatoEnableNoodleExtensionsProviders)' == 'true' AND '$(LegatoTargetVersion)' == '1.11.1'" />
       <Compile Include="$(LegatoSourceRoot)Library\NativeTypeAliases\**\*.cs"
                Condition="'$(LegatoEnableNativeTypeAliases)' == 'true' OR '$(LegatoEnableSiraHost)' == 'true' OR '$(LegatoEnableBsUtilsHost)' == 'true'" />
       <Compile Include="$(LegatoSourceRoot)Providers\BsUtilsHost\**\*.cs"
