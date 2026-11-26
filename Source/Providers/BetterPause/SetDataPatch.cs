@@ -1,3 +1,4 @@
+#if !LEGATO_BEFORE_MULTIPLAYER
 using System;
 using SiraUtil.Affinity;
 #if BEAT_SABER_1_29_0
@@ -35,3 +36,4 @@ namespace BetterPause.Patches
 #endif
     }
 }
+#endif

@@ -1,14 +1,32 @@
 #nullable enable
+#if LEGATO_BEFORE_MULTIPLAYER
+using TMPro;
+using UnityEngine.UI;
+#else
 using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using HarmonyLib;
 using HMUI;
+#endif
 using IPA.Utilities;
 using UnityEngine;
 
 namespace Legato.Presentation {
     internal static class PauseMenuLayout {
+#if LEGATO_BEFORE_MULTIPLAYER
+        internal static NativePauseLevel? SceneLevel(GameplayCoreSceneSetupData scene) => scene.difficultyBeatmap?.level;
+        internal static string Contributors(NativePauseLevel level) => level.levelAuthorName;
+
+        internal static (TextMeshProUGUI Title, TextMeshProUGUI Difficulty) LegacyLabels(PauseMenuManager menu) =>
+            (menu.GetField<TextMeshProUGUI, PauseMenuManager>("_levelNameText"),
+             menu.GetField<TextMeshProUGUI, PauseMenuManager>("_beatmapDifficultyText"));
+
+        internal static (Button Back, Button Restart, Button Continue) LegacyButtons(PauseMenuManager menu) =>
+            (menu.GetField<Button, PauseMenuManager>("_backButton"),
+             menu.GetField<Button, PauseMenuManager>("_restartButton"),
+             menu.GetField<Button, PauseMenuManager>("_continueButton"));
+#else
         internal static NativePauseLevel? InitializeLevelBar(PauseMenuManager menu) {
             var data = InitData(menu);
             var bar = menu != null ? menu.GetField<LevelBar, PauseMenuManager>("_levelBar") : null;
@@ -58,6 +76,7 @@ namespace Legato.Presentation {
 
         internal static Transform? FindCanvas(PauseMenuManager manager) =>
             manager.transform.Find("Wrapper/MenuWrapper/Canvas");
+#endif
 
         internal static Canvas? ParentCanvas(Component? component) {
             for (Transform? current = component != null ? component.transform : null; current != null; current = current.parent) {
@@ -67,9 +86,11 @@ namespace Legato.Presentation {
             return null;
         }
 
+#if !LEGATO_BEFORE_MULTIPLAYER
         internal static ImageView? FindBackground(Transform canvas) {
             var background = canvas.Find("MainBar/LevelBarSimple/BG");
             return background != null ? background.GetComponent<ImageView>() : null;
         }
+#endif
     }
 }

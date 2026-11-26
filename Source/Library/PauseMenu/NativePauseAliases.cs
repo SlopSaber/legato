@@ -1,4 +1,4 @@
-#if BEAT_SABER_1_29_0
+#if BEAT_SABER_1_29_0 || LEGATO_BEFORE_MULTIPLAYER
 global using NativePauseLevel = global::IPreviewBeatmapLevel;
 global using NativePauseCharacteristic = global::BeatmapCharacteristicSO;
 #elif BEAT_SABER_1_45_1 || BEAT_SABER_1_45_3
