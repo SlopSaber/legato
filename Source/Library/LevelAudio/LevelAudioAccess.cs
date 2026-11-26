@@ -1,6 +1,6 @@
 using System;
 using System.IO;
-#if BEAT_SABER_1_29_0
+#if BEAT_SABER_1_29_0 || LEGATO_BEFORE_MULTIPLAYER
 using UnityEngine.Networking;
 #endif
 using System.Linq;
@@ -18,7 +18,7 @@ namespace Legato.Audio {
     }
     internal static class LevelAudioAccess {
         internal static async Task<LevelAudioData> Load(BeatmapLevelsModel model, BeatmapLevel level, CancellationToken token) {
-#if BEAT_SABER_1_29_0
+#if BEAT_SABER_1_29_0 || LEGATO_BEFORE_MULTIPLAYER
             var result = await model.GetBeatmapLevelAsync(level.levelID, token);
             token.ThrowIfCancellationRequested();
             if (result.isError || result.beatmapLevel == null) return null;
@@ -37,7 +37,7 @@ namespace Legato.Audio {
 #endif
         }
         internal static async Task<string> BundlePath(BeatmapLevelsModel model, BeatmapLevel level, CancellationToken token) {
-#if BEAT_SABER_1_29_0
+#if BEAT_SABER_1_29_0 || LEGATO_BEFORE_MULTIPLAYER
             var provider = FieldAccessor<BeatmapLevelsModel, IBeatmapDataAssetFileModel>.Get(model, "_beatmapDataAssetFileModel");
             var result = await provider.GetAssetBundleFileForPreviewLevelAsync(level, token);
             token.ThrowIfCancellationRequested();
@@ -52,7 +52,7 @@ namespace Legato.Audio {
 #endif
         }
         internal static async Task<AudioClip> BundleClip(AssetBundle bundle, string name, CancellationToken token) {
-#if BEAT_SABER_1_29_0
+#if BEAT_SABER_1_29_0 || LEGATO_BEFORE_MULTIPLAYER
             var request = bundle.LoadAllAssetsAsync<BeatmapLevelSO>();
 #else
             var request = bundle.LoadAllAssetsAsync<BeatmapLevelDataSO>();
@@ -60,7 +60,9 @@ namespace Legato.Audio {
             // Unity requests finish acquisition before the caller releases its owned bundle.
             while (!request.isDone) await Task.Yield();
             token.ThrowIfCancellationRequested();
-#if BEAT_SABER_1_29_0
+#if LEGATO_BEFORE_MULTIPLAYER
+            return request.allAssets.OfType<BeatmapLevelSO>().Select(level => level.previewAudioClip)
+#elif BEAT_SABER_1_29_0
             return request.allAssets.OfType<BeatmapLevelSO>().Select(level => level.songAudioClip)
 #else
             return request.allAssets.OfType<BeatmapLevelDataSO>().Select(level => level.songAudioClip)
@@ -68,9 +70,14 @@ namespace Legato.Audio {
                 .FirstOrDefault(clip => clip != null && clip.name == name);
         }
         internal static async Task<AudioClip> LoadDecodedFile(string path) {
-#if BEAT_SABER_1_29_0
-            using var request = UnityWebRequestMultimedia.GetAudioClip(new Uri(Path.GetFullPath(path)).AbsoluteUri,
-                AudioTypeHelper.GetAudioTypeFromPath(path));
+#if BEAT_SABER_1_29_0 || LEGATO_BEFORE_MULTIPLAYER
+#if LEGATO_BEFORE_MULTIPLAYER
+            var audioType = string.Equals(Path.GetExtension(path), ".wav", StringComparison.OrdinalIgnoreCase)
+                ? AudioType.WAV : AudioType.OGGVORBIS;
+#else
+            var audioType = AudioTypeHelper.GetAudioTypeFromPath(path);
+#endif
+            using var request = UnityWebRequestMultimedia.GetAudioClip(new Uri(Path.GetFullPath(path)).AbsoluteUri, audioType);
             ((DownloadHandlerAudioClip)request.downloadHandler).streamAudio = false;
             var operation = request.SendWebRequest();
             while (!operation.isDone) await Task.Yield();
@@ -87,7 +94,9 @@ namespace Legato.Audio {
             controller.state == IAudioTimeSource.State.Playing;
 #endif
         internal static BeatmapLevel Selected(LevelSelectionNavigationController controller) =>
-#if BEAT_SABER_1_29_0
+#if LEGATO_BEFORE_MULTIPLAYER
+            controller.selectedDifficultyBeatmap?.level;
+#elif BEAT_SABER_1_29_0
             controller.selectedBeatmapLevel;
 #else
             controller.beatmapLevel;
