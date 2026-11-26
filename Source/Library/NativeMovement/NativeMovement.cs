@@ -11,6 +11,13 @@ namespace Legato.Gameplay {
 #if LEGATO_BEFORE_MULTIPLAYER
         internal static float JumpDistance(BeatmapObjectSpawnController controller) =>
             controller._beatmapObjectSpawnMovementData._jumpDistance;
+
+        internal static float ReplayJumpOffset(BeatmapObjectSpawnMovementData movement, float distance, float speed, float bpm) {
+            var travelPerBeat = speed * (60f / bpm);
+            var baseBeats = movement._startHalfJumpDurationInBeats;
+            while (baseBeats * travelPerBeat > movement._maxHalfJumpDistance) baseBeats *= 0.5f;
+            return System.Math.Max(1f, distance / (2f * travelPerBeat)) - baseBeats;
+        }
 #endif
 
         internal static float HalfJumpDuration(IVariableMovementDataProvider movement) =>

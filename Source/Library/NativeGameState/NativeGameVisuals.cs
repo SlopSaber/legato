@@ -4,7 +4,7 @@ using UnityEngine;
 namespace Legato.Rendering {
     internal static class NativeGameVisuals {
         internal static void OverrideFailedText(LevelFailedTextEffect effect, string value) {
-#if BEAT_SABER_1_29_0
+#if BEAT_SABER_1_29_0 || LEGATO_BEFORE_MULTIPLAYER
             var text = effect.GetComponentInChildren<TMP_Text>(true);
             if (text == null) return;
             text.richText = true;
@@ -23,17 +23,21 @@ namespace Legato.Rendering {
             modal._isShown;
 #endif
         internal static void CopyLegacyExposure(BloomFogEnvironmentParams target, BloomFogEnvironmentParams source) {
-#if !BEAT_SABER_1_29_0
+#if !BEAT_SABER_1_29_0 && !LEGATO_BEFORE_MULTIPLAYER
             target.legacyAutoExposure = source.legacyAutoExposure;
 #endif
         }
+#if !LEGATO_BEFORE_MULTIPLAYER
         internal static void UseBasicHaptics(HapticPresetSO preset) {
 #if !BEAT_SABER_1_29_0
             preset._useAdvancedHapticsOnSupportedPlatforms = false;
 #endif
         }
+#endif
         internal static float ShaderTime =>
-#if LEGATO_STATIC_TIME_HELPER
+#if LEGATO_BEFORE_MULTIPLAYER
+            Time.time;
+#elif LEGATO_STATIC_TIME_HELPER
             TimeHelper.time;
 #else
             TimeHelper.GetShaderTimeValue();
