@@ -1,7 +1,7 @@
 using System;
 using System.IO;
 using HarmonyLib;
-#if BEAT_SABER_1_29_0
+#if BEAT_SABER_1_29_0 || LEGATO_BEFORE_MULTIPLAYER
 using System.Threading;
 using System.Threading.Tasks;
 #endif
@@ -15,7 +15,7 @@ namespace Legato.Assets
         internal static void Install(Harmony harmony, Func<string, string> rewrite)
         {
             _rewrite = rewrite ?? throw new ArgumentNullException(nameof(rewrite));
-#if BEAT_SABER_1_29_0
+#if BEAT_SABER_1_29_0 || LEGATO_BEFORE_MULTIPLAYER
             var prefix = new HarmonyMethod(typeof(NativeAssetPaths), nameof(RewriteLegacyFile));
             harmony.Patch(AccessTools.Method(typeof(SteamBeatmapDataAssetFileModel), "GetAssetBundleFileForPreviewLevelAsync"), prefix: prefix);
             harmony.Patch(AccessTools.Method(typeof(OculusBeatmapDataAssetFileModel), "GetAssetBundleFileForPreviewLevelAsync"), prefix: prefix);
@@ -26,7 +26,7 @@ namespace Legato.Assets
 #endif
         }
 
-#if BEAT_SABER_1_29_0
+#if BEAT_SABER_1_29_0 || LEGATO_BEFORE_MULTIPLAYER
         private static bool RewriteLegacyFile(IPreviewBeatmapLevel previewBeatmapLevel, CancellationToken cancellationToken, ref Task<GetAssetBundleFileResult> __result)
         {
             var filename = BeatmapDataAssetsModel.AssetBundleNameForBeatmapLevel(previewBeatmapLevel.levelID);
