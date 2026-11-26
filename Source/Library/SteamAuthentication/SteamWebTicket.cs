@@ -1,9 +1,13 @@
+#if BEAT_SABER_1_29_0 || LEGATO_BEFORE_MULTIPLAYER
+#define LEGATO_LEGACY_STEAM_WEB_TICKET
+#endif
+
 using System;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 using Steamworks;
-#if BEAT_SABER_1_29_0
+#if LEGATO_LEGACY_STEAM_WEB_TICKET
 using UnityEngine;
 #endif
 
@@ -16,7 +20,7 @@ namespace Legato.Platform {
             cancellationToken.ThrowIfCancellationRequested();
             var result = new SteamWebTicket();
             var completion = new TaskCompletionSource<string>(TaskCreationOptions.RunContinuationsAsynchronously);
-#if BEAT_SABER_1_29_0
+#if LEGATO_LEGACY_STEAM_WEB_TICKET
             using var callback = Callback<WebTicketResponse>.Create(response => {
                 if (response.Ticket != result._ticket) return;
                 Complete(completion, response.Result, response.Size, response.Bytes);
@@ -28,7 +32,7 @@ namespace Legato.Platform {
             });
 #endif
             try {
-#if BEAT_SABER_1_29_0
+#if LEGATO_LEGACY_STEAM_WEB_TICKET
                 if (IntPtr.Size != 8 || Environment.OSVersion.Platform != PlatformID.Win32NT)
                     throw new PlatformNotSupportedException("Steam web tickets require Windows x64 for this profile.");
                 IntPtr user = SteamClient.GetISteamUser(SteamAPI.GetHSteamUser(), SteamAPI.GetHSteamPipe(), "SteamUser023");
@@ -42,7 +46,7 @@ namespace Legato.Platform {
                 result._ticket = SteamUser.GetAuthTicketForWebApi(identity);
 #endif
                 if (result._ticket == HAuthTicket.Invalid) throw new InvalidOperationException("Steam did not issue a web authentication ticket.");
-#if BEAT_SABER_1_29_0
+#if LEGATO_LEGACY_STEAM_WEB_TICKET
                 Application.quitting += result.Dispose;
 #endif
                 using var timeoutCancellation = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
@@ -71,7 +75,7 @@ namespace Legato.Platform {
             var ticket = _ticket;
             if (ticket == HAuthTicket.Invalid) return;
             _ticket = HAuthTicket.Invalid;
-#if BEAT_SABER_1_29_0
+#if LEGATO_LEGACY_STEAM_WEB_TICKET
             Application.quitting -= Dispose;
             // Steamworks.NET keeps its cached interface after the game's SteamManager shuts down.
             var steamManager = SteamManager.s_instance;
@@ -84,7 +88,7 @@ namespace Legato.Platform {
             }
         }
 
-#if BEAT_SABER_1_29_0
+#if LEGATO_LEGACY_STEAM_WEB_TICKET
         [UnmanagedFunctionPointer(CallingConvention.ThisCall)]
         private delegate uint RequestWebTicket(IntPtr user, [MarshalAs(UnmanagedType.LPUTF8Str)] string identity);
 

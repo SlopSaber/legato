@@ -53,6 +53,16 @@ namespace Legato {
 #endif
         }
 
+#if LEGATO_BEFORE_MULTIPLAYER
+        internal static StandardLevelScenesTransitionSetupData? FindStandardTransition(GameplayCoreSceneSetupData? activeSetup) {
+            if (activeSetup == null) return null;
+            foreach (var transition in UnityEngine.Resources.FindObjectsOfTypeAll<StandardLevelScenesTransitionSetupData>()) {
+                if (ReferenceEquals(transition.Get<GameplayCoreSceneSetupData>(), activeSetup)) return transition;
+            }
+            return null;
+        }
+#endif
+
         internal static bool IsPractice(StandardLevelScenesTransitionSetupData data) {
 #if LEGATO_BEFORE_MULTIPLAYER
             return data.Get<GameplayCoreSceneSetupData>()?.practiceSettings != null;
