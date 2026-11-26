@@ -9,6 +9,11 @@ namespace Legato.Models;
 
 internal static class SaberGameplayBindings
 {
+#if LEGATO_BEFORE_MULTIPLAYER
+    internal static Saber LeftSaber(SaberManager manager) => manager._leftSaber;
+    internal static Saber RightSaber(SaberManager manager) => manager._rightSaber;
+#endif
+
     internal static void BindObstacleEvents(DiContainer container)
     {
 #if BEAT_SABER_1_29_0 || LEGATO_BEFORE_MULTIPLAYER
