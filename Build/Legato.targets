@@ -459,7 +459,7 @@
                Condition="'$(LegatoEnablePracticePlayback)' == 'true' AND '$(LegatoEnablePolyfills)' == 'false'" />
       <Compile Include="$(LegatoSourceRoot)Library\LevelStatistics\**\*.cs"
                Condition="'$(LegatoEnableLevelStatistics)' == 'true'" />
-      <Compile Include="$(LegatoSourceRoot)Library\Beatmaps\LegacyBeatmapLineClamp.cs"
+      <Compile Include="$(LegatoSourceRoot)Library\BeatmapLineClamping\LegacyBeatmapLineClamp.cs"
                Condition="'$(LegatoEnableLegacyBeatmapLineClamp)' == 'true'" />
       <Compile Include="$(LegatoSourceRoot)Library\CounterGameplay\**\*.cs"
                Condition="'$(LegatoEnableCounterGameplay)' == 'true'" />
