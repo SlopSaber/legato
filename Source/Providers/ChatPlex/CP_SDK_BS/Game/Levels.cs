@@ -16,7 +16,7 @@ namespace CP_SDK_BS.Game
     public class Levels
     {
         private static BeatmapLevelsEntitlementModel Entitlements(BeatmapLevelsModel model) =>
-#if BEAT_SABER_1_29_0
+#if BEAT_SABER_1_29_0 || LEGATO_BEFORE_MULTIPLAYER
             model._additionalContentModel;
 #else
             model._entitlements;
@@ -177,7 +177,7 @@ namespace CP_SDK_BS.Game
                 var l_CollectionSO = Resources.FindObjectsOfTypeAll<BeatmapCharacteristicCollectionSO>().FirstOrDefault();
                 var l_AppSettings = Resources.FindObjectsOfTypeAll<AppStaticSettingsSO>().FirstOrDefault();
                 if (l_CollectionSO != null && l_AppSettings != null)
-#if BEAT_SABER_1_29_0
+#if BEAT_SABER_1_29_0 || LEGATO_BEFORE_MULTIPLAYER
                     m_BeatmapCharacteristicCollection = l_CollectionSO;
 #else
                     m_BeatmapCharacteristicCollection = new BeatmapCharacteristicCollection(l_CollectionSO, l_AppSettings);
@@ -385,7 +385,10 @@ namespace CP_SDK_BS.Game
 
             if (m_BeatmapLevelsModel != null)
             {
-#if BEAT_SABER_1_29_0
+#if LEGATO_BEFORE_MULTIPLAYER
+                var l_Result = m_BeatmapLevelsModel.GetLevelPackForLevelId(l_LevelID)
+                    ?.beatmapLevelCollection.beatmapLevels.FirstOrDefault(level => level.levelID == l_LevelID);
+#elif BEAT_SABER_1_29_0
                 var l_Result = m_BeatmapLevelsModel.GetLevelPreviewForLevelId(l_LevelID);
 #else
                 var l_Result = m_BeatmapLevelsModel.GetBeatmapLevel(l_LevelID);
@@ -585,7 +588,7 @@ namespace CP_SDK_BS.Game
             var l_Result = await LoadIBeatmapLevelDataAsync(p_LevelID, p_CancellationToken).ConfigureAwait(false);
             p_CancellationToken.ThrowIfCancellationRequested();
             if (l_Result != null && !(l_Result?.isError == true))
-#if BEAT_SABER_1_29_0
+#if BEAT_SABER_1_29_0 || LEGATO_BEFORE_MULTIPLAYER
                 CP_SDK.Unity.MTMainThreadInvoker.Enqueue(() => NotifyLoaded(l_Result.Value.level, l_Result.Value.beatmapLevelData));
 #else
                 CP_SDK.Unity.MTMainThreadInvoker.Enqueue(() => NotifyLoaded(l_BeatmapLevel, l_Result.Value.beatmapLevelData));
@@ -634,14 +637,19 @@ namespace CP_SDK_BS.Game
                 {
                     Scoring.BeatLeader_ManualWarmUpSubmission();
 
-#if BEAT_SABER_1_29_0
+#if BEAT_SABER_1_29_0 || LEGATO_BEFORE_MULTIPLAYER
                     var l_BeatmapKey = beatmapLevelData?.difficultyBeatmapSets
                         .Where(set => set.beatmapCharacteristic == characteristic).SelectMany(set => set.difficultyBeatmaps)
                         .FirstOrDefault(value => value.difficulty == difficulty);
 #else
                     var l_BeatmapKey = level.GetBeatmapKeys().FirstOrDefault(x => Legato.ChatPlex.NativeAccess.Characteristic(x) == characteristic && x.difficulty == difficulty);
 #endif
-#if BEAT_SABER_1_29_0
+#if LEGATO_BEFORE_MULTIPLAYER
+                    if (l_BeatmapKey == null) return;
+                    m_MenuTransitionsHelper.StartStandardLevel(l_BeatmapKey, overrideEnvironmentSettings,
+                        colorScheme, gameplayModifiers ?? new GameplayModifiers(), playerSettings ?? new PlayerSpecificSettings(),
+                        null, menuButtonText, false, null, songFinishedCallback);
+#elif BEAT_SABER_1_29_0
                     if (l_BeatmapKey == null) return;
                     m_MenuTransitionsHelper.StartStandardLevel(Legato.GameModes.Solo, l_BeatmapKey, level,
                         overrideEnvironmentSettings, colorScheme, gameplayModifiers ?? new GameplayModifiers(),
@@ -700,7 +708,7 @@ namespace CP_SDK_BS.Game
         /// </summary>
         /// <param name="p_LevelID">Level ID</param>
         /// <returns>LoadBeatmapLevelDataResult?</returns>
-#if BEAT_SABER_1_29_0
+#if BEAT_SABER_1_29_0 || LEGATO_BEFORE_MULTIPLAYER
         private struct LoadedLevelData {
             internal bool isError;
             internal IBeatmapLevelData beatmapLevelData;
@@ -727,14 +735,14 @@ namespace CP_SDK_BS.Game
                     l_Token = m_GetLevelCancellationTokenSource.Token;
                 }
 
-#if BEAT_SABER_1_29_0
+#if BEAT_SABER_1_29_0 || LEGATO_BEFORE_MULTIPLAYER
                 LoadedLevelData? l_Result = null;
 #else
                 LoadBeatmapLevelDataResult? l_Result = null;
 #endif
                 try
                 {
-#if BEAT_SABER_1_29_0
+#if BEAT_SABER_1_29_0 || LEGATO_BEFORE_MULTIPLAYER
                     var loaded = await m_BeatmapLevelsModel.GetBeatmapLevelAsync(p_LevelID, l_Token).ConfigureAwait(false);
                     l_Token.ThrowIfCancellationRequested();
                     l_Result = new LoadedLevelData { isError = loaded.isError, level = loaded.beatmapLevel, beatmapLevelData = loaded.beatmapLevel?.beatmapLevelData };
@@ -811,7 +819,7 @@ namespace CP_SDK_BS.Game
 
             var l_PlayerData        = m_PlayerDataModel?._playerData;
             var l_LevelStatsData    = l_PlayerData?.levelsStatsData;
-#if BEAT_SABER_1_29_0
+#if BEAT_SABER_1_29_0 || LEGATO_BEFORE_MULTIPLAYER
             foreach (var set in l_BeatmapLevel.previewDifficultyBeatmapSets)
             {
                 var scores = new List<(BeatmapDifficulty, int)>();

@@ -2,7 +2,7 @@
 
 namespace Legato {
     internal static class GameModes {
-#if BEAT_SABER_1_29_0
+#if BEAT_SABER_1_29_0 || LEGATO_BEFORE_MULTIPLAYER
         internal static bool RequiresPersistentCallPatch => false;
 #else
         internal static bool RequiresPersistentCallPatch => true;
@@ -17,7 +17,17 @@ namespace Legato {
         internal const string ReplayName = Replay;
 #endif
         internal static bool IsParty(StandardLevelScenesTransitionSetupData data) {
-#if BEAT_SABER_1_45_3
+#if LEGATO_BEFORE_MULTIPLAYER
+            foreach (var transitions in UnityEngine.Resources.FindObjectsOfTypeAll<MenuTransitionsHelper>()) {
+                var setup = IPA.Utilities.FieldAccessor<MenuTransitionsHelper, StandardLevelScenesTransitionSetupData>
+                    .Get(transitions, "_standardLevelScenesTransitionSetupData");
+                if (setup != data) continue;
+                var callback = IPA.Utilities.FieldAccessor<MenuTransitionsHelper, System.Action<StandardLevelScenesTransitionSetupData, LevelCompletionResults>>
+                    .Get(transitions, "_standardLevelFinishedCallback");
+                if (callback?.Target is PartyFreePlayFlowCoordinator) return true;
+            }
+            return false;
+#elif BEAT_SABER_1_45_3
             return data.gameMode == GameMode.Party;
 #else
             return data.gameMode?.Equals("Party", System.StringComparison.OrdinalIgnoreCase) == true;
@@ -25,7 +35,9 @@ namespace Legato {
         }
 
         internal static bool IsSoloOrPractice(StandardLevelScenesTransitionSetupData data) {
-#if BEAT_SABER_1_45_3
+#if LEGATO_BEFORE_MULTIPLAYER
+            return IsPractice(data) || !IsParty(data);
+#elif BEAT_SABER_1_45_3
             return data.gameMode is GameMode.Solo or GameMode.Practice;
 #else
             return string.Equals(data.gameMode, Solo, System.StringComparison.OrdinalIgnoreCase) || IsPractice(data);
@@ -33,7 +45,9 @@ namespace Legato {
         }
 
         internal static bool IsPractice(StandardLevelScenesTransitionSetupData data) {
-#if BEAT_SABER_1_45_3
+#if LEGATO_BEFORE_MULTIPLAYER
+            return data.Get<GameplayCoreSceneSetupData>()?.practiceSettings != null;
+#elif BEAT_SABER_1_45_3
             return data.gameMode == GameMode.Practice;
 #else
             return string.Equals(data.gameMode, "Practice", System.StringComparison.OrdinalIgnoreCase);

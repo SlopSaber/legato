@@ -1,8 +1,13 @@
 #nullable enable
-#if LEGATO_PLATFORM_USER_MODEL
+#if LEGATO_BEFORE_MULTIPLAYER
+global using NativePlatformService = global::PlatformUserModelSO;
+using GameUserInfo = global::PlatformUserModelSO.UserInfo;
+#elif LEGATO_PLATFORM_USER_MODEL
 global using NativePlatformService = global::IPlatformUserModel;
+using GameUserInfo = global::UserInfo;
 #else
 global using NativePlatformService = global::OculusStudios.Platform.Core.IPlatform;
+using GameUserInfo = global::UserInfo;
 #endif
 using System.Threading.Tasks;
 using System.Threading;
@@ -17,10 +22,20 @@ namespace Legato.Platform {
         private Task<UserIdentity>? _identityTask;
         internal PlatformAuthentication(NativePlatformService model) => _model = model;
         internal bool Available => _model != null;
-        internal async Task<global::UserInfo?> GetGameUserInfo(CancellationToken token) {
+        internal async Task<GameUserInfo?> GetGameUserInfo(CancellationToken token) {
             token.ThrowIfCancellationRequested();
             if (!Available) return null;
-#if BEAT_SABER_1_29_0
+#if LEGATO_BEFORE_MULTIPLAYER
+            var completion = new TaskCompletionSource<GameUserInfo?>(TaskCreationOptions.RunContinuationsAsynchronously);
+            var request = _model.GetUserInfo((result, user) =>
+                completion.TrySetResult(result == PlatformUserModelSO.GetUserInfoResult.OK ? user : null));
+            using var registration = token.Register(() => completion.TrySetCanceled());
+            try { return await completion.Task.ConfigureAwait(true); }
+            catch (System.OperationCanceledException) when (token.IsCancellationRequested) {
+                request?.Cancel();
+                throw;
+            }
+#elif BEAT_SABER_1_29_0
             var user = await _model.GetUserInfo().ConfigureAwait(true);
             token.ThrowIfCancellationRequested();
             return user;
@@ -64,7 +79,18 @@ namespace Legato.Platform {
 #else
             model.GetField<NativePlatformService, PlatformLeaderboardsModel>("_platform"));
 #endif
-#if LEGATO_PLATFORM_USER_MODEL
+#if LEGATO_BEFORE_MULTIPLAYER
+        private async Task<UserIdentity> ReadIdentity() {
+            GameUserInfo? user = await GetGameUserInfo(CancellationToken.None).ConfigureAwait(true);
+            if (user == null) return new UserIdentity(AuthenticationPlatform.Unknown, string.Empty, string.Empty);
+            AuthenticationPlatform platform = _model.platformInfo.platform switch {
+                PlatformInfo.Platform.Steam => AuthenticationPlatform.Steam,
+                PlatformInfo.Platform.Oculus => AuthenticationPlatform.Meta,
+                _ => AuthenticationPlatform.Unknown
+            };
+            return new UserIdentity(platform, user.userId, user.userName);
+        }
+#elif LEGATO_PLATFORM_USER_MODEL
         private async Task<UserIdentity> ReadIdentity() {
             UserInfo? user = await GetGameUserInfo(CancellationToken.None).ConfigureAwait(true);
             if (user == null) return new UserIdentity(AuthenticationPlatform.Unknown, string.Empty, string.Empty);
@@ -81,7 +107,16 @@ namespace Legato.Platform {
 #endif
         internal async Task<UserCredentials> GetCredentials() {
             UserIdentity identity = await GetIdentity().ConfigureAwait(true);
-#if LEGATO_PLATFORM_USER_MODEL
+#if LEGATO_BEFORE_MULTIPLAYER
+            var completion = new TaskCompletionSource<string>(TaskCreationOptions.RunContinuationsAsynchronously);
+            _model.GetUserAuthToken((result, info) => {
+                if (result == PlatformUserModelSO.GetUserAuthTokenResult.OK && info != null && !string.IsNullOrEmpty(info.platformToken))
+                    completion.TrySetResult(info.platformToken);
+                else
+                    completion.TrySetException(new System.InvalidOperationException("The game platform did not return an authentication token."));
+            });
+            string proof = await completion.Task.ConfigureAwait(true);
+#elif LEGATO_PLATFORM_USER_MODEL
             string proof = (await _model.GetUserAuthToken().ConfigureAwait(true)).token;
 #else
             string proof = await _model.user.GetAccessTokenAsync().ConfigureAwait(true);

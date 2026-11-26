@@ -74,7 +74,11 @@ namespace CP_SDK_BS.Game
             {
                 if (p_Next.name == "GameCore")
                     OnGameSceneActive();
+#if LEGATO_BEFORE_MULTIPLAYER
+                else if (p_Next.name == "MenuCore")
+#else
                 else if (p_Next.name == "MainMenu")
+#endif
                 {
                     if (ActiveScene != ESceneType.Menu)
                         OnMenuSceneActive();
@@ -245,8 +249,7 @@ namespace CP_SDK_BS.Game
                 {
                     LevelData.IsReplay = m_WasInReplay;
 
-                    if (LevelData.Data != null && LevelData.Data.transformedBeatmapData != null)
-                        LevelData.MaxMultipliedScore = ScoreModel.ComputeMaxMultipliedScoreForBeatmap(LevelData.Data.transformedBeatmapData);
+                    LevelData.MaxMultipliedScore = MaxScore(LevelData.Data) ?? LevelData.MaxMultipliedScore;
 
                     LevelCompletionData = null;
 
@@ -279,8 +282,8 @@ namespace CP_SDK_BS.Game
             LevelCompletionData     = null;
             LevelData               = p_LevelData;
 
-            if (LevelData != null && LevelData.Data != null && LevelData.Data.transformedBeatmapData != null)
-                LevelData.MaxMultipliedScore = ScoreModel.ComputeMaxMultipliedScoreForBeatmap(LevelData.Data.transformedBeatmapData);
+            if (LevelData != null)
+                LevelData.MaxMultipliedScore = MaxScore(LevelData.Data) ?? LevelData.MaxMultipliedScore;
         }
         /// <summary>
         /// On level ended
@@ -295,8 +298,18 @@ namespace CP_SDK_BS.Game
             LevelCompletionData             = p_LevelCompletionData;
             LevelCompletionData.IsReplay    = m_WasInReplay;
 
-            if (LevelCompletionData != null && LevelCompletionData.Data != null && LevelCompletionData.Data.transformedBeatmapData != null)
-                LevelCompletionData.MaxMultipliedScore = ScoreModel.ComputeMaxMultipliedScoreForBeatmap(LevelCompletionData.Data.transformedBeatmapData);
+            LevelCompletionData.MaxMultipliedScore = MaxScore(LevelCompletionData.Data) ?? LevelCompletionData.MaxMultipliedScore;
+        }
+
+        private static int? MaxScore(GameplayCoreSceneSetupData data)
+        {
+#if LEGATO_BEFORE_MULTIPLAYER
+            var beatmap = data?.difficultyBeatmap?.beatmapData;
+            return beatmap == null ? (int?)null : ScoreModel.MaxRawScoreForNumberOfNotes(beatmap.notesCount);
+#else
+            var beatmap = data?.transformedBeatmapData;
+            return beatmap == null ? (int?)null : ScoreModel.ComputeMaxMultipliedScoreForBeatmap(beatmap);
+#endif
         }
     }
 }

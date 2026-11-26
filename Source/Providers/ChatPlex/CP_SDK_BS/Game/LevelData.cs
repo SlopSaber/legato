@@ -27,7 +27,9 @@ namespace CP_SDK_BS.Game
         {
             get
             {
-#if LEGATO_SPAWN_ROTATION_EVENTS
+#if LEGATO_BEFORE_MULTIPLAYER
+                var l_SpawnRotationEventsCount = Data?.difficultyBeatmap?.beatmapData?.spawnRotationEventsCount;
+#elif LEGATO_SPAWN_ROTATION_EVENTS
                 var l_SpawnRotationEventsCount = Data?.transformedBeatmapData?.GetBeatmapDataItems<SpawnRotationBeatmapEventData>(0).Count(x => x.rotation != 0);
 #else
                 var l_SpawnRotationEventsCount = Data?.transformedBeatmapData?.allBeatmapDataItems.Count(

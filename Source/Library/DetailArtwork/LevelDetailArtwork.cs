@@ -8,7 +8,9 @@ namespace Legato.Presentation
         internal static System.Threading.Tasks.Task<UnityEngine.Sprite> Cover(BeatmapLevel level) => Beatmaps.LevelCover.Load(level);
 
         internal static readonly FieldAccessor<StandardLevelDetailViewController, StandardLevelDetailView>.Accessor DetailView = FieldAccessor<StandardLevelDetailViewController, StandardLevelDetailView>.GetAccessor("_standardLevelDetailView");
+#if !LEGATO_BEFORE_MULTIPLAYER
         internal static readonly FieldAccessor<StandardLevelDetailView, LevelBar>.Accessor LevelBar = FieldAccessor<StandardLevelDetailView, LevelBar>.GetAccessor("_levelBar");
         internal static readonly FieldAccessor<LevelBar, ImageView>.Accessor Artwork = FieldAccessor<LevelBar, ImageView>.GetAccessor("_songArtworkImageView");
+#endif
     }
 }

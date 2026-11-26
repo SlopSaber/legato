@@ -10,9 +10,13 @@
       <Reference Include="Interactable" HintPath="$(LegatoReferenceRoot)\Beat Saber_Data\Managed\Interactable.dll" Private="false"
                  Condition="Exists('$(LegatoReferenceRoot)\Beat Saber_Data\Managed\Interactable.dll') AND '@(Reference->WithMetadataValue('Identity', 'Interactable'))' == ''" />
     </ItemGroup>
-    <ItemGroup Condition="'$(LegatoTargetProfile)' == '1.29.0'">
+    <ItemGroup Condition="'$(LegatoTargetProfile)' == '1.29.0' OR '$(LegatoTargetVersion)' == '1.11.1'">
       <Reference Remove="PlatformUserModel;System.Data.DataSetExtensions;UnityEngine.TextCoreFontEngineModule" />
       <Reference Include="UnityEngine.TextCoreModule" HintPath="$(LegatoReferenceRoot)\Beat Saber_Data\Managed\UnityEngine.TextCoreModule.dll" Private="false" />
+    </ItemGroup>
+    <ItemGroup Condition="'$(LegatoTargetVersion)' == '1.11.1'">
+      <Compile Remove="CP_SDK_BS\Game\Patches\PMultiplayerLevelScenesTransitionSetupDataSO.cs" />
+      <Reference Remove="Unity.Addressables;Unity.ResourceManager" />
     </ItemGroup>
   </Target>
 </Project>

@@ -1,3 +1,4 @@
+#if !LEGATO_BEFORE_MULTIPLAYER
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -17,3 +18,4 @@ namespace Legato.Platform {
         }
     }
 }
+#endif

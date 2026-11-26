@@ -5,6 +5,12 @@ using System.Threading.Tasks;
 
 namespace Legato.Beatmaps {
     internal sealed class BeatmapScoringDataLoader {
+#if LEGATO_BEFORE_MULTIPLAYER
+        internal Task<BeatmapData> Load(BeatmapKey key, BeatmapLevel? level, CancellationToken token) {
+            token.ThrowIfCancellationRequested();
+            return Task.FromResult(key?.beatmapData ?? throw new InvalidOperationException("Failed to get BeatmapData."));
+        }
+#else
 #if !BEAT_SABER_1_29_0
         private readonly BeatmapLevelsModel _levels;
         private readonly BeatmapLevelsEntitlementModel _entitlements;
@@ -44,5 +50,6 @@ namespace Legato.Beatmaps {
             token.ThrowIfCancellationRequested();
             return data ?? throw new InvalidOperationException("Failed to get BeatmapData.");
         }
+#endif
     }
 }

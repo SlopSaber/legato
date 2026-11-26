@@ -12,6 +12,11 @@ using System.Web.UI;
 using System.Xml.Linq;
 using TMPro;
 using UnityEngine;
+#if LEGATO_BEFORE_MULTIPLAYER
+using ArtworkImage = UnityEngine.UI.Image;
+#else
+using ArtworkImage = HMUI.ImageView;
+#endif
 
 namespace CP_SDK_BS.UI
 {
@@ -21,7 +26,7 @@ namespace CP_SDK_BS.UI
     public class LevelDetail
     {
         private static GameObject m_SongDetailViewTemplate = null;
-#if BEAT_SABER_1_29_0
+#if BEAT_SABER_1_29_0 || LEGATO_BEFORE_MULTIPLAYER
         private int _legacyDifficultyVersion;
 #endif
 
@@ -36,15 +41,24 @@ namespace CP_SDK_BS.UI
             if (m_SongDetailViewTemplate)
                 return;
 
+#if LEGATO_BEFORE_MULTIPLAYER
+            var native = Legato.Unity.ObjectDiscovery.FindLoaded<StandardLevelDetailView>()
+                .First(x => x._songNameText && x._levelParamsPanel);
+            m_SongDetailViewTemplate = GameObject.Instantiate(native.gameObject);
+            m_SongDetailViewTemplate.SetActive(false);
+            m_SongDetailViewTemplate.GetComponent<StandardLevelDetailView>().enabled = false;
+#else
             m_SongDetailViewTemplate = GameObject.Instantiate(Legato.Unity.ObjectDiscovery.FindLoaded<StandardLevelDetailView>().First(x => x.gameObject.name == "LevelDetail").gameObject);
+#endif
             m_SongDetailViewTemplate.name = "BSP_SongDetailViewTemplate";
 
+#if !LEGATO_BEFORE_MULTIPLAYER
             try
             {
                 var l_Component = m_SongDetailViewTemplate.GetComponent<StandardLevelDetailView>();
                 if (l_Component)
                 {
-#if !BEAT_SABER_1_29_0
+#if !BEAT_SABER_1_29_0 && !LEGATO_BEFORE_MULTIPLAYER
                     var l_Loader = new BeatmapLevelLoader(null, new MockBeatmapDataAssetFileModel(), null, null, new BeatmapLevelLoader.InitData(0));
                     var l_Packs = new List<PackDefinitionSO>();
                     l_Component.SetField("_beatmapLevelsModel", new BeatmapLevelsModel(null, l_Loader, null, null, null, l_Packs));
@@ -57,6 +71,7 @@ namespace CP_SDK_BS.UI
                 CP_SDK.ChatPlexSDK.Logger.Error($"[CP_SDK_BS.UI][LevelDetail.Init] Error:");
                 CP_SDK.ChatPlexSDK.Logger.Error(l_Exception);
             }
+#endif
         }
         /// <summary>
         /// When the game is reloaded
@@ -72,7 +87,7 @@ namespace CP_SDK_BS.UI
         private GameObject                                      m_GameObject;
         private TextMeshProUGUI                                 m_SongNameText;
         private TextMeshProUGUI                                 m_AuthorNameText;
-        private HMUI.ImageView                                  m_SongCoverImage;
+        private ArtworkImage                                    m_SongCoverImage;
         private TextMeshProUGUI                                 m_SongTimeText;
         private TextMeshProUGUI                                 m_SongBPMText;
         private TextMeshProUGUI                                 m_SongNPSText;
@@ -244,6 +259,9 @@ namespace CP_SDK_BS.UI
             foreach (var l_Current in l_HoverHints)         GameObject.Destroy(l_Current);
             foreach (var l_Current in l_LocalHoverHints)    GameObject.Destroy(l_Current);
 
+#if LEGATO_BEFORE_MULTIPLAYER
+            ConfigureLegacyDetail();
+#else
             /// Favorite toggle
             m_FavoriteToggle = m_GameObject.transform.Find("FavoriteToggle").gameObject;
             m_FavoriteToggle.SetActive(false);
@@ -374,9 +392,81 @@ namespace CP_SDK_BS.UI
             {
 
             }
+#endif
 
             m_GameObject.SetActive(true);
         }
+
+#if LEGATO_BEFORE_MULTIPLAYER
+        private void ConfigureLegacyDetail()
+        {
+            var native = m_GameObject.GetComponent<StandardLevelDetailView>();
+            m_FavoriteToggle = native._favoriteToggle.gameObject;
+            native._favoriteToggle.onValueChanged = new UnityEngine.UI.Toggle.ToggleEvent();
+            m_FavoriteToggle.SetActive(false);
+            native._playerStatsContainer.SetActive(false);
+
+            var buttons = native._playButton.transform.parent;
+            GameObject.DestroyImmediate(native._practiceButton.gameObject);
+            GameObject.DestroyImmediate(native._playButton.gameObject);
+            m_SecondaryButton = UISystem.SecondaryButtonFactory.Create("Secondary", buttons);
+            m_SecondaryButton.SetHeight(8f).SetWidth(30f);
+            m_SecondaryButton.OnClick(OnSecondaryButtonClicked);
+            SetSecondaryButtonEnabled(false);
+            SetSecondaryButtonText("?");
+            m_PrimaryButton = UISystem.PrimaryButtonFactory.Create("Primary", buttons);
+            m_PrimaryButton.SetHeight(8f).SetWidth(30f);
+            m_PrimaryButton.OnClick(OnPrimaryButtonClicked);
+            SetPrimaryButtonText("?");
+
+            m_CharacteristicSegmentedControllerClone = native._beatmapCharacteristicSegmentedControlController;
+            m_SongCharacteristicSegmentedControl = HMUIIconSegmentedControl.Create(
+                (RectTransform)m_CharacteristicSegmentedControllerClone.transform, true);
+            m_DifficultiesSegmentedControllerClone = native._beatmapDifficultySegmentedControlController;
+            m_SongDiffSegmentedControl = HMUITextSegmentedControl.Create(
+                (RectTransform)m_DifficultiesSegmentedControllerClone.transform, true);
+
+            m_SongNameText = native._songNameText;
+            m_AuthorNameText = GameObject.Instantiate(m_SongNameText, m_SongNameText.transform.parent);
+            m_AuthorNameText.rectTransform.anchoredPosition -= Vector2.up * 4f;
+            m_AuthorNameText.fontSize *= 0.75f;
+            m_AuthorNameText.richText = true;
+
+            var artwork = native._coverImage.gameObject;
+            GameObject.DestroyImmediate(native._coverImage);
+            m_SongCoverImage = artwork.AddComponent<ArtworkImage>();
+            m_SongCoverImage.preserveAspect = true;
+            m_SongCoverImage.raycastTarget = false;
+
+            var stats = native._levelParamsPanel;
+            m_SongTimeText = stats._durationText;
+            m_SongBPMText = stats._bpmText;
+            m_SongNPSText = stats._notesPerSecondText;
+            m_SongNotesText = stats._notesCountText;
+            m_SongObstaclesText = stats._obstaclesCountText;
+            m_SongBombsText = stats._bombsCountText;
+            m_SongNJSText = CloneLegacyStatistic("NJS");
+            m_SongOffsetText = CloneLegacyStatistic("Offset");
+
+            m_SongCharacteristicSegmentedControl.didSelectCellEvent += OnCharacteristicChanged;
+            m_SongDiffSegmentedControl.didSelectCellEvent += OnDifficultyChanged;
+            GameObject.DestroyImmediate(native);
+        }
+
+        private TextMeshProUGUI CloneLegacyStatistic(string name)
+        {
+            var template = m_SongBPMText.transform.parent;
+            var statistic = GameObject.Instantiate(template.gameObject, template.parent);
+            statistic.name = name;
+            var icon = statistic.GetComponentInChildren<UnityEngine.UI.Image>(true);
+            if (icon)
+            {
+                var data = CP_SDK.Misc.Resources.FromRelPath(Assembly.GetExecutingAssembly(), $"CP_SDK_BS.UI.Resources.{name}.png");
+                icon.sprite = CP_SDK.Unity.SpriteU.CreateFromTexture(CP_SDK.Unity.Texture2DU.CreateFromRaw(data), 100f, Vector2.one * 16f);
+            }
+            return statistic.GetComponentInChildren<TextMeshProUGUI>(true);
+        }
+#endif
 
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////
@@ -398,7 +488,7 @@ namespace CP_SDK_BS.UI
         /// </summary>
         public void Reset()
         {
-#if BEAT_SABER_1_29_0
+#if BEAT_SABER_1_29_0 || LEGATO_BEFORE_MULTIPLAYER
             ++_legacyDifficultyVersion;
 #endif
             m_LocalBeatMap = null;
@@ -664,8 +754,13 @@ namespace CP_SDK_BS.UI
         /// <param name="p_Enabled">Enable image</param>
         public void SetFavoriteToggleImage(Sprite p_Default, Sprite p_Enabled)
         {
+#if LEGATO_BEFORE_MULTIPLAYER
+            var l_IVDefault = m_FavoriteToggle.transform.Find("CheckmarkPlaceholder").GetComponent<UnityEngine.UI.Image>();
+            var l_IVMarked = m_FavoriteToggle.transform.Find("Checkmark").GetComponent<UnityEngine.UI.Image>();
+#else
             var l_IVDefault = m_FavoriteToggle.transform.GetChild(0).GetComponent<HMUI.ImageView>();
             var l_IVMarked  = m_FavoriteToggle.transform.GetChild(1).GetComponent<HMUI.ImageView>();
+#endif
 
             l_IVDefault.sprite  = p_Default;
             l_IVMarked.sprite   = p_Enabled;
@@ -691,7 +786,11 @@ namespace CP_SDK_BS.UI
         /// <param name="p_Value">New value</param>
         public void SetFavoriteToggleValue(bool p_Value)
         {
+#if LEGATO_BEFORE_MULTIPLAYER
+            m_FavoriteToggle.GetComponent<UnityEngine.UI.Toggle>().SetIsOnWithoutNotify(p_Value);
+#else
             m_FavoriteToggle.GetComponent<HMUI.ToggleWithCallbacks>().isOn = p_Value;
+#endif
         }
         /// <summary>
         /// Set favorite toggle callback
@@ -699,10 +798,14 @@ namespace CP_SDK_BS.UI
         /// <param name="p_Action">New callback</param>
         public void SetFavoriteToggleCallback(Action p_Action)
         {
+#if LEGATO_BEFORE_MULTIPLAYER
+            m_FavoriteToggle.GetComponent<UnityEngine.UI.Toggle>().onValueChanged.AddListener(_ => p_Action());
+#else
             m_FavoriteToggle.GetComponent<HMUI.ToggleWithCallbacks>().stateDidChangeEvent += (HMUI.ToggleWithCallbacks.SelectionState x) => {
                 if (x == HMUI.ToggleWithCallbacks.SelectionState.Pressed)
                     p_Action();
             };
+#endif
         }
 
         ////////////////////////////////////////////////////////////////////////////
@@ -832,7 +935,7 @@ namespace CP_SDK_BS.UI
         {
             if (m_LocalBeatMap != null)
             {
-#if BEAT_SABER_1_29_0
+#if BEAT_SABER_1_29_0 || LEGATO_BEFORE_MULTIPLAYER
                 var choices = Legato.ChatPlex.NativeAccess.Difficulties(m_LocalBeatMap, SelectedBeatmapCharacteristic)
                     .Where(value => m_LimitedBeatmapDifficulty == null || value == m_LimitedBeatmapDifficulty).ToArray();
                 int request = ++_legacyDifficultyVersion;
@@ -941,7 +1044,7 @@ namespace CP_SDK_BS.UI
 
                 if (OnActiveDifficultyChanged != null && Game.Levels.TryGetLevelIDFromHash(l_Version.hash, out var l_LevelID))
                 {
-#if BEAT_SABER_1_29_0
+#if BEAT_SABER_1_29_0 || LEGATO_BEFORE_MULTIPLAYER
                     _ = PublishLegacyDifficulty(l_LevelID, SelectedBeatmapCharacteristicSO, SelectedBeatmapDifficulty, ++_legacyDifficultyVersion, false);
 #elif LEGATO_SCRIPTABLE_CHARACTERISTICS
                     OnActiveDifficultyChanged.Invoke(new BeatmapKey(l_LevelID, SelectedBeatmapCharacteristicSO, SelectedBeatmapDifficulty));
@@ -951,7 +1054,7 @@ namespace CP_SDK_BS.UI
                 }
             }
         }
-#if BEAT_SABER_1_29_0
+#if BEAT_SABER_1_29_0 || LEGATO_BEFORE_MULTIPLAYER
         private async Task PublishLegacyDifficulty(string id, BeatmapCharacteristicSO characteristic, BeatmapDifficulty difficulty, int request, bool updateStats)
         {
             try
@@ -966,11 +1069,18 @@ namespace CP_SDK_BS.UI
                 if (key == null) return;
                 if (updateStats)
                 {
+#if LEGATO_BEFORE_MULTIPLAYER
+                    var info = key.beatmapData;
+                    if (info == null) return;
+                    int notes = info.notesCount;
+#else
                     var info = await key.GetBeatmapDataBasicInfoAsync();
+                    int notes = info.cuttableNotesCount;
+#endif
                     if (request != _legacyDifficultyVersion) return;
                     Time = full.songDuration;
-                    Notes = info.cuttableNotesCount;
-                    NPS = full.songDuration > 0 ? (float)info.cuttableNotesCount / full.songDuration : 0;
+                    Notes = notes;
+                    NPS = full.songDuration > 0 ? (float)notes / full.songDuration : 0;
                     NJS = (int)key.noteJumpMovementSpeed;
                     Offset = key.noteJumpStartBeatOffset;
                     Obstacles = info.obstaclesCount;

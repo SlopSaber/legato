@@ -4,7 +4,7 @@ using System;
 namespace Legato.Gameplay {
     internal static class LevelStatisticsAccess {
         internal static PlayerLevelStatsData? TryGet(PlayerData player, BeatmapKey key) {
-#if BEAT_SABER_1_29_0
+#if BEAT_SABER_1_29_0 || LEGATO_BEFORE_MULTIPLAYER
             if (!key.IsValidKey()) return null;
             string id = key.LevelId();
             var characteristic = key.parentDifficultyBeatmapSet.beatmapCharacteristic;
@@ -24,14 +24,16 @@ namespace Legato.Gameplay {
 namespace Legato.UI {
     internal static class DifficultySelection {
         internal static BeatmapLevel? Level(LevelSelectionNavigationController controller) =>
-#if BEAT_SABER_1_29_0
+#if LEGATO_BEFORE_MULTIPLAYER
+            controller.selectedDifficultyBeatmap?.level;
+#elif BEAT_SABER_1_29_0
             controller.selectedBeatmapLevel;
 #else
             controller.beatmapLevel;
 #endif
 
         internal static BeatmapKey Key(StandardLevelDetailViewController controller) =>
-#if BEAT_SABER_1_29_0
+#if BEAT_SABER_1_29_0 || LEGATO_BEFORE_MULTIPLAYER
             controller.selectedDifficultyBeatmap;
 #else
             controller.beatmapKey;
@@ -41,7 +43,7 @@ namespace Legato.UI {
 
         private sealed class Subscription : IDisposable {
             private readonly StandardLevelDetailViewController _controller;
-#if BEAT_SABER_1_29_0
+#if BEAT_SABER_1_29_0 || LEGATO_BEFORE_MULTIPLAYER
             private readonly Action<StandardLevelDetailViewController, IDifficultyBeatmap> _handler;
 #else
             private readonly Action<StandardLevelDetailViewController> _handler;
@@ -49,7 +51,7 @@ namespace Legato.UI {
             private bool _disposed;
             internal Subscription(StandardLevelDetailViewController controller, Action<StandardLevelDetailViewController> callback) {
                 _controller = controller;
-#if BEAT_SABER_1_29_0
+#if BEAT_SABER_1_29_0 || LEGATO_BEFORE_MULTIPLAYER
                 _handler = (sender, _) => callback(sender);
 #else
                 _handler = callback;

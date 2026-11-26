@@ -79,8 +79,13 @@ namespace CP_SDK_BS.UI.Data
             if (!m_DefaultCover)
             {
                 var l_GamePrefab = UnityEngine.Resources.FindObjectsOfTypeAll<LevelListTableCell>().FirstOrDefault();
+#if LEGATO_BEFORE_MULTIPLAYER
+                if (l_GamePrefab && l_GamePrefab._coverRawImage?.texture is Texture2D cover)
+                    m_DefaultCover = Sprite.Create(cover, new Rect(0, 0, cover.width, cover.height), new Vector2(0.5f, 0.5f));
+#else
                 if (l_GamePrefab)
                     m_DefaultCover = l_GamePrefab._coverImage?.sprite ?? null;
+#endif
             }
 
             if (!m_SongPreviewPlayer)
@@ -294,6 +299,20 @@ namespace CP_SDK_BS.UI.Data
         ////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////
 
+        private static void PlayPreview(AudioClip clip, BeatmapLevel level, float volume)
+        {
+            if (!m_SongPreviewPlayer || level == null) return;
+#if LEGATO_BEFORE_MULTIPLAYER
+            var sources = m_SongPreviewPlayer._audioSources;
+            var index = m_SongPreviewPlayer._activeChannel;
+            if (sources == null || index < 0 || index >= sources.Length || sources[index].clip == clip) return;
+            m_SongPreviewPlayer.CrossfadeTo(clip, level.previewStartTime, level.previewDuration, volume);
+#else
+            if (m_SongPreviewPlayer.activeAudioClip == clip) return;
+            m_SongPreviewPlayer.CrossfadeTo(clip, volume, level.previewStartTime, level.previewDuration, () => { });
+#endif
+        }
+
         /// <summary>
         /// On select
         /// </summary>
@@ -309,10 +328,7 @@ namespace CP_SDK_BS.UI.Data
             {
                 if (m_AudioClipCache.TryGetValue(GetLevelHash(), out var l_AudioClip))
                 {
-                    if (m_SongPreviewPlayer.activeAudioClip == l_AudioClip)
-                        return;
-
-                    m_SongPreviewPlayer.CrossfadeTo(l_AudioClip, l_PreviewAudioVolume, l_LocalSong.previewStartTime, l_LocalSong.previewDuration, () => { });
+                    PlayPreview(l_AudioClip, l_LocalSong, l_PreviewAudioVolume);
                 }
                 else
                 {
@@ -513,8 +529,7 @@ namespace CP_SDK_BS.UI.Data
                 if (!m_AudioClipCache.ContainsKey(GetLevelHash()))
                     m_AudioClipCache.Add(GetLevelHash(), l_AudioClip);
 
-                if (m_SongPreviewPlayer && m_SongPreviewPlayer.activeAudioClip != l_AudioClip)
-                    m_SongPreviewPlayer.CrossfadeTo(l_AudioClip, p_PreviewAudioVolume, BeatmapLevel.previewStartTime, BeatmapLevel.previewDuration, () => { });
+                PlayPreview(l_AudioClip, BeatmapLevel, p_PreviewAudioVolume);
             }
             catch (Exception)
             {
