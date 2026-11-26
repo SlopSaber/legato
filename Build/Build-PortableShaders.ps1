@@ -96,6 +96,7 @@ $prepared['ProjectSettings/ProjectVersion.txt'] = "m_EditorVersion: $unityVersio
 $prepared['Packages/manifest.json'] = $manifest
 $prepared['legato-shaders.json'] = @{
     bundleName=$BundleName; outputDirectory=$output
+    singlePassStereo=($profile[0].SinglePassStereo -eq 'true')
     shaders=@($prepared.Keys | Where-Object { $_.EndsWith('.shader') } | Sort-Object)
 } | ConvertTo-Json -Depth 4
 [IO.Directory]::CreateDirectory($workspace) | Out-Null

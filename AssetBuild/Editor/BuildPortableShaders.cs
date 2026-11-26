@@ -15,9 +15,10 @@ namespace Legato.AssetBuild
         [Serializable]
         private sealed class Settings
         {
-            public string bundleName;
-            public string outputDirectory;
-            public string[] shaders;
+            public string bundleName = "";
+            public string outputDirectory = "";
+            public string[] shaders = Array.Empty<string>();
+            public bool singlePassStereo = false;
         }
 
         public static void Build()
@@ -51,7 +52,7 @@ namespace Legato.AssetBuild
             graphics.ApplyModifiedPropertiesWithoutUndo();
 #pragma warning disable CS0618
             PlayerSettings.virtualRealitySupported = true;
-            PlayerSettings.stereoRenderingPath = StereoRenderingPath.Instancing;
+            PlayerSettings.stereoRenderingPath = settings.singlePassStereo ? StereoRenderingPath.SinglePass : StereoRenderingPath.Instancing;
 #pragma warning restore CS0618
             PlayerSettings.SetUseDefaultGraphicsAPIs(BuildTarget.StandaloneWindows64, false);
             PlayerSettings.SetGraphicsAPIs(BuildTarget.StandaloneWindows64, new[] { GraphicsDeviceType.Direct3D11 });
