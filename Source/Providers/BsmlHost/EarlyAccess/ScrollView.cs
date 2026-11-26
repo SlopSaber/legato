@@ -235,31 +235,32 @@ public class ScrollView : MonoBehaviour, IBeginDragHandler
 
 public sealed class TextPageScrollView : ScrollView
 {
-    internal TextMeshProUGUI _text;
     private string measuredText;
+
+    internal TextMeshProUGUI Text { get; set; }
 
     public void SetText(string text)
     {
-        _text.text = text ?? string.Empty;
+        Text.text = text ?? string.Empty;
         float width = Viewport.rect.width;
         if (width > 0f)
         {
-            SetContentSize(_text.GetPreferredValues(_text.text, width, 0f).y);
-            measuredText = _text.text;
+            SetContentSize(Text.GetPreferredValues(Text.text, width, 0f).y);
+            measuredText = Text.text;
         }
     }
 
     protected override void OnScrollLayoutChanged()
     {
-        SetText(_text.text);
+        SetText(Text.text);
         base.OnScrollLayoutChanged();
     }
 
     protected override void LateUpdate()
     {
-        if (_text != null && _text.text != measuredText)
+        if (Text != null && Text.text != measuredText)
         {
-            SetText(_text.text);
+            SetText(Text.text);
         }
 
         base.LateUpdate();
