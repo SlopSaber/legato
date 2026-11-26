@@ -32,7 +32,7 @@ namespace Legato.Unity {
         internal static bool HasRunningDisplay(List<XRDisplaySubsystem> displays) {
             foreach (XRDisplaySubsystem display in displays)
                 if (display != null && display.running) return true;
-#if BEAT_SABER_1_29_0
+#if LEGATO_BEFORE_MULTIPLAYER || BEAT_SABER_1_29_0
             return XRSettings.isDeviceActive;
 #else
             return false;

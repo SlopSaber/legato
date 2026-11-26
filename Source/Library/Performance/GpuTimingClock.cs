@@ -1,4 +1,4 @@
-#if BEAT_SABER_1_29_0 || BEAT_SABER_1_45_1 || BEAT_SABER_1_45_3
+#if LEGATO_NATIVE_GPU_TIMING
 using System;
 using System.Runtime.InteropServices;
 

@@ -1,12 +1,16 @@
+#if LEGATO_BEFORE_MULTIPLAYER || BEAT_SABER_1_29_0
+#define LEGATO_THREAD_CPU_TIMING
+#endif
+
 using System;
-#if BEAT_SABER_1_29_0
+#if LEGATO_THREAD_CPU_TIMING
 using System.Runtime.InteropServices;
 using System.Threading;
 #endif
 
 namespace Legato.Performance {
     internal struct CpuFrameTiming : IDisposable {
-#if BEAT_SABER_1_29_0
+#if LEGATO_THREAD_CPU_TIMING
         private bool _valid;
         private int _thread, _frames;
         private ulong _previousCpu;
@@ -15,7 +19,7 @@ namespace Legato.Performance {
         private global::Unity.Profiling.ProfilerRecorder _recorder;
 #endif
         internal void Start() {
-#if BEAT_SABER_1_29_0
+#if LEGATO_THREAD_CPU_TIMING
             _milliseconds = float.NaN;
             _frames = 0;
             _valid = false;
@@ -28,13 +32,13 @@ namespace Legato.Performance {
 #endif
         }
         internal bool Valid =>
-#if BEAT_SABER_1_29_0
+#if LEGATO_THREAD_CPU_TIMING
             _valid;
 #else
             _recorder.Valid;
 #endif
         internal float ReadMilliseconds() {
-#if BEAT_SABER_1_29_0
+#if LEGATO_THREAD_CPU_TIMING
             if (!_valid || Thread.CurrentThread.ManagedThreadId != _thread) return float.NaN;
             ++_frames;
             float now = UnityEngine.Time.realtimeSinceStartup;
@@ -58,19 +62,19 @@ namespace Legato.Performance {
 #endif
         }
         public void Dispose() {
-#if BEAT_SABER_1_29_0
+#if LEGATO_THREAD_CPU_TIMING
             _valid = false;
 #else
             _recorder.Dispose();
 #endif
         }
         internal static string Label =>
-#if BEAT_SABER_1_29_0
+#if LEGATO_THREAD_CPU_TIMING
             "CPU main";
 #else
             "CPU";
 #endif
-#if BEAT_SABER_1_29_0
+#if LEGATO_THREAD_CPU_TIMING
         private static bool ReadCpu(out ulong time) {
             bool success = GetThreadTimes(new IntPtr(-2), out _, out _, out ulong kernel, out ulong user);
             time = kernel + user;

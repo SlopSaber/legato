@@ -4,7 +4,7 @@ using UnityEngine.XR;
 
 namespace Legato.Performance {
     internal sealed class GpuFrameTiming : IDisposable {
-#if BEAT_SABER_1_29_0 || BEAT_SABER_1_45_1 || BEAT_SABER_1_45_3
+#if LEGATO_NATIVE_GPU_TIMING
         private readonly NativeGpuTiming _native;
 #else
         private readonly FrameTiming[] _timings = new FrameTiming[1];
@@ -14,7 +14,7 @@ namespace Legato.Performance {
 #endif
 
         internal GpuFrameTiming(Action<string> debug, Action<string> warn) {
-#if BEAT_SABER_1_29_0 || BEAT_SABER_1_45_1 || BEAT_SABER_1_45_3
+#if LEGATO_NATIVE_GPU_TIMING
             _native = new NativeGpuTiming(debug, warn);
 #else
             _debug = debug;
@@ -23,7 +23,7 @@ namespace Legato.Performance {
 
         internal static bool UsesNativeRenderTiming {
             get {
-#if BEAT_SABER_1_29_0 || BEAT_SABER_1_45_1 || BEAT_SABER_1_45_3
+#if LEGATO_NATIVE_GPU_TIMING
                 return true;
 #else
                 return false;
@@ -31,15 +31,10 @@ namespace Legato.Performance {
             }
         }
 
-        internal static bool RequiresLegacyOpenXrHooks =>
-#if BEAT_SABER_1_29_0
-            false;
-#else
-            !UsesNativeRenderTiming;
-#endif
+        internal static bool RequiresLegacyOpenXrHooks => !UsesNativeRenderTiming;
 
         internal float ReadEngineTiming() {
-#if !BEAT_SABER_1_29_0 && !BEAT_SABER_1_45_1 && !BEAT_SABER_1_45_3
+#if !LEGATO_NATIVE_GPU_TIMING
 #if !LEGATO_LEGACY_FRAME_TIMING
             if (!UnityEngine.FrameTimingManager.IsFeatureEnabled()) return float.NaN;
 #endif
@@ -55,7 +50,7 @@ namespace Legato.Performance {
         }
 
         internal float ReadNativeTiming(MonoBehaviour owner, float current) {
-#if BEAT_SABER_1_29_0 || BEAT_SABER_1_45_1 || BEAT_SABER_1_45_3
+#if LEGATO_NATIVE_GPU_TIMING
             return _native.Read(owner, Time.realtimeSinceStartup);
 #else
             return current;
@@ -63,7 +58,7 @@ namespace Legato.Performance {
         }
 
         internal float ReadXrFallback(float current, XRDisplaySubsystem display, float frameSeconds) {
-#if !BEAT_SABER_1_29_0 && !BEAT_SABER_1_45_1 && !BEAT_SABER_1_45_3
+#if !LEGATO_NATIVE_GPU_TIMING
             if (!Finite(current) && display.TryGetAppGPUTimeLastFrame(out float seconds) && Valid(seconds)) {
                 if (seconds <= Mathf.Max(0.5f, frameSeconds)) return seconds * 1000f;
                 if (!_reportedInvalidXrGpuTime) {
@@ -76,7 +71,7 @@ namespace Legato.Performance {
         }
 
         private static bool Finite(float value) => !float.IsNaN(value) && !float.IsInfinity(value);
-#if !BEAT_SABER_1_29_0 && !BEAT_SABER_1_45_1 && !BEAT_SABER_1_45_3
+#if !LEGATO_NATIVE_GPU_TIMING
         private static ulong FrameTimestamp(FrameTiming timing) =>
 #if LEGATO_LEGACY_FRAME_TIMING
             timing.cpuTimeFrameComplete;
@@ -87,7 +82,7 @@ namespace Legato.Performance {
         private static bool Valid(float value) => Finite(value) && value > 0f;
 
         public void Dispose() {
-#if BEAT_SABER_1_29_0 || BEAT_SABER_1_45_1 || BEAT_SABER_1_45_3
+#if LEGATO_NATIVE_GPU_TIMING
             _native.Dispose();
 #endif
         }

@@ -1,4 +1,8 @@
-#if BEAT_SABER_1_29_0 || BEAT_SABER_1_45_1 || BEAT_SABER_1_45_3
+#if LEGATO_BEFORE_MULTIPLAYER || BEAT_SABER_1_29_0
+#define LEGATO_BUILTIN_GPU_TIMING
+#endif
+
+#if LEGATO_NATIVE_GPU_TIMING
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -26,7 +30,7 @@ internal sealed class NativeGpuTiming : IDisposable
     private const string Library = "NalulunaFps.NativeGpuTiming";
     private const int BeginFrame = 1, BeginScope = 2, EndScope = 3, EndFrame = 4, Stop = 5;
     private static NativeGpuTiming _active;
-#if !BEAT_SABER_1_29_0
+#if !LEGATO_BUILTIN_GPU_TIMING
     private static readonly MethodInfo SubmitMethod = AccessTools.Method(typeof(ScriptableRenderContext), "Submit");
     private static readonly MethodInfo EndScopeMethod = AccessTools.Method(typeof(NativeGpuTiming), nameof(BeforeSubmit));
 #else
@@ -38,7 +42,7 @@ internal sealed class NativeGpuTiming : IDisposable
     private Texture2D _probe;
     private CommandBuffer _markers;
     private IntPtr _eventCallback;
-#if !BEAT_SABER_1_29_0
+#if !LEGATO_BUILTIN_GPU_TIMING
     private ScriptableRenderContext _scopeContext;
 #endif
     private bool _started, _failed, _nativeLoaded, _frameOpen, _scopeOpen;
@@ -110,7 +114,7 @@ internal sealed class NativeGpuTiming : IDisposable
             if (_eventCallback == IntPtr.Zero) throw new InvalidOperationException("Native render callback unavailable");
             _owner = owner;
             CreateProbe();
-#if BEAT_SABER_1_29_0
+#if LEGATO_BUILTIN_GPU_TIMING
             Camera.onPreRender += BeforeLegacyCamera;
             Camera.onPostRender += AfterLegacyCamera;
 #else
@@ -128,11 +132,11 @@ internal sealed class NativeGpuTiming : IDisposable
 #endif
             _active = this;
             _started = true;
-#if !BEAT_SABER_1_29_0
+#if !LEGATO_BUILTIN_GPU_TIMING
             RenderPipelineManager.beginContextRendering += OnBeginContext;
 #endif
             _finishCoroutine = owner.StartCoroutine(FinishFrames());
-#if BEAT_SABER_1_29_0
+#if LEGATO_BUILTIN_GPU_TIMING
             _debug("Native D3D11 GPU timing attached to built-in camera rendering; nested cameras share their outer scope, asynchronous query reads.");
 #else
             _debug("Native D3D11 GPU timing attached to URP RenderGraph and camera submission; eight pending frames, 32 camera scopes per frame, asynchronous query reads.");
@@ -159,7 +163,7 @@ internal sealed class NativeGpuTiming : IDisposable
         SetSourceTexture(resource);
     }
 
-#if BEAT_SABER_1_29_0
+#if LEGATO_BUILTIN_GPU_TIMING
     private void BeforeLegacyCamera(Camera camera)
     {
         if (!_started || _failed) return;
@@ -194,7 +198,7 @@ internal sealed class NativeGpuTiming : IDisposable
         {
             _lastFrame = Time.frameCount;
             _frameOpen = true;
-#if BEAT_SABER_1_29_0
+#if LEGATO_BUILTIN_GPU_TIMING
             _cameraDepth = 0;
 #endif
             GL.IssuePluginEvent(_eventCallback, BeginFrame);
@@ -216,7 +220,7 @@ internal sealed class NativeGpuTiming : IDisposable
         }
     }
 
-#if !BEAT_SABER_1_29_0
+#if !LEGATO_BUILTIN_GPU_TIMING
     private static void BeforeRenderGraph(ScriptableRenderContext __1) => _active?.StartScope(__1);
 
     private void StartScope(ScriptableRenderContext context)
@@ -295,7 +299,7 @@ internal sealed class NativeGpuTiming : IDisposable
     public void Dispose()
     {
         _started = false;
-#if BEAT_SABER_1_29_0
+#if LEGATO_BUILTIN_GPU_TIMING
         Camera.onPreRender -= BeforeLegacyCamera;
         Camera.onPostRender -= AfterLegacyCamera;
         _cameraDepth = 0;
