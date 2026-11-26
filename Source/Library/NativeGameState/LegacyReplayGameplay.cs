@@ -45,6 +45,29 @@ namespace Legato.Gameplay {
             }
         }
 
+        internal static void ApplyRecordedScore(ScoreController score, int rawScore, int immediateMaximum) {
+            score._prevFrameRawScore = rawScore;
+            score._immediateMaxPossibleRawScore = immediateMaximum;
+            var multiplier = score.gameplayModifiersScoreMultiplier;
+            score.GetField<Action<int, int>, ScoreController>("scoreDidChangeEvent")?.Invoke(rawScore,
+                ScoreModel.GetModifiedScoreForGameplayModifiersScoreMultiplier(rawScore, multiplier));
+            score.GetField<Action<int, int>, ScoreController>("immediateMaxPossibleScoreDidChangeEvent")?.Invoke(immediateMaximum,
+                ScoreModel.GetModifiedScoreForGameplayModifiersScoreMultiplier(immediateMaximum, multiplier));
+        }
+
+        internal static void ApplyRecordedCombo(ScoreController score, int combo, int maximumCombo) {
+            score._combo = combo;
+            score._maxCombo = maximumCombo;
+            score.NotifyForChange(comboChanged: true, multiplierChanged: false);
+        }
+
+        internal static void ApplyRecordedMultiplier(ScoreController score, int multiplier, float progress) {
+            score._multiplier = multiplier;
+            score._multiplierIncreaseMaxProgress = multiplier * 2;
+            score._multiplierIncreaseProgress = Mathf.RoundToInt(progress * score._multiplierIncreaseMaxProgress);
+            score.NotifyForChange(comboChanged: false, multiplierChanged: true);
+        }
+
         internal static void Reset(ScoreController score, GameEnergyCounter energy) {
             score._baseRawScore = 0;
             score._multiplier = 1;

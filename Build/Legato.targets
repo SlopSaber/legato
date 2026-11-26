@@ -585,6 +585,8 @@
                Condition="'$(LegatoEnableModifiersCoreLegacy)' == 'true'" />
       <Compile Include="$(LegatoSourceRoot)Library\UiLifecycle\**\*.cs"
                Condition="'$(LegatoEnableLegacyViewLifecycle)' == 'true'" />
+      <Compile Include="$(LegatoSourceRoot)Polyfills\HMUI\FlowCoordinator\FlowCoordinatorExtensions.cs"
+               Condition="'$(LegatoEnableLegacyViewLifecycle)' == 'true' AND '$(LegatoTargetProfile)' == '1.11.1'" />
       <Compile Include="$(LegatoSourceRoot)Library\JoystickInput\**\*.cs"
                Condition="'$(LegatoEnableJoystickInput)' == 'true'" />
       <Compile Include="$(LegatoSourceRoot)Library\TextWrapping\**\*.cs"

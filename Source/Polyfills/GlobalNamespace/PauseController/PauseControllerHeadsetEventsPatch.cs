@@ -2,6 +2,9 @@
 
 using Legato.XR.Headset;
 using HarmonyLib;
+#if LEGATO_BEFORE_MULTIPLAYER
+using Legato.XR.InputFocus;
+#endif
 
 namespace Legato {
 #if LEGATO_DIFFICULTY_BEATMAPS || BEAT_SABER_1_37_1 || BEAT_SABER_1_38_0 || BEAT_SABER_1_40_0 || BEAT_SABER_1_42_0
@@ -9,6 +12,12 @@ namespace Legato {
     internal static class PauseControllerHeadsetEventsPatch {
         private static bool Prefix() => HeadsetEvents.RaiseHeadsetUnmounted();
     }
+#if LEGATO_BEFORE_MULTIPLAYER
+    [HarmonyPatch(typeof(PauseController), nameof(PauseController.HandleInputFocusWasCaptured))]
+    internal static class PauseControllerFocusCapturedPatch {
+        private static bool Prefix() => !InputFocusEvents.RaiseInputFocusEvaluated(false);
+    }
+#endif
 #else
     [HarmonyPatch(typeof(PauseController), nameof(PauseController.HandleSystemStateChange))]
     internal static class PauseControllerHeadsetEventsPatch {
