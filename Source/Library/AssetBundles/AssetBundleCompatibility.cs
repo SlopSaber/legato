@@ -2,7 +2,7 @@
 
 using System;
 using System.IO;
-#if BEAT_SABER_1_29_0
+#if BEAT_SABER_1_29_0 || LEGATO_BEFORE_MULTIPLAYER
 using System.Text;
 using UnityEngine;
 #endif
@@ -13,7 +13,7 @@ namespace Legato.Assets
     {
         internal static bool IsSupported(string path, Action<string>? warning)
         {
-#if BEAT_SABER_1_29_0
+#if BEAT_SABER_1_29_0 || LEGATO_BEFORE_MULTIPLAYER
             try
             {
                 using (var stream = File.OpenRead(path)) return IsSupported(stream, warning);
@@ -25,7 +25,7 @@ namespace Legato.Assets
 
         internal static bool IsSupported(byte[] data, Action<string>? warning)
         {
-#if BEAT_SABER_1_29_0
+#if BEAT_SABER_1_29_0 || LEGATO_BEFORE_MULTIPLAYER
             if (data != null)
             {
                 using (var stream = new MemoryStream(data, false)) return IsSupported(stream, warning);
@@ -36,7 +36,7 @@ namespace Legato.Assets
 
         internal static bool IsSupported(Stream stream, Action<string>? warning)
         {
-#if BEAT_SABER_1_29_0
+#if BEAT_SABER_1_29_0 || LEGATO_BEFORE_MULTIPLAYER
             if (stream == null || !stream.CanSeek || !stream.CanRead) return true;
             long position = stream.Position;
             try
@@ -64,7 +64,7 @@ namespace Legato.Assets
             return true;
         }
 
-#if BEAT_SABER_1_29_0
+#if BEAT_SABER_1_29_0 || LEGATO_BEFORE_MULTIPLAYER
         private static string ReadHeaderString(BinaryReader reader)
         {
             var text = new StringBuilder();
