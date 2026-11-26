@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Experimental.Rendering;
-#if !BEAT_SABER_1_29_0
+#if !BEAT_SABER_1_29_0 && !LEGATO_NATIVE_POLYGLOT
 using UnityEngine.AddressableAssets;
 #else
 using UnityEngine.SceneManagement;
@@ -14,13 +14,13 @@ using UnityEngine.SceneManagement;
 namespace Legato.Assets {
     internal static class FontResources {
         internal static Task<TMP_FontAsset> LoadBoldAsync(CancellationToken cancellationToken = default) =>
-#if BEAT_SABER_1_29_0
+#if BEAT_SABER_1_29_0 || LEGATO_NATIVE_POLYGLOT
             WaitForNativeBoldAsync(cancellationToken);
 #else
             Addressables.LoadAssetAsync<TMP_FontAsset>("Assets/Visuals/Fonts/Teko-Bold/Teko-Bold SDF.asset").Task;
 #endif
 
-#if BEAT_SABER_1_29_0
+#if BEAT_SABER_1_29_0 || LEGATO_NATIVE_POLYGLOT
         internal static TMP_FontAsset RequireLoadedBold() => FindLoadedBold()
             ?? throw new InvalidOperationException("The native Teko bold font is not loaded.");
 
@@ -56,13 +56,13 @@ namespace Legato.Assets {
             ?? Resources.FindObjectsOfTypeAll<TMP_FontAsset>().FirstOrDefault(font => font.name == "Teko-Bold SDF")
             ?? TMP_Settings.defaultFontAsset).material;
         internal static TextureCreationFlags CopyTextureFlags =>
-#if LEGATO_BASIC_TEXTURE_CREATION_FLAGS
+#if LEGATO_BASIC_TEXTURE_CREATION_FLAGS || LEGATO_NATIVE_POLYGLOT
             TextureCreationFlags.None;
 #else
             TextureCreationFlags.DontInitializePixels | TextureCreationFlags.DontUploadUponCreate;
 #endif
         internal static void InvalidateFallbacks(TMP_FontAsset font) {
-#if BEAT_SABER_1_29_0 || LEGATO_LEGACY_TEXTMESH_PRO
+#if BEAT_SABER_1_29_0 || LEGATO_LEGACY_TEXTMESH_PRO || LEGATO_NATIVE_POLYGLOT
             font.ReadFontAssetDefinition();
 #else
             font.ClearFallbackCharacterTable();

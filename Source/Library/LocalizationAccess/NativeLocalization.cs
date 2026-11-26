@@ -8,26 +8,26 @@ namespace Legato.LocalizationSupport {
     internal static class NativeLocalization {
         private const BindingFlags Fields = BindingFlags.Instance | BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic;
         internal static bool HasInstance =>
-#if BEAT_SABER_1_29_0
+#if BEAT_SABER_1_29_0 || LEGATO_NATIVE_POLYGLOT
             Localization.HasInstance;
 #else
             typeof(Localization).GetField("_instance", Fields).GetValue(null) != null;
 #endif
         internal static List<LocalizationAsset> InputFiles =>
-#if BEAT_SABER_1_29_0 || LEGATO_LEGACY_TEXTMESH_PRO
+#if BEAT_SABER_1_29_0 || LEGATO_LEGACY_TEXTMESH_PRO || LEGATO_NATIVE_POLYGLOT
             Localization.Instance.InputFiles;
 #else
             Localization.Instance.inputFiles;
 #endif
         internal static Dictionary<string, List<string>> Strings =>
-#if BEAT_SABER_1_29_0 || LEGATO_LEGACY_TEXTMESH_PRO
+#if BEAT_SABER_1_29_0 || LEGATO_LEGACY_TEXTMESH_PRO || LEGATO_NATIVE_POLYGLOT
             (Dictionary<string, List<string>>)typeof(LocalizationImporter).GetField("languageStrings", Fields).GetValue(null);
 #else
             FieldAccessor<LocalizationModel, Dictionary<string, List<string>>>.Get(Localization.Instance, "_languageStrings");
 #endif
         internal static List<LocalizationLanguage> SupportedLanguages {
             get {
-#if BEAT_SABER_1_29_0
+#if BEAT_SABER_1_29_0 || LEGATO_NATIVE_POLYGLOT
                 return Localization.Instance.SupportedLanguages;
 #else
 #if LEGATO_LEGACY_TEXTMESH_PRO
@@ -41,7 +41,7 @@ namespace Legato.LocalizationSupport {
             }
         }
         internal static void ImportFiles() {
-#if BEAT_SABER_1_29_0
+#if BEAT_SABER_1_29_0 || LEGATO_NATIVE_POLYGLOT
             LocalizationImporter.Initialize();
 #elif LEGATO_LEGACY_TEXTMESH_PRO
             LocalizationImporter.Initialize(Localization.Instance);
@@ -50,14 +50,14 @@ namespace Legato.LocalizationSupport {
 #endif
         }
         internal static void RaiseChanged() {
-#if BEAT_SABER_1_29_0
+#if BEAT_SABER_1_29_0 || LEGATO_NATIVE_POLYGLOT
             Localization.Instance.InvokeOnLocalize();
 #else
             FieldAccessor<LocalizationModel, Action<LocalizationModel>>.Get(Localization.Instance, "_onChangeLanguage")?.Invoke(Localization.Instance);
 #endif
         }
         internal static string Get(LocalizationModel model, string key, LocalizationLanguage language) {
-#if BEAT_SABER_1_29_0
+#if BEAT_SABER_1_29_0 || LEGATO_NATIVE_POLYGLOT
             return Localization.Get(key, language);
 #else
             model.TryGet(key, language, out string value);
@@ -65,7 +65,7 @@ namespace Legato.LocalizationSupport {
 #endif
         }
         internal static List<string> GetLanguages(string key) =>
-#if BEAT_SABER_1_29_0
+#if BEAT_SABER_1_29_0 || LEGATO_NATIVE_POLYGLOT
             LocalizationImporter.GetLanguages(key, null);
 #elif LEGATO_LEGACY_TEXTMESH_PRO
             LocalizationImporter.GetLanguages(key);
@@ -73,7 +73,7 @@ namespace Legato.LocalizationSupport {
             Localization.Instance.GetLanguages(key);
 #endif
         internal static void Remove(LocalizationModel model, ILocalize listener) {
-#if BEAT_SABER_1_29_0
+#if BEAT_SABER_1_29_0 || LEGATO_NATIVE_POLYGLOT
             model.RemoveOnLocalizeEvent(listener);
 #else
             var handler = FieldAccessor<LocalizationModel, Action<LocalizationModel>>.Get(model, "_onChangeLanguage");
@@ -81,6 +81,7 @@ namespace Legato.LocalizationSupport {
             model.SetField("_onChangeLanguage", handler);
 #endif
         }
+#if !LEGATO_NATIVE_POLYGLOT
         internal static MethodInfo ParseLanguageMethod => typeof(LocalizationLanguageExtensions).GetMethod(
 #if BEAT_SABER_1_29_0 || LEGATO_LEGACY_TEXTMESH_PRO
             "ToLanguage",
@@ -88,15 +89,16 @@ namespace Legato.LocalizationSupport {
             "ToLocalizationLanguage",
 #endif
             new[] { typeof(string) });
+#endif
         internal static MethodInfo SetSingletonMethod =>
-#if BEAT_SABER_1_29_0
+#if BEAT_SABER_1_29_0 || LEGATO_NATIVE_POLYGLOT
             typeof(Localization).GetProperty("Instance").GetSetMethod();
 #else
             typeof(Localization).GetMethod("SetSingletonInstance", Fields);
 #endif
     }
     internal abstract class LocalizationListener : MonoBehaviour, ILocalize {
-#if BEAT_SABER_1_29_0
+#if BEAT_SABER_1_29_0 || LEGATO_NATIVE_POLYGLOT
         public void OnLocalize() => LocaleChanged();
 #else
         public void OnLocalize(LocalizationModel model) => LocaleChanged();
@@ -104,7 +106,9 @@ namespace Legato.LocalizationSupport {
         protected abstract void LocaleChanged();
     }
     internal sealed class LanguagePreferences {
-#if BEAT_SABER_1_29_0
+#if LEGATO_NATIVE_POLYGLOT
+        internal LocalizationLanguage Selected => NativeLocalization.HasInstance ? Localization.Instance.SelectedLanguage : LocalizationLanguage.English;
+#elif BEAT_SABER_1_29_0
         private readonly MainSettingsModelSO _settings;
         private static readonly FieldInfo MainSettings = typeof(MainSystemInit).GetField(
             "_mainSettingsModel", BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public)

@@ -9,8 +9,6 @@ using SiraLocalizer.Utilities;
 using SiraUtil.Logging;
 using TMPro;
 using UnityEngine;
-using UnityEngine.AddressableAssets;
-using UnityEngine.ResourceManagement.AsyncOperations;
 using UnityEngine.SceneManagement;
 using Zenject;
 using Object = UnityEngine.Object;
@@ -31,7 +29,7 @@ namespace SiraLocalizer.UI
         ];
 
         private readonly SiraLog _logger;
-#if BEAT_SABER_1_29_0
+#if BEAT_SABER_1_29_0 || LEGATO_NATIVE_POLYGLOT
         private readonly CancellationTokenSource _nativeFontLoadCancellation = new();
         private readonly CancellationToken _nativeFontLoadToken;
 #endif
@@ -40,7 +38,7 @@ namespace SiraLocalizer.UI
         private readonly List<TMP_FontAsset> _createdFontAssets = [];
         private readonly HashSet<TMP_FontAsset> _processedFontAssets = [];
 
-#if BEAT_SABER_1_29_0
+#if BEAT_SABER_1_29_0 || LEGATO_NATIVE_POLYGLOT
         private TMP_FontAsset _tekoBoldFontAsset;
         internal TMP_FontAsset tekoBoldFontAsset {
             get => _tekoBoldFontAsset != null ? _tekoBoldFontAsset
@@ -54,7 +52,7 @@ namespace SiraLocalizer.UI
         public FontLoader(SiraLog logger)
         {
             _logger = logger;
-#if BEAT_SABER_1_29_0
+#if BEAT_SABER_1_29_0 || LEGATO_NATIVE_POLYGLOT
             _nativeFontLoadToken = _nativeFontLoadCancellation.Token;
 #endif
         }
@@ -67,7 +65,7 @@ namespace SiraLocalizer.UI
             {
                 await LoadFontAssetsAsync();
             }
-#if BEAT_SABER_1_29_0
+#if BEAT_SABER_1_29_0 || LEGATO_NATIVE_POLYGLOT
             catch (OperationCanceledException) when (_nativeFontLoadToken.IsCancellationRequested) { }
 #endif
             catch (Exception ex)
@@ -78,7 +76,7 @@ namespace SiraLocalizer.UI
 
         public void Dispose()
         {
-#if BEAT_SABER_1_29_0
+#if BEAT_SABER_1_29_0 || LEGATO_NATIVE_POLYGLOT
             if (_nativeFontLoadToken.IsCancellationRequested) return;
             _nativeFontLoadCancellation.Cancel();
             _nativeFontLoadCancellation.Dispose();
@@ -115,7 +113,7 @@ namespace SiraLocalizer.UI
         {
             _logger.Info($"Loading fonts");
 
-#if BEAT_SABER_1_29_0
+#if BEAT_SABER_1_29_0 || LEGATO_NATIVE_POLYGLOT
             await LoadTekoBoldAsync();
             _nativeFontLoadToken.ThrowIfCancellationRequested();
             await LoadFallbackFontsAsync();
@@ -129,7 +127,7 @@ namespace SiraLocalizer.UI
         private async Task LoadTekoBoldAsync()
         {
             tekoBoldFontAsset = await Legato.Assets.FontResources.LoadBoldAsync(
-#if BEAT_SABER_1_29_0
+#if BEAT_SABER_1_29_0 || LEGATO_NATIVE_POLYGLOT
                 _nativeFontLoadToken
 #endif
             );
@@ -146,7 +144,12 @@ namespace SiraLocalizer.UI
             }
             await Task.CompletedTask;
 #else
-            using Stream stream = Assembly.GetExecutingAssembly().GetManifestResourceStream("SiraLocalizer.Resources.Assets");
+#if LEGATO_NATIVE_POLYGLOT
+            const string resource = "SiraLocalizer.Resources.LegacyFontBundle";
+#else
+            const string resource = "SiraLocalizer.Resources.Assets";
+#endif
+            using Stream stream = Assembly.GetExecutingAssembly().GetManifestResourceStream(resource);
             AssetBundleCreateRequest assetBundleCreateRequest = await AssetBundle.LoadFromStreamAsync(stream);
             AssetBundle assetBundle = assetBundleCreateRequest.assetBundle;
 
@@ -156,14 +159,27 @@ namespace SiraLocalizer.UI
                 return;
             }
 
-            await assetBundle.LoadAllAssetsAsync();
-
-            foreach (string fontName in kFontReplacementStrategies.SelectMany(s => s.fontNamesToAdd).Distinct())
+#if LEGATO_NATIVE_POLYGLOT
+            try
             {
-                LoadFontAsset(assetBundle, fontName);
+                _nativeFontLoadToken.ThrowIfCancellationRequested();
+                await assetBundle.LoadAllAssetsAsync();
+                _nativeFontLoadToken.ThrowIfCancellationRequested();
+
+                foreach (string fontName in kFontReplacementStrategies.SelectMany(s => s.fontNamesToAdd).Distinct())
+                    LoadFontAsset(assetBundle, fontName);
             }
+            finally
+            {
+                assetBundle.Unload(_nativeFontLoadToken.IsCancellationRequested);
+            }
+#else
+            await assetBundle.LoadAllAssetsAsync();
+            foreach (string fontName in kFontReplacementStrategies.SelectMany(s => s.fontNamesToAdd).Distinct())
+                LoadFontAsset(assetBundle, fontName);
 
             await assetBundle.UnloadAsync(false);
+#endif
 #endif
         }
 

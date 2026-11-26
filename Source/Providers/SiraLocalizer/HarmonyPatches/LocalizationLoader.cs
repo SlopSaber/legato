@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace SiraLocalizer.HarmonyPatches
 {
-#if BEAT_SABER_1_29_0
+#if BEAT_SABER_1_29_0 || LEGATO_NATIVE_POLYGLOT
     [HarmonyPatch(typeof(LocalizationImporter), nameof(LocalizationImporter.ImportFromFiles))]
     internal class LocalizationLoader {
         [HarmonyPriority(Priority.First)]

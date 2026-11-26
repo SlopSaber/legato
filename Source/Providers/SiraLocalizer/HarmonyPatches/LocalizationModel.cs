@@ -1,3 +1,4 @@
+#if !LEGATO_NATIVE_POLYGLOT
 using System.Globalization;
 
 using HarmonyLib;
@@ -29,3 +30,4 @@ namespace SiraLocalizer.HarmonyPatches
     }
 #endif
 }
+#endif
