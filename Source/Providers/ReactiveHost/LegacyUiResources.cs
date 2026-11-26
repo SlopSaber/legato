@@ -1,10 +1,13 @@
-#if BEAT_SABER_1_29_0 && !COMPILE_EDITOR
+#if (BEAT_SABER_1_29_0 || LEGATO_BEFORE_MULTIPLAYER) && !COMPILE_EDITOR
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 using Reactive.BeatSaber;
 using UnityEngine;
+#if LEGATO_BEFORE_MULTIPLAYER
+using System.Linq;
+#endif
 
 namespace Legato.Reactive
 {
@@ -40,6 +43,10 @@ namespace Legato.Reactive
             result.sprites.frame.name = "Frame";
             result.sprites.transparentPixel = Sprite.Create(LoadTexture("texture-5.png", 1, 1), new Rect(0.0f, 0.0f, 1.0f, 1.0f), new Vector2(0.5f, 0.5f), 100.0f, 0, SpriteMeshType.FullRect, new Vector4(0.0f, 0.0f, 0.0f, 0.0f));
             result.sprites.transparentPixel.name = "TransparentPixel";
+#if LEGATO_BEFORE_MULTIPLAYER
+            result.materials.uiAdditiveGlowMaterial = Legato.Unity.ObjectDiscovery.FindLoaded<Material>()
+                .First(material => material.name == "UINoGlowAdditive");
+#else
             var bundle = AssetBundle.LoadFromMemory(ReadResource("ui-2019.bundle"));
             if (bundle == null)
             {
@@ -58,6 +65,7 @@ namespace Legato.Reactive
             {
                 bundle.Unload(false);
             }
+#endif
 
             return result;
         }

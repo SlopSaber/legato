@@ -1,8 +1,19 @@
 <Project>
+  <Target Name="LegatoReactiveLegacyReferences" BeforeTargets="ResolveAssemblyReferences" DependsOnTargets="LegatoConfigure">
+    <ItemGroup Condition="'$(LegatoTargetProfile)' == '1.11.1'">
+      <Reference Include="UnityEngine.XRModule" HintPath="$(LegatoReferenceRoot)\Beat Saber_Data\Managed\UnityEngine.XRModule.dll" Private="false" />
+      <Reference Include="UnityEngine.TextRenderingModule" HintPath="$(LegatoReferenceRoot)\Beat Saber_Data\Managed\UnityEngine.TextRenderingModule.dll" Private="false" />
+    </ItemGroup>
+  </Target>
   <Target Name="LegatoReactiveUiResources" BeforeTargets="AssignTargetPaths" DependsOnTargets="LegatoConfigure">
     <ItemGroup Condition="'$(LegatoTargetProfile)' == '1.29.0' AND !$(Configuration.Contains('Editor'))">
       <EmbeddedResource Remove="Resources\AssetBundles\asset_bundle" />
       <_LegatoReactiveResource Include="$(MSBuildThisFileDirectory)Resources\ReactiveUiLegacy\*" />
+      <EmbeddedResource Include="@(_LegatoReactiveResource)" LogicalName="Legato.ReactiveUiLegacy.%(_LegatoReactiveResource.Filename)%(_LegatoReactiveResource.Extension)" />
+    </ItemGroup>
+    <ItemGroup Condition="'$(LegatoTargetProfile)' == '1.11.1' AND !$(Configuration.Contains('Editor'))">
+      <EmbeddedResource Remove="Resources\AssetBundles\asset_bundle" />
+      <_LegatoReactiveResource Include="$(MSBuildThisFileDirectory)Resources\ReactiveUiLegacy\*.png" />
       <EmbeddedResource Include="@(_LegatoReactiveResource)" LogicalName="Legato.ReactiveUiLegacy.%(_LegatoReactiveResource.Filename)%(_LegatoReactiveResource.Extension)" />
     </ItemGroup>
   </Target>
