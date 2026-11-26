@@ -29,7 +29,11 @@ namespace Legato.Gameplay {
                 && method.GetParameters().Any(parameter => parameter.ParameterType == typeof(PracticeSettings)));
 #endif
         internal static (float speed, float offset) JumpDetails(BeatmapLevel level, BeatmapKey key) {
-#if BEAT_SABER_1_29_0 || LEGATO_BEFORE_MULTIPLAYER
+#if LEGATO_BEFORE_MULTIPLAYER
+            if (key == null) return (10f, 0f);
+            float speed = key.noteJumpMovementSpeed;
+            return (speed <= 0f ? key.difficulty.NoteJumpMovementSpeed() : speed, key.noteJumpStartBeatOffset);
+#elif BEAT_SABER_1_29_0
             return key == null ? (10f, 0f) : (key.noteJumpMovementSpeed, key.noteJumpStartBeatOffset);
 #else
             return BeatmapKeyExtensions.TryGetDifficultyBeatmapData(level, in key, out var data)
