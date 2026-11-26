@@ -5,7 +5,13 @@ namespace Legato.Presentation
 {
     internal static class LevelDetailArtwork
     {
+#if LEGATO_BEFORE_MULTIPLAYER
+#nullable enable
+        internal static System.Threading.Tasks.Task<UnityEngine.Sprite?> Cover(BeatmapLevel level) => Beatmaps.LevelCover.Load(level);
+#nullable restore
+#else
         internal static System.Threading.Tasks.Task<UnityEngine.Sprite> Cover(BeatmapLevel level) => Beatmaps.LevelCover.Load(level);
+#endif
 
         internal static readonly FieldAccessor<StandardLevelDetailViewController, StandardLevelDetailView>.Accessor DetailView = FieldAccessor<StandardLevelDetailViewController, StandardLevelDetailView>.GetAccessor("_standardLevelDetailView");
 #if !LEGATO_BEFORE_MULTIPLAYER
