@@ -28,7 +28,7 @@ namespace BeatSaberMarkupLanguage.Tags.Settings
             {
 #if LEGATO_HMUI_TABLE_SCROLLER
                 ControllersTransformSettingsViewController controller = Resources.FindObjectsOfTypeAll<ControllersTransformSettingsViewController>().First();
-                this.controllersTransformTemplate = controller._posXSlider.GetComponentInParent<LayoutElement>();
+                this.controllersTransformTemplate = controller._posXSlider.transform.parent.GetComponent<LayoutElement>();
 #elif BEAT_SABER_1_29_0
                 this.controllersTransformTemplate = Resources.FindObjectsOfTypeAll<LayoutElement>().First(x => x.name == "PositionX");
 #elif BEAT_SABER_1_37_1 || BEAT_SABER_1_38_0
@@ -53,6 +53,9 @@ namespace BeatSaberMarkupLanguage.Tags.Settings
             Object.Destroy(baseSetting.GetComponent<CanvasGroup>());
 
             GameObject gameObject = baseSetting.gameObject;
+#if LEGATO_HMUI_LEGACY_GRAPHICS
+            gameObject.SetActive(false);
+#endif
 
             T sliderSetting = gameObject.AddComponent<T>();
 
@@ -62,7 +65,12 @@ namespace BeatSaberMarkupLanguage.Tags.Settings
             sliderSetting.Slider = baseSetting.GetComponentInChildren<CustomFormatRangeValuesSlider>();
 #endif
             sliderSetting.Slider.name = "BSMLSlider";
-            Legato.Unity.TextCompatibility.SetWrapping(sliderSetting.Slider.GetComponentInChildren<TextMeshProUGUI>(), false);
+            TextMeshProUGUI valueText = sliderSetting.Slider.GetComponentInChildren<TextMeshProUGUI>(true);
+            if (valueText != null)
+            {
+                Legato.Unity.TextCompatibility.SetWrapping(valueText, false);
+            }
+
             sliderSetting.Slider._enableDragging = true;
 
             RectTransform sliderTransform = (RectTransform)sliderSetting.Slider.transform;
