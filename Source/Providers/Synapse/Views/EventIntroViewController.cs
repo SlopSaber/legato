@@ -9,6 +9,9 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using Zenject;
+#if LEGATO_BEFORE_MULTIPLAYER
+using ImageView = BeatSaberMarkupLanguage.Components.LegacyImageView;
+#endif
 
 namespace Synapse.Views;
 

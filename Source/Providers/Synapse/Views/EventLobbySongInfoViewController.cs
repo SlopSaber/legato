@@ -16,6 +16,9 @@ using UnityEngine;
 using UnityEngine.UI;
 using Zenject;
 using Random = UnityEngine.Random;
+#if LEGATO_BEFORE_MULTIPLAYER
+using ImageView = BeatSaberMarkupLanguage.Components.LegacyImageView;
+#endif
 
 namespace Synapse.Views;
 
@@ -113,6 +116,9 @@ internal class EventLobbySongInfoViewController : BSMLAutomaticViewController
     private RainbowString _rainbowString = null!;
 
     private Sprite _coverPlaceholder = null!;
+#if LEGATO_BEFORE_MULTIPLAYER
+    private Sprite? _nativeCoverSprite;
+#endif
 
     private Sprite? _introSprite;
     private Sprite? _finishSprite;
@@ -136,11 +142,25 @@ internal class EventLobbySongInfoViewController : BSMLAutomaticViewController
 
         if (firstActivation)
         {
+#if LEGATO_BEFORE_MULTIPLAYER
+            Material? coverMaterial = Resources.FindObjectsOfTypeAll<Material>().FirstOrDefault(n => n.name == "UINoGlowRoundEdge");
+            if (coverMaterial != null)
+            {
+                _coverImage.material = coverMaterial;
+            }
+#else
             _coverImage.material = Resources.FindObjectsOfTypeAll<Material>().First(n => n.name == "UINoGlowRoundEdge");
+#endif
             _coverPlaceholder = _coverImage.sprite;
 
+#if LEGATO_BEFORE_MULTIPLAYER
+            _header.Gradient = true;
+            _header.TopColor = Color.white;
+            _header.BottomColor = new Color(1, 1, 1, 0);
+#else
             _header.color0 = new Color(1, 1, 1, 1);
             _header.color1 = new Color(1, 1, 1, 0);
+#endif
 
             _songText.enableAutoSizing = true;
             _authorText.enableAutoSizing = true;
@@ -201,6 +221,10 @@ internal class EventLobbySongInfoViewController : BSMLAutomaticViewController
             _mapDownloadingManager.ProgressUpdated -= OnProgressUpdated;
             _mapDownloadingManager.Cancel();
             _countdownManager.CountdownUpdated -= OnCountdownUpdated;
+#if LEGATO_BEFORE_MULTIPLAYER
+            _cancellationTokenManager.Cancel();
+            ReleaseNativeCover();
+#endif
         }
     }
 
@@ -265,16 +289,24 @@ internal class EventLobbySongInfoViewController : BSMLAutomaticViewController
             Task<Sprite> spriteTask = _beatmapLevel.previewMediaData.GetCoverSpriteAsync(token);
 #endif
             string authorName = string.Join(", ", _beatmapLevel.allMappers);
+#elif LEGATO_BEFORE_MULTIPLAYER
+            _ = LoadNativeCover(_beatmapLevel);
+            string authorName = _beatmapLevel.levelAuthorName;
 #else
             Task<Sprite> spriteTask = _beatmapLevel.GetCoverImageAsync(token);
             string authorName = _beatmapLevel.levelAuthorName;
 #endif
+#if !LEGATO_BEFORE_MULTIPLAYER
             _ = SetCoverImage(spriteTask);
+#endif
             _songText.text = _beatmapLevel.songName;
             _authorText.text = $"{_beatmapLevel.songAuthorName} [{authorName}]";
         }
         else
         {
+#if LEGATO_BEFORE_MULTIPLAYER
+            ReleaseNativeCover();
+#endif
             _coverImage.sprite = _coverPlaceholder;
             _songText.text = "???";
             _authorText.text = "??? [???]";
@@ -319,9 +351,51 @@ internal class EventLobbySongInfoViewController : BSMLAutomaticViewController
 
         async Task SetCoverImage(Task<Sprite> spriteTask)
         {
+#if LEGATO_BEFORE_MULTIPLAYER
+            Sprite cover = await spriteTask;
+            if (!token.IsCancellationRequested && this != null)
+            {
+                ReleaseNativeCover();
+                _coverImage.sprite = cover;
+            }
+#else
             _coverImage.sprite = await spriteTask;
+#endif
+        }
+
+#if LEGATO_BEFORE_MULTIPLAYER
+        async Task LoadNativeCover(IPreviewBeatmapLevel level)
+        {
+            try
+            {
+                Texture2D texture = await level.GetCoverImageTexture2DAsync(token);
+                if (token.IsCancellationRequested || this == null)
+                {
+                    return;
+                }
+
+                ReleaseNativeCover();
+                _nativeCoverSprite = texture == null ? null : Sprite.Create(
+                    texture, new Rect(0, 0, texture.width, texture.height), new Vector2(0.5f, 0.5f));
+                _coverImage.sprite = _nativeCoverSprite != null ? _nativeCoverSprite : _coverPlaceholder;
+            }
+            catch (System.OperationCanceledException) when (token.IsCancellationRequested)
+            {
+            }
+        }
+#endif
+    }
+
+#if LEGATO_BEFORE_MULTIPLAYER
+    private void ReleaseNativeCover()
+    {
+        if (_nativeCoverSprite != null)
+        {
+            Destroy(_nativeCoverSprite);
+            _nativeCoverSprite = null;
         }
     }
+#endif
 
     private void OnMapDownloaded(DownloadedMap map)
     {

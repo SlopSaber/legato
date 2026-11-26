@@ -37,6 +37,20 @@ internal class HeckIntegrationManager
             n => n.GetParameters().Length > 1);
     }
 
+#if LEGATO_BEFORE_MULTIPLAYER
+    internal void StartPlayViewInterruptedLevel(
+        IDifficultyBeatmap difficultyBeatmap,
+        ColorScheme? overrideColorScheme,
+        GameplayModifiers gameplayModifiers,
+        PlayerSpecificSettings playerSpecificSettings,
+        Action<StandardLevelScenesTransitionSetupData, LevelCompletionResults>? levelFinishedCallback)
+    {
+        object parameters = _parametersConstructor.Invoke(
+            ["Synapse", difficultyBeatmap, null, overrideColorScheme, gameplayModifiers,
+             playerSpecificSettings, null, string.Empty, false, null, levelFinishedCallback]);
+        _forceStart.Invoke(_playViewManager, [parameters]);
+    }
+#else
     internal void StartPlayViewInterruptedLevel(
         string gameMode,
 #if !LEGATO_DIFFICULTY_BEATMAPS
@@ -135,4 +149,5 @@ internal class HeckIntegrationManager
         ]);
         _forceStart.Invoke(_playViewManager, [parameters]);
     }
+#endif
 }

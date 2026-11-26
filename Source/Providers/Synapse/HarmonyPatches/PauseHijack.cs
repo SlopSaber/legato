@@ -11,15 +11,25 @@ namespace Synapse.HarmonyPatches;
 internal class PauseHijack : IAffinity, IInitializable
 {
     private readonly PauseMenuManager _pauseMenuManager;
+#if LEGATO_BEFORE_MULTIPLAYER
+    private readonly PlayerController _playerController;
+#else
     private readonly SaberManager _saberManager;
+#endif
     private bool _warningShown;
 
     private GameObject _warningText = null!;
 
     [UsedImplicitly]
+#if LEGATO_BEFORE_MULTIPLAYER
+    private PauseHijack(PlayerController playerController, PauseMenuManager pauseMenuManager)
+    {
+        _playerController = playerController;
+#else
     private PauseHijack(SaberManager saberManager, PauseMenuManager pauseMenuManager)
     {
         _saberManager = saberManager;
+#endif
         _pauseMenuManager = pauseMenuManager;
     }
 
@@ -27,10 +37,12 @@ internal class PauseHijack : IAffinity, IInitializable
     {
         const string warning =
             "<color=\"red\">WARNING\nQuitting will submit your current score.\nAre you sure you want to quit?</color>";
-        TextMeshProUGUI textMesh = Synapse.Extras.UICompatibility.CreateText(
-            (RectTransform)_pauseMenuManager.transform.Find("Wrapper/MenuWrapper/Canvas"),
-            warning,
-            Vector2.zero);
+#if LEGATO_BEFORE_MULTIPLAYER
+        var menuCanvas = (RectTransform)_pauseMenuManager._backButton.transform.GetComponentInParent<Canvas>().transform;
+#else
+        var menuCanvas = (RectTransform)_pauseMenuManager.transform.Find("Wrapper/MenuWrapper/Canvas");
+#endif
+        TextMeshProUGUI textMesh = Synapse.Extras.UICompatibility.CreateText(menuCanvas, warning, Vector2.zero);
         textMesh.alignment = TextAlignmentOptions.Center;
         textMesh.fontSize = 6;
         textMesh.transform.position = new Vector3(0, 2f, 2f);
@@ -57,7 +69,11 @@ internal class PauseHijack : IAffinity, IInitializable
     private bool DisablePause(ref bool ____pause)
     {
         ____pause = true;
+#if LEGATO_BEFORE_MULTIPLAYER
+        _playerController.disableSabers = true;
+#else
         _saberManager.disableSabers = true;
+#endif
         return false;
     }
 

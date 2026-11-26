@@ -321,8 +321,13 @@ internal sealed class MapDownloadingManager : IDisposable, ITickable
             List<IDifficultyBeatmap> difficultyBeatmaps = map.Keys.Select(
                 n =>
                 {
+#if LEGATO_BEFORE_MULTIPLAYER
+                    IDifficultyBeatmapSet? set = customBeatmapLevel.beatmapLevelData.difficultyBeatmapSets.FirstOrDefault(
+                        candidate => candidate.beatmapCharacteristic.serializedName == n.Characteristic);
+#else
                     IDifficultyBeatmapSet? set =
                         customBeatmapLevel.beatmapLevelData.GetDifficultyBeatmapSet(n.Characteristic);
+#endif
                     if (set == null)
                     {
                         throw new InvalidOperationException($"Failed to find characteristic: [{n.Characteristic}].");

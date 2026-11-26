@@ -131,6 +131,121 @@ internal class LevelStartManager : IDisposable
     }
 
     // WARNING: ruleset has lower priority than heck map settings
+#if LEGATO_BEFORE_MULTIPLAYER
+    public void StartLevel(
+        DownloadedMap downloadedMap,
+        Action<DownloadedMap, StandardLevelScenesTransitionSetupData, LevelCompletionResults>? levelFinishedCallback)
+    {
+        var schemes = _gameplaySetupViewController.colorSchemesSettings;
+        ColorScheme? overrideColorScheme = _ruleset?.AllowOverrideColors != false && schemes.overrideDefaultColors
+            ? schemes.GetSelectedColorScheme()
+            : null;
+        PlayerSpecificSettings settings = _gameplaySetupViewController.playerSettings;
+        if (_ruleset?.AllowLeftHand == false && settings.leftHanded)
+        {
+            settings = new PlayerSpecificSettings
+            {
+                leftHanded = false,
+                staticLights = settings.staticLights,
+                playerHeight = settings.playerHeight,
+                automaticPlayerHeight = settings.automaticPlayerHeight,
+                sfxVolume = settings.sfxVolume,
+                reduceDebris = settings.reduceDebris,
+                noTextsAndHuds = settings.noTextsAndHuds,
+                noFailEffects = settings.noFailEffects,
+                advancedHud = settings.advancedHud,
+                autoRestart = settings.autoRestart,
+                saberTrailIntensity = settings.saberTrailIntensity
+            };
+        }
+
+        GameplayModifiers modifiers = new();
+        bool noEnergy = false;
+        if (_ruleset?.Modifiers is { } rulesetModifiers)
+        {
+            foreach (string name in rulesetModifiers)
+            {
+                if (!Enum.TryParse(name, true, out GameplayModifier modifier))
+                {
+                    continue;
+                }
+
+                switch (modifier)
+                {
+                    case GameplayModifier.noFailOn0Energy:
+                        modifiers.noFail = true;
+                        break;
+                    case GameplayModifier.instaFail:
+                        modifiers.instaFail = true;
+                        break;
+                    case GameplayModifier.failOnSaberClash:
+                        modifiers.failOnSaberClash = true;
+                        break;
+                    case GameplayModifier.noBombs:
+                        modifiers.noBombs = true;
+                        break;
+                    case GameplayModifier.fastNotes:
+                        modifiers.fastNotes = true;
+                        break;
+                    case GameplayModifier.strictAngles:
+                        modifiers.strictAngles = true;
+                        break;
+                    case GameplayModifier.disappearingArrows:
+                        modifiers.disappearingArrows = true;
+                        break;
+                    case GameplayModifier.noArrows:
+                        modifiers.noArrows = true;
+                        break;
+                    case GameplayModifier.ghostNotes:
+                        modifiers.ghostNotes = true;
+                        break;
+                    case GameplayModifier.noEnergy:
+                        noEnergy = true;
+                        break;
+                    default:
+                        throw new NotSupportedException($"Event modifier '{name}' is unavailable in this game version.");
+                }
+            }
+        }
+
+        Action<StandardLevelScenesTransitionSetupData, LevelCompletionResults>? callback = levelFinishedCallback == null
+            ? null
+            : (transition, results) => levelFinishedCallback(downloadedMap, transition, results);
+        int division = _config.LastEvent.Division ?? 0;
+        IDifficultyBeatmap difficulty = downloadedMap.DifficultyBeatmaps[division];
+        _disableCustomPlatform?.Invoke();
+        _nextLevelIsIsolated?.Invoke("Synapse");
+        IntroSkipInstallationPatch.SkipNext = true;
+        _noEnergyModifier.NoEnergyNextMap = noEnergy;
+        try
+        {
+            if (_heckIntegrationManager != null)
+            {
+                _heckIntegrationManager.StartPlayViewInterruptedLevel(difficulty, overrideColorScheme, modifiers, settings, callback);
+            }
+            else
+            {
+                _menuTransitionsHelper.StartStandardLevel(
+                    difficulty,
+                    null,
+                    overrideColorScheme,
+                    modifiers,
+                    settings,
+                    null,
+                    string.Empty,
+                    false,
+                    null,
+                    callback);
+            }
+        }
+        catch
+        {
+            IntroSkipInstallationPatch.SkipNext = false;
+            _noEnergyModifier.NoEnergyNextMap = false;
+            throw;
+        }
+    }
+#else
     public void StartLevel(
         DownloadedMap downloadedMap,
         Action<DownloadedMap, StandardLevelScenesTransitionSetupData, LevelCompletionResults>? levelFinishedCallback)
@@ -299,6 +414,7 @@ internal class LevelStartManager : IDisposable
 #endif
             null);
     }
+#endif
 
     private static Action<string>? GetNextLevelIsIsolated()
     {
@@ -333,6 +449,7 @@ internal class LevelStartManager : IDisposable
     }
 
     // i wish i could use my StartStandardLevelParameters here
+#if !LEGATO_BEFORE_MULTIPLAYER
     private void StartStandardOrHeck(
 #if BEAT_SABER_1_45_3
         GameMode gameMode,
@@ -491,4 +608,5 @@ internal class LevelStartManager : IDisposable
 #endif
         }
     }
+#endif
 }

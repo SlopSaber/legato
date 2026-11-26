@@ -26,10 +26,15 @@ namespace Synapse.Views;
 [ViewDefinition("Synapse.Resources.LobbyChat.bsml")]
 internal class EventLobbyChatViewController : BSMLAutomaticViewController
 {
+#if LEGATO_BEFORE_MULTIPLAYER
+    private const int ChatCharacterLimit = 200;
+#endif
     private static readonly ProfanityFilter.ProfanityFilter _profanityFilter = new();
 
+#if !LEGATO_BEFORE_MULTIPLAYER
     [UIComponent("chat")]
     private readonly VerticalLayoutGroup _chatObject = null!;
+#endif
 
     [UIComponent("modal")]
     private readonly ModalView _modal = null!;
@@ -61,6 +66,11 @@ internal class EventLobbyChatViewController : BSMLAutomaticViewController
     [UIComponent("priority-bg")]
     private readonly VerticalLayoutGroup _priorityVertical = null!;
 
+#if LEGATO_BEFORE_MULTIPLAYER
+    [UIComponent("chat-keyboard")]
+    private readonly ModalKeyboard _chatKeyboard = null!;
+#endif
+
     private readonly List<ChatMessage> _messageQueue = [];
     private readonly LinkedList<(ChatMessage ChatMessage, TextMeshProUGUI TextMesh)> _messages = [];
 
@@ -72,11 +82,15 @@ internal class EventLobbyChatViewController : BSMLAutomaticViewController
     private MessageManager _messageManager = null!;
     private NetworkManager _networkManager = null!;
     private ListingManager _listingManager = null!;
+#if !LEGATO_BEFORE_MULTIPLAYER
     private IInstantiator _instantiator = null!;
+#endif
     private EventLeaderboardViewController _leaderboardViewController = null!;
+#if !LEGATO_BEFORE_MULTIPLAYER
     private InputFieldView _input = null!;
     private KeyboardOpener _keyboardOpener = null!;
     private OkRelay _okRelay = null!;
+#endif
 
     private string _playerCountText = string.Empty;
 
@@ -155,6 +169,9 @@ internal class EventLobbyChatViewController : BSMLAutomaticViewController
 
         if (firstActivation)
         {
+#if LEGATO_BEFORE_MULTIPLAYER
+            _chatKeyboard.Keyboard.KeyboardText.richText = false;
+#else
             InputFieldView original =
                 Resources.FindObjectsOfTypeAll<InputFieldView>().First(n => n.name == "SearchInputField");
             _input = Instantiate(original, _chatObject.transform);
@@ -181,14 +198,25 @@ internal class EventLobbyChatViewController : BSMLAutomaticViewController
             ((RectTransform)rect.Find("Text")).offsetMin = new Vector2(4, -4);
             Destroy(rect.Find("Icon").gameObject);
 
-            _scrollView.gameObject.AddComponent<ScrollViewScrollToEnd>().Construct(_toEndObject);
-            _toEndObject.SetActive(false);
-
             _okRelay = _input.gameObject.AddComponent<OkRelay>();
             _okRelay.OkPressed += OnOkPressed;
 
             _input.gameObject.AddComponent<LayoutElement>().minHeight = 10;
+#endif
 
+            _scrollView.gameObject.AddComponent<ScrollViewScrollToEnd>().Construct(_toEndObject);
+            _toEndObject.SetActive(false);
+
+#if LEGATO_BEFORE_MULTIPLAYER
+            if (_priorityBg.Background is LegacyImageView legacyPriorityBg)
+            {
+                legacyPriorityBg.Skew = 0;
+                legacyPriorityBg.Gradient = true;
+                legacyPriorityBg.color = Color.white;
+                legacyPriorityBg.TopColor = new Color(0.13f, 0.01f, 0.09f);
+                legacyPriorityBg.BottomColor = new Color(0.09f, 0.01f, 0.13f);
+            }
+#else
 #if LEGATO_LEGACY_BSML_CHAT_BINDINGS && !LEGATO_BSML_CURRENT
             ImageView priorityBg = (ImageView)_priorityBg.background;
 #else
@@ -200,6 +228,7 @@ internal class EventLobbyChatViewController : BSMLAutomaticViewController
             priorityBg.color = Color.white;
             priorityBg.color0 = new Color(0.13f, 0.01f, 0.09f);
             priorityBg.color1 = new Color(0.09f, 0.01f, 0.13f);
+#endif
             ((RectTransform)_priorityVertical.transform).pivot = new Vector2(0.5f, 1);
             _priorityVertical.gameObject.SetActive(false);
         }
@@ -263,8 +292,28 @@ internal class EventLobbyChatViewController : BSMLAutomaticViewController
             _networkManager.StageUpdated -= OnStageUpdated;
         }
 
+#if LEGATO_BEFORE_MULTIPLAYER
+        if (_chatKeyboard != null && _chatKeyboard.isActiveAndEnabled)
+        {
+            _chatKeyboard.ModalView.Hide(false);
+        }
+#else
         _keyboardOpener.Close();
+#endif
     }
+
+#if LEGATO_BEFORE_MULTIPLAYER
+    private static string TrimChat(string text)
+    {
+        if (text.Length <= ChatCharacterLimit)
+        {
+            return text;
+        }
+
+        int end = char.IsHighSurrogate(text[ChatCharacterLimit - 1]) ? ChatCharacterLimit - 1 : ChatCharacterLimit;
+        return text.Substring(0, end);
+    }
+#endif
 
     [UsedImplicitly]
     [Inject]
@@ -274,7 +323,9 @@ internal class EventLobbyChatViewController : BSMLAutomaticViewController
         MessageManager messageManager,
         NetworkManager networkManager,
         ListingManager listingManager,
+#if !LEGATO_BEFORE_MULTIPLAYER
         IInstantiator instantiator,
+#endif
         EventLeaderboardViewController leaderboardViewController)
     {
         _log = log;
@@ -282,7 +333,9 @@ internal class EventLobbyChatViewController : BSMLAutomaticViewController
         _messageManager = messageManager;
         _networkManager = networkManager;
         _listingManager = listingManager;
+#if !LEGATO_BEFORE_MULTIPLAYER
         _instantiator = instantiator;
+#endif
         _leaderboardViewController = leaderboardViewController;
         networkManager.PlayerCountUpdated += OnPlayerCountUpdated;
     }
@@ -292,12 +345,70 @@ internal class EventLobbyChatViewController : BSMLAutomaticViewController
         _messageQueue.Add(message);
     }
 
+#if LEGATO_BEFORE_MULTIPLAYER
+    private void OnGUI()
+    {
+        Event input = Event.current;
+        if (_chatKeyboard == null || !_chatKeyboard.isActiveAndEnabled || input.type != EventType.KeyDown)
+        {
+            return;
+        }
+
+        string text = _chatKeyboard.Keyboard.KeyboardText.text;
+        switch (input.keyCode)
+        {
+            case KeyCode.Return:
+            case KeyCode.KeypadEnter:
+                _chatKeyboard.OnEnterKeyPressed(text);
+                _chatKeyboard.SetText(string.Empty);
+                break;
+            case KeyCode.Escape:
+                _chatKeyboard.ModalView.Hide(true);
+                break;
+            case KeyCode.Backspace:
+                if (text.Length > 0)
+                {
+                    int removed = text.Length > 1 && char.IsSurrogatePair(text, text.Length - 2) ? 2 : 1;
+                    _chatKeyboard.SetText(text.Substring(0, text.Length - removed));
+                }
+
+                break;
+            default:
+                if (input.character == '\0' || char.IsControl(input.character))
+                {
+                    return;
+                }
+
+                _chatKeyboard.SetText(TrimChat(text + input.character));
+                break;
+        }
+
+        input.Use();
+    }
+
+    [UIAction("show-keyboard")]
+    private void ShowKeyboard()
+    {
+        _chatKeyboard.SetText(string.Empty);
+        _chatKeyboard.ModalView.Show(true, true);
+    }
+
+    [UIAction("send-chat")]
+    private void SendChat(string text)
+    {
+        if (!string.IsNullOrEmpty(text))
+        {
+            _messageManager.SendMessage(TrimChat(text));
+        }
+    }
+#else
     private void OnOkPressed()
     {
         string text = _input.text;
         _input.ClearInput();
         _messageManager.SendMessage(text);
     }
+#endif
 
     [UsedImplicitly]
     [UIAction("division-format")]
@@ -340,7 +451,11 @@ internal class EventLobbyChatViewController : BSMLAutomaticViewController
     [UIAction("toend-click")]
     private void OnToEndClick()
     {
+#if LEGATO_BEFORE_MULTIPLAYER
+        _scrollView.ScrollAt(Mathf.Max(0f, _scrollView._contentHeight - _scrollView._viewport.rect.height), true);
+#else
         _scrollView.ScrollToEnd(true);
+#endif
     }
 
     private void OnUserBanned(string id)
@@ -369,19 +484,32 @@ internal class EventLobbyChatViewController : BSMLAutomaticViewController
 
     private bool AtEnd()
     {
+#if LEGATO_BEFORE_MULTIPLAYER
+        float end = _scrollView._contentHeight - _scrollView._viewport.rect.height;
+        return end < 0 || Mathf.Abs(end - _scrollView._dstPosY) < 0.01f;
+#else
         float end = _scrollView.contentSize - _scrollView.scrollPageSize;
         return end < 0 || Mathf.Abs(end - _scrollView._destinationPos) < 0.01f;
+#endif
     }
 
     private void ScrollLostHeight(bool scrollToEnd, float heightLost)
     {
         Canvas.ForceUpdateCanvases();
         RectTransform contentTransform = _scrollView._contentRectTransform;
+#if LEGATO_BEFORE_MULTIPLAYER
+        _scrollView._contentHeight = contentTransform.rect.height;
+        float destination = _scrollView._dstPosY;
+        float end = Mathf.Max(0f, _scrollView._contentHeight - _scrollView._viewport.rect.height);
+#else
         _scrollView.SetContentSize(contentTransform.rect.height);
+        float destination = _scrollView._destinationPos;
+        float end = _scrollView.contentSize - _scrollView.scrollPageSize;
+#endif
         float heightDiff;
         if (scrollToEnd)
         {
-            heightDiff = _scrollView.contentSize - _scrollView.scrollPageSize - _scrollView._destinationPos;
+            heightDiff = end - destination;
         }
         else if (heightLost > 0)
         {
@@ -392,8 +520,13 @@ internal class EventLobbyChatViewController : BSMLAutomaticViewController
             return;
         }
 
-        _scrollView._destinationPos = Mathf.Max(_scrollView._destinationPos + heightDiff, 0);
+#if LEGATO_BEFORE_MULTIPLAYER
+        _scrollView._dstPosY = Mathf.Clamp(destination + heightDiff, 0, end);
+        _scrollView.RefreshButtonsInteractibility();
+#else
+        _scrollView._destinationPos = Mathf.Max(destination + heightDiff, 0);
         _scrollView.RefreshButtons();
+#endif
         float newY = Mathf.Max(contentTransform.anchoredPosition.y + heightDiff, 0);
         contentTransform.anchoredPosition = new Vector2(0, newY);
         _scrollView.UpdateVerticalScrollIndicator(Mathf.Abs(newY));
@@ -401,6 +534,17 @@ internal class EventLobbyChatViewController : BSMLAutomaticViewController
 
     private void Update()
     {
+#if LEGATO_BEFORE_MULTIPLAYER
+        if (_chatKeyboard != null && _chatKeyboard.isActiveAndEnabled)
+        {
+            string text = _chatKeyboard.Keyboard.KeyboardText.text;
+            if (text.Length > ChatCharacterLimit)
+            {
+                _chatKeyboard.SetText(TrimChat(text));
+            }
+        }
+#endif
+
         if (_playerCountText != _playerCount.text)
         {
             _playerCount.text = _playerCountText;

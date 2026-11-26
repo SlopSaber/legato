@@ -17,6 +17,9 @@ using UnityEngine;
 using UnityEngine.UI;
 using Zenject;
 using Random = UnityEngine.Random;
+#if LEGATO_BEFORE_MULTIPLAYER
+using ImageView = BeatSaberMarkupLanguage.Components.LegacyImageView;
+#endif
 
 namespace Synapse.Views;
 
@@ -138,8 +141,14 @@ internal class EventLeaderboardViewController : BSMLAutomaticViewController
             _leaderboardTable = GetComponentInChildren<LeaderboardTableView>(true);
             _loadingControl = GetComponentInChildren<LoadingControl>(true);
 
+#if LEGATO_BEFORE_MULTIPLAYER
+            _header.Gradient = true;
+            _header.TopColor = Color.white;
+            _header.BottomColor = new Color(1, 1, 1, 0);
+#else
             _header.color0 = new Color(1, 1, 1, 1);
             _header.color1 = new Color(1, 1, 1, 0);
+#endif
 
             DestroyImmediate(_textSegments.gameObject.GetComponent<HorizontalLayoutGroup>());
             VerticalLayoutGroup vertical = _textSegments.gameObject.AddComponent<VerticalLayoutGroup>();
@@ -381,7 +390,11 @@ internal class EventLeaderboardViewController : BSMLAutomaticViewController
         _textSegments.SetTexts(_textSegmentTexts);
         _textSegments.SelectCellWithNumber(_index);
 
+#if LEGATO_BEFORE_MULTIPLAYER
+        foreach (SegmentedControlCell segmentedControlCell in _textSegments._cells)
+#else
         foreach (SegmentedControlCell segmentedControlCell in _textSegments.cells)
+#endif
         {
             ((RectTransform)segmentedControlCell.transform).sizeDelta = new Vector2(6, 6);
         }

@@ -1,3 +1,4 @@
+#if !LEGATO_BEFORE_MULTIPLAYER
 using System;
 using IPA.Utilities;
 using UnityEngine;
@@ -89,3 +90,4 @@ internal class KeyboardKeyer : MonoBehaviour
         }
     }
 }
+#endif

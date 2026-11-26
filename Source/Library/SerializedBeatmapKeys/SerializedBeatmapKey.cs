@@ -1,4 +1,4 @@
-#if !BEAT_SABER_1_29_0 && !BEAT_SABER_1_34_2
+#if !LEGATO_BEFORE_MULTIPLAYER && !BEAT_SABER_1_29_0 && !BEAT_SABER_1_34_2
 using System;
 #if !BEAT_SABER_1_45_1 && !BEAT_SABER_1_45_3
 using System.Collections.Generic;

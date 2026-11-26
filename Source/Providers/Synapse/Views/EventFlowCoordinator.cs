@@ -54,6 +54,10 @@ internal class EventFlowCoordinator : FlowCoordinator
     private Listing? _listing;
 
     private Queue<Action> _transitionFinished = new();
+#if LEGATO_BEFORE_MULTIPLAYER
+    private bool _presentingEventView;
+    private bool _startingEventLevel;
+#endif
 
     internal event Action<EventFlowCoordinator>? Finished;
 
@@ -61,13 +65,25 @@ internal class EventFlowCoordinator : FlowCoordinator
     {
         add
         {
-            if (!_isInTransition)
+#if LEGATO_BEFORE_MULTIPLAYER
+            UnityMainThreadTaskScheduler.Factory.StartNew(
+                () =>
+                {
+                    if (isActivated)
+                    {
+                        _transitionFinished.Enqueue(value);
+                        FinishQueuedTransitions();
+                    }
+                });
+#else
+            if (!TransitionBusy)
             {
                 UnityMainThreadTaskScheduler.Factory.StartNew(value);
                 return;
             }
 
             _transitionFinished.Enqueue(value);
+#endif
         }
 
         remove => _transitionFinished = new Queue<Action>(_transitionFinished.Where(n => n != value));
@@ -76,34 +92,56 @@ internal class EventFlowCoordinator : FlowCoordinator
     // screw it
     public static bool IsActive { get; private set; }
 
+#if LEGATO_BEFORE_MULTIPLAYER
+    private bool TransitionBusy => _presentingEventView || _startingEventLevel ||
+                                   topViewController is { _isInTransition: true };
+#else
+    private bool TransitionBusy => _isInTransition;
+#endif
+
     public override void BackButtonWasPressed(ViewController topView)
     {
+#if LEGATO_BEFORE_MULTIPLAYER
+        if (!TransitionBusy)
+#else
         if (!topView.isInTransition)
+#endif
         {
             Finished?.Invoke(this);
         }
     }
 
+#if LEGATO_BEFORE_MULTIPLAYER
+    public override void DidActivate(bool firstActivation, ActivationType activationType)
+    {
+        bool addedToHierarchy = activationType == ActivationType.AddedToHierarchy;
+#else
     public override void DidActivate(bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling)
     {
+#endif
+
         // TODO: light color presets
         // ReSharper disable once InvertIf
         if (addedToHierarchy)
         {
             IsActive = true;
-            SetTitle(_listing?.Title ?? "N/A");
+            SetEventTitle(_listing?.Title ?? "N/A");
             showBackButton = true;
 
+#if LEGATO_BEFORE_MULTIPLAYER
+            _gameplaySetupViewController.Setup(false, false, true);
+#else
             _gameplaySetupViewController.Setup(
                 false,
                 false,
                 true,
                 false,
                 PlayerSettingsPanelController.PlayerSettingsPanelLayout.Singleplayer);
+#endif
 
             if (_listing == null)
             {
-                SetTitle(null);
+                SetEventTitle(null);
                 showBackButton = false;
                 _simpleDialogPromptViewController.Init(
                     "Error",
@@ -122,7 +160,7 @@ internal class EventFlowCoordinator : FlowCoordinator
                 {
                     if (!_listing.GameVersion.MatchesGameVersion())
                     {
-                        SetTitle(null);
+                        SetEventTitle(null);
                         showBackButton = false;
                         _simpleDialogPromptViewController.Init(
                             "Error",
@@ -147,7 +185,7 @@ internal class EventFlowCoordinator : FlowCoordinator
 
                 if (_listing.Time.ToTimeSpan().Ticks > 0)
                 {
-                    SetTitle(null);
+                    SetEventTitle(null);
                     showBackButton = false;
                     _simpleDialogPromptViewController.Init(
                         "Error",
@@ -173,11 +211,23 @@ internal class EventFlowCoordinator : FlowCoordinator
         }
     }
 
+#if LEGATO_BEFORE_MULTIPLAYER
+    public override void DidDeactivate(DeactivationType deactivationType)
+    {
+        bool removedFromHierarchy = deactivationType == DeactivationType.RemovedFromHierarchy;
+#else
     public override void DidDeactivate(bool removedFromHierarchy, bool screenSystemDisabling)
     {
+#endif
+
         // ReSharper disable once InvertIf
         if (removedFromHierarchy)
         {
+#if LEGATO_BEFORE_MULTIPLAYER
+            _transitionFinished.Clear();
+            _startingEventLevel = false;
+            _presentingEventView = false;
+#endif
             IsActive = false;
             _resultsViewController.continueButtonPressedEvent -= HandleResultsViewControllerContinueButtonPressed;
             _modsViewController.Finished -= OnAcceptModsDownload;
@@ -195,7 +245,11 @@ internal class EventFlowCoordinator : FlowCoordinator
     public override void TopViewControllerWillChange(
         ViewController oldViewController,
         ViewController newViewController,
+#if LEGATO_BEFORE_MULTIPLAYER
+        bool animationType)
+#else
         ViewController.AnimationType animationType)
+#endif
     {
         switch (newViewController)
         {
@@ -213,34 +267,125 @@ internal class EventFlowCoordinator : FlowCoordinator
         switch (newViewController)
         {
             case EventLobbyNavigationViewController:
-                SetTitle(_listing?.Title ?? "N/A", animationType);
+                ApplyTitle(_listing?.Title ?? "N/A");
                 showBackButton = true;
                 break;
             case EventIntroViewController:
             case SimpleDialogPromptViewController:
-                SetTitle(null, animationType);
+                ApplyTitle(null);
                 showBackButton = false;
                 break;
             case EventLoadingViewController:
             case EventModsDownloadingViewController:
             case EventDivisionSelectViewController:
-                SetTitle(_listing?.Title ?? "N/A", animationType);
+                ApplyTitle(_listing?.Title ?? "N/A");
                 showBackButton = true;
                 break;
             default:
                 showBackButton = false;
                 break;
         }
+
+        void ApplyTitle(string? value)
+        {
+#if LEGATO_BEFORE_MULTIPLAYER
+            _title = value;
+            if (!_isInDidActivatePhase && IsFlowCoordinatorInHierarchy(this))
+            {
+                PresentTitle(value, animationType);
+            }
+#else
+            SetTitle(value, animationType);
+#endif
+        }
     }
 
+#if LEGATO_BEFORE_MULTIPLAYER
+    public override void InitialViewControllerWasPresented()
+    {
+        base.InitialViewControllerWasPresented();
+        FinishQueuedTransitions();
+    }
+
+    private void TransitionDidStart()
+    {
+        _startingEventLevel = true;
+    }
+
+    private void TransitionDidFinish()
+    {
+        _startingEventLevel = false;
+        FinishQueuedTransitions();
+    }
+#else
     public override void TransitionDidFinish()
     {
         base.TransitionDidFinish();
-        while (!_isInTransition && _transitionFinished.Count > 0)
+        FinishQueuedTransitions();
+    }
+#endif
+
+    private void FinishQueuedTransitions()
+    {
+        while (!TransitionBusy && _transitionFinished.Count > 0)
         {
             _transitionFinished.Dequeue().Invoke();
         }
     }
+
+    private void SetEventTitle(string? value)
+    {
+#if LEGATO_BEFORE_MULTIPLAYER
+        title = value;
+#else
+        SetTitle(value);
+#endif
+    }
+
+    private void ReplaceEventView(ViewController view)
+    {
+#if LEGATO_BEFORE_MULTIPLAYER
+        _presentingEventView = true;
+        ReplaceTopViewController(view, EventViewPresented, false, ViewController.SlideAnimationDirection.Up);
+#else
+        ReplaceTopViewController(view, null, ViewController.AnimationType.In, ViewController.AnimationDirection.Vertical);
+#endif
+    }
+
+    private void PresentEventView(ViewController view, bool horizontal = false, Action? finished = null, bool immediately = false)
+    {
+#if LEGATO_BEFORE_MULTIPLAYER
+        _presentingEventView = true;
+        PresentViewController(view, () => EventViewPresented(finished), immediately);
+#else
+        var direction = horizontal ? ViewController.AnimationDirection.Horizontal : ViewController.AnimationDirection.Vertical;
+        PresentViewController(view, finished, direction, immediately);
+#endif
+    }
+
+    private void DismissEventView(ViewController view, bool horizontal, Action? finished = null)
+    {
+#if LEGATO_BEFORE_MULTIPLAYER
+        _presentingEventView = true;
+        DismissViewController(view, () => EventViewPresented(finished), false);
+#else
+        var direction = horizontal ? ViewController.AnimationDirection.Horizontal : ViewController.AnimationDirection.Vertical;
+        DismissViewController(view, direction, finished);
+#endif
+    }
+
+#if LEGATO_BEFORE_MULTIPLAYER
+    private void EventViewPresented() => EventViewPresented(null);
+
+    private void EventViewPresented(Action? finished)
+    {
+        _presentingEventView = false;
+        finished?.Invoke();
+
+        // HMUI may still be unwinding the current view's transition callback.
+        UnityMainThreadTaskScheduler.Factory.StartNew(FinishQueuedTransitions);
+    }
+#endif
 
     [UsedImplicitly]
     [Inject]
@@ -316,11 +461,7 @@ internal class EventFlowCoordinator : FlowCoordinator
             {
                 TransitionFinished += () =>
                 {
-                    ReplaceTopViewController(
-                        _simpleDialogPromptViewController,
-                        null,
-                        ViewController.AnimationType.In,
-                        ViewController.AnimationDirection.Vertical);
+                    ReplaceEventView(_simpleDialogPromptViewController);
                 };
             }
         }
@@ -342,11 +483,7 @@ internal class EventFlowCoordinator : FlowCoordinator
             {
                 TransitionFinished += () =>
                 {
-                    ReplaceTopViewController(
-                        _divisionSelectViewController,
-                        null,
-                        ViewController.AnimationType.In,
-                        ViewController.AnimationDirection.Vertical);
+                    ReplaceEventView(_divisionSelectViewController);
                 };
             }
         }
@@ -360,11 +497,7 @@ internal class EventFlowCoordinator : FlowCoordinator
             {
                 TransitionFinished += () =>
                 {
-                    ReplaceTopViewController(
-                        _loadingViewController,
-                        null,
-                        ViewController.AnimationType.In,
-                        ViewController.AnimationDirection.Vertical);
+                    ReplaceEventView(_loadingViewController);
                 };
             }
 
@@ -381,28 +514,45 @@ internal class EventFlowCoordinator : FlowCoordinator
         _globalParticleManager.Refresh();
 
         // do not submit when server forces a stop
+#if LEGATO_BEFORE_MULTIPLAYER
+        if (levelCompletionResults.levelEndStateType == LevelCompletionResults.LevelEndStateType.None &&
+#else
         if (levelCompletionResults.levelEndStateType == LevelCompletionResults.LevelEndStateType.Incomplete &&
+#endif
             levelCompletionResults.levelEndAction != LevelCompletionResults.LevelEndAction.Quit)
         {
             return;
         }
 
-#if LEGATO_DIFFICULTY_BEATMAPS
+#if LEGATO_BEFORE_MULTIPLAYER
+        IDifficultyBeatmap difficultyBeatmap = standardLevelScenesTransitionSetupData.Get<GameplayCoreSceneSetupData>().difficultyBeatmap;
+#elif LEGATO_DIFFICULTY_BEATMAPS
         IDifficultyBeatmap difficultyBeatmap = standardLevelScenesTransitionSetupData.difficultyBeatmap;
 #else
         BeatmapKey beatmapKey = standardLevelScenesTransitionSetupData.beatmapKey;
         BeatmapLevel beatmapLevel = standardLevelScenesTransitionSetupData.beatmapLevel
             ?? throw new InvalidOperationException("Completed event has no beatmap level.");
 #endif
+#if !LEGATO_BEFORE_MULTIPLAYER
         IReadonlyBeatmapData transformedBeatmapData = standardLevelScenesTransitionSetupData.transformedBeatmapData;
+#endif
         ////this._menuLightsManager.SetColorPreset((levelCompletionResults.levelEndStateType == LevelCompletionResults.LevelEndStateType.Cleared) ? this._resultsClearedLightsPreset : this._resultsFailedLightsPreset, true);
+#if LEGATO_BEFORE_MULTIPLAYER
+        if (levelCompletionResults.levelEndStateType == LevelCompletionResults.LevelEndStateType.None)
+        {
+            levelCompletionResults.SetField(nameof(levelCompletionResults.levelEndStateType), LevelCompletionResults.LevelEndStateType.Failed);
+        }
+#else
         bool showFail = levelCompletionResults.levelEndStateType != LevelCompletionResults.LevelEndStateType.Cleared;
         if (showFail)
         {
             levelCompletionResults.SetField(nameof(levelCompletionResults.levelEndStateType), LevelCompletionResults.LevelEndStateType.Cleared);
         }
+#endif
 
-#if LEGATO_DIFFICULTY_BEATMAPS
+#if LEGATO_BEFORE_MULTIPLAYER
+        _resultsViewController.Init(levelCompletionResults, difficultyBeatmap, false, false);
+#elif LEGATO_DIFFICULTY_BEATMAPS
         _resultsViewController.Init(
             levelCompletionResults,
             transformedBeatmapData,
@@ -423,8 +573,12 @@ internal class EventFlowCoordinator : FlowCoordinator
             ]);
 #endif
         _resultsViewController._restartButton.gameObject.SetActive(false);
-        TransitionFinished += () => PresentViewController(
+#if LEGATO_BEFORE_MULTIPLAYER
+        TransitionFinished += () => PresentEventView(_resultsViewController, true, immediately: true);
+#else
+        TransitionFinished += () => PresentEventView(
             _resultsViewController,
+            true,
             () =>
             {
                 if (!showFail)
@@ -435,8 +589,8 @@ internal class EventFlowCoordinator : FlowCoordinator
                 _resultsViewController._failedBannerGo.SetActive(true);
                 _resultsViewController._clearedBannerGo.SetActive(false);
             },
-            ViewController.AnimationDirection.Horizontal,
             true);
+#endif
 
 #if BEAT_SABER_1_45_3
         _ = SubmitScore(map, levelCompletionResults.score.modified, ScorePercentageHelper.ScorePercentage);
@@ -447,19 +601,15 @@ internal class EventFlowCoordinator : FlowCoordinator
 
     private void HandleResultsViewControllerContinueButtonPressed(ResultsViewController viewController)
     {
-        DismissViewController(
+        DismissEventView(
             viewController,
-            ViewController.AnimationDirection.Horizontal,
+            true,
             () => viewController._restartButton.gameObject.SetActive(true));
     }
 
     private void OnAcceptModsDownload()
     {
-        ReplaceTopViewController(
-            _modsDownloadingViewController,
-            null,
-            ViewController.AnimationType.In,
-            ViewController.AnimationDirection.Vertical);
+        ReplaceEventView(_modsDownloadingViewController);
     }
 
     private void OnDisconnected(string reason)
@@ -477,11 +627,7 @@ internal class EventFlowCoordinator : FlowCoordinator
                 "Ok",
                 _ => { Finished?.Invoke(this); });
 
-            ReplaceTopViewController(
-                _simpleDialogPromptViewController,
-                null,
-                ViewController.AnimationType.In,
-                ViewController.AnimationDirection.Vertical);
+            ReplaceEventView(_simpleDialogPromptViewController);
         };
     }
 
@@ -491,9 +637,7 @@ internal class EventFlowCoordinator : FlowCoordinator
         {
             if (topViewController == _introViewController)
             {
-                DismissViewController(
-                    _introViewController,
-                    ViewController.AnimationDirection.Vertical);
+                DismissEventView(_introViewController, false);
             }
         };
     }
@@ -508,7 +652,7 @@ internal class EventFlowCoordinator : FlowCoordinator
             }
 
             _introViewController.Init(true);
-            PresentViewController(_introViewController, null, ViewController.AnimationDirection.Vertical);
+            PresentEventView(_introViewController);
         };
     }
 
@@ -531,7 +675,7 @@ internal class EventFlowCoordinator : FlowCoordinator
             }
 
             _introViewController.Init(false);
-            PresentViewController(_introViewController, null, ViewController.AnimationDirection.Vertical);
+            PresentEventView(_introViewController);
         };
     }
 
@@ -541,10 +685,7 @@ internal class EventFlowCoordinator : FlowCoordinator
         {
             if (topViewController == _resultsViewController)
             {
-                DismissViewController(
-                    _resultsViewController,
-                    ViewController.AnimationDirection.Horizontal,
-                    OnLevelStarted);
+                DismissEventView(_resultsViewController, true, OnLevelStarted);
                 return;
             }
 
@@ -594,11 +735,7 @@ internal class EventFlowCoordinator : FlowCoordinator
         {
             if (topViewController == _loadingViewController)
             {
-                ReplaceTopViewController(
-                    _lobbyNavigationViewController,
-                    null,
-                    ViewController.AnimationType.In,
-                    ViewController.AnimationDirection.Vertical);
+                ReplaceEventView(_lobbyNavigationViewController);
             }
         };
     }

@@ -65,12 +65,21 @@ internal class EventDivisionSelectViewController : BSMLAutomaticViewController
         // ReSharper disable once InvertIf
         if (addedToHierarchy)
         {
+#if LEGATO_BEFORE_MULTIPLAYER
+            _textSegments.SetTexts(_divisionNames.ToArray());
+            _textSegments._selectedCellNumber = -1;
+#else
             _textSegments.SetTexts(_divisionNames);
+#endif
             _continueButton.interactable = false;
             _descriptionText.text = "Select your difficulty";
             for (int index = 0; index < _textSegments._numberOfCells; ++index)
             {
+#if LEGATO_BEFORE_MULTIPLAYER
+                _textSegments._cells[index].ChangeSelection(false, SegmentedControlCell.TransitionType.Instant, false, true);
+#else
                 _textSegments.cells[index].SetSelected(false, SelectableCell.TransitionType.Instant, _textSegments, false);
+#endif
             }
         }
     }
@@ -88,7 +97,11 @@ internal class EventDivisionSelectViewController : BSMLAutomaticViewController
     private void OnCellClick(SegmentedControl segmentedControl, int index)
     {
         // stupid workaround is stupid
+#if LEGATO_BEFORE_MULTIPLAYER
+        segmentedControl._cells[index].ChangeSelection(true, SegmentedControlCell.TransitionType.Instant, false, true);
+#else
         segmentedControl.cells[index].SetSelected(true, SelectableCell.TransitionType.Instant, segmentedControl, false);
+#endif
         _selected = index;
         _descriptionText.text = _divisions[index].Description;
         _continueButton.interactable = true;

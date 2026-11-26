@@ -11,7 +11,9 @@ using SiraUtil.Logging;
 using Synapse.Extras;
 using Synapse.Networking;
 using Synapse.Networking.Models;
-#if !LEGATO_PLATFORM_USER_MODEL
+#if LEGATO_BEFORE_MULTIPLAYER
+using Legato.Platform;
+#elif !LEGATO_PLATFORM_USER_MODEL
 using OculusStudios.Platform.Core;
 #endif
 
@@ -34,14 +36,22 @@ internal class NetworkManager : IDisposable
     private readonly Config _config;
     private readonly ListingManager _listingManager;
     private readonly SiraLog _log;
-#if !LEGATO_PLATFORM_USER_MODEL
+#if LEGATO_BEFORE_MULTIPLAYER
+    private readonly PlatformUserModelSO _platformUserModel;
+    private readonly CancellationTokenSource _authenticationCancellation = new();
+
+#elif !LEGATO_PLATFORM_USER_MODEL
     private readonly IPlatform _platformUserModel;
 #else
     private readonly IPlatformUserModel _platformUserModel;
 #endif
 
     private readonly List<byte[]> _queuedPackets = [];
+#if LEGATO_BEFORE_MULTIPLAYER
+    private readonly Task<(byte Platform, string UserId, string UserName, string SessionToken)?> _tokenTask;
+#else
     private readonly Task<AuthenticationToken?> _tokenTask;
+#endif
 
     private string _address = string.Empty;
     private AsyncTcpClient? _client;
@@ -51,7 +61,9 @@ internal class NetworkManager : IDisposable
     private NetworkManager(
         SiraLog log,
         Config config,
-#if !LEGATO_PLATFORM_USER_MODEL
+#if LEGATO_BEFORE_MULTIPLAYER
+        PlatformUserModelSO platformUserModel,
+#elif !LEGATO_PLATFORM_USER_MODEL
         IPlatform platformUserModel,
 #else
         IPlatformUserModel platformUserModel,
@@ -115,6 +127,10 @@ internal class NetworkManager : IDisposable
 
     public void Dispose()
     {
+#if LEGATO_BEFORE_MULTIPLAYER
+        _authenticationCancellation.Cancel();
+        _authenticationCancellation.Dispose();
+#endif
         _ = Disconnect(DisconnectCode.ClientDisposed);
     }
 
@@ -238,8 +254,34 @@ internal class NetworkManager : IDisposable
         client.ReceivedCallback = null;
     }
 
+#if LEGATO_BEFORE_MULTIPLAYER
+    private async Task<(byte Platform, string UserId, string UserName, string SessionToken)?> GetToken()
+#else
     private async Task<AuthenticationToken?> GetToken()
+#endif
     {
+#if LEGATO_BEFORE_MULTIPLAYER
+        CancellationToken cancellationToken = _authenticationCancellation.Token;
+        var authentication = new PlatformAuthentication(_platformUserModel);
+        UserIdentity identity = await authentication.GetIdentity(cancellationToken).ConfigureAwait(true);
+
+        // Match the platform values used by the Synapse authentication packet.
+        const byte oculusRift = 1;
+        const byte steam = 3;
+        byte platform = identity.Platform switch
+        {
+            AuthenticationPlatform.Meta => oculusRift,
+            AuthenticationPlatform.Steam => steam,
+            _ => 0
+        };
+        if (platform == 0 || string.IsNullOrEmpty(identity.UserId) || identity.UserId == "0")
+        {
+            return null;
+        }
+
+        string sessionToken = await authentication.GetLegacyToken(cancellationToken).ConfigureAwait(true);
+        return (platform, identity.UserId, identity.DisplayName, sessionToken);
+#else
 #if !LEGATO_PLATFORM_USER_MODEL
         UserInfo.Platform platform = _platformUserModel.key switch
         {
@@ -276,6 +318,7 @@ internal class NetworkManager : IDisposable
             userInfo.userName,
             accessToken.token);
 #endif
+#endif
     }
 
     private async Task OnConnected(CancellationToken cancelToken)
@@ -307,19 +350,26 @@ internal class NetworkManager : IDisposable
                 throw new InvalidOperationException("Client not connected.");
             }
 
-            AuthenticationToken? authTokenResult = await _tokenTask;
+            var authTokenResult = await _tokenTask;
             if (authTokenResult == null)
             {
                 await Disconnect(DisconnectCode.Unauthenticated);
                 return;
             }
 
-            AuthenticationToken authToken = authTokenResult.Value;
+            var authToken = authTokenResult.Value;
             using PacketBuilder packetBuilder = new((byte)ServerOpcode.Authentication);
+#if LEGATO_BEFORE_MULTIPLAYER
+            packetBuilder.Write(authToken.UserId);
+            packetBuilder.Write(authToken.UserName);
+            packetBuilder.Write(authToken.Platform);
+            packetBuilder.Write(authToken.SessionToken);
+#else
             packetBuilder.Write(authToken.userId);
             packetBuilder.Write(authToken.userName);
             packetBuilder.Write((byte)authToken.platform);
             packetBuilder.Write(authToken.sessionToken);
+#endif
             packetBuilder.Write(Plugin.GameVersion);
             packetBuilder.Write(
                 _listingManager.Listing?.Guid ?? throw new InvalidOperationException("No listing loaded."));
