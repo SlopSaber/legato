@@ -9,7 +9,7 @@ namespace Legato.Gameplay {
             BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic;
 
         internal static MethodInfo InitializationMethod => typeof(PlayerDataModel).GetMethod(
-#if BEAT_SABER_1_29_0
+#if BEAT_SABER_1_29_0 || LEGATO_BEFORE_MULTIPLAYER
             "Load",
 #else
             "Inject",
@@ -17,7 +17,7 @@ namespace Legato.Gameplay {
             DeclaredMethods)!;
 
         internal static Task Save(PlayerDataModel model) {
-#if BEAT_SABER_1_29_0
+#if BEAT_SABER_1_29_0 || LEGATO_BEFORE_MULTIPLAYER
             model.Save();
             return Task.CompletedTask;
 #else
