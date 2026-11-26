@@ -5,7 +5,9 @@
     </PropertyGroup>
     <ItemGroup>
       <Compile Remove="HarmonyPatches\ExtraLanesAndLayersPatches.cs;HarmonyPatches\360DegreeNoteRotationPatches.cs;HarmonyPatches\AdditionalWallAdjustementsPatches.cs;HarmonyPatches\PrecisePlacementPatches.cs" />
-      <Compile Include="$(LegatoSourceRoot)Providers\MappingExtensions\**\*.cs" />
+      <Compile Remove="HarmonyPatches\MirrorPatches.cs;HarmonyPatches\ObstacleDebugPatches.cs" Condition="'$(LegatoTargetVersion)' == '1.11.1'" />
+      <Compile Include="$(LegatoSourceRoot)Providers\MappingExtensions\Legacy\**\*.cs" Condition="'$(LegatoTargetVersion)' == '1.11.1'" />
+      <Compile Include="$(LegatoSourceRoot)Providers\MappingExtensions\NativeAliases.cs;$(LegatoSourceRoot)Providers\MappingExtensions\HarmonyPatches\**\*.cs" Condition="'$(LegatoTargetVersion)' != '1.11.1'" />
     </ItemGroup>
   </Target>
 </Project>
