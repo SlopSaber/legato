@@ -13,7 +13,7 @@ namespace Legato.Gameplay {
         }
 
         internal static IEnumerable<RecordedLevelScore> All(PlayerData player) {
-#if BEAT_SABER_1_29_0
+#if BEAT_SABER_1_29_0 || LEGATO_BEFORE_MULTIPLAYER
             foreach (var stats in player.levelsStatsData)
                 yield return new RecordedLevelScore(stats.levelID, stats.difficulty, stats.beatmapCharacteristic.serializedName, stats.highScore, stats.validScore);
 #else

@@ -5,8 +5,8 @@ using System.Threading.Tasks;
 namespace Legato.Beatmaps {
     internal static class NativeLevelLookup {
         internal static async Task<BeatmapLevel> ByIdOrHash(BeatmapLevelsModel model, string hash, CancellationToken token) {
-#if BEAT_SABER_1_29_0
-            var preview = model.GetLevelPreviewForLevelId(hash) ?? model.GetLevelPreviewForLevelId(CustomLevelLoader.kCustomLevelPrefixId + hash);
+#if BEAT_SABER_1_29_0 || LEGATO_BEFORE_MULTIPLAYER
+            var preview = NativeLevelAccess.Preview(model, hash) ?? NativeLevelAccess.Preview(model, CustomLevelLoader.kCustomLevelPrefixId + hash);
             if (preview == null && hash.Length == 40) {
                 var customId = CustomLevelLoader.kCustomLevelPrefixId + hash;
                 preview = model.allLoadedBeatmapLevelPackCollection.beatmapLevelPacks

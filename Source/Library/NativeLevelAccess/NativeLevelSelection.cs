@@ -2,10 +2,12 @@ using IPA.Utilities;
 
 namespace Legato.UI {
     internal static class NativeLevelSelection {
+#if !LEGATO_BEFORE_MULTIPLAYER
         internal static System.Reflection.MethodInfo CloseCollectionMethod => typeof(AnnotatedBeatmapLevelCollectionsGridView).GetMethod("CloseLevelCollection",
             System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.DeclaredOnly);
+#endif
         internal static void PlayPreview(LevelCollectionViewController view, BeatmapLevel level, System.Threading.CancellationToken token) {
-#if BEAT_SABER_1_29_0
+#if BEAT_SABER_1_29_0 || LEGATO_BEFORE_MULTIPLAYER
             token.ThrowIfCancellationRequested();
             view.SongPlayerCrossfadeToLevelAsync(level);
 #else
@@ -21,37 +23,40 @@ namespace Legato.UI {
 #endif
             if (index < 0) return false;
             view._segmentedControl.SelectCellWithNumber(index);
-#if BEAT_SABER_1_29_0
+#if BEAT_SABER_1_29_0 || LEGATO_BEFORE_MULTIPLAYER
             view.HandleDifficultySegmentedControlDidSelectCell(view._segmentedControl, index);
 #else
             view.HandleBeatmapCharacteristicSegmentedControlDidSelectCell(view._segmentedControl, index);
 #endif
             return true;
         }
+#if !LEGATO_BEFORE_MULTIPLAYER
         internal static LevelSelectionFlowCoordinator.State State(SelectLevelCategoryViewController.LevelCategory category, NativeSongPack pack, BeatmapKey key, BeatmapLevel level) =>
 #if BEAT_SABER_1_29_0
             new(category, pack, level, key);
 #else
             new(category, pack, in key, level);
 #endif
+#endif
         internal static BeatmapLevel ResultsLevel(ResultsViewController view) =>
-#if BEAT_SABER_1_29_0
+#if BEAT_SABER_1_29_0 || LEGATO_BEFORE_MULTIPLAYER
             view._difficultyBeatmap?.level;
 #else
             view._beatmapLevel;
 #endif
         internal static BeatmapLevel DetailLevel(StandardLevelDetailView view) =>
-#if BEAT_SABER_1_29_0
+#if BEAT_SABER_1_29_0 || LEGATO_BEFORE_MULTIPLAYER
             view.selectedDifficultyBeatmap?.level;
 #else
             view._beatmapLevel;
 #endif
         internal static BeatmapKey DetailKey(StandardLevelDetailView view) =>
-#if BEAT_SABER_1_29_0
+#if BEAT_SABER_1_29_0 || LEGATO_BEFORE_MULTIPLAYER
             view.selectedDifficultyBeatmap;
 #else
             view.beatmapKey;
 #endif
+#if !LEGATO_BEFORE_MULTIPLAYER
         internal static void RefreshLevelBar(LevelBar bar, StandardLevelDetailView view) {
 #if BEAT_SABER_1_29_0
             var key = view.selectedDifficultyBeatmap;
@@ -65,5 +70,6 @@ namespace Legato.UI {
             bar.SetField("_beatmapLevelsModel", view._beatmapLevelsModel);
 #endif
         }
+#endif
     }
 }
