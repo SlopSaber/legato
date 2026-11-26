@@ -6,11 +6,17 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using BS_Utils.Utilities;
-#if LEGATO_PLATFORM_USER_MODEL
+#if LEGATO_BEFORE_MULTIPLAYER
+using IPlatform = global::PlatformUserModelSO;
+using UserInfo = global::PlatformUserModelSO.UserInfo;
+using UserPlatform = global::PlatformInfo.Platform;
+#elif LEGATO_PLATFORM_USER_MODEL
 using IPlatform = global::IPlatformUserModel;
+using UserPlatform = global::UserInfo.Platform;
 #else
 using OculusStudios.Platform.Core;
 using OculusStudios.Platform.Steam;
+using UserPlatform = global::UserInfo.Platform;
 #endif
 
 namespace BS_Utils.Gameplay
@@ -22,7 +28,7 @@ namespace BS_Utils.Gameplay
 
         static string userName = null;
         static string userID = null;
-        static UserInfo.Platform platform;
+        static UserPlatform platform;
         static Texture2D userAvatar = null;
         private static Task<UserInfo> getUserTask;
         private static bool isReady => shouldBeReadyTask.Task.IsCompleted;
@@ -88,7 +94,7 @@ namespace BS_Utils.Gameplay
         /// Attempts to retrieve the UserInfo. Returns null if <see cref="IPlatform"/> is unavailable or its identity provider is unsupported.
         /// </summary>
         /// <returns></returns>
-        /// <exception cref="InvalidOperationException">Thrown if <see cref="IPlatformUserModel"/> returns null for the <see cref="UserInfo"/>.</exception>
+        /// <exception cref="InvalidOperationException">Thrown if <see cref="IPlatform"/> returns null for the <see cref="UserInfo"/>.</exception>
         public static async Task<UserInfo> GetUserAsync()
         {
             try
@@ -120,7 +126,9 @@ namespace BS_Utils.Gameplay
 
         private static async Task<UserInfo> InternalGetUserAsync()
         {
-#if BEAT_SABER_1_29_0
+#if LEGATO_BEFORE_MULTIPLAYER
+            UserInfo userInfo = await new Legato.Platform.PlatformAuthentication(_platformUserModel).GetGameUserInfo(CancellationToken.None);
+#elif BEAT_SABER_1_29_0
             UserInfo userInfo = await _platformUserModel.GetUserInfo();
 #elif LEGATO_PLATFORM_USER_MODEL
             UserInfo userInfo = await _platformUserModel.GetUserInfo(CancellationToken.None);
@@ -147,13 +155,18 @@ namespace BS_Utils.Gameplay
 
             if (userInfo != null)
             {
-                Logger.log.Debug($"UserInfo found: {userInfo.platformUserId}: {userInfo.userName} on {userInfo.platform}");
                 userName = userInfo.userName;
+#if LEGATO_BEFORE_MULTIPLAYER
+                userID = userInfo.userId;
+                platform = _platformUserModel.platformInfo.platform;
+#else
                 userID = userInfo.platformUserId;
                 platform = userInfo.platform;
-                if (userInfo.platform == UserInfo.Platform.Steam)
+#endif
+                Logger.log.Debug($"UserInfo found: {userID}: {userName} on {platform}");
+                if (platform == UserPlatform.Steam)
                     GetSteamAvatar();
-                else if (userInfo.platform == UserInfo.Platform.Oculus)
+                else if (platform == UserPlatform.Oculus)
                     userAvatar = UIUtilities.LoadTextureFromResources("BS_Utils.Resources.oculus.png");
             }
             else
@@ -163,7 +176,7 @@ namespace BS_Utils.Gameplay
 
         private static void GetSteamAvatar()
         {
-#if BEAT_SABER_1_29_0
+#if BEAT_SABER_1_29_0 || LEGATO_BEFORE_MULTIPLAYER
             if (SteamManager.Initialized)
 #elif LEGATO_PLATFORM_USER_MODEL
             if (_platformUserModel is SteamPlatformUserModel steamModel && steamModel._platformInit.IsInitialized)
@@ -203,7 +216,7 @@ namespace BS_Utils.Gameplay
         }
 
         [Obsolete("This is only valid after GetUserAsync() returns non-null. Use 'GetUserAsync()' instead.")]
-        public static UserInfo.Platform GetPlatformInfo()
+        public static UserPlatform GetPlatformInfo()
         {
             return platform;
         }
