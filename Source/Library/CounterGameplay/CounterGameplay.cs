@@ -36,7 +36,11 @@ namespace Legato.Gameplay {
             player.GetOrCreatePlayerLevelStatsData(key);
 #endif
         internal static bool Rotating(GameplayCoreSceneSetupData data) {
+#if LEGATO_BEFORE_MULTIPLAYER
+            string name = data.difficultyBeatmap.parentDifficultyBeatmapSet.beatmapCharacteristic.serializedName;
+#else
             string name = BeatmapKeyExtensions.CharacteristicSerializedName(Key(data));
+#endif
             return name == "90Degree" || name == "360Degree";
         }
     }

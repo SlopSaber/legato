@@ -1,14 +1,14 @@
 #nullable enable
 using System.Linq;
 using UnityEngine;
-#if !BEAT_SABER_1_29_0
+#if !BEAT_SABER_1_29_0 && !LEGATO_BEFORE_MULTIPLAYER
 using BGLib.UnityExtension;
 #endif
 
 namespace Legato.Presentation {
     internal static class ScoreEffectResources {
         internal static FlyingTextEffect? LoadPreviewEffect() =>
-#if BEAT_SABER_1_29_0
+#if BEAT_SABER_1_29_0 || LEGATO_BEFORE_MULTIPLAYER
             Resources.FindObjectsOfTypeAll<FlyingTextEffect>()
                 .Where(effect => effect.name == "FlyingTextEffect" || effect.name == "FlyingTextEffect(Clone)")
                 .OrderBy(effect => effect.gameObject.scene.IsValid()).FirstOrDefault();

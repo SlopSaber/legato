@@ -1,3 +1,4 @@
+#if !LEGATO_BEFORE_MULTIPLAYER
 namespace Legato.Presentation {
     internal static class PreviewNotes {
         internal static NoteData Normal() => NoteData.CreateBasicNoteData(
@@ -33,3 +34,4 @@ namespace Legato.Presentation {
             0, 0, 0, 0, 0, 0, 0, 0);
     }
 }
+#endif
