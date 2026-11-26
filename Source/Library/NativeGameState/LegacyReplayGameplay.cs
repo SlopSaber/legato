@@ -82,10 +82,10 @@ namespace Legato.Gameplay {
             RestoreEnergy(energy, energy.energyType == GameplayModifiers.EnergyType.Battery ? 1f : 0.5f);
         }
 
-        private static void RestoreEnergy(GameEnergyCounter energy, float value) {
+        internal static void RestoreEnergy(GameEnergyCounter energy, float value, bool notifyFailure = true) {
             var reachedZero = energy.energy > 0f && value == 0f;
             energy.energy = value;
-            if (reachedZero) {
+            if (reachedZero && notifyFailure) {
                 energy.GetField<Action, GameEnergyCounter>("gameEnergyDidReach0Event")?.Invoke();
             }
             energy.GetField<Action<float>, GameEnergyCounter>("gameEnergyDidChangeEvent")?.Invoke(value);

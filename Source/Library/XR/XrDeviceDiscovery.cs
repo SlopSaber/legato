@@ -7,7 +7,7 @@ namespace Legato.XR {
     public static class XrDeviceDiscovery {
         public static string RuntimeName {
             get {
-#if BEAT_SABER_1_29_0
+#if BEAT_SABER_1_29_0 || LEGATO_BEFORE_MULTIPLAYER
                 return string.Empty;
 #else
                 return UnityEngine.XR.OpenXR.OpenXRRuntime.name ?? string.Empty;
@@ -17,7 +17,7 @@ namespace Legato.XR {
 
         public static string LegacyHeadsetModel {
             get {
-#if BEAT_SABER_1_29_0
+#if BEAT_SABER_1_29_0 || LEGATO_BEFORE_MULTIPLAYER
 #pragma warning disable CS0618
                 return XRDevice.model;
 #pragma warning restore CS0618
@@ -28,7 +28,7 @@ namespace Legato.XR {
         }
 
         public static string DescribeHeadset(string? steamHeadsetName) {
-#if BEAT_SABER_1_29_0
+#if BEAT_SABER_1_29_0 || LEGATO_BEFORE_MULTIPLAYER
             string device = "(xrdevice):" + LegacyHeadsetModel;
             if (steamHeadsetName != null) device = $"{device}:(steamcfg):{steamHeadsetName}";
             return "legacy:" + device;
@@ -42,7 +42,7 @@ namespace Legato.XR {
         }
 
         public static string DescribeController(XRNode node, InputDeviceCharacteristics hand) {
-#if BEAT_SABER_1_29_0
+#if BEAT_SABER_1_29_0 || LEGATO_BEFORE_MULTIPLAYER
             string? name = GetControllerDeviceName(hand);
             string device = name == null ? string.Empty : "(inputdevice):" + name;
             string? nodeName = DescribeNode(node);

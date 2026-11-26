@@ -20,7 +20,13 @@ namespace Legato.Beatmaps {
             return maxScore;
         }
 
-#if BEAT_SABER_1_29_0
+#if LEGATO_BEFORE_MULTIPLAYER
+        private static Task<int> ComputeMaxScore(BeatmapLevel beatmapLevel, BeatmapKey beatmapKey) {
+            var data = beatmapKey.difficultyBeatmap?.beatmapData
+                ?? throw new InvalidOperationException($"Beatmap data is unavailable for {beatmapKey.levelId}");
+            return Task.FromResult(ScoreModel.MaxRawScoreForNumberOfNotes(data.notesCount));
+        }
+#elif BEAT_SABER_1_29_0
         private readonly PlayerDataModel _playerDataModel;
 
         public BeatmapMaxScoreCache(PlayerDataModel playerDataModel) {
