@@ -7,10 +7,14 @@ namespace Legato.Rendering
 {
     internal static class MenuEnvironmentColors
     {
+#if LEGATO_BEFORE_MULTIPLAYER
+        private static readonly FieldInfo Scheme = typeof(ColorManager).GetField(
+#else
         private static readonly FieldInfo Scheme = typeof(EnvironmentColorManager).GetField(
+#endif
             "_colorScheme", BindingFlags.Instance | BindingFlags.NonPublic);
 
-#if BEAT_SABER_1_29_0
+#if BEAT_SABER_1_29_0 || LEGATO_BEFORE_MULTIPLAYER
         internal static ScriptableObject CloneSetting(ScriptableObject source)
         {
             var clone = Object.Instantiate(source);
@@ -31,7 +35,11 @@ namespace Legato.Rendering
             // Only palette getters are needed; native lifecycle methods write shared color assets.
             var owner = new GameObject("Menu Environment Color Provider");
             owner.SetActive(false);
+#if LEGATO_BEFORE_MULTIPLAYER
+            var manager = owner.AddComponent<ColorManager>();
+#else
             var manager = owner.AddComponent<EnvironmentColorManager>();
+#endif
             Scheme.SetValue(manager, scheme);
             container.BindInstance(manager).AsSingle();
             return owner;
