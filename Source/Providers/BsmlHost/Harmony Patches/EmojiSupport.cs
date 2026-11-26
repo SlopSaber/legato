@@ -1,4 +1,4 @@
-#if !LEGATO_LEGACY_TEXTMESH_PRO
+#if !LEGATO_LEGACY_TEXTMESH_PRO && !LEGATO_EARLY_VR_UI
 using System.Collections.Generic;
 using System.Reflection.Emit;
 using HarmonyLib;
