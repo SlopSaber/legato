@@ -62,7 +62,11 @@ internal class ObstacleEffectsColorize : IAffinity, IDisposable
             .Insert(
                 new CodeInstruction(OpCodes.Ldarg_0),
                 new CodeInstruction(OpCodes.Ldfld, _effectsField),
+#if LEGATO_CHROMA_LEGACY_LIGHTS
+                new CodeInstruction(OpCodes.Ldloc_S, 4),
+#else
                 new CodeInstruction(OpCodes.Ldloc_3),
+#endif
                 new CodeInstruction(OpCodes.Ldelem_Ref),
                 new CodeInstruction(OpCodes.Ldloc_1),
                 _setObstacleSparksColor)
