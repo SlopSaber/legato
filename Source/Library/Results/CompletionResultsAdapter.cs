@@ -9,7 +9,12 @@ namespace Legato.Gameplay {
             FieldAccessor<LevelCompletionResultsBase, LevelScore>.GetAccessor("score");
 #else
         private static readonly FieldAccessor<LevelCompletionResults, int>.Accessor MultipliedScoreAccessor =
-            FieldAccessor<LevelCompletionResults, int>.GetAccessor("multipliedScore");
+            FieldAccessor<LevelCompletionResults, int>.GetAccessor(
+#if LEGATO_BEFORE_MULTIPLAYER
+                nameof(LevelCompletionResults.rawScore));
+#else
+                nameof(LevelCompletionResults.multipliedScore));
+#endif
 #endif
 
 #if !LEGATO_DIFFICULTY_BEATMAPS || LEGATO_NATIVE_BEATMAP_KEYS
@@ -27,7 +32,7 @@ namespace Legato.Gameplay {
             var score = baseResults.score;
             ScoreAccessor(ref baseResults) = new LevelScore(-score.multiplied, score.modified, score.maxMultiplied, score.maxModified);
 #else
-            MultipliedScoreAccessor(ref results) = -results.multipliedScore;
+            MultipliedScoreAccessor(ref results) = -GetMultipliedScore(results);
 #endif
         }
 
@@ -42,6 +47,8 @@ namespace Legato.Gameplay {
         internal static int GetMultipliedScore(LevelCompletionResults results) {
 #if BEAT_SABER_1_45_3
             return results.score.multiplied;
+#elif LEGATO_BEFORE_MULTIPLAYER
+            return results.rawScore;
 #else
             return results.multipliedScore;
 #endif
@@ -65,7 +72,7 @@ namespace Legato.Gameplay {
             }
 #else
             if (results.modifiedScore > 0) results.SetField("modifiedScore", -results.modifiedScore);
-            if (results.multipliedScore > 0) results.SetField("multipliedScore", -results.multipliedScore);
+            if (GetMultipliedScore(results) > 0) NegateMultipliedScore(ref results);
 #endif
         }
     }
