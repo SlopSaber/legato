@@ -1,4 +1,5 @@
 #if LEGATO_EARLY_VR_UI
+using HarmonyLib;
 using HMUI;
 using IPA.Utilities;
 using TMPro;
@@ -28,9 +29,13 @@ internal static class EarlyListCells
     }
 
     internal static SimpleListTableCell CreateTextCell(TableView table)
+        => CreateTextCell<SimpleListTableCell>(table);
+
+    internal static T CreateTextCell<T>(TableView table) where T : SimpleListTableCell
     {
-        var cell = Create<SimpleListTableCell>(table, out var content);
-        cell.SetField("_text", AddLabel(content, "Text", 0f, 0f, 1f));
+        var cell = Create<T>(table, out var content);
+        SimpleListTableCell textCell = cell;
+        textCell.SetField("_text", AddLabel(content, "Text", 0f, 0f, 1f));
         return cell;
     }
 
@@ -73,8 +78,8 @@ internal static class EarlyListCells
         var cell = node.AddComponent<T>();
         content = EarlyTableLayout.CellContent(table, cell);
         AddImage(content, "Hit Area", new Color(0f, 0f, 0f, 0.001f), true);
-        cell.SetField("_bgImage", AddImage(content, "Selected", new Color(0.22f, 0.55f, 0.87f, 0.7f), false));
-        cell.SetField("_highlightImage", AddImage(content, "Highlight", new Color(1f, 1f, 1f, 0.22f), false));
+        AccessTools.Field(typeof(T), "_bgImage").SetValue(cell, AddImage(content, "Selected", new Color(0.22f, 0.55f, 0.87f, 0.7f), false));
+        AccessTools.Field(typeof(T), "_highlightImage").SetValue(cell, AddImage(content, "Highlight", new Color(1f, 1f, 1f, 0.22f), false));
         return cell;
     }
 

@@ -1,14 +1,18 @@
+#if !LEGATO_EARLY_VR_UI
 using System.Collections.Generic;
 using System.Linq;
+#endif
 using BeatSaberMarkupLanguage.Components;
 using BeatSaberMarkupLanguage.Components.Settings;
-#if !BEAT_SABER_1_29_0 && !BEAT_SABER_1_37_1 && !BEAT_SABER_1_38_0 && !LEGATO_HMUI_TABLE_SCROLLER
+#if !BEAT_SABER_1_29_0 && !BEAT_SABER_1_37_1 && !BEAT_SABER_1_38_0 && !LEGATO_HMUI_TABLE_SCROLLER && !LEGATO_EARLY_VR_UI
 using BeatSaber.GameSettings;
 #endif
 using HMUI;
 using TMPro;
 using UnityEngine;
+#if !LEGATO_EARLY_VR_UI
 using UnityEngine.UI;
+#endif
 
 namespace BeatSaberMarkupLanguage.Tags.Settings
 {
@@ -19,11 +23,22 @@ namespace BeatSaberMarkupLanguage.Tags.Settings
     public abstract class GenericSliderSettingTag<T> : BSMLTag
         where T : GenericSliderSetting
     {
+#if !LEGATO_EARLY_VR_UI
         private LayoutElement controllersTransformTemplate;
+#endif
 
         /// <inheritdoc />
         public override GameObject CreateObject(Transform parent)
         {
+#if LEGATO_EARLY_VR_UI
+            GameObject row = EarlySettingControlLayout.CreateSlider(parent, out RangeValuesTextSlider slider, out TextMeshProUGUI label);
+            row.AddComponent<T>().Slider = slider;
+            ExternalComponents external = row.AddComponent<ExternalComponents>();
+            external.Components.Add(label);
+            external.Components.Add(this.CreateLocalizableText(label.gameObject));
+            row.SetActive(true);
+            return row;
+#else
             if (this.controllersTransformTemplate == null)
             {
 #if LEGATO_HMUI_TABLE_SCROLLER
@@ -102,6 +117,7 @@ namespace BeatSaberMarkupLanguage.Tags.Settings
 
             gameObject.SetActive(true);
             return gameObject;
+#endif
         }
     }
 }
