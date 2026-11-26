@@ -5,7 +5,7 @@ using System.Linq;
 
 namespace Legato.Beatmaps {
     internal static class BeatmapLevelDataCopy {
-#if !BEAT_SABER_1_29_0
+#if !BEAT_SABER_1_29_0 && !LEGATO_BEFORE_MULTIPLAYER
 #if BEAT_SABER_1_45_3
         internal static Dictionary<(GameplayType, BeatmapCharacteristic, BeatmapDifficulty), BeatmapBasicData> CopyBasicData(BeatmapLevel source) =>
             source.gameplayTypeBeatmapBasicData.ToDictionary(pair => pair.Key, pair => pair.Value);
