@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Reflection.Emit;
@@ -54,8 +54,12 @@ internal class NoteInitNoodlifier : IAffinity, IDisposable
         float jumpDuration,
         float jumpGravity,
 #endif
+#if LEGATO_NOODLE_LEGACY_GAMEPLAY
+        float cutDirectionAngleOffset)
+#else
         float endRotation,
         bool useRandomRotation)
+#endif
     {
         if (!_deserializedData.Resolve(noteData, out NoodleBaseNoteData? noodleData))
         {
@@ -124,16 +128,31 @@ internal class NoteInitNoodlifier : IAffinity, IDisposable
         moveEndPos.z += zOffset;
         jumpEndPos.z += zOffset;
 
+#if LEGATO_NOODLE_LEGACY_GAMEPLAY
+        noodleData.InternalEndRotation = noteJump._endRotation.eulerAngles.z;
+#else
         noodleData.InternalEndRotation = endRotation;
+#endif
         noodleData.InternalStartPos = moveStartPos;
         noodleData.InternalMidPos = moveEndPos;
         noodleData.InternalEndPos = jumpEndPos;
+#if LEGATO_NOODLE_LEGACY_GAMEPLAY
+        noodleData.InternalWorldRotation = noteJump._worldRotation;
+#else
         noodleData.InternalWorldRotation = __instance.worldRotation;
+#endif
         noodleData.InternalLocalRotation = localRotation;
 
         float startVerticalVelocity = jumpGravity * halfJumpDuration;
         float yOffset = (startVerticalVelocity * halfJumpDuration) - (jumpGravity * halfJumpDuration * halfJumpDuration * 0.5f);
         noodleData.InternalNoteOffset = new Vector3(jumpEndPos.x, moveEndPos.y + yOffset, 0);
+#if LEGATO_NOODLE_LEGACY_GAMEPLAY
+        floorMovement.transform.localPosition = noteJump._worldRotation * moveStartPos;
+        if (noodleData.DisableLook)
+        {
+            noteJump._rotatedObject.localRotation = noteJump._endRotation;
+        }
+#endif
     }
 
     [AffinityTranspiler]

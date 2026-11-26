@@ -641,11 +641,16 @@
                        HarmonyPatches\ObjectProcessing\ObjectCallbackAheadTimeReorder.cs;
                        HarmonyPatches\ObjectProcessing\NoodleBeatmapObjectsInTimeRowProcessor.cs;
                        Managers\NoodleObjectsCallbacksManager.cs;
+                       $(LegatoSourceRoot)Providers\NoodleExtensions\HarmonyPatches\SmallFixes\PlayerTransformsNoodlePatch.cs;
+                       $(LegatoSourceRoot)Providers\NoodleExtensions\HarmonyPatches\Objects\NoteJumpNoodlifier.cs;
                        $(LegatoSourceRoot)Providers\NoodleExtensions\HarmonyPatches\Objects\SliderInitNoodlifier.cs;
                        $(LegatoSourceRoot)Providers\NoodleExtensions\HarmonyPatches\Objects\SliderUpdateNoodlifier.cs;
                        HarmonyPatches\FakeNotes\FakeNotePatches.cs;
                        HarmonyPatches\FakeNotes\MiscFakePatches.cs;
                        HarmonyPatches\Mirror\*.cs;
+                       HarmonyPatches\SmallFixes\PreventObstacleFlickerOnSpawn.cs;
+                       HarmonyPatches\SmallFixes\SaberCullingFix.cs;
+                       HarmonyPatches\SmallFixes\SaberPlayerMovementFix.cs;
                        HarmonyPatches\SmallFixes\SliderMeshHeightUncapper.cs"
                Condition="'$(LegatoEnableNoodleExtensionsProviders)' == 'true' AND '$(LegatoTargetVersion)' == '1.11.1'" />
       <Compile Include="$(LegatoSourceRoot)Library\NativeTypeAliases\**\*.cs"

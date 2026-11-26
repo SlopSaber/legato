@@ -47,6 +47,34 @@ internal sealed class LegacySpawnMovement : IAffinity, IDisposable
         return 2f * beatDuration * Mathf.Max(1f, halfJump + (data?.SpawnOffset ?? movement._noteJumpStartBeatOffset));
     }
 
+    private static float EffectiveBpm(BeatmapObjectSpawnMovementData movement)
+    {
+        return movement._startNoteJumpMovementSpeed > 0f
+            ? movement._startBPM * movement._noteJumpMovementSpeed / movement._startNoteJumpMovementSpeed
+            : movement._startBPM;
+    }
+
+    private static Vector3 LaneOffset(BeatmapObjectSpawnMovementData movement, float lineIndex, float y)
+    {
+        float x = (lineIndex - ((movement._noteLinesCount - 1f) * 0.5f)) * movement.noteLinesDistance;
+        return (movement._rightVec * x) + (Vector3.up * y);
+    }
+
+    private static void GetPositions(
+        BeatmapObjectSpawnMovementData movement,
+        NoodleObjectData data,
+        float duration,
+        out Vector3 start,
+        out Vector3 mid,
+        out Vector3 end)
+    {
+        float distance = (data.Njs ?? movement._noteJumpMovementSpeed) * duration * 0.5f;
+        Vector3 travel = movement._forwardVec * distance;
+        mid = movement._centerPos + travel;
+        end = movement._centerPos - travel;
+        start = mid + (movement._forwardVec * movement._moveDistance);
+    }
+
     [AffinityPrefix]
     [AffinityPatch(typeof(BeatmapObjectSpawnController), "SpawnNote")]
     private void ApplyCutDirection(NoteData noteData, ref float cutDirectionAngleOffset)
@@ -141,34 +169,6 @@ internal sealed class LegacySpawnMovement : IAffinity, IDisposable
             .Advance(1)
             .Insert(new CodeInstruction(OpCodes.Ldarg_0), new CodeInstruction(OpCodes.Ldarg_1), _resolveDuration)
             .InstructionEnumeration();
-    }
-
-    private static float EffectiveBpm(BeatmapObjectSpawnMovementData movement)
-    {
-        return movement._startNoteJumpMovementSpeed > 0f
-            ? movement._startBPM * movement._noteJumpMovementSpeed / movement._startNoteJumpMovementSpeed
-            : movement._startBPM;
-    }
-
-    private static Vector3 LaneOffset(BeatmapObjectSpawnMovementData movement, float lineIndex, float y)
-    {
-        float x = (lineIndex - ((movement._noteLinesCount - 1f) * 0.5f)) * movement.noteLinesDistance;
-        return (movement._rightVec * x) + (Vector3.up * y);
-    }
-
-    private static void GetPositions(
-        BeatmapObjectSpawnMovementData movement,
-        NoodleObjectData data,
-        float duration,
-        out Vector3 start,
-        out Vector3 mid,
-        out Vector3 end)
-    {
-        float distance = (data.Njs ?? movement._noteJumpMovementSpeed) * duration * 0.5f;
-        Vector3 travel = movement._forwardVec * distance;
-        mid = movement._centerPos + travel;
-        end = movement._centerPos - travel;
-        start = mid + (movement._forwardVec * movement._moveDistance);
     }
 
     private float ResolveDuration(float original, BeatmapObjectSpawnController spawner, BeatmapObjectData item)

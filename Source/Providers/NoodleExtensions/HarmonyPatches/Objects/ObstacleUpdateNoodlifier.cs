@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Reflection.Emit;
@@ -17,6 +17,14 @@ namespace NoodleExtensions.HarmonyPatches.Objects;
 
 internal class ObstacleUpdateNoodlifier : IAffinity, IDisposable
 {
+#if LEGATO_NOODLE_LEGACY_GAMEPLAY
+    private static readonly MethodInfo _positionSetter =
+        AccessTools.PropertySetter(typeof(Transform), nameof(Transform.position));
+
+    private static readonly MethodInfo _localPositionSetter =
+        AccessTools.PropertySetter(typeof(Transform), nameof(Transform.localPosition));
+#endif
+
     private static readonly FieldInfo _finishMovementTimeField = AccessTools.Field(
         typeof(ObstacleController),
         nameof(ObstacleController._finishMovementTime));
@@ -172,9 +180,16 @@ internal class ObstacleUpdateNoodlifier : IAffinity, IDisposable
 #endif
 
     [AffinityPrefix]
+#if LEGATO_NOODLE_LEGACY_GAMEPLAY
+    [AffinityPatch(typeof(ObstacleController), "Update")]
+#else
     [AffinityPatch(typeof(ObstacleController), nameof(ObstacleController.ManualUpdate))]
+#endif
     private void Prefix(
         ObstacleController __instance,
+#if LEGATO_NOODLE_LEGACY_GAMEPLAY
+        bool ____initialized,
+#endif
         ObstacleData ____obstacleData,
         float ____startTimeOffset,
 #if !PRE_V1_40_8
@@ -192,15 +207,23 @@ internal class ObstacleUpdateNoodlifier : IAffinity, IDisposable
         ref Quaternion ____worldRotation,
         ref Bounds ____bounds)
     {
+#if LEGATO_NOODLE_LEGACY_GAMEPLAY
+        if (!____initialized)
+        {
+            return;
+        }
+#endif
         if (!_deserializedData.Resolve(____obstacleData, out NoodleObstacleData? noodleData))
         {
             return;
         }
 
+#if !LEGATO_NOODLE_LEGACY_GAMEPLAY
         if (noodleData.InternalDoUnhide)
         {
             __instance.Hide(false);
         }
+#endif
 
         IReadOnlyList<Track>? tracks = noodleData.Track;
         NoodleObjectData.AnimationObjectData? animationObject = noodleData.AnimationObject;
@@ -290,7 +313,11 @@ internal class ObstacleUpdateNoodlifier : IAffinity, IDisposable
             transform.localRotation = worldRotationQuatnerion;
         }
 
+#if LEGATO_NOODLE_LEGACY_GAMEPLAY
+        if (cuttable.HasValue && noodleData.Fake != true)
+#else
         if (cuttable.HasValue)
+#endif
         {
             if (cuttable.Value >= 1)
             {
@@ -310,12 +337,23 @@ internal class ObstacleUpdateNoodlifier : IAffinity, IDisposable
 
         if (dissolve.HasValue)
         {
+#if LEGATO_NOODLE_LEGACY_GAMEPLAY
+            if (_cutoutManager.ObstacleCutoutEffects.TryGetValue(__instance, out CutoutAnimateEffectWrapper effect))
+            {
+                effect.SetCutout(dissolve.Value);
+            }
+#else
             _cutoutManager.ObstacleCutoutEffects[__instance].SetCutout(dissolve.Value);
+#endif
         }
     }
 
     [AffinityTranspiler]
+#if LEGATO_NOODLE_LEGACY_GAMEPLAY
+    [AffinityPatch(typeof(ObstacleController), "Update")]
+#else
     [AffinityPatch(typeof(ObstacleController), nameof(ObstacleController.ManualUpdate))]
+#endif
     private IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
     {
         return new CodeMatcher(instructions)
@@ -336,6 +374,11 @@ internal class ObstacleUpdateNoodlifier : IAffinity, IDisposable
                 new CodeInstruction(OpCodes.Ldarg_0),
                 new CodeInstruction(OpCodes.Ldfld, _finishMovementTimeField),
                 _obstacleTimeAdjust)
+#if LEGATO_NOODLE_LEGACY_GAMEPLAY
+            .MatchForward(false, new CodeMatch(OpCodes.Callvirt, _positionSetter))
+            .ThrowIfInvalid("Could not find the native obstacle position setter")
+            .SetOperandAndAdvance(_localPositionSetter)
+#endif
             .InstructionEnumeration();
     }
 }

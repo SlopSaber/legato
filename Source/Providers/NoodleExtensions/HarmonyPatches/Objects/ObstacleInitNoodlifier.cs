@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Reflection.Emit;
@@ -33,9 +33,15 @@ internal class ObstacleInitNoodlifier : IAffinity, IDisposable
         nameof(Quaternion.Inverse));
 #endif
 
+#if LEGATO_NOODLE_LEGACY_GAMEPLAY
+    private static readonly MethodInfo _setObstacleSize = AccessTools.Method(
+        typeof(StretchableObstacle),
+        nameof(StretchableObstacle.SetSizeAndColor));
+#else
     private static readonly FieldInfo _lengthField = AccessTools.Field(
         typeof(ObstacleController),
         nameof(ObstacleController._length));
+#endif
 
     private static readonly FieldInfo _worldRotationField = AccessTools.Field(
         typeof(ObstacleController),
@@ -71,7 +77,7 @@ internal class ObstacleInitNoodlifier : IAffinity, IDisposable
     private float GetCustomLength(float @default, ObstacleData obstacleData)
     {
         _deserializedData.Resolve(obstacleData, out NoodleObstacleData? noodleData);
-        return noodleData?.Length * StaticBeatmapObjectSpawnMovementData.kNoteLinesDistance ?? @default;
+        return noodleData?.Length * NoodleController.NoteLineDistance ?? @default;
     }
 
     private float GetCustomWidth(float @default, ObstacleData obstacleData)
@@ -143,7 +149,12 @@ internal class ObstacleInitNoodlifier : IAffinity, IDisposable
         transform.localScale = scale;
         noodleData.InternalScale = scale;
 
-        if (noodleData is { Uninteractable: true })
+#if LEGATO_NOODLE_LEGACY_GAMEPLAY
+        noodleData.InternalBoundsSize = ____bounds.size;
+        if (noodleData.Uninteractable == true || noodleData.Fake == true)
+#else
+        if (noodleData.Uninteractable == true)
+#endif
         {
             ____bounds.size = Vector3.zero;
         }
@@ -153,7 +164,9 @@ internal class ObstacleInitNoodlifier : IAffinity, IDisposable
         }
 
         noodleData.InternalLocalRotation = localRotation;
+#if !LEGATO_NOODLE_LEGACY_GAMEPLAY
         noodleData.InternalBoundsSize = ____bounds.size;
+#endif
 
 #if !PRE_V1_40_8
         noodleData.InternalStartPos = obstacleSpawnData.moveOffset;
@@ -167,6 +180,10 @@ internal class ObstacleInitNoodlifier : IAffinity, IDisposable
         Vector3 noteOffset = ____endPos;
         noteOffset.z = 0;
         noodleData.InternalNoteOffset = noteOffset;
+#if LEGATO_NOODLE_LEGACY_GAMEPLAY
+        float elapsed = __instance._audioTimeSyncController.songTime - __instance._startTimeOffset;
+        transform.localPosition = ____worldRotation * __instance.GetPosForTime(elapsed);
+#endif
 #endif
     }
 
@@ -220,7 +237,13 @@ internal class ObstacleInitNoodlifier : IAffinity, IDisposable
              * this._length = num * obstacleData.duration;
              * ++ this._length = GetCustomLength(num * obstacleData.duration, obstacleData);
              */
+#if LEGATO_NOODLE_LEGACY_GAMEPLAY
+            .MatchForward(false, new CodeMatch(OpCodes.Callvirt, _setObstacleSize))
+            .ThrowIfInvalid("Could not find the native obstacle size update")
+            .Advance(-3)
+#else
             .MatchForward(false, new CodeMatch(OpCodes.Stfld, _lengthField))
+#endif
             .Insert(
                 new CodeInstruction(OpCodes.Ldarg_1),
                 _getCustomLength)

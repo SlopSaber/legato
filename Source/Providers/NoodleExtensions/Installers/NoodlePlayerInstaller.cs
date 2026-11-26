@@ -90,8 +90,8 @@ internal class NoodlePlayerInstaller : Installer
         Container.BindInterfacesTo<NoteLinker>().AsSingle();
 
         // SmallFixes
-        Container.BindInterfacesTo<PreventObstacleFlickerOnSpawn>().AsSingle();
 #if !LEGATO_NOODLE_LEGACY_GAMEPLAY
+        Container.BindInterfacesTo<PreventObstacleFlickerOnSpawn>().AsSingle();
         Container.Bind<InitializedSpawnMovementData>().AsSingle().NonLazy();
 #endif
         Container.BindInterfacesTo<PlayerTransformsNoodlePatch>().AsSingle();

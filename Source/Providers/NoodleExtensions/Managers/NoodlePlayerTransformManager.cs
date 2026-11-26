@@ -17,12 +17,17 @@ public enum PlayerObject
 
 public class NoodlePlayerTransformManager : IInitializable
 {
+#if LEGATO_NOODLE_LEGACY_GAMEPLAY
+    private readonly PlayerController _playerController;
+    private VRCenterAdjust? _roomAdjust;
+#else
     private readonly PlayerTransforms _playerTransforms;
     private readonly PlayerVRControllersManager _playerVRControllersManager;
 #if PRE_V1_37_1
     private readonly VRCenterAdjust _vrCenterAdjust;
 #else
     private readonly IInstantiator _instantiator;
+#endif
 #endif
     private GameObject? _root;
     private GameObject? _head;
@@ -35,6 +40,9 @@ public class NoodlePlayerTransformManager : IInitializable
 
     [UsedImplicitly]
     private NoodlePlayerTransformManager(
+#if LEGATO_NOODLE_LEGACY_GAMEPLAY
+        PlayerController playerController,
+#else
         PlayerTransforms playerTransforms,
         PlayerVRControllersManager playerVRControllersManager,
 #if PRE_V1_37_1
@@ -42,8 +50,12 @@ public class NoodlePlayerTransformManager : IInitializable
 #else
         IInstantiator instantiator,
 #endif
+#endif
         IReadonlyBeatmapData beatmapData)
     {
+#if LEGATO_NOODLE_LEGACY_GAMEPLAY
+        _playerController = playerController;
+#else
         _playerTransforms = playerTransforms;
         _playerVRControllersManager = playerVRControllersManager;
 #if PRE_V1_37_1
@@ -51,7 +63,9 @@ public class NoodlePlayerTransformManager : IInitializable
 #else
         _instantiator = instantiator;
 #endif
-        Active = ((CustomBeatmapData)beatmapData).customEventDatas.Any(n => n.eventType == NoodleController.ASSIGN_PLAYER_TO_TRACK);
+#endif
+        Active = beatmapData is CustomBeatmapData custom &&
+                 custom.customEventDatas.Any(n => n.eventType == NoodleController.ASSIGN_PLAYER_TO_TRACK);
     }
 
     public bool Active { get; }
@@ -71,11 +85,14 @@ public class NoodlePlayerTransformManager : IInitializable
             return;
         }
 
+#if LEGATO_NOODLE_LEGACY_GAMEPLAY
+        _roomAdjust = _playerController._headTransform.GetComponentInParent<VRCenterAdjust>();
+#endif
         _root = Create(PlayerObject.Root);
+        _rootTransform = _root.transform;
         _head = Create(PlayerObject.Head);
         _leftHand = Create(PlayerObject.LeftHand);
         _rightHand = Create(PlayerObject.RightHand);
-        _rootTransform = _root.transform;
         _headTransform = _head.transform;
         _leftHandTransform = _leftHand.transform;
         _rightHandTransform = _rightHand.transform;
@@ -103,6 +120,34 @@ public class NoodlePlayerTransformManager : IInitializable
         GameObject noodleObject = new($"NoodlePlayerTransform{playerTrackObject}");
         Transform origin = noodleObject.transform;
 
+#if LEGATO_NOODLE_LEGACY_GAMEPLAY
+        Transform target = playerTrackObject switch
+        {
+            PlayerObject.Root => _roomAdjust != null ? _roomAdjust.transform : _playerController._headTransform.parent,
+            PlayerObject.Head => _playerController._headTransform,
+            PlayerObject.LeftHand => _playerController.leftSaber._vrController.transform,
+            PlayerObject.RightHand => _playerController.rightSaber._vrController.transform,
+            _ => throw new ArgumentOutOfRangeException(nameof(playerTrackObject), playerTrackObject, null)
+        };
+
+        if (playerTrackObject == PlayerObject.Root)
+        {
+            origin.SetParent(target.parent, false);
+            target.SetParent(origin, true);
+        }
+        else
+        {
+            origin.SetParent(Root, false);
+            GameObject roomOffset = new("NoodleRoomOffset");
+            roomOffset.transform.SetParent(origin, false);
+            if (_roomAdjust != null)
+            {
+                roomOffset.AddComponent<LegacyRoomOffset>().Initialize(_roomAdjust);
+            }
+
+            target.SetParent(roomOffset.transform, true);
+        }
+#else
         // _playerTransforms._leftHandTransform points to the saber instead of the hand in 1.34+
         Transform target = playerTrackObject switch
         {
@@ -145,6 +190,7 @@ public class NoodlePlayerTransformManager : IInitializable
             target.SetParent(origin, true);
         }
 
+#endif
         return noodleObject;
     }
 }

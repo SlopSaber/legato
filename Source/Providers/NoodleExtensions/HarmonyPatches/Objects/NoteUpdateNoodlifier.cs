@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using Heck.Animation;
 using Heck.Deserialize;
 using NoodleExtensions.Animation;
@@ -30,8 +30,18 @@ internal class NoteUpdateNoodlifier : IAffinity
 
     internal NoodleBaseNoteData? NoodleData { get; private set; }
 
+#if LEGATO_NOODLE_LEGACY_GAMEPLAY
+    [AffinityPostfix]
+    [AffinityPatch(typeof(NoteController), "Update")]
+    private void ClearContext() => NoodleData = null;
+#endif
+
     [AffinityPrefix]
+#if LEGATO_NOODLE_LEGACY_GAMEPLAY
+    [AffinityPatch(typeof(NoteController), "Update")]
+#else
     [AffinityPatch(typeof(NoteController), nameof(NoteController.ManualUpdate))]
+#endif
     private void Prefix(NoteController __instance, NoteData ____noteData, NoteMovement ____noteMovement)
     {
         if (!_deserializedData.Resolve(____noteData, out NoodleBaseNoteData? noodleData))
@@ -143,13 +153,28 @@ internal class NoteUpdateNoodlifier : IAffinity
 
         if (dissolve.HasValue)
         {
+#if LEGATO_NOODLE_LEGACY_GAMEPLAY
+            if (_cutoutManager.NoteCutoutEffects.TryGetValue(__instance, out CutoutEffectWrapper effect))
+            {
+                effect.SetCutout(dissolve.Value);
+            }
+#else
             _cutoutManager.NoteCutoutEffects[__instance].SetCutout(dissolve.Value);
+#endif
         }
 
+#if LEGATO_NOODLE_LEGACY_GAMEPLAY
+        if (dissolveArrow.HasValue &&
+            _cutoutManager.NoteDisappearingArrowWrappers.TryGetValue(__instance, out DisappearingArrowWrapper arrow))
+        {
+            arrow.SetCutout(dissolveArrow.Value);
+        }
+#else
         if (dissolveArrow.HasValue && __instance.noteData.colorType != ColorType.None)
         {
             _cutoutManager.NoteDisappearingArrowWrappers[__instance].SetCutout(dissolveArrow.Value);
         }
+#endif
 
         if (!cuttable.HasValue)
         {
@@ -161,6 +186,10 @@ internal class NoteUpdateNoodlifier : IAffinity
         switch (__instance)
         {
             case GameNoteController gameNoteController:
+#if LEGATO_NOODLE_LEGACY_GAMEPLAY
+                gameNoteController._bigCuttableBySaber.canBeCut = enabled;
+                gameNoteController._smallCuttableBySaber.canBeCut = enabled;
+#else
                 foreach (BoxCuttableBySaber bigCuttableBySaber in gameNoteController._bigCuttableBySaberList)
                 {
                     bigCuttableBySaber.canBeCut = enabled;
@@ -170,6 +199,7 @@ internal class NoteUpdateNoodlifier : IAffinity
                 {
                     smallCuttableBySaber.canBeCut = enabled;
                 }
+#endif
 
                 break;
 
