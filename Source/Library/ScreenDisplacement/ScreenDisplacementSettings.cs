@@ -1,4 +1,4 @@
-#if BEAT_SABER_1_29_0
+#if BEAT_SABER_1_29_0 || LEGATO_BEFORE_MULTIPLAYER
 global using NativeVisualSettings = global::MainSettingsModelSO;
 #elif LEGATO_MAIN_SETTINGS_HANDLER
 global using NativeVisualSettings = global::BeatSaber.GameSettings.GraphicSettingsHandler;
@@ -9,7 +9,7 @@ global using NativeVisualSettings = global::SettingsManager;
 namespace Legato.Rendering {
     internal static class ScreenDisplacementSettings {
         internal static bool IsEnabled(NativeVisualSettings settings) =>
-#if BEAT_SABER_1_29_0
+#if BEAT_SABER_1_29_0 || LEGATO_BEFORE_MULTIPLAYER
             settings.screenDisplacementEffectsEnabled.value;
 #elif LEGATO_MAIN_SETTINGS_HANDLER
             settings.TryGetCurrentPerformancePreset(out var preset) && preset.screenDisplacementEffects;
