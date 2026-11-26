@@ -3,6 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using HarmonyLib;
+#if LEGATO_BEFORE_MULTIPLAYER
+using IPA.Utilities;
+#endif
 
 namespace Legato.Gameplay {
     internal static class JumpSelectionContext {
@@ -19,12 +22,14 @@ namespace Legato.Gameplay {
 #else
             typeof(BeatmapObjectSpawnMovementData);
 #endif
+#if !LEGATO_BEFORE_MULTIPLAYER
         internal static IEnumerable<MethodInfo> StandardSceneInitializers => typeof(StandardLevelScenesTransitionSetupData)
             .GetMethods().Where(method => method.Name == "Init"
                 && method.GetParameters().Any(parameter => parameter.ParameterType == typeof(GameplayModifiers))
                 && method.GetParameters().Any(parameter => parameter.ParameterType == typeof(PracticeSettings)));
+#endif
         internal static (float speed, float offset) JumpDetails(BeatmapLevel level, BeatmapKey key) {
-#if BEAT_SABER_1_29_0
+#if BEAT_SABER_1_29_0 || LEGATO_BEFORE_MULTIPLAYER
             return key == null ? (10f, 0f) : (key.noteJumpMovementSpeed, key.noteJumpStartBeatOffset);
 #else
             return BeatmapKeyExtensions.TryGetDifficultyBeatmapData(level, in key, out var data)
@@ -32,13 +37,18 @@ namespace Legato.Gameplay {
 #endif
         }
         internal static BeatmapKey DetailKey(StandardLevelDetailViewController view) =>
-#if BEAT_SABER_1_29_0
+#if LEGATO_BEFORE_MULTIPLAYER
+            view.GetField<StandardLevelDetailView, StandardLevelDetailViewController>("_standardLevelDetailView")?.selectedDifficultyBeatmap;
+#elif BEAT_SABER_1_29_0
             view.selectedDifficultyBeatmap;
 #else
             view.beatmapKey;
 #endif
         internal static (BeatmapKey key, BeatmapLevel level) Mission(MissionDataSO mission, BeatmapLevelsModel levels) {
-#if BEAT_SABER_1_29_0
+#if LEGATO_BEFORE_MULTIPLAYER
+            var level = mission.level;
+            return (level?.beatmapLevelData.GetDifficultyBeatmap(mission.beatmapCharacteristic, mission.beatmapDifficulty), level);
+#elif BEAT_SABER_1_29_0
             var level = mission.level;
             var key = level.difficultyBeatmapSets
                 .Where(set => set.beatmapCharacteristic == mission.beatmapCharacteristic)
@@ -53,7 +63,7 @@ namespace Legato.Gameplay {
             => new Subscription(view, handler);
         private sealed class Subscription : IDisposable {
             private readonly StandardLevelDetailViewController _view;
-#if BEAT_SABER_1_29_0
+#if BEAT_SABER_1_29_0 || LEGATO_BEFORE_MULTIPLAYER
             private readonly Action<StandardLevelDetailViewController, IDifficultyBeatmap> _handler;
 #else
             private readonly Action<StandardLevelDetailViewController> _handler;
@@ -61,7 +71,7 @@ namespace Legato.Gameplay {
             private bool _disposed;
             internal Subscription(StandardLevelDetailViewController view, Action<StandardLevelDetailViewController> handler) {
                 _view = view;
-#if BEAT_SABER_1_29_0
+#if BEAT_SABER_1_29_0 || LEGATO_BEFORE_MULTIPLAYER
                 _handler = (sender, _) => handler(sender);
 #else
                 _handler = handler;
