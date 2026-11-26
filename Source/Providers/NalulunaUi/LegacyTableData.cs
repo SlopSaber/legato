@@ -1,4 +1,4 @@
-#if !BEAT_SABER_1_29_0 && !LEGATO_FIXED_TABLE_CELL_SIZE
+#if !LEGATO_BEFORE_MULTIPLAYER && !BEAT_SABER_1_29_0 && !LEGATO_FIXED_TABLE_CELL_SIZE
 using HMUI;
 
 namespace NalulunaUtils.BeatSaberMarkupLanguage

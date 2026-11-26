@@ -1,4 +1,6 @@
-#if BEAT_SABER_1_45_1 || BEAT_SABER_1_45_3
+#if LEGATO_BEFORE_MULTIPLAYER
+global using NativeBeatmapCharacteristic = global::BeatmapCharacteristicSO;
+#elif BEAT_SABER_1_45_1 || BEAT_SABER_1_45_3
 global using HapticPresetSO = BeatSaber.Haptics.HapticPresetSO;
 global using StandardLevelScenesTransitionSetupDataSO = StandardLevelScenesTransitionSetupData;
 global using TutorialScenesTransitionSetupDataSO = TutorialScenesTransitionSetupData;
@@ -16,7 +18,7 @@ global using NativeBeatmapCharacteristic = global::BeatmapCharacteristicSO;
 global using NativeHapticFeedbackManager = global::HapticFeedbackManager;
 #endif
 
-#if BEAT_SABER_1_29_0
+#if LEGATO_BEFORE_MULTIPLAYER || BEAT_SABER_1_29_0
 global using NativeBeatmapKey = global::IDifficultyBeatmap;
 #else
 global using NativeBeatmapKey = global::BeatmapKey;

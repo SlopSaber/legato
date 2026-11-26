@@ -1,4 +1,4 @@
-#if BEAT_SABER_1_29_0
+#if LEGATO_BEFORE_MULTIPLAYER || BEAT_SABER_1_29_0
 namespace Legato.Compatibility
 {
     internal readonly struct LegacyBeatmapKey
