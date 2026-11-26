@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using JetBrains.Annotations;
 using UnityEngine;
 using UnityEngine.Rendering;
@@ -7,7 +7,9 @@ using Vivify.Managers;
 using Zenject;
 using Quaternion = UnityEngine.Quaternion;
 using Vector3 = UnityEngine.Vector3;
-#if !V1_29_1
+#if LEGATO_VIVIFY_LEGACY_GAMEPLAY
+using UnityEngine.XR;
+#elif !V1_29_1
 using UnityEngine.XR.OpenXR;
 #endif
 
@@ -68,8 +70,12 @@ internal class SecondaryCameraController : CullingCameraController
 
         base.OnPreCull();
 
-#if !V1_29_1
+#if LEGATO_VIVIFY_LEGACY_GAMEPLAY
+        if (camera.stereoEnabled && XRSettings.stereoRenderingMode == XRSettings.StereoRenderingMode.MultiPass)
+#elif !V1_29_1
         if (OpenXRSettings.Instance.renderMode == OpenXRSettings.RenderMode.MultiPass)
+#endif
+#if !V1_29_1 || LEGATO_VIVIFY_LEGACY_GAMEPLAY
         {
             return;
         }

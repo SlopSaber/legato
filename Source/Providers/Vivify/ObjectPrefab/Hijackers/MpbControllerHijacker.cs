@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
 using UnityEngine;
@@ -8,9 +8,14 @@ namespace Vivify.ObjectPrefab.Hijackers;
 internal class MpbControllerHijacker : IHijacker<GameObject>
 {
     private readonly Transform _child;
+#if LEGATO_VIVIFY_LEGACY_GAMEPLAY
+    private readonly MaterialPropertyBlockController? _materialPropertyBlockController;
+    private readonly Dictionary<Renderer, bool> _hidden = new();
+#else
     private readonly MaterialPropertyBlockController _materialPropertyBlockController;
+#endif
     private readonly Renderer?[] _originalRenderers;
-#if LEGATO_CACHED_RENDERER_MATERIAL_COUNTS
+#if LEGATO_CACHED_RENDERER_MATERIAL_COUNTS && !LEGATO_VIVIFY_LEGACY_GAMEPLAY
     private List<int>? _cachedNumberOfMaterialsInRenderers;
 #endif
     private Renderer[]? _cachedRenderers;
@@ -19,6 +24,18 @@ internal class MpbControllerHijacker : IHijacker<GameObject>
     internal MpbControllerHijacker(Component component)
     {
         _originalRenderers = component.GetComponentsInChildren<Renderer>();
+#if LEGATO_VIVIFY_LEGACY_GAMEPLAY
+        _child = component switch
+        {
+            NoteController note => note.noteTransform,
+            NoteDebris debris => debris._meshTransform,
+            _ => component.transform
+        };
+        _materialPropertyBlockController = component is NoteDebris noteDebris
+            ? noteDebris._materialPropertyBlockController
+            : _child.GetComponentInChildren<MaterialPropertyBlockController>() ??
+              component.GetComponentInChildren<MaterialPropertyBlockController>();
+#else
         _child = component.transform.GetChild(0);
 
         // ReSharper disable once ConvertIfStatementToConditionalTernaryExpression
@@ -31,6 +48,7 @@ internal class MpbControllerHijacker : IHijacker<GameObject>
         {
             _materialPropertyBlockController = component.GetComponent<MaterialPropertyBlockController>();
         }
+#endif
     }
 
     public void Activate(List<GameObject> gameObjects, bool hideOriginal)
@@ -40,12 +58,31 @@ internal class MpbControllerHijacker : IHijacker<GameObject>
             gameObject.transform.SetParent(_child, false);
         }
 
-#if LEGATO_CACHED_RENDERER_MATERIAL_COUNTS
+#if LEGATO_CACHED_RENDERER_MATERIAL_COUNTS && !LEGATO_VIVIFY_LEGACY_GAMEPLAY
         if (_materialPropertyBlockController._isInitialized)
         {
             _cachedNumberOfMaterialsInRenderers =
                 _materialPropertyBlockController._numberOfMaterialsInRenderers;
             _materialPropertyBlockController._isInitialized = false;
+        }
+#endif
+
+#if LEGATO_VIVIFY_LEGACY_GAMEPLAY
+        if (hideOriginal)
+        {
+            foreach (Renderer? renderer in _originalRenderers)
+            {
+                if (renderer != null)
+                {
+                    _hidden[renderer] = renderer.forceRenderingOff;
+                    renderer.forceRenderingOff = true;
+                }
+            }
+        }
+
+        if (_materialPropertyBlockController == null)
+        {
+            return;
         }
 #endif
 
@@ -55,6 +92,7 @@ internal class MpbControllerHijacker : IHijacker<GameObject>
 
         if (hideOriginal)
         {
+#if !LEGATO_VIVIFY_LEGACY_GAMEPLAY
             foreach (Renderer? renderer in _originalRenderers)
             {
                 if (renderer != null)
@@ -63,6 +101,7 @@ internal class MpbControllerHijacker : IHijacker<GameObject>
                 }
             }
 
+#endif
             _materialPropertyBlockController._renderers = newRenderers.ToArray();
         }
         else
@@ -75,7 +114,7 @@ internal class MpbControllerHijacker : IHijacker<GameObject>
 
     public void Deactivate()
     {
-#if LEGATO_CACHED_RENDERER_MATERIAL_COUNTS
+#if LEGATO_CACHED_RENDERER_MATERIAL_COUNTS && !LEGATO_VIVIFY_LEGACY_GAMEPLAY
         if (_cachedNumberOfMaterialsInRenderers != null)
         {
             _materialPropertyBlockController._numberOfMaterialsInRenderers =
@@ -84,12 +123,27 @@ internal class MpbControllerHijacker : IHijacker<GameObject>
         }
 #endif
 
+#if LEGATO_VIVIFY_LEGACY_GAMEPLAY
+        if (_cachedRenderers != null && _materialPropertyBlockController != null)
+#else
         if (_cachedRenderers != null)
+#endif
         {
             _materialPropertyBlockController._renderers = _cachedRenderers;
             _cachedRenderers = null;
         }
 
+#if LEGATO_VIVIFY_LEGACY_GAMEPLAY
+        foreach (KeyValuePair<Renderer, bool> hidden in _hidden)
+        {
+            if (hidden.Key != null)
+            {
+                hidden.Key.forceRenderingOff = hidden.Value;
+            }
+        }
+
+        _hidden.Clear();
+#else
         // other mods (looking at you, NoteCutGuide) can cause some of the original renderers to be destroyed
         foreach (Renderer? renderer in _originalRenderers)
         {
@@ -98,5 +152,6 @@ internal class MpbControllerHijacker : IHijacker<GameObject>
                 renderer.enabled = true;
             }
         }
+#endif
     }
 }

@@ -1,4 +1,8 @@
-﻿using System;
+using System;
+#if LEGATO_VIVIFY_LEGACY_GAMEPLAY
+using System.Collections.Generic;
+using SiraUtil.Affinity;
+#endif
 using System.Linq;
 using Heck.Animation;
 using Heck.Deserialize;
@@ -9,9 +13,15 @@ using Zenject;
 
 namespace Vivify.ObjectPrefab.Managers;
 
+#if LEGATO_VIVIFY_LEGACY_GAMEPLAY
+internal class NotePrefabManager : IAffinity, IDisposable
+#else
 internal class NotePrefabManager : IDisposable
+#endif
 {
+#if !LEGATO_VIVIFY_LEGACY_GAMEPLAY
     private readonly BasicBeatmapObjectManager? _basicBeatmapObjectManager;
+#endif
     private readonly BeatmapObjectManager _beatmapObjectManager;
     private readonly DeserializedData _deserializedData;
     private readonly BeatmapObjectPrefabManager _prefabManager;
@@ -27,7 +37,9 @@ internal class NotePrefabManager : IDisposable
     {
         _prefabManager = prefabManager;
         _beatmapObjectManager = beatmapObjectManager;
+#if !LEGATO_VIVIFY_LEGACY_GAMEPLAY
         _basicBeatmapObjectManager = beatmapObjectManager as BasicBeatmapObjectManager;
+#endif
         _deserializedData = deserializedData;
         _reLoader = reLoader;
         if (reLoader != null)
@@ -35,6 +47,11 @@ internal class NotePrefabManager : IDisposable
             reLoader.Rewinded += OnRewind;
         }
 
+#if LEGATO_VIVIFY_LEGACY_GAMEPLAY
+        AnyDirectionNotePrefabs.Changed += OnAnyDirectionNotePrefabsChanges;
+        BombNotePrefabs.Changed += OnBombNotePrefabsChanged;
+        ColorNotePrefabs.Changed += OnColorNotePrefabsChanges;
+#else
         if (_basicBeatmapObjectManager != null)
         {
             AnyDirectionNotePrefabs.Changed += OnAnyDirectionNotePrefabsChanges;
@@ -43,9 +60,12 @@ internal class NotePrefabManager : IDisposable
             BurstSliderPrefabs.Changed += OnBurstSliderPrefabsChanged;
             ColorNotePrefabs.Changed += OnColorNotePrefabsChanges;
         }
+#endif
 
         beatmapObjectManager.noteWasSpawnedEvent += HandleNoteWasSpawned;
+#if !LEGATO_VIVIFY_LEGACY_GAMEPLAY
         beatmapObjectManager.noteWasDespawnedEvent += HandleNoteWasDespawned;
+#endif
     }
 
     internal PrefabDictionary AnyDirectionNotePrefabs { get; } = new();
@@ -67,14 +87,22 @@ internal class NotePrefabManager : IDisposable
 
         AnyDirectionNotePrefabs.Changed -= OnAnyDirectionNotePrefabsChanges;
         BombNotePrefabs.Changed -= OnBombNotePrefabsChanged;
+#if !LEGATO_VIVIFY_LEGACY_GAMEPLAY
         BurstSliderElementPrefabs.Changed -= OnBurstSliderElementPrefabsChanged;
         BurstSliderPrefabs.Changed -= OnBurstSliderPrefabsChanged;
+#endif
         ColorNotePrefabs.Changed -= OnColorNotePrefabsChanges;
 
         _beatmapObjectManager.noteWasSpawnedEvent -= HandleNoteWasSpawned;
+#if !LEGATO_VIVIFY_LEGACY_GAMEPLAY
         _beatmapObjectManager.noteWasDespawnedEvent -= HandleNoteWasDespawned;
+#endif
     }
 
+#if LEGATO_VIVIFY_LEGACY_GAMEPLAY
+    [AffinityPrefix]
+    [AffinityPatch(typeof(BeatmapObjectManager), "Despawn", AffinityMethodType.Normal, new[] { typeof(NoteController) })]
+#endif
     private void HandleNoteWasDespawned(NoteController noteController)
     {
         _prefabManager.Despawn(noteController);
@@ -90,6 +118,16 @@ internal class NotePrefabManager : IDisposable
             return;
         }
 
+#if LEGATO_VIVIFY_LEGACY_GAMEPLAY
+        PrefabDictionary? prefabDictionary = noteData.noteType switch
+        {
+            NoteType.NoteA or NoteType.NoteB => noteData.cutDirection == NoteCutDirection.Any
+                ? AnyDirectionNotePrefabs
+                : ColorNotePrefabs,
+            NoteType.Bomb => BombNotePrefabs,
+            _ => null
+        };
+#else
         PrefabDictionary? prefabDictionary =
             noteData.gameplayType switch
             {
@@ -101,6 +139,7 @@ internal class NotePrefabManager : IDisposable
                 NoteData.GameplayType.BurstSliderElement => BurstSliderElementPrefabs,
                 _ => null
             };
+#endif
 
         if (prefabDictionary == null)
         {
@@ -118,6 +157,38 @@ internal class NotePrefabManager : IDisposable
 #endif
     }
 
+#if LEGATO_VIVIFY_LEGACY_GAMEPLAY
+    private void OnAnyDirectionNotePrefabsChanges(Track track)
+    {
+        RefreshNotes(track, AnyDirectionNotePrefabs, true);
+    }
+
+    private void OnColorNotePrefabsChanges(Track track)
+    {
+        RefreshNotes(track, ColorNotePrefabs, false);
+    }
+
+    private void OnBombNotePrefabsChanged(Track track)
+    {
+        foreach (NoteController controller in _beatmapObjectManager._bombNotePool.activeItems)
+        {
+            RefreshObjects(track, controller, BombNotePrefabs);
+        }
+    }
+
+    private void RefreshNotes(Track track, PrefabDictionary prefabs, bool anyDirection)
+    {
+        IEnumerable<NoteController> notes =
+            _beatmapObjectManager._noteAPool.activeItems.Concat(_beatmapObjectManager._noteBPool.activeItems);
+        foreach (NoteController controller in notes)
+        {
+            if ((controller.noteData.cutDirection == NoteCutDirection.Any) == anyDirection)
+            {
+                RefreshObjects(track, controller, prefabs);
+            }
+        }
+    }
+#else
     private void OnAnyDirectionNotePrefabsChanges(Track track)
     {
         foreach (GameNoteController? noteController in _basicBeatmapObjectManager!._basicGameNotePoolContainer
@@ -169,8 +240,13 @@ internal class NotePrefabManager : IDisposable
         }
     }
 
+#endif
+
     private void OnRewind()
     {
+#if LEGATO_VIVIFY_LEGACY_GAMEPLAY
+        AnyDirectionNotePrefabs.Clear();
+#endif
         ColorNotePrefabs.Clear();
         BombNotePrefabs.Clear();
         BurstSliderPrefabs.Clear();

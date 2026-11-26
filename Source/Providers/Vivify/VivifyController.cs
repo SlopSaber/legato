@@ -1,4 +1,4 @@
-﻿using Heck;
+using Heck;
 
 namespace Vivify;
 
@@ -74,7 +74,7 @@ public static class VivifyController
 
     internal const string BUNDLE_FILE = $"bundle{BUNDLE_SUFFIX}.vivify";
 
-#if !V1_29_1
+#if !V1_29_1 && !LEGATO_VIVIFY_LEGACY_GAMEPLAY
     internal const string BUNDLE_SUFFIX = "Windows2021";
     internal const string BUNDLE_CHECKSUM = "_windows2021";
 #else

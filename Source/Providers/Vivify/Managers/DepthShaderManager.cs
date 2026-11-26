@@ -1,4 +1,4 @@
-﻿using System.IO;
+using System.IO;
 using System.Threading.Tasks;
 using UnityEngine;
 using Zenject;
@@ -55,7 +55,7 @@ internal class DepthShaderManager : IInitializable
             bytes = memoryStream.ToArray();
         }
 
-#if V1_29_1
+#if V1_29_1 || LEGATO_VIVIFY_LEGACY_GAMEPLAY
         const uint crc = 1355036397;
 #else
         const uint crc = 1746663828;
@@ -73,7 +73,7 @@ internal class DepthShaderManager : IInitializable
         await Task.WhenAll(getDepthBlit, getDepthBlitArraySlice);
 #if LEGATO_UNITY_AWAITABLE_OPERATIONS
         await bundle.UnloadAsync(false);
-#elif V1_29_1
+#elif V1_29_1 || LEGATO_VIVIFY_LEGACY_GAMEPLAY
         bundle.Unload(false);
 #else
         bundle.UnloadAsync(false);

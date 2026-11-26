@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
@@ -100,9 +100,19 @@ internal class AssetBundleDownloadViewController : BSMLResourceViewController, I
             return false;
         }
 
+#if LEGATO_VIVIFY_LEGACY_GAMEPLAY
+        if (customDifficultyBeatmap.beatmapData is not CustomBeatmapData chart)
+        {
+            return false;
+        }
+
+        CustomData beatmapCustomData = chart.beatmapCustomData;
+        CustomData levelCustomData = chart.levelCustomData;
+#else
         Version3CustomBeatmapSaveData saveData = (Version3CustomBeatmapSaveData)customDifficultyBeatmap.beatmapSaveData;
         CustomData beatmapCustomData = saveData.beatmapCustomData;
         CustomData levelCustomData = saveData.levelCustomData;
+#endif
 #endif
 
         // check is vivify map

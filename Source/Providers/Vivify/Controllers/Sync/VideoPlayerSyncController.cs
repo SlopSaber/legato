@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections;
 using JetBrains.Annotations;
 using SiraUtil.Logging;
@@ -19,6 +19,9 @@ internal class VideoPlayerSyncController : MonoBehaviour, ISync
     private AudioTimeSyncController _audioTimeSyncController = null!;
     private SiraLog _log = null!;
 
+#if LEGATO_VIVIFY_LEGACY_GAMEPLAY
+    private AudioState.State? _lastState;
+#endif
     private bool _seeking;
     private float _startTime;
     private VideoPlayer _videoPlayer = null!;
@@ -48,7 +51,9 @@ internal class VideoPlayerSyncController : MonoBehaviour, ISync
         _log = log;
         _startTime = startTime;
         _audioTimeSyncController = audioTimeSyncController;
+#if !LEGATO_VIVIFY_LEGACY_GAMEPLAY
         audioTimeSyncController.stateChangedEvent += OnStateChange;
+#endif
     }
 
     private void OnDestroy()
@@ -60,11 +65,13 @@ internal class VideoPlayerSyncController : MonoBehaviour, ISync
             _videoPlayer.prepareCompleted -= OnPrepareCompleted;
         }
 
+#if !LEGATO_VIVIFY_LEGACY_GAMEPLAY
         // ReSharper disable once ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
         if (_audioTimeSyncController != null)
         {
             _audioTimeSyncController.stateChangedEvent -= OnStateChange;
         }
+#endif
     }
 
     private void OnEnable()
@@ -95,7 +102,11 @@ internal class VideoPlayerSyncController : MonoBehaviour, ISync
             return;
         }
 
-        switch (_audioTimeSyncController.state)
+        AudioState.State state = _audioTimeSyncController.state;
+#if LEGATO_VIVIFY_LEGACY_GAMEPLAY
+        _lastState = state;
+#endif
+        switch (state)
         {
             case AudioState.State.Playing:
                 ResyncTime();
@@ -147,6 +158,18 @@ internal class VideoPlayerSyncController : MonoBehaviour, ISync
         {
             return;
         }
+
+#if LEGATO_VIVIFY_LEGACY_GAMEPLAY
+        if (_lastState != _audioTimeSyncController.state)
+        {
+            OnStateChange();
+        }
+
+        if (_audioTimeSyncController.state != AudioState.State.Playing)
+        {
+            return;
+        }
+#endif
 
         if (Math.Abs(_videoPlayer.time - SongTime) > 0.2)
         {

@@ -1,4 +1,4 @@
-﻿using JetBrains.Annotations;
+using JetBrains.Annotations;
 using Vivify.Events;
 using Vivify.HarmonyPatches;
 using Vivify.Managers;
@@ -24,6 +24,9 @@ internal class VivifyPlayerInstaller : Installer
             return;
         }
 
+#if LEGATO_VIVIFY_LEGACY_GAMEPLAY
+        Container.Bind<LegacyVivifyBeatClock>().AsSingle();
+#endif
         Container.BindInterfacesAndSelfTo<AssetBundleManager>().AsSingle();
         Container.BindInterfacesAndSelfTo<PrefabManager>().AsSingle();
 #if BEAT_SABER_1453

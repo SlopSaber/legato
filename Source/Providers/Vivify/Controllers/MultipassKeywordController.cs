@@ -1,6 +1,10 @@
-﻿#if !V1_29_1
+#if !V1_29_1
 using UnityEngine;
+#if LEGATO_VIVIFY_LEGACY_GAMEPLAY
+using UnityEngine.XR;
+#else
 using UnityEngine.XR.OpenXR;
+#endif
 
 namespace Vivify.Controllers;
 
@@ -23,7 +27,11 @@ internal class MultipassKeywordController : MonoBehaviour
     {
         bool enable = _camera.stereoEnabled &&
                       _camera.stereoTargetEye != StereoTargetEyeMask.None &&
+#if LEGATO_VIVIFY_LEGACY_GAMEPLAY
+                      XRSettings.stereoRenderingMode == XRSettings.StereoRenderingMode.MultiPass;
+#else
                       OpenXRSettings.Instance.renderMode == OpenXRSettings.RenderMode.MultiPass;
+#endif
         if (enable)
         {
             Shader.EnableKeyword(MULTIPASS_KEYWORD);

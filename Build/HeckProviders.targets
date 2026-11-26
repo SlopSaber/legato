@@ -59,6 +59,10 @@
     <ItemGroup Condition="'$(LegatoEnableVivifyProviders)' == 'true'">
       <Reference Remove="ZenjectExtension" Condition="!Exists('$(LegatoReferenceRoot)\Beat Saber_Data\Managed\ZenjectExtension.dll')" />
     </ItemGroup>
+    <ItemGroup Condition="'$(LegatoTargetVersion)' == '1.11.1' AND '$(LegatoEnableVivifyProviders)' == 'true'">
+      <Reference Remove="BeatmapCore;BGLib.UnityExtension;DataModels;GameplayCore;Unity.XR.OpenXR" />
+      <Reference Include="UnityEngine.XRModule" HintPath="$(LegatoReferenceRoot)\Beat Saber_Data\Managed\UnityEngine.XRModule.dll" />
+    </ItemGroup>
     <ItemGroup Condition="'$(LegatoTargetProfile)' == '1.29.0' AND '$(LegatoEnableVivifyProviders)' == 'true'">
       <Reference Remove="Unity.XR.OpenXR" />
     </ItemGroup>
@@ -94,6 +98,7 @@
       <DefineConstants Condition="'$(LegatoTargetVersion)' == '1.11.1' AND '$(LegatoEnableHeckProviders)' == 'true'">$(DefineConstants);LEGATO_HECK_LEGACY_GAMEPLAY</DefineConstants>
       <DefineConstants Condition="'$(LegatoTargetVersion)' == '1.11.1' AND '$(LegatoEnableChromaProviders)' == 'true'">$(DefineConstants);LEGATO_CHROMA_LEGACY_LIGHTS</DefineConstants>
       <DefineConstants Condition="'$(LegatoTargetVersion)' == '1.11.1' AND '$(LegatoEnableNoodleExtensionsProviders)' == 'true'">$(DefineConstants);LEGATO_NOODLE_LEGACY_GAMEPLAY</DefineConstants>
+      <DefineConstants Condition="'$(LegatoTargetVersion)' == '1.11.1' AND '$(LegatoEnableVivifyProviders)' == 'true'">$(DefineConstants);LEGATO_VIVIFY_LEGACY_GAMEPLAY</DefineConstants>
       <DefineConstants Condition="'$(LegatoTargetProfile)' == '1.45.3'">$(DefineConstants);BEAT_SABER_1453</DefineConstants>
       <DefineConstants Condition="$([MSBuild]::VersionGreaterThanOrEquals('$(LegatoTargetVersion)', '1.46.0'))">$(DefineConstants);BEAT_SABER_1460</DefineConstants>
       <GameVersion>$(LegatoTargetVersion)</GameVersion>

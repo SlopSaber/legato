@@ -667,6 +667,12 @@
                Condition="'$(LegatoEnableHitbloqProviders)' == 'true'" />
       <Compile Include="$(LegatoSourceRoot)Providers\Vivify\**\*.cs"
                Condition="'$(LegatoEnableVivifyProviders)' == 'true'" />
+      <Compile Remove="$(LegatoSourceRoot)Providers\Vivify\ObjectPrefab\FollowedSaberTrail.cs;
+                       $(LegatoSourceRoot)Providers\Vivify\ObjectPrefab\Hijackers\SaberTrailHijacker.cs;
+                       ObjectPrefab\Hijackers\SaberModelControllerHijacker.cs;
+                       ObjectPrefab\Managers\SaberPrefabManager.cs;
+                       HarmonyPatches\SaberTrailRendererEnabler.cs"
+               Condition="'$(LegatoEnableVivifyProviders)' == 'true' AND '$(LegatoTargetVersion)' == '1.11.1'" />
       <Compile Include="$(LegatoSourceRoot)Providers\CustomJSONData\**\*.cs"
                Exclude="$(LegatoSourceRoot)Providers\CustomJSONData\Legacy\**\*.cs"
                Condition="'$(LegatoEnableCustomJsonDataProviders)' == 'true' AND '$(LegatoTargetVersion)' != '1.11.1'" />
