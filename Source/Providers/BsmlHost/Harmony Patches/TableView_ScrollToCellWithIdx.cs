@@ -1,3 +1,4 @@
+#if !LEGATO_EARLY_VR_UI
 #if LEGATO_HMUI_TABLE_SCROLLER
 using HarmonyLib;
 using HMUI;
@@ -171,4 +172,5 @@ namespace BeatSaberMarkupLanguage.Harmony_Patches
     }
 }
 
+#endif
 #endif
