@@ -121,8 +121,14 @@ namespace SongCore
             // Legacy native data exposes parsed difficulties rather than the file-backed JSON API.
         }
 
+#if LEGATO_BEFORE_MULTIPLAYER
+        private (string hash, BeatmapLevel beatmapLevel)? LoadCustomLevelInternal(string path, SongFolderEntry? entry, out bool unsupportedVersion)
+        {
+            unsupportedVersion = false;
+#else
         private (string hash, BeatmapLevel beatmapLevel)? LoadCustomLevelInternal(string path, SongFolderEntry? entry = null)
         {
+#endif
             string filename = Path.Combine(path, CustomLevelPathHelper.kStandardLevelInfoFilename);
             if (!File.Exists(filename)) return null;
             var document = V4Documents.Read(filename);
@@ -131,6 +137,7 @@ namespace SongCore
             if ((document["version"] ?? document["_version"])?.Value<string>() is string version && Version.TryParse(version, out Version? parsed) && parsed.Major >= 4)
             {
 #if LEGATO_BEFORE_MULTIPLAYER
+                unsupportedVersion = true;
                 Plugin.Log.Warn($"Skipping {path} because its level metadata requires a newer game.");
                 return null;
 #else

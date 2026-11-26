@@ -12,7 +12,7 @@ namespace Legato.UI {
         internal static GameObject PositionSlider(DiContainer container) {
 #if LEGATO_BEFORE_MULTIPLAYER
             return Resources.FindObjectsOfTypeAll<ControllersTransformSettingsViewController>()
-                .First()._posXSlider.GetComponentInParent<LayoutElement>().gameObject;
+                .First()._posXSlider.transform.parent.gameObject;
 #elif BEAT_SABER_1_29_0
             return Resources.FindObjectsOfTypeAll<LayoutElement>()
                 .First(x => x.name == "PositionX").gameObject;
