@@ -52,7 +52,7 @@ namespace Legato.Gameplay {
     internal sealed class LegacyDanceFog : IDisposable {
         private readonly BloomFogSO _fog;
         private readonly BloomFogEnvironmentParams _originalStart;
-        private readonly BloomFogEnvironmentParams _originalEnd;
+        private readonly BloomFogEnvironmentParams? _originalEnd;
         private readonly float _originalTransition;
         private readonly BloomFogEnvironmentParams _baseFog;
         private readonly BloomFogEnvironmentParams _dreadFog;

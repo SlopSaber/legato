@@ -6,7 +6,7 @@ using Xft;
 namespace Legato.Rendering {
     internal static class LegacySaberTrails {
         internal static XWeaponTrail? Create(Transform root, Transform tip, float duration, Color color, bool enabled) {
-            var prefab = Resources.FindObjectsOfTypeAll<XWeaponTrail>()
+            var prefab = UnityEngine.Resources.FindObjectsOfTypeAll<XWeaponTrail>()
                 .Select(trail => trail._trailRendererPrefab)
                 .FirstOrDefault(renderer => renderer != null);
             if (prefab == null) return null;
