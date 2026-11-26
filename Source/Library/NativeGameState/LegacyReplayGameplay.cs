@@ -40,7 +40,9 @@ namespace Legato.Gameplay {
         internal static void ApplyWall(ScoreController score, GameEnergyCounter energy, float recordedEnergy) {
             score.LoseMultiplier(out var comboChanged, out var multiplierChanged);
             score.NotifyForChange(comboChanged, multiplierChanged);
-            if (!energy.noFail && recordedEnergy is >= 0f and <= 1f) RestoreEnergy(energy, recordedEnergy);
+            if (!energy.noFail && energy.energy > 0f && recordedEnergy is >= 0f and <= 1f) {
+                RestoreEnergy(energy, recordedEnergy);
+            }
         }
 
         internal static void Reset(ScoreController score, GameEnergyCounter energy) {
@@ -58,7 +60,11 @@ namespace Legato.Gameplay {
         }
 
         private static void RestoreEnergy(GameEnergyCounter energy, float value) {
+            var reachedZero = energy.energy > 0f && value == 0f;
             energy.energy = value;
+            if (reachedZero) {
+                energy.GetField<Action, GameEnergyCounter>("gameEnergyDidReach0Event")?.Invoke();
+            }
             energy.GetField<Action<float>, GameEnergyCounter>("gameEnergyDidChangeEvent")?.Invoke(value);
         }
     }
