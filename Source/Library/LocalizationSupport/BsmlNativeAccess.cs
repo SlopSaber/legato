@@ -1,7 +1,9 @@
 using HMUI;
 using TMPro;
 using UnityEngine;
+#if !LEGATO_EARLY_VR_UI
 using UnityEngine.Experimental.Rendering;
+#endif
 using UnityEngine.Networking;
 using VRUIControls;
 
@@ -20,6 +22,7 @@ namespace Legato.Unity
                 .CreateDelegate(typeof(System.Action<TextSlider>));
 #endif
 
+#if !LEGATO_EARLY_VR_UI
         /// <summary>
         /// Gets the engine flags for textures that will receive copied pixels.
         /// </summary>
@@ -28,6 +31,7 @@ namespace Legato.Unity
             TextureCreationFlags.None;
 #else
             TextureCreationFlags.DontInitializePixels | TextureCreationFlags.DontUploadUponCreate;
+#endif
 #endif
 
         /// <summary>

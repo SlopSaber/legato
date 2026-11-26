@@ -25,7 +25,7 @@ internal static class EarlyButtonFactory
     internal static TextMeshProUGUI AddLabel(Button button)
     {
         var label = CreateContent(button.transform, "Text").gameObject.AddComponent<TextMeshProUGUI>();
-        label.font = BeatSaberUI.MainTextFont ?? TMP_Settings.defaultFontAsset;
+        label.font = TMP_Settings.defaultFontAsset;
         label.alignment = TextAlignmentOptions.Center;
         label.fontSize = 4f;
         label.text = "Default Text";
