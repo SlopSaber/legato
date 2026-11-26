@@ -4,11 +4,8 @@ namespace Legato.Gameplay {
     internal static class LevelSelectionJumpSpeed {
         internal static float Selected(StandardLevelDetailView view) {
             if (view == null) return 0f;
-#if BEAT_SABER_1_29_0
-            IDifficultyBeatmap data = view.selectedDifficultyBeatmap;
-            if (data == null) return 0f;
-            return data.noteJumpMovementSpeed > 0f ? data.noteJumpMovementSpeed
-                : BeatmapDifficultyMethods.NoteJumpMovementSpeed(data.difficulty);
+#if BEAT_SABER_1_29_0 || LEGATO_BEFORE_MULTIPLAYER
+            return JumpSpeed(view.selectedDifficultyBeatmap);
 #else
             BeatmapLevel level = view.GetField<BeatmapLevel, StandardLevelDetailView>("_beatmapLevel");
             var key = view.beatmapKey;
@@ -23,5 +20,22 @@ namespace Legato.Gameplay {
 #endif
 #endif
         }
+
+#if LEGATO_BEFORE_MULTIPLAYER
+        internal static float Selected(MissionLevelDetailViewController view) {
+            var mission = view.missionNode?.missionData;
+            if (mission == null) return 0f;
+            if (mission.gameplayModifiers.fastNotes) return 20f;
+            return JumpSpeed(mission.level.beatmapLevelData.GetDifficultyBeatmap(mission.beatmapCharacteristic, mission.beatmapDifficulty));
+        }
+#endif
+
+#if BEAT_SABER_1_29_0 || LEGATO_BEFORE_MULTIPLAYER
+        private static float JumpSpeed(IDifficultyBeatmap data) {
+            if (data == null) return 0f;
+            return data.noteJumpMovementSpeed > 0f ? data.noteJumpMovementSpeed
+                : BeatmapDifficultyMethods.NoteJumpMovementSpeed(data.difficulty);
+        }
+#endif
     }
 }
