@@ -11,7 +11,7 @@
       <_LegatoReactiveResource Include="$(MSBuildThisFileDirectory)Resources\ReactiveUiLegacy\*" />
       <EmbeddedResource Include="@(_LegatoReactiveResource)" LogicalName="Legato.ReactiveUiLegacy.%(_LegatoReactiveResource.Filename)%(_LegatoReactiveResource.Extension)" />
     </ItemGroup>
-    <ItemGroup Condition="'$(LegatoTargetProfile)' == '1.11.1' AND !$(Configuration.Contains('Editor'))">
+    <ItemGroup Condition="'$(LegatoUsesBuiltInRendering)' == 'true' AND '$(LegatoTargetProfile)' != '1.29.0' AND !$(Configuration.Contains('Editor'))">
       <EmbeddedResource Remove="Resources\AssetBundles\asset_bundle" />
       <_LegatoReactiveResource Include="$(MSBuildThisFileDirectory)Resources\ReactiveUiLegacy\*.png" />
       <EmbeddedResource Include="@(_LegatoReactiveResource)" LogicalName="Legato.ReactiveUiLegacy.%(_LegatoReactiveResource.Filename)%(_LegatoReactiveResource.Extension)" />

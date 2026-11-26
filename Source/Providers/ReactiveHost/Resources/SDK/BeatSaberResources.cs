@@ -32,7 +32,7 @@ namespace Reactive.BeatSaber {
 
         internal static void Init() {
             if (_instance != null) return;
-#if BEAT_SABER_1_29_0 || LEGATO_BEFORE_MULTIPLAYER
+#if LEGATO_BUILT_IN_RENDERING
             _instance = Legato.Reactive.LegacyUiResources.Create();
 #else
             var assembly = Assembly.GetExecutingAssembly();
