@@ -12,7 +12,12 @@
         <HintPath>$(LegatoReferenceRoot)\IPA\CoreLibraries\System.Xml.Linq.dll</HintPath>
         <Private>false</Private>
       </Reference>
-      <Compile Remove="Harmony Patches\MainFlowCoordinator.cs" />
+      <Compile Remove="Harmony Patches\MainFlowCoordinator.cs;
+                       Harmony Patches\FixModalBlockerLayer.cs;
+                       Harmony Patches\FixViewControllerModalHide.cs;
+                       Harmony Patches\DeferBSMLModalCleanup.cs;
+                       Harmony Patches\SegmentedControlCellSelectionStateDidChange.cs;
+                       Harmony Patches\ImageViewFilledImagePatch.cs" />
     </ItemGroup>
     <PropertyGroup Condition="'$(LegatoTargetVersion)' == '1.11.1'">
       <DefineConstants>$(DefineConstants);LEGATO_HMUI_TABLE_SCROLLER;LEGATO_HMUI_LEGACY_SCROLL_VIEW;LEGATO_FIXED_TABLE_CELL_SIZE;LEGATO_LEGACY_TEXTMESH_PRO;LEGATO_HMUI_LEGACY_GRAPHICS</DefineConstants>

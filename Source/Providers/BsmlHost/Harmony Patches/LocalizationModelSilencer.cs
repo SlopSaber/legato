@@ -1,3 +1,4 @@
+#if !LEGATO_EARLY_VR_UI
 using System;
 using System.Collections.Generic;
 using System.Reflection;
@@ -39,3 +40,4 @@ namespace BeatSaberMarkupLanguage.Harmony_Patches
         }
     }
 }
+#endif

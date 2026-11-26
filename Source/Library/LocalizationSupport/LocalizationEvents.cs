@@ -1,3 +1,4 @@
+#if !LEGATO_EARLY_VR_UI
 #if !BEAT_SABER_1_29_0 && !LEGATO_NATIVE_POLYGLOT
 using System;
 using IPA.Utilities;
@@ -31,3 +32,4 @@ namespace Legato.LocalizationSupport
         }
     }
 }
+#endif

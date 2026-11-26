@@ -1,4 +1,7 @@
-#if BEAT_SABER_1_29_0 || LEGATO_NATIVE_POLYGLOT
+#if LEGATO_EARLY_VR_UI
+global using Localization = Legato.LocalizationSupport.EarlyLocalization;
+global using LocalizedTextMeshProUGUI = Legato.LocalizationSupport.EarlyLocalizedText;
+#elif BEAT_SABER_1_29_0 || LEGATO_NATIVE_POLYGLOT
 global using CsvReader = Polyglot.CsvReader;
 global using ILocalize = Polyglot.ILocalize;
 global using Localization = Polyglot.Localization;
