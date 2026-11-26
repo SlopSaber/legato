@@ -1,6 +1,9 @@
 namespace Legato.Audio {
     internal static class HitsoundMethods {
-#if BEAT_SABER_1_29_0
+#if LEGATO_BEFORE_MULTIPLAYER
+        internal const string EffectLateUpdate = "LateUpdate";
+        internal const string SpawnEffect = "BeatmapObjectCallback";
+#elif BEAT_SABER_1_29_0
         internal const string EffectLateUpdate = "LateUpdate";
         internal const string SpawnEffect = "HandleNoteWasSpawned";
 #else

@@ -9,6 +9,7 @@ using IPA.Utilities;
 namespace Legato.Gameplay {
     internal static class SongAudioAccess {
         internal static bool IsPlaying(AudioTimeSyncController audio) => audio.state == NativeAudioState.Playing;
+#if !LEGATO_BEFORE_MULTIPLAYER
         internal static void Seek(AudioTimeSyncController audio, float songTime) {
 #if LEGATO_PRIVATE_SONG_START_TIME
             float start = FieldAccessor<AudioTimeSyncController, float>.Get(audio, "_startSongTime");
@@ -17,5 +18,6 @@ namespace Legato.Gameplay {
 #endif
             audio.SeekTo((songTime - start) / audio.timeScale);
         }
+#endif
     }
 }
