@@ -88,14 +88,14 @@ namespace Legato.Rendering {
     internal static class CameraNativeContext {
         internal static IEnumerable<MethodBase> RoomMethods => new [] {
             "OnEnable", "Start", "ResetRoom",
-#if BEAT_SABER_1_29_0
+#if BEAT_SABER_1_29_0 || LEGATO_BEFORE_MULTIPLAYER
             "HandleRoomCenterDidChange", "HandleRoomRotationDidChange"
 #else
             "SetRoomTransformOffset"
 #endif
         }.Select(name => (MethodBase)AccessTools.DeclaredMethod(typeof(VRCenterAdjust), name));
         internal static (Vector3 center, float rotation) Room(VRCenterAdjust adjuster) {
-#if BEAT_SABER_1_29_0
+#if BEAT_SABER_1_29_0 || LEGATO_BEFORE_MULTIPLAYER
             var settings = FieldAccessor<VRCenterAdjust, MainSettingsModelSO>.Get(adjuster, "_mainSettingsModel");
             return settings == null ? (Vector3.zero, 0f) : (settings.roomCenter.value, settings.roomRotation.value);
 #elif LEGATO_MAIN_SETTINGS_HANDLER
@@ -107,7 +107,7 @@ namespace Legato.Rendering {
 #endif
         }
         internal static MethodBase DepthInit =>
-#if BEAT_SABER_1_29_0
+#if BEAT_SABER_1_29_0 || LEGATO_BEFORE_MULTIPLAYER
             AccessTools.DeclaredMethod(typeof(MainSettingsModelSO), "Load");
 #elif LEGATO_DEPTH_TEXTURE_AT_START
             AccessTools.DeclaredMethod(typeof(DepthTextureController), "Start");
@@ -115,7 +115,7 @@ namespace Legato.Rendering {
             AccessTools.DeclaredMethod(typeof(DepthTextureController), "Init");
 #endif
         internal static bool DepthEnabled(object instance, object[] args) =>
-#if BEAT_SABER_1_29_0
+#if BEAT_SABER_1_29_0 || LEGATO_BEFORE_MULTIPLAYER
             ((MainSettingsModelSO)instance).depthTextureEnabled.value;
 #elif LEGATO_DEPTH_TEXTURE_AT_START
             (((DepthTextureController)instance).GetComponent<Camera>().depthTextureMode & DepthTextureMode.Depth) != 0;
@@ -123,7 +123,7 @@ namespace Legato.Rendering {
             ((SettingsManager)args[0]).settings.quality.smokeGraphics;
 #endif
         internal static MethodBase ObstacleProperties => AccessTools.DeclaredMethod(typeof(StretchableObstacle),
-#if LEGATO_LEGACY_OBSTACLE_PROPERTIES
+#if LEGATO_LEGACY_OBSTACLE_PROPERTIES || LEGATO_BEFORE_MULTIPLAYER
             "SetSizeAndColor");
 #else
             "SetAllProperties");
