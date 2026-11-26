@@ -1,5 +1,5 @@
 #nullable enable
-#if BEAT_SABER_1_29_0
+#if BEAT_SABER_1_29_0 || LEGATO_BEFORE_MULTIPLAYER
 using EnvironmentsListModel = global::EnvironmentsListSO;
 #endif
 
@@ -12,7 +12,7 @@ namespace Legato.Gameplay {
         }
 
         internal static OverrideEnvironmentSettings? Create(PlayerData playerData, EnvironmentsListModel environmentsListModel, string environmentName, bool useOverride) {
-#if BEAT_SABER_1_29_0
+#if BEAT_SABER_1_29_0 || LEGATO_BEFORE_MULTIPLAYER
             return playerData.overrideEnvironmentSettings;
 #else
             if (!useOverride || string.IsNullOrEmpty(environmentName)) {

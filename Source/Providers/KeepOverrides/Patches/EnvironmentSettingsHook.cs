@@ -1,5 +1,8 @@
 using KeepMyOverridesPls.Configuration;
 using SiraUtil.Affinity;
+#if LEGATO_BEFORE_MULTIPLAYER
+using HMUI;
+#endif
 
 namespace KeepMyOverridesPls.Patches;
 
@@ -7,7 +10,7 @@ internal class EnvironmentSettingsHook : IAffinity
 {
     private readonly PluginConfig config;
 
-#if BEAT_SABER_1_29_0
+#if BEAT_SABER_1_29_0 || LEGATO_BEFORE_MULTIPLAYER
     private readonly PlayerDataFileManagerSO files;
 
     public EnvironmentSettingsHook(PluginConfig config, PlayerDataModel playerDataModel)
@@ -21,8 +24,22 @@ internal class EnvironmentSettingsHook : IAffinity
         this.config = config;
     }
 
-    #endif
+#endif
 
+#if LEGATO_BEFORE_MULTIPLAYER
+    [AffinityPostfix]
+    [AffinityPatch(typeof(EnvironmentOverrideSettingsPanelController),
+        nameof(EnvironmentOverrideSettingsPanelController.HandleDropDownDidSelectCellWithIdx))]
+    private void SaveSelectedEnvironment(DropdownWithTableView dropDownWithTableView, int idx)
+    {
+        if (dropDownWithTableView.tableViewDataSource is not EnvironmentsTableViewDataSource source ||
+            idx < 0 || idx >= source.environmentInfos.Count) return;
+        var info = source.environmentInfos[idx];
+        if (info == null) return;
+        if (info.environmentType == files._normalEnvironmentType) config.NormalEnvironment = info.serializedName;
+        else if (info.environmentType == files._a360DegreesEnvironmentType) config.CircleEnvironment = info.serializedName;
+    }
+#else
     [AffinityPostfix]
     [AffinityPatch(typeof(OverrideEnvironmentSettings), nameof(OverrideEnvironmentSettings.SetEnvironmentInfoForType))]
 #if BEAT_SABER_1_29_0
@@ -45,5 +62,6 @@ internal class EnvironmentSettingsHook : IAffinity
                 config.CircleEnvironment = environmentInfo.serializedName; break;
         }
     }
+#endif
 #endif
 }

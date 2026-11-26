@@ -1,3 +1,4 @@
+#if !LEGATO_BEFORE_MULTIPLAYER
 using SiraUtil.Affinity;
 
 namespace KeepMyOverridesPls.Patches;
@@ -33,3 +34,4 @@ internal class PromoButtonPatch : IAffinity
         ____playerDataModel.playerData.colorSchemesSettings.overrideDefaultColors = overrideDefaultColors;
     }
 }
+#endif

@@ -1,5 +1,9 @@
 using KeepMyOverridesPls.Configuration;
+#if LEGATO_BEFORE_MULTIPLAYER
+using SiraUtil.Affinity;
+#else
 using SiraUtil.Logging;
+#endif
 using Zenject;
 #if BEAT_SABER_1_29_0
 using EnvironmentsListModel = global::EnvironmentsListSO;
@@ -7,6 +11,55 @@ using EnvironmentsListModel = global::EnvironmentsListSO;
 
 namespace KeepMyOverridesPls;
 
+#if LEGATO_BEFORE_MULTIPLAYER
+internal class Overrider : IInitializable, IAffinity
+{
+    private readonly PluginConfig config;
+    private readonly PlayerDataModel playerDataModel;
+
+    public Overrider(PluginConfig config, PlayerDataModel playerDataModel)
+    {
+        this.config = config;
+        this.playerDataModel = playerDataModel;
+    }
+
+    public void Initialize()
+    {
+        var settings = playerDataModel.playerData?.overrideEnvironmentSettings;
+        if (settings != null) Apply(playerDataModel._playerDataFileManager, settings);
+    }
+
+    [AffinityPostfix]
+    [AffinityPatch(typeof(PlayerDataModel), nameof(PlayerDataModel.Load))]
+    private void ApplyLoadedPreferences(PlayerDataModel __instance)
+    {
+        if (__instance == playerDataModel) Initialize();
+    }
+
+    [AffinityPostfix]
+    [AffinityPatch(typeof(PlayerDataFileManagerSO), nameof(PlayerDataFileManagerSO.CreateDefaultOverrideEnvironmentSettings))]
+    private void ApplyDefaultPreferences(PlayerDataFileManagerSO __instance, OverrideEnvironmentSettings __result)
+    {
+        if (__instance == playerDataModel._playerDataFileManager) Apply(__instance, __result);
+    }
+
+    private void Apply(PlayerDataFileManagerSO files, OverrideEnvironmentSettings settings)
+    {
+        settings.overrideEnvironments = config.OverrideEnvironments;
+        var catalog = files._allEnvironmentInfos;
+        SetPreference(settings, catalog, files._normalEnvironmentType, config.NormalEnvironment);
+        SetPreference(settings, catalog, files._a360DegreesEnvironmentType, config.CircleEnvironment);
+    }
+
+    private static void SetPreference(OverrideEnvironmentSettings settings, EnvironmentsListSO catalog,
+        EnvironmentTypeSO type, string serializedName)
+    {
+        if (string.IsNullOrEmpty(serializedName)) return;
+        var info = catalog.GetEnviromentInfoBySerializedName(serializedName);
+        if (info != null && info.environmentType == type) settings.SetEnvironmentInfoForType(type, info);
+    }
+}
+#else
 internal class Overrider : IInitializable
 {
     private readonly PluginConfig config;
@@ -62,3 +115,4 @@ internal class Overrider : IInitializable
     }
 #endif
 }
+#endif

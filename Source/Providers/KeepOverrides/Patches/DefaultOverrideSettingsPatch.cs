@@ -1,3 +1,4 @@
+#if !LEGATO_BEFORE_MULTIPLAYER
 using KeepMyOverridesPls.Configuration;
 using SiraUtil.Affinity;
 #if BEAT_SABER_1_29_0
@@ -41,3 +42,4 @@ internal class DefaultOverrideSettingsPatch : IAffinity
     }
 #endif
 }
+#endif
