@@ -72,6 +72,16 @@ internal sealed class LegacySpawnScheduler : IAffinity, IDisposable
         __instance._beatmapObjectCallbackController.RemoveBeatmapObjectCallback(__instance._beatmapObjectCallbackData);
     }
 
+    [AffinityPostfix]
+    [AffinityPatch(typeof(BeatmapObjectCallbackController), nameof(BeatmapObjectCallbackController.SetNewBeatmapData))]
+    private void ResetSchedule(BeatmapObjectCallbackController __instance)
+    {
+        if (_spawner != null && _spawner._beatmapObjectCallbackController == __instance)
+        {
+            InvalidateSchedule();
+        }
+    }
+
     [AffinityPrefix]
     [AffinityPatch(typeof(BeatmapObjectCallbackController), "LateUpdate")]
     private void SpawnReadyObjects(BeatmapObjectCallbackController __instance)
