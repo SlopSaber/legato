@@ -226,6 +226,23 @@
     </ItemGroup>
   </Target>
 
+  <Target Name="LegatoResolveEarlyGameReferences" BeforeTargets="ResolveAssemblyReferences"
+          AfterTargets="BSIPA_ResolveLayoutReferences" DependsOnTargets="LegatoConfigure"
+          Condition="'$(LegatoTargetVersion)' == '0.11.1'">
+    <ItemGroup>
+      <Reference Remove="Main;HMUI;HMLib;VRUI;GameplayCore;Unity.TextMeshPro" />
+      <Reference Include="Assembly-CSharp" HintPath="$(LegatoReferenceRoot)\Beat Saber_Data\Managed\Assembly-CSharp.dll"
+                 Private="false" Publicize="true"
+                 Condition="'@(Reference->WithMetadataValue('Identity', 'Assembly-CSharp'))' == ''" />
+      <Reference Include="Assembly-CSharp-firstpass" HintPath="$(LegatoReferenceRoot)\Beat Saber_Data\Managed\Assembly-CSharp-firstpass.dll"
+                 Private="false" Condition="'@(Reference->WithMetadataValue('Identity', 'Assembly-CSharp-firstpass'))' == ''" />
+      <Reference Include="TextMeshPro-1.0.55.2017.1.0b12"
+                 HintPath="$(LegatoReferenceRoot)\Beat Saber_Data\Managed\TextMeshPro-1.0.55.2017.1.0b12.dll"
+                 Private="false" Publicize="true"
+                 Condition="'@(Reference->WithMetadataValue('Identity', 'TextMeshPro-1.0.55.2017.1.0b12'))' == ''" />
+    </ItemGroup>
+  </Target>
+
   <Target Name="LegatoBridgeReferencePublicizeMetadata" BeforeTargets="Publicize"
           Condition="'$(LegatoMetadataOnly)' != 'true' AND '$(LegatoUseReferencePublicizeMetadata)' == 'true'">
     <ItemGroup>
