@@ -804,6 +804,7 @@
   <Import Project="$(MSBuildThisFileDirectory)PlaylistManagerProviders.targets" />
   <Target Name="LegatoCinemaAssetProfile" BeforeTargets="AssignTargetPaths" DependsOnTargets="LegatoConfigure" Condition="'$(LegatoEnableCinemaAssets)' == 'true'">
     <PropertyGroup>
+      <_LegatoCinemaShaderBundle Condition="'$(LegatoTargetVersion)' == '1.11.1'">$(MSBuildThisFileDirectory)Resources\Cinema\1.11.1\bscinema.bundle</_LegatoCinemaShaderBundle>
       <_LegatoCinemaShaderBundle Condition="'$(LegatoTargetProfile)' == '1.29.0'">$(MSBuildThisFileDirectory)Resources\CinemaLegacy\bscinema.bundle</_LegatoCinemaShaderBundle>
       <_LegatoCinemaShaderBundle Condition="'$(LegatoPortableShaderBundleTarget)' == '1.37.1' OR '$(LegatoPortableShaderBundleTarget)' == '1.37.2' OR '$(LegatoPortableShaderBundleTarget)' == '1.42.0'">$(MSBuildThisFileDirectory)Resources\Cinema\$(LegatoPortableShaderBundleTarget)\bscinema.bundle</_LegatoCinemaShaderBundle>
     </PropertyGroup>

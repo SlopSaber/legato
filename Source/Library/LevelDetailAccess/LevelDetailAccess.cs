@@ -13,7 +13,9 @@ namespace Legato.UI {
         private static readonly FieldInfo State = AccessTools.Field(RefreshState, "<>1__state");
 #endif
         internal static MethodBase RefreshMethod =>
-#if BEAT_SABER_1_29_0
+#if LEGATO_BEFORE_MULTIPLAYER
+            AccessTools.DeclaredMethod(typeof(StandardLevelDetailView), nameof(StandardLevelDetailView.RefreshContent));
+#elif BEAT_SABER_1_29_0
             AccessTools.DeclaredMethod(RefreshState, "MoveNext");
 #else
             AccessTools.DeclaredMethod(typeof(StandardLevelDetailView), "CheckIfBeatmapLevelDataExists");
@@ -25,19 +27,19 @@ namespace Legato.UI {
             (StandardLevelDetailView)instance;
 #endif
         internal static BeatmapLevel Level(StandardLevelDetailView view) =>
-#if BEAT_SABER_1_29_0
+#if BEAT_SABER_1_29_0 || LEGATO_BEFORE_MULTIPLAYER
             view._level;
 #else
             view._beatmapLevel;
 #endif
         internal static BeatmapKey Key(StandardLevelDetailView view) =>
-#if BEAT_SABER_1_29_0
+#if BEAT_SABER_1_29_0 || LEGATO_BEFORE_MULTIPLAYER
             view.selectedDifficultyBeatmap;
 #else
             view.beatmapKey;
 #endif
         internal static bool Precalculated(BeatmapLevel level) =>
-#if BEAT_SABER_1_29_0
+#if BEAT_SABER_1_29_0 || LEGATO_BEFORE_MULTIPLAYER
             !level.levelID.StartsWith(CustomLevelLoader.kCustomLevelPrefixId, StringComparison.Ordinal);
 #else
             level.hasPrecalculatedData;
