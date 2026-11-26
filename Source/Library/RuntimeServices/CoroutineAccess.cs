@@ -4,12 +4,12 @@ using UnityEngine;
 
 namespace Legato.Coroutines {
     internal sealed class CoroutineAccess {
-#if !BEAT_SABER_1_29_0
+#if !BEAT_SABER_1_29_0 && !LEGATO_BEFORE_MULTIPLAYER
         private readonly ICoroutineStarter _starter;
         public CoroutineAccess(ICoroutineStarter starter) { _starter = starter; }
 #endif
         internal Coroutine StartCoroutine(IEnumerator routine) =>
-#if BEAT_SABER_1_29_0
+#if BEAT_SABER_1_29_0 || LEGATO_BEFORE_MULTIPLAYER
             global::SharedCoroutineStarter.instance.StartCoroutine(routine);
 #else
             _starter.StartCoroutine(routine);
@@ -19,7 +19,7 @@ namespace Legato.Coroutines {
             routine = StartCoroutine(enumerator);
         }
         internal void StopCoroutine(Coroutine routine) {
-#if BEAT_SABER_1_29_0
+#if BEAT_SABER_1_29_0 || LEGATO_BEFORE_MULTIPLAYER
             global::SharedCoroutineStarter.instance.StopCoroutine(routine);
 #else
             _starter.StopCoroutine(routine);

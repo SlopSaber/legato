@@ -661,6 +661,8 @@
                Condition="'$(LegatoEnableSiraHost)' == 'true'" />
       <Compile Include="$(LegatoSourceRoot)Providers\BsmlHost\**\*.cs;$(LegatoSourceRoot)Library\LocalizationSupport\**\*.cs"
                Condition="'$(LegatoEnableBsmlHost)' == 'true'" />
+      <Compile Include="$(LegatoSourceRoot)Providers\BsmlHost\LegacyTables\LegacyTable.cs"
+               Condition="'$(LegatoEnableTableSources)' == 'true' AND '$(LegatoEnableBsmlHost)' != 'true' AND '$(LegatoTargetVersion)' == '1.11.1'" />
       <Compile Include="$(LegatoSourceRoot)Providers\SabersCore\**\*.cs"
                Condition="'$(LegatoEnableSaberLegacyProviders)' == 'true'" />
       <Compile Include="$(LegatoSourceRoot)Providers\Hitbloq\**\*.cs"

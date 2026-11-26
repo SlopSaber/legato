@@ -1,4 +1,4 @@
-#if LEGATO_HMUI_TABLE_SCROLLER
+#if LEGATO_HMUI_TABLE_SCROLLER || LEGATO_BEFORE_MULTIPLAYER
 using HMUI;
 using UnityEngine;
 using UnityEngine.UI;
@@ -49,10 +49,16 @@ namespace BeatSaberMarkupLanguage.Components
             table._pageUpButton = clone._pageUpButton;
             table._pageDownButton = clone._pageDownButton;
             VerticalScrollIndicator indicator = clone._verticalScrollIndicator;
-            RectTransform scrollBar = (RectTransform)indicator.transform.parent;
+            GameObject scrollBarObject = new("ScrollBar", typeof(RectTransform)) { layer = 5 };
+            RectTransform scrollBar = (RectTransform)scrollBarObject.transform;
             scrollBar.SetParent(parent, false);
+            scrollBar.anchorMin = new Vector2(1, 0);
+            scrollBar.anchorMax = Vector2.one;
             scrollBar.offsetMin = Vector2.zero;
             scrollBar.offsetMax = new Vector2(8, 0);
+            indicator.transform.SetParent(scrollBar, false);
+            table._pageUpButton.transform.SetParent(scrollBar, false);
+            table._pageDownButton.transform.SetParent(scrollBar, false);
             Object.Destroy(clone.gameObject);
             return indicator;
         }
@@ -71,6 +77,7 @@ namespace BeatSaberMarkupLanguage.Components
 
             if (indicator != null)
             {
+                table._scroller.positionDidChangeEvent += (_, _) => RefreshIndicator(table, indicator);
                 scrollRect.onValueChanged.AddListener(_ => RefreshIndicator(table, indicator));
                 RefreshIndicator(table, indicator);
             }

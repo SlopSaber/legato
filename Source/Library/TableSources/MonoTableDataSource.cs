@@ -7,7 +7,7 @@ namespace Legato.UI {
         public abstract int NumberOfCells();
         public abstract TableCell CellForIdx(TableView table, int index);
         public float CellSize(int index) => CellHeight(index);
-#if BEAT_SABER_1_29_0 || LEGATO_FIXED_TABLE_CELL_SIZE
+#if BEAT_SABER_1_29_0 || LEGATO_FIXED_TABLE_CELL_SIZE || LEGATO_BEFORE_MULTIPLAYER
         public float CellSize() => CellHeight(0);
 #endif
     }
