@@ -36,7 +36,16 @@ namespace Legato {
 
         internal static bool IsSoloOrPractice(StandardLevelScenesTransitionSetupData data) {
 #if LEGATO_BEFORE_MULTIPLAYER
-            return IsPractice(data) || !IsParty(data);
+            var finish = IPA.Utilities.FieldAccessor<StandardLevelScenesTransitionSetupData, System.Action<StandardLevelScenesTransitionSetupData, LevelCompletionResults>>
+                .Get(data, "didFinishEvent");
+            if (finish == null) return false;
+            foreach (var handler in finish.GetInvocationList()) {
+                if (handler.Target is not MenuTransitionsHelper transitions) continue;
+                var callback = IPA.Utilities.FieldAccessor<MenuTransitionsHelper, System.Action<StandardLevelScenesTransitionSetupData, LevelCompletionResults>>
+                    .Get(transitions, "_standardLevelFinishedCallback");
+                if (callback?.Target is SoloFreePlayFlowCoordinator) return true;
+            }
+            return false;
 #elif BEAT_SABER_1_45_3
             return data.gameMode is GameMode.Solo or GameMode.Practice;
 #else
