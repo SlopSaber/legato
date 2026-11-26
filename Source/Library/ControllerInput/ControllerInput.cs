@@ -1,8 +1,12 @@
 using IPA.Utilities;
 using UnityEngine;
 using VRUIControls;
+#if LEGATO_QUERY_CONTROLLER_POSE
 #if LEGATO_BEFORE_MULTIPLAYER
-using IVRPlatformHelper = global::VRPlatformHelper;
+using NativeInputPlatform = global::VRPlatformHelper;
+#else
+using NativeInputPlatform = global::IVRPlatformHelper;
+#endif
 #endif
 
 namespace Legato.Unity
@@ -22,8 +26,8 @@ namespace Legato.Unity
             controller.thumbstick.y;
 #endif
 #if LEGATO_QUERY_CONTROLLER_POSE
-        private static readonly FieldAccessor<VRController, IVRPlatformHelper>.Accessor Platform =
-            FieldAccessor<VRController, IVRPlatformHelper>.GetAccessor("_vrPlatformHelper");
+        private static readonly FieldAccessor<VRController, NativeInputPlatform>.Accessor Platform =
+            FieldAccessor<VRController, NativeInputPlatform>.GetAccessor("_vrPlatformHelper");
 #endif
 #if LEGATO_PRIVATE_POINTER_CURSOR
         private static readonly FieldAccessor<VRPointer, Transform>.Accessor Cursor =

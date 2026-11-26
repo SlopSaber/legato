@@ -1,3 +1,6 @@
+#if LEGATO_BEFORE_MULTIPLAYER
+global using IVRPlatformHelper = global::VRPlatformHelper;
+#endif
 using System;
 using System.Runtime.CompilerServices;
 using IPA.Utilities;
@@ -9,7 +12,7 @@ namespace Legato.XR {
     internal static class ControllerTracking {
         private static readonly FieldAccessor<VRController, IVRPlatformHelper>.Accessor Platform = FieldAccessor<VRController, IVRPlatformHelper>.GetAccessor("_vrPlatformHelper");
         private static readonly FieldAccessor<VRController, Vector3>.Accessor Position = FieldAccessor<VRController, Vector3>.GetAccessor("_lastTrackedPosition");
-#if BEAT_SABER_1_29_0
+#if BEAT_SABER_1_29_0 || LEGATO_BEFORE_MULTIPLAYER
         private sealed class RotationState { public RotationState() { } internal Quaternion value = Quaternion.identity; }
         private static readonly ConditionalWeakTable<VRController, RotationState> Rotations = new();
 #else
@@ -22,12 +25,12 @@ namespace Legato.XR {
             controller.nodeIndex;
 #endif
         internal static bool CanConvertSettings(IVRPlatformHelper platform) =>
-#if BEAT_SABER_1_29_0
+#if BEAT_SABER_1_29_0 || LEGATO_BEFORE_MULTIPLAYER
             platform != null;
 #else
             platform is UnityXRHelper;
 #endif
-#if BEAT_SABER_1_29_0
+#if BEAT_SABER_1_29_0 || LEGATO_BEFORE_MULTIPLAYER
         private sealed class OffsetState {
             public OffsetState() { }
             internal bool leftReady, rightReady;
@@ -36,14 +39,18 @@ namespace Legato.XR {
         private static ConditionalWeakTable<IVRPlatformHelper, OffsetState> Offsets = new();
 #endif
         internal static Pose BuiltInOffset(IVRPlatformHelper platform, XRNode node) {
-#if BEAT_SABER_1_29_0
+#if BEAT_SABER_1_29_0 || LEGATO_BEFORE_MULTIPLAYER
             var cached = Offsets.GetOrCreateValue(platform);
             bool left = node == XRNode.LeftHand;
             if (left ? cached.leftReady : cached.rightReady) return left ? cached.left : cached.right;
             var probe = new GameObject("Controller offset probe") { hideFlags = HideFlags.HideAndDontSave };
             Pose pose;
             try {
+#if LEGATO_BEFORE_MULTIPLAYER
+                platform.AdjustPlatformSpecificControllerTransform(node, probe.transform, Vector3.zero, Vector3.zero);
+#else
                 platform.AdjustControllerTransform(node, probe.transform, Vector3.zero, Vector3.zero);
+#endif
                 pose = new Pose(probe.transform.localPosition, probe.transform.localRotation);
             } finally { UnityEngine.Object.Destroy(probe); }
             if (left) { cached.left = pose; cached.leftReady = true; }
@@ -67,7 +74,7 @@ namespace Legato.XR {
             rotation = Quaternion.identity;
             if (platform != null && platform.GetNodePose(controller.node, NodeIndex(controller), out position, out rotation)) {
                 Position(ref controller) = position;
-#if BEAT_SABER_1_29_0
+#if BEAT_SABER_1_29_0 || LEGATO_BEFORE_MULTIPLAYER
                 Rotations.GetOrCreateValue(controller).value = rotation;
 #else
                 Rotation(ref controller) = rotation;
@@ -75,7 +82,7 @@ namespace Legato.XR {
                 return true;
             }
             position = Position(ref controller);
-#if BEAT_SABER_1_29_0
+#if BEAT_SABER_1_29_0 || LEGATO_BEFORE_MULTIPLAYER
             rotation = Rotations.GetOrCreateValue(controller).value;
 #else
             rotation = Rotation(ref controller);
@@ -83,7 +90,7 @@ namespace Legato.XR {
             return false;
         }
         internal static void SetLocalPose(Transform transform, Vector3 position, Quaternion rotation) {
-#if BEAT_SABER_1_29_0
+#if BEAT_SABER_1_29_0 || LEGATO_BEFORE_MULTIPLAYER
             transform.localPosition = position;
             transform.localRotation = rotation;
 #else
@@ -120,7 +127,7 @@ namespace Legato.XR {
             }
 #else
             private void DeviceChanged(InputDevice _) {
-#if BEAT_SABER_1_29_0
+#if BEAT_SABER_1_29_0 || LEGATO_BEFORE_MULTIPLAYER
                 Offsets = new();
 #endif
                 _callback();
