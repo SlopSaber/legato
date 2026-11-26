@@ -3,7 +3,7 @@
 using Legato.Gameplay.Controllers;
 using UnityEngine;
 using Zenject;
-#if !BEAT_SABER_1_29_0 && !BEAT_SABER_1_37_1 && !BEAT_SABER_1_38_0
+#if !LEGATO_BEFORE_MULTIPLAYER && !BEAT_SABER_1_29_0 && !BEAT_SABER_1_37_1 && !BEAT_SABER_1_38_0
 using BeatSaber.GameSettings;
 #endif
 
@@ -15,7 +15,7 @@ namespace Legato.Gameplay {
         public GameplayMetadataProvider([InjectOptional] SettingsManager settingsManager) {
             _settingsManager = settingsManager;
         }
-#elif !BEAT_SABER_1_29_0 && !BEAT_SABER_1_37_1
+#elif !LEGATO_BEFORE_MULTIPLAYER && !BEAT_SABER_1_29_0 && !BEAT_SABER_1_37_1
         private readonly VariableMovementDataProvider _movementDataProvider;
         private readonly ControllerProfilesModel _controllerProfilesModel;
 
@@ -26,6 +26,13 @@ namespace Legato.Gameplay {
 #endif
 
         internal float JumpDistance(BeatmapObjectSpawnController.InitData initData) {
+#if LEGATO_BEFORE_MULTIPLAYER
+            if (initData.beatsPerMinute <= 0f) return 0f;
+            var movement = new BeatmapObjectSpawnMovementData();
+            movement.Init(initData.noteLinesCount, initData.noteJumpMovementSpeed, initData.beatsPerMinute,
+                initData.noteJumpStartBeatOffset, initData.jumpOffsetY, Vector3.zero, Vector3.right, Vector3.forward);
+            return initData.noteJumpMovementSpeed * movement.jumpDuration;
+#else
 #if !BEAT_SABER_1_29_0 && !BEAT_SABER_1_37_1 && !BEAT_SABER_1_38_0
             if (_movementDataProvider != null && _movementDataProvider.jumpDistance > 0f) {
                 return _movementDataProvider.jumpDistance;
@@ -48,10 +55,13 @@ namespace Legato.Gameplay {
 
             halfJumpDuration = Mathf.Max(0.25f, halfJumpDuration + initData.noteJumpValue);
             return initData.noteJumpMovementSpeed * beatDuration * halfJumpDuration * 2f;
+#endif
         }
 
         internal int ArcVisibility(PlayerSpecificSettings settings) {
-#if BEAT_SABER_1_29_0
+#if LEGATO_BEFORE_MULTIPLAYER
+            return 0;
+#elif BEAT_SABER_1_29_0
             return (int)settings.arcsVisible;
 #else
             return (int)settings.arcVisibility;
@@ -59,7 +69,7 @@ namespace Legato.Gameplay {
         }
 
         internal ControllerPoseSet? ControllerPoses() {
-#if BEAT_SABER_1_29_0
+#if BEAT_SABER_1_29_0 || LEGATO_BEFORE_MULTIPLAYER
             MainSettingsModelSO[] settings = UnityEngine.Resources.FindObjectsOfTypeAll<MainSettingsModelSO>();
             return settings.Length == 0
                 ? (ControllerPoseSet?)null

@@ -7,7 +7,7 @@ using BeatSaber.GameSettings;
 
 namespace Legato.Rooms {
     internal class RoomSettings {
-#if BEAT_SABER_1_29_0
+#if BEAT_SABER_1_29_0 || LEGATO_BEFORE_MULTIPLAYER
         private MainSettingsModelSO? _mainSettingsModel;
 
         private MainSettingsModelSO MainSettingsModel => _mainSettingsModel != null ? _mainSettingsModel : _mainSettingsModel = UnityEngine.Resources.FindObjectsOfTypeAll<MainSettingsModelSO>()[0];

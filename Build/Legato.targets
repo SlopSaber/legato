@@ -724,6 +724,8 @@
                Condition="'$(LegatoEnableGameplay)' == 'true'" />
       <Compile Include="$(LegatoSourceRoot)Library\Coroutines\**\Versions\$(LegatoTargetProfile)\**\*.cs"
                Condition="'$(LegatoEnableCoroutines)' == 'true'" />
+      <Compile Include="$(LegatoSourceRoot)Library\Coroutines\Versions\1.29.0\SharedCoroutineStarterAdapter.cs;$(LegatoSourceRoot)Polyfills\GlobalNamespace\ICoroutineStarter\Versions\1.29.0\ICoroutineStarter.cs"
+               Condition="'$(LegatoEnableCoroutines)' == 'true' AND '$(LegatoTargetProfile)' == '1.11.1'" />
       <Compile Include="$(LegatoSourceRoot)Library\Presentation\**\*.cs;$(LegatoSourceRoot)Library\Resources\**\*.cs"
                Condition="'$(LegatoEnableBSML)' == 'true'" />
       <Compile Include="$(LegatoSourceRoot)Polyfills\BeatSaberMarkupLanguage\**\*.cs"
@@ -766,6 +768,8 @@
                Condition="('$(LegatoEnableSongPacks)' == 'true' OR '$(LegatoEnableAutoAdapters)' != 'false') AND '@(_LegatoIPAReference)' != '' AND '@(_LegatoDataModelsReference)' != '' AND '@(_LegatoUnityReference)' != '' AND '$(LegatoTargetProfile)' != '1.29.0'" />
       <Compile Include="$(LegatoSourceRoot)Library\Gameplay\GameplayMetadataProvider.cs"
                Condition="'$(LegatoEnableGameplay)' == 'true' AND ('$(LegatoEnableGameSettings)' == 'true' OR '$(LegatoTargetProfile)' == '1.29.0' OR '$(LegatoTargetProfile)' == '1.37.1' OR '$(LegatoTargetProfile)' == '1.38.0')" />
+      <Compile Include="$(LegatoSourceRoot)Library\Gameplay\GameplayMetadataProvider.cs;$(LegatoSourceRoot)Library\Gameplay\Controllers\*.cs"
+               Condition="'$(LegatoEnableGameplay)' != 'true' AND '$(LegatoEnableGameSettings)' == 'true' AND '$(LegatoTargetProfile)' == '1.11.1'" />
       <Compile Include="$(LegatoSourceRoot)Library\Rooms\**\*.cs"
                Condition="'$(LegatoEnableGameSettings)' != 'false' AND ('$(LegatoEnableGameSettings)' == 'true' OR ('$(LegatoEnableAutoAdapters)' != 'false' AND ('$(LegatoTargetProfile)' == '1.29.0' OR ('$(LegatoTargetProfile)' == '1.38.0' AND '@(_LegatoDataModelsReference)' != ''))))" />
       <Compile Include="$(LegatoSourceRoot)Library\Platform\**\*.cs"
