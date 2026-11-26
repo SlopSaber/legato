@@ -1,11 +1,11 @@
-#if BEAT_SABER_1_29_0 || LEGATO_APPLY_PERFORMANCE_PRESET
+#if LEGATO_BEFORE_MULTIPLAYER || BEAT_SABER_1_29_0 || LEGATO_APPLY_PERFORMANCE_PRESET
 global using MirrorQuality = Legato.Rendering.LegacyMirrorQuality;
 #else
 global using MirrorQuality = BeatSaber.Settings.QualitySettings.MirrorQuality;
 #endif
 
 using System;
-#if BEAT_SABER_1_29_0
+#if LEGATO_BEFORE_MULTIPLAYER || BEAT_SABER_1_29_0
 using System.Linq;
 using UnityEngine;
 #elif LEGATO_APPLY_PERFORMANCE_PRESET
@@ -16,13 +16,13 @@ using IPA.Utilities;
 
 namespace Legato.Rendering
 {
-#if BEAT_SABER_1_29_0 || LEGATO_APPLY_PERFORMANCE_PRESET
+#if LEGATO_BEFORE_MULTIPLAYER || BEAT_SABER_1_29_0 || LEGATO_APPLY_PERFORMANCE_PRESET
     public enum LegacyMirrorQuality { Off = 0, Low = 1, Medium = 2, High = 3 }
 #endif
 
     internal sealed class MirrorQualitySettings
     {
-#if BEAT_SABER_1_29_0
+#if LEGATO_BEFORE_MULTIPLAYER || BEAT_SABER_1_29_0
         private readonly MainSettingsModelSO _settings = FindResource<MainSettingsModelSO>();
         private readonly MirrorRendererSO _renderer = FindResource<MirrorRendererSO>();
         private readonly MirrorRendererGraphicsSettingsPresets _presets = FindResource<MirrorRendererGraphicsSettingsPresets>();
@@ -30,11 +30,24 @@ namespace Legato.Rendering
         private static T FindResource<T>() where T : UnityEngine.Object => UnityEngine.Resources.FindObjectsOfTypeAll<T>().FirstOrDefault()
             ?? throw new InvalidOperationException("Native mirror resource is unavailable: " + typeof(T).FullName);
 
-        internal MirrorQuality Current => (MirrorQuality)_settings.mirrorGraphicsSettings.value;
+        internal MirrorQuality Current
+        {
+            get
+            {
+                int index = _settings.mirrorGraphicsSettings.value;
+#if LEGATO_BEFORE_MULTIPLAYER
+                if (index == 2) return MirrorQuality.High;
+#endif
+                return (MirrorQuality)index;
+            }
+        }
 
         internal void Apply(MirrorQuality quality)
         {
             int index = (int)quality;
+#if LEGATO_BEFORE_MULTIPLAYER
+            if (quality == MirrorQuality.High) index = 2;
+#endif
             if ((uint)index >= (uint)_presets.presets.Length) throw new ArgumentOutOfRangeException(nameof(quality));
             var preset = _presets.presets[index];
             _settings.mirrorGraphicsSettings.value = index;
