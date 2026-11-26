@@ -5,7 +5,10 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using IPA.Utilities;
-#if BEAT_SABER_1_29_0
+#if LEGATO_BEFORE_MULTIPLAYER
+using System.Runtime.CompilerServices;
+#endif
+#if BEAT_SABER_1_29_0 || LEGATO_BEFORE_MULTIPLAYER
 using Legato.Beatmaps.Formats;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -15,14 +18,29 @@ namespace Legato.Beatmaps {
     internal sealed class PracticeBeatmapText {
         internal BeatmapLevel Level { get; }
         internal Func<float, float>? OfficialBeatToSeconds { get; private set; }
-#if BEAT_SABER_1_29_0
+#if BEAT_SABER_1_29_0 || LEGATO_BEFORE_MULTIPLAYER
         private readonly string _characteristic;
         private readonly BeatmapDifficulty _difficulty;
+#if LEGATO_BEFORE_MULTIPLAYER
+        private static readonly ConditionalWeakTable<PracticeViewController, IDifficultyBeatmap> Selections = new();
+
+        internal static void SetSelectedDifficulty(PracticeViewController view, IDifficultyBeatmap? difficulty) {
+            Selections.Remove(view);
+            if (difficulty != null) Selections.Add(view, difficulty);
+        }
+
+        private PracticeBeatmapText(BeatmapLevel level, IDifficultyBeatmap selected) {
+            Level = level;
+            _characteristic = selected.parentDifficultyBeatmapSet.beatmapCharacteristic.serializedName;
+            _difficulty = selected.difficulty;
+        }
+#else
         private PracticeBeatmapText(PracticeViewController view, BeatmapLevel level) {
             Level = level;
             _characteristic = FieldAccessor<PracticeViewController, BeatmapCharacteristicSO>.Get(view, "_beatmapCharacteristic").serializedName;
             _difficulty = FieldAccessor<PracticeViewController, BeatmapDifficulty>.Get(view, "_beatmapDifficulty");
         }
+#endif
 #else
         private readonly BeatmapKey _key;
         private readonly BeatmapLevelsModel _levels;
@@ -35,18 +53,24 @@ namespace Legato.Beatmaps {
         }
 #endif
         internal static BeatmapLevel? LevelFor(PracticeViewController view) =>
-#if BEAT_SABER_1_29_0
+#if BEAT_SABER_1_29_0 || LEGATO_BEFORE_MULTIPLAYER
             FieldAccessor<PracticeViewController, IBeatmapLevel>.Get(view, "_level");
 #else
             FieldAccessor<PracticeViewController, BeatmapLevel>.Get(view, "_beatmapLevel");
 #endif
         internal static PracticeBeatmapText? ForView(PracticeViewController view) {
             BeatmapLevel? level = LevelFor(view);
+#if LEGATO_BEFORE_MULTIPLAYER
+            if (level == null || !Selections.TryGetValue(view, out var selected) || selected.level.levelID != level.levelID)
+                return null;
+            return new PracticeBeatmapText(level, selected);
+#else
             return level == null ? null : new PracticeBeatmapText(view, level);
+#endif
         }
         internal async Task<string?> Load(CancellationToken token) {
             token.ThrowIfCancellationRequested();
-#if BEAT_SABER_1_29_0
+#if BEAT_SABER_1_29_0 || LEGATO_BEFORE_MULTIPLAYER
             string? text = await Task.Run(() => ReadLegacy(token), token);
 #else
             var version = await BeatmapTextData.GetVersion(_entitlements, _key.levelId, token);
@@ -59,7 +83,7 @@ namespace Legato.Beatmaps {
             token.ThrowIfCancellationRequested();
             return text;
         }
-#if BEAT_SABER_1_29_0
+#if BEAT_SABER_1_29_0 || LEGATO_BEFORE_MULTIPLAYER
         private string? ReadLegacy(CancellationToken token) {
             if (Level is not CustomBeatmapLevel custom) return null;
             string directory = custom.customLevelPath;
