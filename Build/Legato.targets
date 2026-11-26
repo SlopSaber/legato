@@ -578,6 +578,8 @@
                Condition="'$(LegatoEnableReactiveHost)' == 'true'" />
       <Compile Include="$(LegatoSourceRoot)Providers\ModifiersCore\**\*.cs"
                Condition="'$(LegatoEnableModifiersCoreLegacy)' == 'true'" />
+      <Compile Include="$(LegatoSourceRoot)Library\UiLifecycle\**\*.cs"
+               Condition="'$(LegatoEnableLegacyViewLifecycle)' == 'true'" />
       <Compile Include="$(LegatoSourceRoot)Library\JoystickInput\**\*.cs"
                Condition="'$(LegatoEnableJoystickInput)' == 'true'" />
       <Compile Include="$(LegatoSourceRoot)Library\TextWrapping\**\*.cs"

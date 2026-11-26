@@ -13,6 +13,7 @@ $ErrorActionPreference = 'Stop'
 if ($TargetVersion -notmatch '^\d+\.\d+\.\d+$') { throw 'TargetVersion must identify a supported game target.' }
 if (!$UnityVersion) {
     $UnityVersion = switch ($TargetVersion) {
+        '1.11.1' { '2019.3.2f1'; break }
         { $_ -in '1.29.0','1.29.1' } { '2019.4.28f1'; break }
         '1.46.0' { '6000.3.19f1'; break }
         default { throw 'Configure UnityVersion explicitly for this asset target.' }
@@ -32,6 +33,7 @@ if ($sourceVersion -ne $UnityVersion) {
     throw "Asset source project targets Unity $sourceVersion, but $TargetVersion requires the configured Unity $UnityVersion builder. Supply compatible source; opening a newer project in an older editor is not a conversion."
 }
 $requiredFamily = switch ($TargetVersion) {
+    '1.11.1' { '2019.3.'; break }
     { $_ -in '1.29.0','1.29.1' } { '2019.4.'; break }
     '1.46.0' { '6000.3.'; break }
     default { $null }
