@@ -1,3 +1,4 @@
+#if !LEGATO_BEFORE_MULTIPLAYER
 namespace Legato.Gameplay {
     // Serialized scoring identities remain stable; legacy native gameplay emits only -1 through 5.
     internal static class NativeScoring {
@@ -12,3 +13,4 @@ namespace Legato.Gameplay {
         internal const NoteData.ScoringType ChainHeadArcHeadArcTail = (NoteData.ScoringType)10;
     }
 }
+#endif
