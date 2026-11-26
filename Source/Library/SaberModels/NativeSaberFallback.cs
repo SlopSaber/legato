@@ -1,5 +1,8 @@
-#if BEAT_SABER_1_29_0
+#if BEAT_SABER_1_29_0 || LEGATO_BEFORE_MULTIPLAYER
 using UnityEngine;
+#if LEGATO_BEFORE_MULTIPLAYER
+using SaberTrailRenderer = global::XWeaponTrailRenderer;
+#endif
 
 namespace Legato.Models;
 
@@ -46,6 +49,9 @@ internal static class NativeSaberFallback
     internal static SaberTrailRenderer CreateTrailRenderer()
     {
         var root = new GameObject("Fallback saber trail");
+#if LEGATO_BEFORE_MULTIPLAYER
+        root.SetActive(false);
+#endif
         root.AddComponent<MeshFilter>();
         root.AddComponent<MeshRenderer>().sharedMaterial = TrailMaterial;
         var renderer = root.AddComponent<SaberTrailRenderer>();

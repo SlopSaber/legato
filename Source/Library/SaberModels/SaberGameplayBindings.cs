@@ -1,5 +1,5 @@
 using Zenject;
-#if BEAT_SABER_1_29_0
+#if BEAT_SABER_1_29_0 || LEGATO_BEFORE_MULTIPLAYER
 using System;
 using System.Collections.Generic;
 using UnityEngine;
@@ -11,7 +11,7 @@ internal static class SaberGameplayBindings
 {
     internal static void BindObstacleEvents(DiContainer container)
     {
-#if BEAT_SABER_1_29_0
+#if BEAT_SABER_1_29_0 || LEGATO_BEFORE_MULTIPLAYER
         container.Bind<ObstacleSaberSparkleEffectManager>()
             .FromMethod(context => FindObstacleEvents(context.Container))
             .AsSingle()
@@ -19,7 +19,7 @@ internal static class SaberGameplayBindings
 #endif
     }
 
-#if BEAT_SABER_1_29_0
+#if BEAT_SABER_1_29_0 || LEGATO_BEFORE_MULTIPLAYER
     private static ObstacleSaberSparkleEffectManager FindObstacleEvents(DiContainer container)
     {
         var roots = new HashSet<GameObject>(container.Resolve<Context>().GetRootGameObjects());

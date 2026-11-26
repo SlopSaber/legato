@@ -4,29 +4,42 @@ using SabersCore.Utilities.Common;
 using SabersCore.Utilities.Extensions;
 using UnityEngine;
 using Zenject;
+#if LEGATO_BEFORE_MULTIPLAYER
+using Trail = Xft.XWeaponTrail;
+#else
+using Trail = SaberTrail;
+#endif
 
 namespace SabersCore.Components;
 
-public class CustomSaberTrail : SaberTrail
+public class CustomSaberTrail : Trail
 {
+#if !LEGATO_BEFORE_MULTIPLAYER
     private readonly SaberMovementData customTrailMovementData = new();
 
     private TimeHelper timeHelper = null!;
+#endif
     private Transform trailTop = null!;
     private Transform trailBottom = null!;
     private ITrailData trailData = null!;
 
     [Inject]
     public void Construct(
+#if !LEGATO_BEFORE_MULTIPLAYER
         TimeHelper timeHelper,
+#endif
         InitData initData)
     {
+#if !LEGATO_BEFORE_MULTIPLAYER
         this.timeHelper = timeHelper;
+#endif
         trailTop = initData.TrailTop;
         trailBottom = initData.TrailBottom;
         trailData = initData.TrailData;
         gameObject.layer = 12;
+#if !LEGATO_BEFORE_MULTIPLAYER
         Legato.Models.SaberTrailAccess.SetMovementData(this, customTrailMovementData);
+#endif
     }
 
     public float OverrideWidth { private get; set; } = 1f;
@@ -79,6 +92,24 @@ public class CustomSaberTrail : SaberTrail
             MaterialProperties.Color);
     }
     
+#if LEGATO_BEFORE_MULTIPLAYER
+    private new void Start()
+    {
+        base.Start();
+        Destroy(_trailRendererPrefab.gameObject);
+        _trailRendererPrefab = null;
+        _trailRenderer.enabled = false;
+        _trailRenderer._meshRenderer.enabled = false;
+        _trailRenderer.gameObject.SetActive(true);
+        Legato.Models.SaberTrailAccess.SetColor(this, color, MaterialProperties.Color);
+    }
+
+    private new void OnDestroy()
+    {
+        if (_trailRendererPrefab != null) Destroy(_trailRendererPrefab.gameObject);
+        base.OnDestroy();
+    }
+#else
 #if !LEGATO_INJECTED_SABER_TRAIL
     private new void Awake()
     {
@@ -92,19 +123,30 @@ public class CustomSaberTrail : SaberTrail
     {
         // Ignored
     }
+#endif
 
     private void Update()
     {
         if (!gameObject.activeInHierarchy) return;
 
+#if LEGATO_BEFORE_MULTIPLAYER
+        var topPos = trailData.TrailTopOffset;
+        var bottomPos = trailData.TrailBottomOffset;
+#else
         var topPos = trailTop.position;
         var bottomPos = trailBottom.position;
+#endif
 
         if (UseWidthOverride)
         {
             TrailUtils.ApplyWidthMultiplier(trailData, OverrideWidth, ref topPos, ref bottomPos);
         }
         
+#if LEGATO_BEFORE_MULTIPLAYER
+        trailTop.localPosition = topPos;
+        trailBottom.localPosition = bottomPos;
+        _trailWidth = (trailTop.position - trailBottom.position).magnitude;
+#else
         customTrailMovementData.AddNewData(
             topPos,
             bottomPos,
@@ -112,6 +154,7 @@ public class CustomSaberTrail : SaberTrail
             TimeHelper.time);
 #else
             timeHelper.Time);
+#endif
 #endif
     }
     
