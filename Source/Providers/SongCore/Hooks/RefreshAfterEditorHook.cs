@@ -18,7 +18,7 @@ namespace SongCore.Hooks
     {
         private readonly Loader _loader;
 
-        private Hook _handleBeatmapEditorSceneDidFinishHook = null!;
+        private Hook? _handleBeatmapEditorSceneDidFinishHook;
 
         private RefreshAfterEditorHook(Loader loader)
         {
@@ -27,12 +27,16 @@ namespace SongCore.Hooks
 
         public void Initialize()
         {
-            _handleBeatmapEditorSceneDidFinishHook = new Hook(typeof(MenuTransitionsHelper).GetMethod(nameof(MenuTransitionsHelper.HandleBeatmapEditorSceneDidFinish), BindingFlags.Instance | BindingFlags.NonPublic)!, RefreshSongs, true);
+            MethodInfo finish = typeof(MenuTransitionsHelper).GetMethod(
+                nameof(MenuTransitionsHelper.HandleBeatmapEditorSceneDidFinish),
+                BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic,
+                null, new[] { typeof(NativeEditorTransition) }, null)!;
+            _handleBeatmapEditorSceneDidFinishHook = new Hook(finish, RefreshSongs, true);
         }
 
         public void Dispose()
         {
-            _handleBeatmapEditorSceneDidFinishHook.Dispose();
+            _handleBeatmapEditorSceneDidFinishHook?.Dispose();
         }
 
         private void RefreshSongs(Action<MenuTransitionsHelper, NativeEditorTransition> original, MenuTransitionsHelper instance, NativeEditorTransition beatmapEditorScenesTransitionSetupData)
