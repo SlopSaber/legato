@@ -576,6 +576,8 @@
                Condition="'$(LegatoEnableAssetPathOverrides)' == 'true'" />
       <Compile Include="$(LegatoSourceRoot)Providers\ReactiveHost\**\*.cs"
                Condition="'$(LegatoEnableReactiveHost)' == 'true'" />
+      <Compile Include="$(LegatoSourceRoot)Providers\ModifiersCore\**\*.cs"
+               Condition="'$(LegatoEnableModifiersCoreLegacy)' == 'true'" />
       <Compile Include="$(LegatoSourceRoot)Library\JoystickInput\**\*.cs"
                Condition="'$(LegatoEnableJoystickInput)' == 'true'" />
       <Compile Include="$(LegatoSourceRoot)Library\TextWrapping\**\*.cs"
