@@ -12,9 +12,14 @@ namespace MappingExtensions.HarmonyPatches
     {
         private static IEnumerable<MethodBase> TargetMethods()
         {
-            yield return AccessTools.Method(typeof(StandardLevelScenesTransitionSetupDataSO), nameof(StandardLevelScenesTransitionSetupDataSO.Init));
-            yield return AccessTools.Method(typeof(MissionLevelScenesTransitionSetupDataSO), nameof(MissionLevelScenesTransitionSetupDataSO.Init));
+            yield return FindLevelInit(typeof(StandardLevelScenesTransitionSetupDataSO));
+            yield return FindLevelInit(typeof(MissionLevelScenesTransitionSetupDataSO));
         }
+
+        private static MethodInfo FindLevelInit(System.Type setupType) =>
+            AccessTools.GetDeclaredMethods(setupType).Single(method =>
+                method.Name == nameof(StandardLevelScenesTransitionSetupDataSO.Init)
+                && method.GetParameters().FirstOrDefault()?.ParameterType == typeof(IDifficultyBeatmap));
 
         private static void Prefix(IDifficultyBeatmap difficultyBeatmap) => Plugin.PrepareLegacyLevel(difficultyBeatmap);
     }
