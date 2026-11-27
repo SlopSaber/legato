@@ -16,6 +16,13 @@ namespace Legato {
         internal const string Solo = "Solo";
         internal const string ReplayName = Replay;
 #endif
+#if LEGATO_EARLY_STANDARD_MAPS
+        internal static bool IsParty(MainGameSceneSetupData data) => data.gameplayMode == GameplayMode.PartyStandard;
+
+        internal static bool IsSoloOrPractice(MainGameSceneSetupData data) => data.gameplayMode != GameplayMode.PartyStandard;
+
+        internal static bool IsPractice(MainGameSceneSetupData data) => false;
+#else
         internal static bool IsParty(StandardLevelScenesTransitionSetupData data) {
 #if LEGATO_BEFORE_MULTIPLAYER
             foreach (var transitions in UnityEngine.Resources.FindObjectsOfTypeAll<MenuTransitionsHelper>()) {
@@ -72,6 +79,7 @@ namespace Legato {
             return string.Equals(data.gameMode, "Practice", System.StringComparison.OrdinalIgnoreCase);
 #endif
         }
+#endif
 
         internal static string? Name(object? mode) => mode?.ToString();
 

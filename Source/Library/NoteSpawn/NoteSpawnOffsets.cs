@@ -1,4 +1,4 @@
-#if !LEGATO_BEFORE_MULTIPLAYER
+#if !LEGATO_BEFORE_MULTIPLAYER && !LEGATO_EARLY_STANDARD_MAPS
 #if BEAT_SABER_1_29_0 || BEAT_SABER_1_29_4 || BEAT_SABER_1_34_2 || BEAT_SABER_1_37_1 || BEAT_SABER_1_38_0
 global using NativeNoteSpawnData = global::BeatmapObjectSpawnMovementData.NoteSpawnData;
 #else
@@ -12,7 +12,7 @@ namespace Legato.Gameplay
 {
     internal static class NoteSpawnOffsets
     {
-#if LEGATO_BEFORE_MULTIPLAYER
+#if LEGATO_BEFORE_MULTIPLAYER || LEGATO_EARLY_STANDARD_MAPS
         internal static bool IsScoredNote(NoteData note) => note.noteType is NoteType.NoteA or NoteType.NoteB;
 
         internal static void Apply(ref Vector3 moveStart, ref Vector3 moveEnd, ref Vector3 jumpEnd, Vector3 offset)
