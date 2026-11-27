@@ -549,6 +549,8 @@
                Condition="'$(LegatoEnablePosePrediction)' == 'true'" />
       <Compile Include="$(LegatoSourceRoot)Library\Transitions\**\*.cs"
                Condition="'$(LegatoEnableTransitions)' == 'true'" />
+      <Compile Remove="$(LegatoSourceRoot)Library\Transitions\HealthWarningFlow.cs"
+               Condition="'$(LegatoTargetVersion)' == '0.11.1'" />
       <Compile Include="$(LegatoSourceRoot)Library\HealthWarningStartup\HealthWarningStartup.cs"
                Condition="'$(LegatoEnableHealthWarningStartup)' == 'true'" />
       <Compile Include="$(LegatoSourceRoot)Library\SceneEvents\**\*.cs"
