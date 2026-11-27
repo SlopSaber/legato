@@ -25,7 +25,8 @@ internal static class LegacyFakeObjectCounts
         int obstacles = 0;
         foreach (BeatmapObjectData item in __instance.beatmapObjectDatas)
         {
-            if (item is ICustomData data && data.customData.TryGetValue(V2_FAKE_NOTE, out object? fake) && fake is true)
+            if (item is ICustomData data &&
+                (data.customData.Get<bool?>(V2_FAKE_NOTE) == true || data.customData.Get<bool?>(INTERNAL_FAKE_NOTE) == true))
             {
                 continue;
             }

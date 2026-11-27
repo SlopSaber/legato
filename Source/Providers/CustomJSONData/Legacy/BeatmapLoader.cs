@@ -28,7 +28,32 @@ namespace CustomJSONData.HarmonyPatches
             typeof(TimeConverter), AccessTools.Method(typeof(BeatmapDataLoader), "GetRealTimeFromBPMTime"));
 
         private delegate float TimeConverter(BeatmapDataLoader loader, float beat, float bpm, float shuffle, float shufflePeriod);
+#endif
 
+#if V1_11_1
+        private static void Prefix(ref string json, out JObject? __state)
+        {
+            __state = null;
+            if (json == null || json.IndexOf("\"colorNotes\"", StringComparison.Ordinal) < 0)
+            {
+                return;
+            }
+
+            try
+            {
+                using JsonTextReader reader = new(new StringReader(json)) { DateParseHandling = DateParseHandling.None };
+                JObject source = JObject.Load(reader);
+                if (Version.TryParse((string?)source["version"], out Version version) && version.Major == 3)
+                {
+                    __state = Version3LegacyProjection.Convert(source, version);
+                    json = __state.ToString(Formatting.None);
+                }
+            }
+            catch (Exception exception) when (exception is JsonException or ArgumentException or FormatException or InvalidCastException or OverflowException)
+            {
+                Plugin.Log.Warn($"Could not read v3 beatmap data: {exception.Message}");
+            }
+        }
 #endif
 
         internal static CustomData ReadData(JToken? token)
@@ -45,6 +70,8 @@ namespace CustomJSONData.HarmonyPatches
 
 #if LEGATO_CUSTOM_JSON_EARLY_LOADER
         private static void Postfix(string json, float beatsPerMinute, float shuffle, float shufflePeriod, ref BeatmapData? __result)
+#elif V1_11_1
+        private static void Postfix(BeatmapDataLoader __instance, string json, float startBPM, float shuffle, float shufflePeriod, JObject? __state, ref BeatmapData? __result)
 #else
         private static void Postfix(BeatmapDataLoader __instance, string json, float startBPM, float shuffle, float shufflePeriod, ref BeatmapData? __result)
 #endif
@@ -57,14 +84,22 @@ namespace CustomJSONData.HarmonyPatches
             try
             {
                 using JsonTextReader reader = new(new StringReader(json)) { DateParseHandling = DateParseHandling.None };
+#if V1_11_1
+                JObject chart = __state ?? JObject.Load(reader);
+#else
                 JObject chart = JObject.Load(reader);
+#endif
                 if (chart.Property("version") != null || chart["_notes"] is not JArray notes)
                 {
                     return;
                 }
 
                 Version version = Version.TryParse((string?)chart["_version"], out Version parsedVersion) ? parsedVersion : VersionExtensions.version2;
-                if (!version.IsVersion2())
+                if (!version.IsVersion2()
+#if V1_11_1
+                    && __state == null
+#endif
+                    )
                 {
                     return;
                 }
