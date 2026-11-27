@@ -2,7 +2,9 @@ using UnityEngine.XR;
 
 namespace Legato.Unity {
     internal sealed class TriggerInput {
-#if LEGATO_BEFORE_MULTIPLAYER || BEAT_SABER_1_29_0
+#if LEGATO_EARLY_STANDARD_MAPS
+        internal float Get(XRNode node) => VRControllersInputManager.TriggerValue(node);
+#elif LEGATO_BEFORE_MULTIPLAYER || BEAT_SABER_1_29_0
         private readonly VRControllersInputManager _input;
         internal TriggerInput(VRControllersInputManager input) => _input = input;
         internal float Get(XRNode node) => _input.TriggerValue(node);

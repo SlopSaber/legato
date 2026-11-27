@@ -1,4 +1,4 @@
-#if LEGATO_EARLY_SCENE_SETUP
+#if LEGATO_EARLY_SCENE_SETUP || LEGATO_EARLY_STANDARD_MAPS
 using UnityEngine;
 #if LEGATO_EARLY_STANDARD_MAPS
 using NativeDspOffset = DoubleSO;
@@ -15,7 +15,7 @@ using IPA.Utilities;
 
 namespace Legato.Gameplay {
     internal static class SongAudioAccess {
-#if LEGATO_EARLY_SCENE_SETUP
+#if LEGATO_EARLY_SCENE_SETUP || LEGATO_EARLY_STANDARD_MAPS
         internal static bool IsPlaying(AudioTimeSyncController audio) =>
             audio != null && audio.isActiveAndEnabled &&
             FieldAccessor<AudioTimeSyncController, AudioSource>.Get(audio, "_audioSource") is AudioSource source &&
@@ -23,6 +23,29 @@ namespace Legato.Gameplay {
 
         internal static double DspTimeOffset(AudioTimeSyncController audio) =>
             FieldAccessor<AudioTimeSyncController, NativeDspOffset>.Get(audio, "_dspTimeOffset").value;
+
+#if LEGATO_EARLY_STANDARD_MAPS
+        internal static void Seek(AudioTimeSyncController audio, float songTime) {
+            if (!IsPlaying(audio)) return;
+
+            AudioSource source = FieldAccessor<AudioTimeSyncController, AudioSource>.Get(audio, "_audioSource");
+            AudioClip clip = source.clip;
+            if (clip == null) return;
+
+            float offset = FieldAccessor<AudioTimeSyncController, float>.Get(audio, "_songTimeOffset");
+            ref float start = ref FieldAccessor<AudioTimeSyncController, float>.GetAccessor("_startSongTime")(ref audio);
+            float original = start;
+            // StartSong sets the DSP offset and sample cursor together with the clip and gameplay clocks.
+            start = Mathf.Clamp(songTime + offset, 0f, Mathf.Max(0f, clip.length - 0.01f)) - offset;
+            try {
+                audio.StopSong();
+                audio.StartSong();
+            }
+            finally {
+                start = original;
+            }
+        }
+#endif
 #else
         internal static bool IsPlaying(AudioTimeSyncController audio) => audio.state == NativeAudioState.Playing;
         internal static void Seek(AudioTimeSyncController audio, float songTime) {
