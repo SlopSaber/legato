@@ -3,11 +3,19 @@ using HMUI;
 
 namespace BeatSaberMarkupLanguage.GameplaySetup
 {
+    /// <summary>
+    /// Supplies mod rows to the original native table view.
+    /// </summary>
     public partial class GameplaySetup
     {
-        public float RowHeight() => CellSize(0);
-        public int NumberOfRows() => NumberOfCells();
-        public TableCell CellForRow(int row) => CellForIdx(null, row);
+        /// <inheritdoc />
+        public float RowHeight() => this.CellSize(0);
+
+        /// <inheritdoc />
+        public int NumberOfRows() => this.NumberOfCells();
+
+        /// <inheritdoc />
+        public TableCell CellForRow(int row) => this.CellForIdx(null, row);
     }
 }
 #elif BEAT_SABER_1_29_0 || LEGATO_FIXED_TABLE_CELL_SIZE

@@ -279,3 +279,17 @@ csharp_preserve_single_line_statements = true
 
 # We don't care about file headers (at least for the time being)
 dotnet_diagnostic.SA1633.severity = silent # The file header is missing or not located at the top of the file.
+
+[EarlyAccess/*.cs]
+
+# Follow the BSML project's formatting and documentation settings for its imported sources.
+dotnet_diagnostic.SA1101.severity = silent
+dotnet_diagnostic.SA1402.severity = suggestion
+dotnet_diagnostic.SA1600.severity = suggestion
+dotnet_diagnostic.SA1602.severity = suggestion
+dotnet_diagnostic.SA1611.severity = suggestion
+dotnet_diagnostic.SA1649.severity = suggestion
+dotnet_diagnostic.CS1591.severity = suggestion
+
+# Keep the game-facing member names used by the later UI APIs.
+dotnet_diagnostic.SA1300.severity = suggestion
