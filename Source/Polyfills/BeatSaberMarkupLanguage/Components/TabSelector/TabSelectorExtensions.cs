@@ -10,6 +10,9 @@ using Bsml::BeatSaberMarkupLanguage.Components;
 using BeatSaberMarkupLanguage.Components;
 #endif
 using HMUI;
+#if LEGATO_EARLY_VR_UI && LEGATO_BSML_ALIASED
+using TextSegmentedControl = Bsml::HMUI.TextSegmentedControl;
+#endif
 
 namespace Legato {
     internal static class TabSelectorExtensions {
