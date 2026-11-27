@@ -31,7 +31,7 @@ internal static class EarlySettingsNavigation
     {
         RectTransform rect = view.rectTransform;
         rect.anchorMin = rect.anchorMax = new Vector2(0.5f, 0.5f);
-        rect.sizeDelta = new Vector2(104f, 68f);
+        rect.sizeDelta = new Vector2(104f, 56f);
     }
 
     internal static void PlacePage(VRUIViewController view, RectTransform parent)
