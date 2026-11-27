@@ -22,6 +22,21 @@ public static class EarlyLocalization
         return !string.IsNullOrEmpty(key) && Text.Value.TryGetValue(key, out string text) ? text : key;
     }
 
+    /// <summary>Adds the English column of a Polyglot CSV table to the embedded UI strings.</summary>
+    /// <param name="csv">The CSV table content.</param>
+    public static void AddCsv(string csv)
+    {
+        if (string.IsNullOrEmpty(csv))
+        {
+            return;
+        }
+
+        lock (Text.Value)
+        {
+            AddRows(Text.Value, new StringReader(csv));
+        }
+    }
+
     private static Dictionary<string, string> Load()
     {
         Dictionary<string, string> text = new(StringComparer.Ordinal)
@@ -37,6 +52,12 @@ public static class EarlyLocalization
         }
 
         using StreamReader reader = new(stream);
+        AddRows(text, reader);
+        return text;
+    }
+
+    private static void AddRows(Dictionary<string, string> text, TextReader reader)
+    {
         foreach (List<string> row in ReadRows(reader))
         {
             if (row.Count > 2 && row[0] != "Polyglot" && !string.IsNullOrEmpty(row[0]) && !string.IsNullOrEmpty(row[2]))
@@ -44,8 +65,6 @@ public static class EarlyLocalization
                 text[row[0]] = row[2];
             }
         }
-
-        return text;
     }
 
     private static IEnumerable<List<string>> ReadRows(TextReader reader)

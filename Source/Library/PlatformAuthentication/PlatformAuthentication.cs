@@ -1,5 +1,8 @@
 #nullable enable
-#if LEGATO_BEFORE_MULTIPLAYER
+#if LEGATO_EARLY_STANDARD_MAPS
+global using NativePlatformService = Legato.Platform.EarlyPlatformService;
+using GameUserInfo = Legato.Platform.UserIdentity;
+#elif LEGATO_BEFORE_MULTIPLAYER
 global using NativePlatformService = global::PlatformUserModelSO;
 using GameUserInfo = global::PlatformUserModelSO.UserInfo;
 #elif LEGATO_PLATFORM_USER_MODEL
@@ -12,11 +15,18 @@ using GameUserInfo = global::UserInfo;
 using System.Threading.Tasks;
 using System.Threading;
 using IPA.Utilities;
-#if !LEGATO_PLATFORM_USER_MODEL
+#if LEGATO_EARLY_STANDARD_MAPS
+using Steamworks;
+#elif !LEGATO_PLATFORM_USER_MODEL
 using OculusStudios.Platform.Core;
 #endif
 
 namespace Legato.Platform {
+#if LEGATO_EARLY_STANDARD_MAPS
+    internal sealed class EarlyPlatformService {
+    }
+#endif
+
     internal sealed class PlatformAuthentication {
         private readonly NativePlatformService _model;
         private Task<UserIdentity>? _identityTask;
@@ -25,7 +35,10 @@ namespace Legato.Platform {
         internal async Task<GameUserInfo?> GetGameUserInfo(CancellationToken token) {
             token.ThrowIfCancellationRequested();
             if (!Available) return null;
-#if LEGATO_BEFORE_MULTIPLAYER
+#if LEGATO_EARLY_STANDARD_MAPS
+            UserIdentity identity = await GetIdentity(token).ConfigureAwait(true);
+            return string.IsNullOrEmpty(identity.UserId) || identity.UserId == "0" ? null : identity;
+#elif LEGATO_BEFORE_MULTIPLAYER
             var completion = new TaskCompletionSource<GameUserInfo?>(TaskCreationOptions.RunContinuationsAsynchronously);
             var request = _model.GetUserInfo((result, user) =>
                 completion.TrySetResult(result == PlatformUserModelSO.GetUserInfoResult.OK ? user : null));
@@ -73,13 +86,22 @@ namespace Legato.Platform {
             return await identity.ConfigureAwait(false);
         }
 
+#if LEGATO_EARLY_STANDARD_MAPS
+        internal static PlatformAuthentication FromLeaderboards(PlatformLeaderboardsModel model) => new PlatformAuthentication(new EarlyPlatformService());
+#else
         internal static PlatformAuthentication FromLeaderboards(PlatformLeaderboardsModel model) => new PlatformAuthentication(
 #if LEGATO_PLATFORM_USER_MODEL
             model.GetField<NativePlatformService, PlatformLeaderboardsModel>("_platformUserModel"));
 #else
             model.GetField<NativePlatformService, PlatformLeaderboardsModel>("_platform"));
 #endif
-#if LEGATO_BEFORE_MULTIPLAYER
+#endif
+#if LEGATO_EARLY_STANDARD_MAPS
+        private Task<UserIdentity> ReadIdentity() {
+            string userId = SteamUser.GetSteamID().m_SteamID.ToString(System.Globalization.CultureInfo.InvariantCulture);
+            return Task.FromResult(new UserIdentity(AuthenticationPlatform.Steam, userId, SteamFriends.GetPersonaName() ?? string.Empty));
+        }
+#elif LEGATO_BEFORE_MULTIPLAYER
         private async Task<UserIdentity> ReadIdentity() {
             GameUserInfo? user = await GetGameUserInfo(CancellationToken.None).ConfigureAwait(true);
             if (user == null) return new UserIdentity(AuthenticationPlatform.Unknown, string.Empty, string.Empty);
@@ -107,7 +129,7 @@ namespace Legato.Platform {
 #endif
         internal async Task<UserCredentials> GetCredentials() {
             UserIdentity identity = await GetIdentity().ConfigureAwait(true);
-#if LEGATO_BEFORE_MULTIPLAYER
+#if LEGATO_BEFORE_MULTIPLAYER || LEGATO_EARLY_STANDARD_MAPS
             string proof = await GetLegacyToken(CancellationToken.None).ConfigureAwait(true);
 #elif LEGATO_PLATFORM_USER_MODEL
             string proof = (await _model.GetUserAuthToken().ConfigureAwait(true)).token;
@@ -116,7 +138,31 @@ namespace Legato.Platform {
 #endif
             return new UserCredentials(identity.Platform, identity.UserId, proof);
         }
-#if LEGATO_BEFORE_MULTIPLAYER
+#if LEGATO_EARLY_STANDARD_MAPS
+        internal async Task<string> GetLegacyToken(CancellationToken token) {
+            token.ThrowIfCancellationRequested();
+            var buffer = new byte[1024];
+            var ticket = HAuthTicket.Invalid;
+            var completion = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
+            var callback = Callback<GetAuthSessionTicketResponse_t>.Create(response => {
+                if (response.m_hAuthTicket == ticket) completion.TrySetResult(response.m_eResult == EResult.k_EResultOK);
+            });
+            try {
+                ticket = SteamUser.GetAuthSessionTicket(buffer, buffer.Length, out uint length);
+                if (ticket == HAuthTicket.Invalid || length == 0)
+                    throw new System.InvalidOperationException("The game platform did not return an authentication token.");
+                using var timeout = CancellationTokenSource.CreateLinkedTokenSource(token);
+                var completed = await Task.WhenAny(completion.Task, Task.Delay(System.TimeSpan.FromSeconds(10), timeout.Token)).ConfigureAwait(true);
+                token.ThrowIfCancellationRequested();
+                timeout.Cancel();
+                if (completed != completion.Task || !completion.Task.Result)
+                    throw new System.InvalidOperationException("The game platform did not return an authentication token.");
+                return System.BitConverter.ToString(buffer, 0, (int)length);
+            } finally {
+                callback.Unregister();
+            }
+        }
+#elif LEGATO_BEFORE_MULTIPLAYER
         internal async Task<string> GetLegacyToken(CancellationToken token) {
             token.ThrowIfCancellationRequested();
             var completion = new TaskCompletionSource<string>(TaskCreationOptions.RunContinuationsAsynchronously);

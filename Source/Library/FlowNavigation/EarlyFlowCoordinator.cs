@@ -66,7 +66,7 @@ namespace Legato.Presentation {
         protected void SetRightScreenViewController(VRUIViewController? viewController) =>
             SetSideView(screen?.screenSystem?.rightScreen, ref _right, viewController);
 
-        protected virtual void BackButtonWasPressed(VRUIViewController? topViewController) => Dismiss();
+        protected virtual void BackButtonWasPressed(VRUIViewController topViewController) => Dismiss();
 
         internal bool Present() {
             if (_presenting || isInViewControllerHierarchy) return false;
@@ -162,7 +162,7 @@ namespace Legato.Presentation {
             background.type = Image.Type.Sliced;
             _backButton = backRect.gameObject.AddComponent<Button>();
             _backButton.targetGraphic = background;
-            _backButton.onClick.AddListener(() => BackButtonWasPressed(_main));
+            _backButton.onClick.AddListener(() => BackButtonWasPressed(_main!));
 
             var iconRect = CreateRect(backRect, "Icon");
             iconRect.anchorMin = Vector2.zero;
