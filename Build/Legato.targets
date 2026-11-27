@@ -370,10 +370,10 @@
     <PropertyGroup>
       <_LegatoBsmlApiVersion>@(_LegatoBsmlIdentity->'%(Version)')</_LegatoBsmlApiVersion>
       <DefineConstants Condition="'$(_LegatoBsmlApiVersion)' != '' AND $([MSBuild]::VersionGreaterThanOrEquals('$(_LegatoBsmlApiVersion)', '1.14.0.0'))">$(DefineConstants);LEGATO_BSML_CURRENT</DefineConstants>
+      <DefineConstants Condition="'$(LegatoEnableBSML)' == 'true' AND '$(LegatoTargetVersion)' == '0.11.1'">$(DefineConstants);LEGATO_EARLY_VR_UI;LEGATO_HMUI_PLAIN_TMP</DefineConstants>
     </PropertyGroup>
     <PropertyGroup Condition="'$(LegatoEnableAutoAdapters)' != 'false' AND '$(_LegatoCoreApi)' == ''">
       <LegatoEnableBSML Condition="'$(LegatoEnableBSML)' == '' AND '@(_LegatoBSMLReference)' != ''">true</LegatoEnableBSML>
-      <DefineConstants Condition="'$(LegatoEnableBSML)' == 'true' AND '$(LegatoTargetVersion)' == '0.11.1'">$(DefineConstants);LEGATO_EARLY_VR_UI;LEGATO_HMUI_PLAIN_TMP</DefineConstants>
       <LegatoEnableTextMeshPro Condition="'$(LegatoEnableTextMeshPro)' == '' AND '@(_LegatoTextMeshProReference)' != ''">true</LegatoEnableTextMeshPro>
       <LegatoEnableLeaderboardCore Condition="'$(LegatoEnableLeaderboardCore)' == '' AND '@(_LegatoLeaderboardCoreReference)' != ''">true</LegatoEnableLeaderboardCore>
       <LegatoEnableSiraUtil Condition="'$(LegatoEnableSiraUtil)' == '' AND '@(_LegatoSiraUtilReference)' != ''">true</LegatoEnableSiraUtil>
