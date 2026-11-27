@@ -6,7 +6,6 @@ using System.IO;
 using System.Text;
 using UnityEngine;
 using Reader = Legato.Rendering.BundleBinaryReader;
-using static Legato.Rendering.UnityBundleCompression;
 
 namespace Legato.Rendering;
 
@@ -140,7 +139,7 @@ internal static class AssetBundleGrabPasses
 
         int readerHeaderEnd = reader.Position;
         int infoStart = (flags & 0x80) != 0 ? bundle.Length - compressedInfoSize : readerHeaderEnd;
-        byte[] info = Decompress(bundle, infoStart, compressedInfoSize, infoSize, flags & 0x3F, infoSize);
+        byte[] info = UnityBundleCompression.Decompress(bundle, infoStart, compressedInfoSize, infoSize, flags & 0x3F, infoSize);
         if ((flags & 0x80) == 0)
         {
             reader.Position = infoStart + compressedInfoSize;
@@ -192,7 +191,7 @@ internal static class AssetBundleGrabPasses
             if (files.Exists(file => file.Offset < blockEnd && file.Offset + file.Size > blockStart))
             {
                 int needed = (int)Math.Min(size, filesEnd - blockStart);
-                byte[] block = Decompress(bundle, position, compressedSize, size, blockFlags & 0x3F, needed);
+                byte[] block = UnityBundleCompression.Decompress(bundle, position, compressedSize, size, blockFlags & 0x3F, needed);
                 Buffer.BlockCopy(block, 0, data, (int)blockStart, needed);
             }
 
@@ -225,7 +224,7 @@ internal static class AssetBundleGrabPasses
             long blockEnd = blockStart + size;
             if (blockEnd > filesEnd || !files.Exists(file => file.Offset < blockEnd && file.Offset + file.Size > blockStart))
             {
-                byte[] block = Decompress(bundle, position, compressedSize, size, blockFlags & 0x3F, size);
+                byte[] block = UnityBundleCompression.Decompress(bundle, position, compressedSize, size, blockFlags & 0x3F, size);
                 Buffer.BlockCopy(block, 0, data, (int)blockStart, size);
             }
 
@@ -912,6 +911,5 @@ internal static class AssetBundleGrabPasses
             return _values.Count;
         }
     }
-
 }
 #endif
