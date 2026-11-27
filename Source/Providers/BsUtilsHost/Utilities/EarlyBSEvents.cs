@@ -101,24 +101,38 @@ namespace BS_Utils.Utilities
                 InvokeSafely(menuSceneLoaded);
             }
 
+#if LEGATO_BSUTILS_EARLY_SCENE_LIST
+            [HarmonyPrefix]
+            [HarmonyPatch(typeof(AsyncScenesLoader), nameof(AsyncScenesLoader.LoadScenes))]
+            private static void ObserveGameLoad(AsyncScenesLoader __instance, SceneInfo[] scenes)
+            {
+                SceneInfo playerScene = Array.Find(scenes, scene =>
+                    scene != null && (scene.sceneName == "StandardLevel" || scene.sceneName == "TutorialLevel"));
+                AttachLoadHandler(__instance, playerScene, scenes);
+            }
+#else
             [HarmonyPostfix]
             [HarmonyPatch(typeof(AsyncScenesLoader), "Start")]
-            private static void ObserveGameLoad(AsyncScenesLoader __instance, SceneInfo ____mainScene)
+            private static void ObserveGameLoad(AsyncScenesLoader __instance, SceneInfo ____mainScene) =>
+                AttachLoadHandler(__instance, ____mainScene, __instance.additiveScenes);
+#endif
+
+            private static void AttachLoadHandler(AsyncScenesLoader loader, SceneInfo mainScene, SceneInfo[] scenes)
             {
-                string sceneName = ____mainScene != null ? ____mainScene.sceneName : null;
+                string sceneName = mainScene != null ? mainScene.sceneName : null;
                 if (sceneName != "StandardLevel" && sceneName != "TutorialLevel") return;
 
                 void Loaded()
                 {
-                    __instance.loadingDidFinishEvent -= Loaded;
+                    loader.loadingDidFinishEvent -= Loaded;
                     _returningFromGame = true;
                     _finishPublished = false;
                     InvokeSafely(gameSceneActive);
-                    SubscribeGameplay(SceneManager.GetSceneByName(sceneName), __instance.additiveScenes);
+                    SubscribeGameplay(SceneManager.GetSceneByName(sceneName), scenes);
                     InvokeSafely(gameSceneLoaded);
                 }
 
-                __instance.loadingDidFinishEvent += Loaded;
+                loader.loadingDidFinishEvent += Loaded;
             }
 
             [HarmonyPostfix]
@@ -158,10 +172,12 @@ namespace BS_Utils.Utilities
             private static void BuiltInLevelSelected(StandardLevelListViewController viewController, IStandardLevel level)
                 => InvokeSafely(levelSelected, viewController, level);
 
+#if !LEGATO_BSUTILS_EARLY_SCENE_LIST
             [HarmonyPostfix]
             [HarmonyPatch(typeof(CustomLevelSelectionFlowCoordinator), "HandleCustomLevelListViewControllerDidSelectSong")]
             private static void CustomLevelSelected(CustomLevelListViewController viewController, IStandardLevel level)
                 => InvokeSafely(levelSelected, viewController, level);
+#endif
 
             [HarmonyPostfix]
             [HarmonyPatch(typeof(StandardLevelDetailViewController), nameof(StandardLevelDetailViewController.SetContent))]

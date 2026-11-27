@@ -1,9 +1,12 @@
 <Project>
   <Target Name="LegatoBsUtilsNativeReferences" BeforeTargets="ResolveAssemblyReferences" DependsOnTargets="LegatoConfigure">
-    <PropertyGroup Condition="'$(LegatoTargetVersion)' == '0.11.1'">
+    <PropertyGroup Condition="'$(LegatoTargetVersion)' == '0.11.1' OR '$(LegatoTargetVersion)' == '0.11.2'">
       <DefineConstants>$(DefineConstants);LEGATO_BSUTILS_EARLY;LEGATO_BEFORE_MULTIPLAYER</DefineConstants>
     </PropertyGroup>
-    <ItemGroup Condition="'$(LegatoTargetVersion)' == '0.11.1'">
+    <PropertyGroup Condition="'$(LegatoTargetVersion)' == '0.11.2'">
+      <DefineConstants>$(DefineConstants);LEGATO_BSUTILS_EARLY_SCENE_LIST</DefineConstants>
+    </PropertyGroup>
+    <ItemGroup Condition="'$(LegatoTargetVersion)' == '0.11.1' OR '$(LegatoTargetVersion)' == '0.11.2'">
       <Reference Remove="BGLib.AppFlow;BGLib.UnityExtension;BGNetCore;BeatSaber.Init;BeatmapCore;BeatSaber.Multiplayer.Core;BeatSaber.ViewSystem;DataModels;GamePlayCore;HMLib;HMUI;Main;PlatformUserModel;OculusStudios.Platform.Core;OculusStudios.Platform.Steam;com.rlabrecque.steamworks.net;Unity.TextMeshPro;Zenject;Zenject-usage" />
       <Reference Include="Assembly-CSharp" HintPath="$(LegatoReferenceRoot)\Beat Saber_Data\Managed\Assembly-CSharp.dll" Private="false" />
       <Reference Include="Assembly-CSharp-firstpass" HintPath="$(LegatoReferenceRoot)\Beat Saber_Data\Managed\Assembly-CSharp-firstpass.dll" Private="false" />
