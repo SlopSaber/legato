@@ -60,6 +60,9 @@ foreach ($file in $files) {
     $relative = [IO.Path]::GetRelativePath($source, $file.FullName).Replace('\','/')
     $content = [IO.File]::ReadAllText($file.FullName)
     if ($file.Extension -ne '.meta') {
+        if ($unityVersion.StartsWith('2018.', [StringComparison]::Ordinal)) {
+            $content = [regex]::Replace($content, '(?m)^([ \t]*#pragma[ \t]+(?:multi_compile|shader_feature))_local(?=[ \t])', '$1')
+        }
         $content = $content.Replace('Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl', 'Assets/Legato/Core.hlsl')
         $content = $content.Replace('Packages/com.unity.render-pipelines.core/Runtime/Utilities/Blit.hlsl', 'Assets/Legato/Blit.hlsl')
         if (!$urp) {
