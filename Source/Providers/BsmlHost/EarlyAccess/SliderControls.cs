@@ -21,11 +21,21 @@ public class TextSlider : Slider
         set
         {
             steps = Mathf.Max(0, value);
-            Set(base.value, false);
+            Set(this.value, false);
         }
     }
 
     internal TextMeshProUGUI ValueLabel { get; private set; }
+
+    public void Refresh()
+    {
+        if (ValueLabel != null)
+        {
+            ValueLabel.text = formatter != null ? formatter(this.value) : this.value.ToString("N2");
+            decrement.interactable = interactable && this.value > minValue;
+            increment.interactable = interactable && this.value < maxValue;
+        }
+    }
 
     internal void Bind(TextMeshProUGUI valueLabel, Button decrease, Button increase)
     {
@@ -50,25 +60,15 @@ public class TextSlider : Slider
         decrement.gameObject.SetActive(show);
         increment.gameObject.SetActive(show);
         float spacing = show ? 6f : 0f;
-        var rect = (RectTransform)transform;
+        RectTransform rect = (RectTransform)transform;
         rect.offsetMin = new Vector2(spacing, 0f);
         rect.offsetMax = new Vector2(-spacing, 0f);
         Refresh();
     }
 
-    public void Refresh()
-    {
-        if (ValueLabel != null)
-        {
-            ValueLabel.text = formatter != null ? formatter(base.value) : base.value.ToString("N2");
-            decrement.interactable = interactable && base.value > minValue;
-            increment.interactable = interactable && base.value < maxValue;
-        }
-    }
-
     protected override void Set(float input, bool sendCallback)
     {
-        float previousValue = base.value;
+        float previousValue = this.value;
         if (steps > 1 && maxValue > minValue)
         {
             float fraction = Mathf.InverseLerp(minValue, maxValue, input);
@@ -78,9 +78,9 @@ public class TextSlider : Slider
 
         base.Set(input, sendCallback);
         Refresh();
-        if (sendCallback && previousValue != base.value)
+        if (sendCallback && previousValue != this.value)
         {
-            valueDidChangeEvent?.Invoke(this, base.value);
+            valueDidChangeEvent?.Invoke(this, this.value);
         }
     }
 

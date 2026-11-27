@@ -9,22 +9,22 @@ internal static class EarlyButtonFactory
 {
     internal static Button Create(Transform parent, string name)
     {
-        var node = new GameObject(name, typeof(RectTransform));
+        GameObject node = new GameObject(name, typeof(RectTransform));
         node.layer = parent.gameObject.layer;
-        var rect = (RectTransform)node.transform;
+        RectTransform rect = (RectTransform)node.transform;
         rect.SetParent(parent, false);
         rect.sizeDelta = new Vector2(20f, 6f);
-        var background = node.AddComponent<LegacyImageView>();
+        LegacyImageView background = node.AddComponent<LegacyImageView>();
         background.sprite = Utilities.FindSpriteCached("RoundRectButton");
         background.type = Image.Type.Sliced;
-        var button = node.AddComponent<Button>();
+        Button button = node.AddComponent<Button>();
         button.targetGraphic = background;
         return button;
     }
 
     internal static TextMeshProUGUI AddLabel(Button button)
     {
-        var label = CreateContent(button.transform, "Text").gameObject.AddComponent<TextMeshProUGUI>();
+        TextMeshProUGUI label = CreateContent(button.transform, "Text").gameObject.AddComponent<TextMeshProUGUI>();
         label.font = TMP_Settings.defaultFontAsset;
         label.alignment = TextAlignmentOptions.Center;
         label.fontSize = 4f;
@@ -36,9 +36,9 @@ internal static class EarlyButtonFactory
 
     internal static LegacyImageView AddIcon(Button button, Sprite sprite)
     {
-        var rect = CreateContent(button.transform, "Icon");
+        RectTransform rect = CreateContent(button.transform, "Icon");
         rect.sizeDelta = new Vector2(-2f, -2f);
-        var icon = rect.gameObject.AddComponent<LegacyImageView>();
+        LegacyImageView icon = rect.gameObject.AddComponent<LegacyImageView>();
         icon.sprite = sprite;
         icon.preserveAspect = true;
         icon.raycastTarget = false;
@@ -47,7 +47,7 @@ internal static class EarlyButtonFactory
 
     private static RectTransform CreateContent(Transform parent, string name)
     {
-        var rect = (RectTransform)new GameObject(name, typeof(RectTransform)).transform;
+        RectTransform rect = (RectTransform)new GameObject(name, typeof(RectTransform)).transform;
         rect.gameObject.layer = parent.gameObject.layer;
         rect.SetParent(parent, false);
         rect.anchorMin = Vector2.zero;

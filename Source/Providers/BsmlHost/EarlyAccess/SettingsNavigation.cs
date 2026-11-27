@@ -31,6 +31,7 @@ internal static class EarlySettingsNavigation
     {
         RectTransform rect = view.rectTransform;
         rect.anchorMin = rect.anchorMax = new Vector2(0.5f, 0.5f);
+
         // Native navigation places the pivot at y = 0. Move the pane above the stock footer.
         rect.pivot = new Vector2(0.5f, 0.4f);
         rect.sizeDelta = new Vector2(104f, 56f);

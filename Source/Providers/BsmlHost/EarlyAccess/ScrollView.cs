@@ -12,7 +12,11 @@ public class ItemForFocussedScrolling : MonoBehaviour
 
 public class VerticalScrollIndicator : MonoBehaviour
 {
+    // Preserve the native HMUI field accessed by derived scroll indicators.
+#pragma warning disable SA1309, SA1401
     protected RectTransform _handle;
+#pragma warning restore SA1309, SA1401
+
     private float pageHeight = 1f;
     private float scrollProgress;
 
@@ -60,10 +64,6 @@ public class VerticalScrollIndicator : MonoBehaviour
 
 public class ScrollView : MonoBehaviour, IBeginDragHandler
 {
-    internal RectTransform Viewport { get; private set; }
-    internal RectTransform Content { get; private set; }
-    internal VerticalScrollIndicator Indicator { get; set; }
-
     private ScrollRect scrollRect;
     private Button pageUp;
     private Button pageDown;
@@ -74,7 +74,76 @@ public class ScrollView : MonoBehaviour, IBeginDragHandler
 
     public float position => Mathf.Clamp(Content.anchoredPosition.y, 0f, Travel);
 
+    internal RectTransform Viewport { get; private set; }
+
+    internal RectTransform Content { get; private set; }
+
+    internal VerticalScrollIndicator Indicator { get; set; }
+
     protected float Travel => Mathf.Max(0f, Content.rect.height - Viewport.rect.height);
+
+    public void PageUpButtonPressed() => Page(-1);
+
+    public void PageDownButtonPressed() => Page(1);
+
+    public void OnBeginDrag(PointerEventData eventData) => moving = false;
+
+    public void ScrollDown(bool animated) => ScrollTo(Travel, animated);
+
+    public void ScrollTo(float offset, bool animated)
+    {
+        destination = Mathf.Clamp(offset, 0f, Travel);
+        scrollRect.StopMovement();
+        moving = animated && !Mathf.Approximately(position, destination);
+        if (!moving)
+        {
+            SetPosition(destination);
+        }
+
+        RefreshButtons();
+    }
+
+    public void ScrollToWorldPosition(Vector3 worldPosition, float pageRelativePosition, bool animated)
+    {
+        float contentOffset = -Content.InverseTransformPoint(worldPosition).y;
+        ScrollTo(contentOffset - (pageRelativePosition * Viewport.rect.height), animated);
+    }
+
+    public void ScrollToWorldPositionIfOutsideArea(Vector3 worldPosition, float pageRelativePosition, float relativeBoundaryStart, float relativeBoundaryEnd, bool animated)
+    {
+        float contentOffset = -Content.InverseTransformPoint(worldPosition).y - position;
+        float height = Viewport.rect.height;
+        if (contentOffset < relativeBoundaryStart * height || contentOffset > relativeBoundaryEnd * height)
+        {
+            ScrollToWorldPosition(worldPosition, pageRelativePosition, animated);
+        }
+    }
+
+    public void SetContentSize(float height)
+    {
+        Content.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, Mathf.Max(0f, height));
+        RefreshButtons();
+    }
+
+    public void RefreshButtons()
+    {
+        float travel = Travel;
+        if (pageUp != null)
+        {
+            pageUp.interactable = position > 0.01f;
+        }
+
+        if (pageDown != null)
+        {
+            pageDown.interactable = position < travel - 0.01f;
+        }
+
+        if (Indicator != null)
+        {
+            Indicator.normalizedPageHeight = Content.rect.height > 0f ? Viewport.rect.height / Content.rect.height : 1f;
+            Indicator.progress = travel > 0f ? position / travel : 0f;
+        }
+    }
 
     internal void Bind(ScrollRect rect, RectTransform viewport, RectTransform content)
     {
@@ -113,70 +182,6 @@ public class ScrollView : MonoBehaviour, IBeginDragHandler
         }
     }
 
-    public void PageUpButtonPressed() => Page(-1);
-
-    public void PageDownButtonPressed() => Page(1);
-
-    public void OnBeginDrag(PointerEventData eventData) => moving = false;
-
-    public void ScrollDown(bool animated) => ScrollTo(Travel, animated);
-
-    public void ScrollTo(float offset, bool animated)
-    {
-        destination = Mathf.Clamp(offset, 0f, Travel);
-        scrollRect.StopMovement();
-        moving = animated && !Mathf.Approximately(position, destination);
-        if (!moving)
-        {
-            SetPosition(destination);
-        }
-
-        RefreshButtons();
-    }
-
-    public void ScrollToWorldPosition(Vector3 worldPosition, float pageRelativePosition, bool animated)
-    {
-        float contentOffset = -Content.InverseTransformPoint(worldPosition).y;
-        ScrollTo(contentOffset - (pageRelativePosition * Viewport.rect.height), animated);
-    }
-
-    public void ScrollToWorldPositionIfOutsideArea(Vector3 worldPosition, float pageRelativePosition,
-        float relativeBoundaryStart, float relativeBoundaryEnd, bool animated)
-    {
-        float contentOffset = -Content.InverseTransformPoint(worldPosition).y - position;
-        float height = Viewport.rect.height;
-        if (contentOffset < relativeBoundaryStart * height || contentOffset > relativeBoundaryEnd * height)
-        {
-            ScrollToWorldPosition(worldPosition, pageRelativePosition, animated);
-        }
-    }
-
-    public void SetContentSize(float height)
-    {
-        Content.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, Mathf.Max(0f, height));
-        RefreshButtons();
-    }
-
-    public void RefreshButtons()
-    {
-        float travel = Travel;
-        if (pageUp != null)
-        {
-            pageUp.interactable = position > 0.01f;
-        }
-
-        if (pageDown != null)
-        {
-            pageDown.interactable = position < travel - 0.01f;
-        }
-
-        if (Indicator != null)
-        {
-            Indicator.normalizedPageHeight = Content.rect.height > 0f ? Viewport.rect.height / Content.rect.height : 1f;
-            Indicator.progress = travel > 0f ? position / travel : 0f;
-        }
-    }
-
     protected virtual void OnScrollLayoutChanged()
     {
         SetPosition(Mathf.Clamp(Content.anchoredPosition.y, 0f, Travel));
@@ -210,7 +215,7 @@ public class ScrollView : MonoBehaviour, IBeginDragHandler
 
     protected void SetPosition(float value)
     {
-        var anchored = Content.anchoredPosition;
+        Vector2 anchored = Content.anchoredPosition;
         anchored.y = value;
         Content.anchoredPosition = anchored;
     }
@@ -219,7 +224,7 @@ public class ScrollView : MonoBehaviour, IBeginDragHandler
     {
         float origin = moving ? destination : position;
         float target = origin + (direction * Viewport.rect.height * 0.9f);
-        foreach (var item in Content.GetComponentsInChildren<ItemForFocussedScrolling>())
+        foreach (ItemForFocussedScrolling item in Content.GetComponentsInChildren<ItemForFocussedScrolling>())
         {
             float offset = -Content.InverseTransformPoint(item.transform.position).y;
             if ((direction > 0 && offset > origin + 0.1f && offset < target) ||

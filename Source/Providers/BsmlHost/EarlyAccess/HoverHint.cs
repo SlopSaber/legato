@@ -12,17 +12,6 @@ internal sealed class EarlyHoverHint : MonoBehaviour, IPointerEnterHandler, IPoi
     private TextMeshProUGUI label;
     private string hint;
 
-    internal static void Attach(GameObject owner, string text)
-    {
-        EarlyHoverHint component = owner.GetComponent<EarlyHoverHint>();
-        if (component == null)
-        {
-            component = owner.AddComponent<EarlyHoverHint>();
-        }
-
-        component.hint = text;
-    }
-
     public void OnPointerEnter(PointerEventData eventData)
     {
         if (string.IsNullOrWhiteSpace(hint))
@@ -42,9 +31,9 @@ internal sealed class EarlyHoverHint : MonoBehaviour, IPointerEnterHandler, IPoi
         {
             popup = EarlyScrollLayout.CreateRect(container, "BSML Hover Hint");
             popup.anchorMin = popup.anchorMax = new Vector2(0.5f, 0.5f);
-            var layout = popup.gameObject.AddComponent<LayoutElement>();
+            LayoutElement layout = popup.gameObject.AddComponent<LayoutElement>();
             layout.ignoreLayout = true;
-            var background = popup.gameObject.AddComponent<UnityEngine.UI.Image>();
+            UnityEngine.UI.Image background = popup.gameObject.AddComponent<UnityEngine.UI.Image>();
             background.color = new Color(0.08f, 0.09f, 0.12f, 0.97f);
             background.raycastTarget = false;
             label = EarlySettingControlLayout.CreateLabel(popup, "Hint");
@@ -75,6 +64,17 @@ internal sealed class EarlyHoverHint : MonoBehaviour, IPointerEnterHandler, IPoi
     }
 
     public void OnPointerExit(PointerEventData eventData) => Hide();
+
+    internal static void Attach(GameObject owner, string text)
+    {
+        EarlyHoverHint component = owner.GetComponent<EarlyHoverHint>();
+        if (component == null)
+        {
+            component = owner.AddComponent<EarlyHoverHint>();
+        }
+
+        component.hint = text;
+    }
 
     private void OnDisable() => Hide();
 

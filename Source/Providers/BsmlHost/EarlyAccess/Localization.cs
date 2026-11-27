@@ -9,31 +9,62 @@ using UnityEngine;
 
 namespace Legato.LocalizationSupport;
 
+public sealed class EarlyLocalizedText : MonoBehaviour
+{
+    public TextMeshProUGUI localizedComponent { get; set; }
+
+    public bool maintainTextAlignment { get; set; }
+
+    public string key { get; set; }
+
+    public string Key
+    {
+        get => key;
+        set
+        {
+            key = value;
+            if (isActiveAndEnabled)
+            {
+                Apply();
+            }
+        }
+    }
+
+    private void OnEnable() => Apply();
+
+    private void Apply()
+    {
+        if (localizedComponent != null && !string.IsNullOrEmpty(key))
+        {
+            localizedComponent.text = EarlyLocalization.Get(key);
+        }
+    }
+}
 internal static class EarlyLocalization
 {
     private static readonly Lazy<Dictionary<string, string>> Text = new(Load);
 
     internal static string Get(string key)
     {
-        return !string.IsNullOrEmpty(key) && Text.Value.TryGetValue(key, out var text) ? text : key;
+        return !string.IsNullOrEmpty(key) && Text.Value.TryGetValue(key, out string text) ? text : key;
     }
 
     private static Dictionary<string, string> Load()
     {
-        var text = new Dictionary<string, string>(StringComparer.Ordinal)
+        Dictionary<string, string> text = new Dictionary<string, string>(StringComparer.Ordinal)
         {
             ["BUTTON_CANCEL"] = "Cancel",
             ["BUTTON_OK"] = "OK",
         };
-        using var stream = Assembly.GetExecutingAssembly()
+        using Stream stream = Assembly.GetExecutingAssembly()
             .GetManifestResourceStream("BeatSaberMarkupLanguage.Resources.beat-saber-markup-language.csv");
         if (stream == null)
         {
             return text;
         }
 
-        using var reader = new StreamReader(stream);
-        foreach (var row in ReadRows(reader))
+        using StreamReader reader = new StreamReader(stream);
+        foreach (List<string> row in ReadRows(reader))
         {
             if (row.Count > 2 && row[0] != "Polyglot" && !string.IsNullOrEmpty(row[0]) && !string.IsNullOrEmpty(row[2]))
             {
@@ -46,8 +77,8 @@ internal static class EarlyLocalization
 
     private static IEnumerable<List<string>> ReadRows(TextReader reader)
     {
-        var row = new List<string>();
-        var field = new StringBuilder();
+        List<string> row = new List<string>();
+        StringBuilder field = new StringBuilder();
         bool quoted = false;
         for (int value = reader.Read(); value != -1; value = reader.Read())
         {
@@ -90,35 +121,4 @@ internal static class EarlyLocalization
     }
 }
 
-public sealed class EarlyLocalizedText : MonoBehaviour
-{
-    public TextMeshProUGUI localizedComponent { get; set; }
-
-    public bool maintainTextAlignment { get; set; }
-
-    public string key { get; set; }
-
-    public string Key
-    {
-        get => key;
-        set
-        {
-            key = value;
-            if (isActiveAndEnabled)
-            {
-                Apply();
-            }
-        }
-    }
-
-    private void OnEnable() => Apply();
-
-    private void Apply()
-    {
-        if (localizedComponent != null && !string.IsNullOrEmpty(key))
-        {
-            localizedComponent.text = EarlyLocalization.Get(key);
-        }
-    }
-}
 #endif

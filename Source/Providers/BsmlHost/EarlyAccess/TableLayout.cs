@@ -10,6 +10,31 @@ using UnityEngine.UI;
 
 namespace BeatSaberMarkupLanguage.Components;
 
+public static class EarlyTableExtensions
+{
+    public static void SelectCellWithIdx(this TableView table, int index)
+    {
+        if (table.dataSource != null && index >= 0 && index < table.dataSource.NumberOfRows())
+        {
+            table.SelectRow(index);
+        }
+    }
+}
+[HarmonyPatch(typeof(TableView), "Update")]
+internal static class EarlyTablePaging
+{
+    private static bool Prefix(TableView __instance)
+    {
+        if (__instance is not BSMLTableView)
+        {
+            return true;
+        }
+
+        EarlyTableInput input = __instance.GetComponent<EarlyTableInput>();
+        return input == null || !input.IsUsingScrollRect;
+    }
+}
+
 internal sealed class EarlyTableLayout : MonoBehaviour
 {
     private static readonly MethodInfo RefreshCells = AccessTools.DeclaredMethod(typeof(TableView), "RefreshCells", new[] { typeof(bool) });
@@ -25,11 +50,15 @@ internal sealed class EarlyTableLayout : MonoBehaviour
 
     internal bool Horizontal { get; private set; }
 
+    private float TotalRowHeight => table.dataSource != null ? table.dataSource.NumberOfRows() * table.dataSource.RowHeight() : 0f;
+
+    private float ScrollTravel => Mathf.Max(0f, TotalRowHeight - list.rect.height);
+
     internal static GameObject Create(Transform parent, string name, out TableView table)
     {
-        var frame = EarlyScrollLayout.CreateRect(parent, name + "Container");
+        RectTransform frame = EarlyScrollLayout.CreateRect(parent, name + "Container");
         frame.gameObject.AddComponent<LayoutElement>();
-        var layout = frame.gameObject.AddComponent<EarlyTableLayout>();
+        EarlyTableLayout layout = frame.gameObject.AddComponent<EarlyTableLayout>();
         layout.frame = frame;
         layout.list = EarlyScrollLayout.CreateRect(frame, name);
         layout.list.gameObject.SetActive(false);
@@ -41,6 +70,22 @@ internal sealed class EarlyTableLayout : MonoBehaviour
         layout.list.gameObject.AddComponent<EarlyTableInput>().Setup(layout.table, layout.scroll);
         table = layout.table;
         return frame.gameObject;
+    }
+
+    internal static RectTransform CellContent(TableView table, TableCell cell)
+    {
+        EarlyTableLayout owner = table.transform.parent.GetComponent<EarlyTableLayout>();
+        EarlyTableCellLayout layout = cell.GetComponent<EarlyTableCellLayout>();
+        if (layout != null)
+        {
+            return layout.Content;
+        }
+
+        layout = cell.gameObject.AddComponent<EarlyTableCellLayout>();
+        layout.Horizontal = owner != null && owner.Horizontal;
+        layout.Content = EarlyScrollLayout.CreateRect(cell.transform, "BSML Cell Content");
+        layout.Refresh();
+        return layout.Content;
     }
 
     internal void SetDirection(string direction)
@@ -61,13 +106,13 @@ internal sealed class EarlyTableLayout : MonoBehaviour
 
     internal void Show(TableView.IDataSource dataSource, Vector2 preferredSize, bool center, bool showScrollbar)
     {
-        var fit = GetComponent<LayoutElement>();
+        LayoutElement fit = GetComponent<LayoutElement>();
         fit.preferredWidth = preferredSize.x;
         fit.preferredHeight = preferredSize.y;
         alignCenter = center;
         if (!Horizontal && showScrollbar)
         {
-            EarlyScrollLayout.AddPaging(frame, scroll.viewport, out pageUp, out pageDown, out var control);
+            EarlyScrollLayout.AddPaging(frame, scroll.viewport, out pageUp, out pageDown, out BSMLScrollIndicator control);
             indicator = control;
             pageUp.onClick.AddListener(PageUp);
             pageDown.onClick.AddListener(PageDown);
@@ -94,26 +139,6 @@ internal sealed class EarlyTableLayout : MonoBehaviour
             table.PageScrollDown();
         }
     }
-
-    internal static RectTransform CellContent(TableView table, TableCell cell)
-    {
-        var owner = table.transform.parent.GetComponent<EarlyTableLayout>();
-        var layout = cell.GetComponent<EarlyTableCellLayout>();
-        if (layout != null)
-        {
-            return layout.Content;
-        }
-
-        layout = cell.gameObject.AddComponent<EarlyTableCellLayout>();
-        layout.Horizontal = owner != null && owner.Horizontal;
-        layout.Content = EarlyScrollLayout.CreateRect(cell.transform, "BSML Cell Content");
-        layout.Refresh();
-        return layout.Content;
-    }
-
-    private float TotalRowHeight => table.dataSource != null ? table.dataSource.NumberOfRows() * table.dataSource.RowHeight() : 0f;
-
-    private float ScrollTravel => Mathf.Max(0f, TotalRowHeight - list.rect.height);
 
     private void LateUpdate()
     {
@@ -162,6 +187,7 @@ internal sealed class EarlyTableLayout : MonoBehaviour
 internal sealed class EarlyTableCellLayout : MonoBehaviour
 {
     internal RectTransform Content { get; set; }
+
     internal bool Horizontal { get; set; }
 
     internal void Refresh()
@@ -190,12 +216,6 @@ internal sealed class EarlyTableInput : MonoBehaviour, IBeginDragHandler, IEndDr
 
     internal bool IsUsingScrollRect => dragging || inputFrame >= Time.frameCount - 1;
 
-    internal void Setup(TableView view, ScrollRect rect)
-    {
-        table = view;
-        scroll = rect;
-    }
-
     public void OnBeginDrag(PointerEventData eventData)
     {
         if (eventData.button == PointerEventData.InputButton.Left)
@@ -212,6 +232,12 @@ internal sealed class EarlyTableInput : MonoBehaviour, IBeginDragHandler, IEndDr
 
     public void OnScroll(PointerEventData eventData) => inputFrame = Time.frameCount;
 
+    internal void Setup(TableView view, ScrollRect rect)
+    {
+        table = view;
+        scroll = rect;
+    }
+
     private void LateUpdate()
     {
         if (IsUsingScrollRect && table.dataSource != null)
@@ -227,29 +253,4 @@ internal sealed class EarlyTableInput : MonoBehaviour, IBeginDragHandler, IEndDr
     }
 }
 
-[HarmonyPatch(typeof(TableView), "Update")]
-internal static class EarlyTablePaging
-{
-    private static bool Prefix(TableView __instance)
-    {
-        if (__instance is not BSMLTableView)
-        {
-            return true;
-        }
-
-        var input = __instance.GetComponent<EarlyTableInput>();
-        return input == null || !input.IsUsingScrollRect;
-    }
-}
-
-public static class EarlyTableExtensions
-{
-    public static void SelectCellWithIdx(this TableView table, int index)
-    {
-        if (table.dataSource != null && index >= 0 && index < table.dataSource.NumberOfRows())
-        {
-            table.SelectRow(index);
-        }
-    }
-}
 #endif

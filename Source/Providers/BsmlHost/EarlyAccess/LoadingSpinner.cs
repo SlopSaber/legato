@@ -11,12 +11,12 @@ internal sealed class EarlyLoadingSpinner : MonoBehaviour
         RectTransform rect = EarlyScrollLayout.CreateRect(parent, "BSMLLoadingIndicator");
         rect.anchorMin = rect.anchorMax = new Vector2(0.5f, 0.5f);
         rect.sizeDelta = new Vector2(8f, 8f);
-        var layout = rect.gameObject.AddComponent<LayoutElement>();
+        LayoutElement layout = rect.gameObject.AddComponent<LayoutElement>();
         layout.preferredWidth = 8f;
         layout.preferredHeight = 8f;
 
         RectTransform art = EarlyScrollLayout.CreateRect(rect, "Spinner");
-        var image = art.gameObject.AddComponent<UnityEngine.UI.Image>();
+        UnityEngine.UI.Image image = art.gameObject.AddComponent<UnityEngine.UI.Image>();
         image.sprite = Utilities.FindSpriteCached("LoadingIndicator");
         image.preserveAspect = true;
         image.raycastTarget = false;

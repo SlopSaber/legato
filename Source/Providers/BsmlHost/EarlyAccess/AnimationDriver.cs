@@ -9,9 +9,9 @@ internal sealed class EarlyAnimationDriver : MonoBehaviour
 
     internal static void StartDriver()
     {
-        var owner = new GameObject("BSML Animation Driver");
+        GameObject owner = new GameObject("BSML Animation Driver");
         DontDestroyOnLoad(owner);
-        var driver = owner.AddComponent<EarlyAnimationDriver>();
+        EarlyAnimationDriver driver = owner.AddComponent<EarlyAnimationDriver>();
         driver.controller = AnimationController.CreateEarly();
         driver.controller.Initialize();
     }

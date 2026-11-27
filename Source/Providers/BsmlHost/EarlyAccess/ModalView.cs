@@ -35,7 +35,7 @@ public sealed class ModalView : MonoBehaviour
             return;
         }
 
-        var panel = (RectTransform)transform;
+        RectTransform panel = (RectTransform)transform;
         originalParent = (RectTransform)panel.parent;
         originalSibling = panel.GetSiblingIndex();
         originalAnchorMin = panel.anchorMin;
@@ -45,11 +45,11 @@ public sealed class ModalView : MonoBehaviour
         originalRotation = panel.localRotation;
         originalScale = panel.localScale;
 
-        var owner = GetComponentInParent<VRUIViewController>();
-        var parentCanvas = owner != null ? owner.GetComponentInParent<Canvas>() : originalParent.GetComponentInParent<Canvas>();
-        var root = owner != null ? owner.rectTransform : parentCanvas != null ? parentCanvas.transform : originalParent;
+        VRUIViewController owner = GetComponentInParent<VRUIViewController>();
+        Canvas parentCanvas = owner != null ? owner.GetComponentInParent<Canvas>() : originalParent.GetComponentInParent<Canvas>();
+        Transform root = owner != null ? owner.rectTransform : parentCanvas != null ? parentCanvas.transform : originalParent;
         overlay = CreateStretchRect(root, "Modal Overlay");
-        var canvas = overlay.gameObject.AddComponent<Canvas>();
+        Canvas canvas = overlay.gameObject.AddComponent<Canvas>();
         if (parentCanvas != null)
         {
             canvas.worldCamera = parentCanvas.worldCamera;
@@ -57,7 +57,7 @@ public sealed class ModalView : MonoBehaviour
         }
 
         int order = 0;
-        foreach (var siblingCanvas in root.GetComponentsInChildren<Canvas>())
+        foreach (Canvas siblingCanvas in root.GetComponentsInChildren<Canvas>())
         {
             if (siblingCanvas != canvas && siblingCanvas.sortingLayerID == canvas.sortingLayerID)
             {
@@ -71,15 +71,15 @@ public sealed class ModalView : MonoBehaviour
         canvasGroup = overlay.gameObject.AddComponent<CanvasGroup>();
         canvasGroup.alpha = animate ? 0f : 1f;
 
-        var blocker = CreateStretchRect(overlay, "Modal Blocker");
-        var blockerImage = blocker.gameObject.AddComponent<UnityEngine.UI.Image>();
+        RectTransform blocker = CreateStretchRect(overlay, "Modal Blocker");
+        UnityEngine.UI.Image blockerImage = blocker.gameObject.AddComponent<UnityEngine.UI.Image>();
         blockerImage.color = new Color(0f, 0f, 0f, 0.55f);
-        var button = blocker.gameObject.AddComponent<Button>();
+        Button button = blocker.gameObject.AddComponent<Button>();
         button.targetGraphic = blockerImage;
         button.transition = Selectable.Transition.None;
         button.onClick.AddListener(() => blockerClickedEvent?.Invoke());
 
-        var size = panel.rect.size;
+        Vector2 size = panel.rect.size;
         Vector3 position = panel.position;
         panel.SetParent(overlay, true);
         panel.anchorMin = panel.anchorMax = new Vector2(0.5f, 0.5f);
@@ -109,13 +109,13 @@ public sealed class ModalView : MonoBehaviour
 
         ChangeAlpha(0f, animate, () =>
         {
-            var previousOverlay = overlay;
+            RectTransform previousOverlay = overlay;
             overlay = null;
             gameObject.SetActive(false);
             bool canRestore = originalParent != null;
             if (canRestore)
             {
-                var panel = (RectTransform)transform;
+                RectTransform panel = (RectTransform)transform;
                 panel.SetParent(originalParent, false);
                 panel.SetSiblingIndex(originalSibling);
                 panel.anchorMin = originalAnchorMin;
@@ -137,7 +137,7 @@ public sealed class ModalView : MonoBehaviour
 
     private static RectTransform CreateStretchRect(Transform parent, string name)
     {
-        var rect = (RectTransform)new GameObject(name, typeof(RectTransform)).transform;
+        RectTransform rect = (RectTransform)new GameObject(name, typeof(RectTransform)).transform;
         rect.gameObject.layer = parent.gameObject.layer;
         rect.SetParent(parent, false);
         rect.anchorMin = Vector2.zero;

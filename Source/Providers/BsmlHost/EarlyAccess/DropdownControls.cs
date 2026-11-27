@@ -36,20 +36,6 @@ public sealed class SimpleTextDropdown : MonoBehaviour, TableView.IDataSource
         }
     }
 
-    internal void Bind(Button toggle, TextMeshProUGUI text, ModalView listModal, TableView list,
-        Func<TableView, EarlyDropdownCell> cellFactory)
-    {
-        button = toggle;
-        valueText = text;
-        modal = listModal;
-        table = list;
-        createCell = cellFactory;
-        button.onClick.AddListener(Open);
-        modal.blockerClickedEvent += Close;
-        table.didSelectRowEvent += OnSelectRow;
-        RefreshButton();
-    }
-
     public void SetTexts(IEnumerable<string> texts)
     {
         choices = new List<string>(texts);
@@ -95,7 +81,7 @@ public sealed class SimpleTextDropdown : MonoBehaviour, TableView.IDataSource
 
     TableCell TableView.IDataSource.CellForRow(int row)
     {
-        var cell = (EarlyDropdownCell)table.DequeueReusableCellForIdentifier(ReuseId);
+        EarlyDropdownCell cell = (EarlyDropdownCell)table.DequeueReusableCellForIdentifier(ReuseId);
         if (cell == null)
         {
             cell = createCell(table);
@@ -105,6 +91,19 @@ public sealed class SimpleTextDropdown : MonoBehaviour, TableView.IDataSource
 
         cell.text = choices[row] ?? string.Empty;
         return cell;
+    }
+
+    internal void Bind(Button toggle, TextMeshProUGUI text, ModalView listModal, TableView list, Func<TableView, EarlyDropdownCell> cellFactory)
+    {
+        button = toggle;
+        valueText = text;
+        modal = listModal;
+        table = list;
+        createCell = cellFactory;
+        button.onClick.AddListener(Open);
+        modal.blockerClickedEvent += Close;
+        table.didSelectRowEvent += OnSelectRow;
+        RefreshButton();
     }
 
     private void Open()
@@ -136,7 +135,7 @@ public sealed class SimpleTextDropdown : MonoBehaviour, TableView.IDataSource
         }
     }
 
-    private void OnSelectRow(TableView _, int row) => SelectFromInput(row);
+    private void OnSelectRow(TableView source, int row) => SelectFromInput(row);
 
     private void SelectFromInput(int row)
     {
