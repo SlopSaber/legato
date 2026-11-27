@@ -64,7 +64,9 @@ namespace SiraUtil.Sabers
             _saberTypeObject = gameObject.AddComponent<SaberTypeObject>();
             Saber saber = Saber = gameObject.AddComponent<T>();
             gameObject.layer = LayerMask.NameToLayer("Saber");
+#if !LEGATO_SIRA_EARLY_CONTEXTS
             Saber._saberType = _saberTypeObject;
+#endif
 
             GameObject top = new("Top");
             GameObject bottom = new("Bottom");
@@ -72,7 +74,9 @@ namespace SiraUtil.Sabers
             bottom.transform.SetParent(transform);
             top.transform.position = new Vector3(0f, 0f, 1f);
 
-#if LEGATO_BEFORE_MULTIPLAYER
+#if LEGATO_SIRA_EARLY_CONTEXTS
+            Legato.Sira.EarlySaberNative.Configure(saber, _saberModelProvider.StockSaber(saberType), _saberTypeObject, top.transform, bottom.transform, saberType);
+#elif LEGATO_BEFORE_MULTIPLAYER
             saber._topPos = top.transform;
             saber._handlePos = bottom.transform;
             saber._bottomPos = bottom.transform;
@@ -84,9 +88,13 @@ namespace SiraUtil.Sabers
             saber._saberBladeBottomPos = bottom.transform.position;
 #endif
 
+#if !LEGATO_SIRA_EARLY_CONTEXTS
             _saberTypeObject._saberType = saberType;
+#endif
             Model = _saberModelProvider.NewModel(saberType);
-#if LEGATO_BEFORE_MULTIPLAYER
+#if LEGATO_SIRA_EARLY_CONTEXTS
+            _saberModelProvider.Attach(saber, Model);
+#elif LEGATO_BEFORE_MULTIPLAYER
             Model.Init(transform, saberType);
 #elif LEGATO_LEGACY_SABER_MODEL_INIT
             Model.Init(transform, Saber);
@@ -101,6 +109,7 @@ namespace SiraUtil.Sabers
         /// <inheritdoc/>
         protected void Update()
         {
+#if !LEGATO_SIRA_EARLY_CONTEXTS
             if (Saber != null && Saber.gameObject.activeInHierarchy && Saber.enabled)
             {
                 Saber saber = Saber;
@@ -115,13 +124,14 @@ namespace SiraUtil.Sabers
 #endif
             }
 
+#endif
             if (_colorProcessNextFrame.Count > 0)
             {
                 _colorProcessNextFrame.Dequeue().Invoke();
             }
         }
 
-#if LEGATO_BEFORE_MULTIPLAYER
+#if LEGATO_BEFORE_MULTIPLAYER && !LEGATO_SIRA_EARLY_CONTEXTS
         private static void UpdateNativeSaber(Saber saber)
         {
             for (int index = saber._swingRatingCounters.Count - 1; index >= 0; index--)
@@ -159,7 +169,11 @@ namespace SiraUtil.Sabers
         /// </summary>
         public void SetType(SaberType newSaberType)
         {
+#if LEGATO_SIRA_EARLY_CONTEXTS
+            Legato.Sira.EarlySaberNative.ChangeType(_saberTypeObject, newSaberType);
+#else
             _saberTypeObject._saberType = newSaberType;
+#endif
             Model.SetColor(_colorManager.ColorForSaberType(newSaberType));
         }
 

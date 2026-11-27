@@ -107,6 +107,7 @@ namespace Legato.Sira
             EarlySceneContext core = Install(Location.GameCore, coreScene, app.Container, container =>
             {
                 Bind(container, player);
+                Bind(container, EarlySaberNative.GetColors(player?.leftSaber) ?? EarlySaberNative.GetColors(player?.rightSaber));
                 Bind(container, Find<AudioTimeSyncController>(playerScene));
                 Bind(container, Find<BeatmapDataModel>(playerScene));
                 Bind(container, Find<BeatmapObjectCallbackController>(playerScene));
