@@ -14,6 +14,10 @@ namespace Legato.Sira
     internal static class EarlySceneBootstrap
     {
         private static readonly List<EarlySceneContext> _contexts = new();
+        private static readonly AccessTools.FieldRef<MainGameSceneSetup, MainGameSceneSetupData> StandardData =
+            AccessTools.FieldRefAccess<MainGameSceneSetup, MainGameSceneSetupData>("_mainGameSceneSetupData");
+        private static readonly AccessTools.FieldRef<TutorialSceneSetup, TutorialSceneSetupData> TutorialData =
+            AccessTools.FieldRefAccess<TutorialSceneSetup, TutorialSceneSetupData>("_tutorialSceneSetupData");
         private static Action<Exception>? _reportFailure;
         private static EarlySceneContext? _app;
 
@@ -123,8 +127,12 @@ namespace Legato.Sira
                 Bind(container, Find<GamePauseManager>(playerScene));
                 Bind(container, Find<TutorialPauseManager>(playerScene));
                 Bind(container, Find<TutorialController>(playerScene));
-                Bind(container, Find<MainGameSceneSetup>(playerScene));
-                Bind(container, Find<TutorialSceneSetup>(playerScene));
+                MainGameSceneSetup? standard = Find<MainGameSceneSetup>(playerScene);
+                TutorialSceneSetup? tutorial = Find<TutorialSceneSetup>(playerScene);
+                Bind(container, standard);
+                Bind(container, tutorial);
+                GameSceneSetupData? setup = standard != null ? StandardData(standard) : tutorial != null ? TutorialData(tutorial) : null;
+                Bind(container, setup?.sceneInfo?.gameScenesManager);
             });
         }
 
