@@ -21,19 +21,24 @@ public class TextSlider : Slider
         set
         {
             steps = Mathf.Max(0, value);
-            Set(this.value, false);
+            Set(SliderValue, false);
         }
     }
 
     internal TextMeshProUGUI ValueLabel { get; private set; }
 
+    // Read the native slider value even if a derived control overrides its getter.
+#pragma warning disable SA1100
+    private float SliderValue => base.value;
+#pragma warning restore SA1100
+
     public void Refresh()
     {
         if (ValueLabel != null)
         {
-            ValueLabel.text = formatter != null ? formatter(this.value) : this.value.ToString("N2");
-            decrement.interactable = interactable && this.value > minValue;
-            increment.interactable = interactable && this.value < maxValue;
+            ValueLabel.text = formatter != null ? formatter(SliderValue) : SliderValue.ToString("N2");
+            decrement.interactable = interactable && SliderValue > minValue;
+            increment.interactable = interactable && SliderValue < maxValue;
         }
     }
 
@@ -68,7 +73,7 @@ public class TextSlider : Slider
 
     protected override void Set(float input, bool sendCallback)
     {
-        float previousValue = this.value;
+        float previousValue = SliderValue;
         if (steps > 1 && maxValue > minValue)
         {
             float fraction = Mathf.InverseLerp(minValue, maxValue, input);
@@ -78,9 +83,9 @@ public class TextSlider : Slider
 
         base.Set(input, sendCallback);
         Refresh();
-        if (sendCallback && previousValue != this.value)
+        if (sendCallback && previousValue != SliderValue)
         {
-            valueDidChangeEvent?.Invoke(this, this.value);
+            valueDidChangeEvent?.Invoke(this, SliderValue);
         }
     }
 
