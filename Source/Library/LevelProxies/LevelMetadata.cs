@@ -7,19 +7,26 @@ using System.Reflection;
 namespace Legato.Beatmaps {
     internal static class LevelMetadata {
         internal static string Authors(BeatmapLevel level) =>
-#if BEAT_SABER_1_29_0 || LEGATO_BEFORE_MULTIPLAYER
+#if LEGATO_EARLY_SCENE_SETUP
+            string.Empty;
+#elif BEAT_SABER_1_29_0 || LEGATO_BEFORE_MULTIPLAYER
             level.levelAuthorName;
 #else
             string.Join(", ", level.allMappers.Concat(level.allLighters).Distinct());
 #endif
         internal static BeatmapDifficulty Difficulty(BeatmapKey? key) => key?.difficulty ?? default;
         internal static string Characteristic(BeatmapKey? key) =>
-#if BEAT_SABER_1_29_0 || LEGATO_BEFORE_MULTIPLAYER
+#if LEGATO_EARLY_SCENE_SETUP
+            key == null ? string.Empty : "Standard";
+#elif BEAT_SABER_1_29_0 || LEGATO_BEFORE_MULTIPLAYER
             key == null ? string.Empty : BeatmapKeyExtensions.CharacteristicSerializedName(key);
 #else
             key.HasValue ? BeatmapKeyExtensions.CharacteristicSerializedName(key.Value) : string.Empty;
 #endif
         internal static Stream? OpenCustomCover(BeatmapLevel? level, object? loader) {
+#if LEGATO_EARLY_SCENE_SETUP
+            return EarlyLevelCatalog.OpenCustomCover(level);
+#else
             string? directory = null;
             string? filename = null;
 #if BEAT_SABER_1_29_0 || LEGATO_BEFORE_MULTIPLAYER
@@ -46,6 +53,7 @@ namespace Legato.Beatmaps {
 #endif
             return string.IsNullOrEmpty(filename) || string.IsNullOrEmpty(directory) ? null
                 : new FileStream(Path.Combine(directory!, filename!), FileMode.Open, FileAccess.Read, FileShare.Read, 0x4096, true);
+#endif
         }
     }
 }

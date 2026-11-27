@@ -1,4 +1,8 @@
-#if BEAT_SABER_1_29_0 || LEGATO_BEFORE_MULTIPLAYER
+#if LEGATO_EARLY_SCENE_SETUP
+global using BeatmapLevel = global::IStandardLevel;
+global using BeatmapKey = global::IStandardLevelDifficultyBeatmap;
+global using BeatmapDifficulty = global::LevelDifficulty;
+#elif BEAT_SABER_1_29_0 || LEGATO_BEFORE_MULTIPLAYER
 global using BeatmapLevel = global::IPreviewBeatmapLevel;
 global using BeatmapKey = global::IDifficultyBeatmap;
 global using NativeSongPack = global::IBeatmapLevelPack;
