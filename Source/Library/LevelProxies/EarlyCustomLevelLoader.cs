@@ -4,7 +4,6 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
-using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using UnityEngine;
@@ -14,11 +13,6 @@ namespace Legato.Beatmaps
 {
     internal static class EarlyCustomLevelLoader
     {
-        private static readonly MethodInfo LoadChart = typeof(CustomLevelStandardLevelLoader).GetMethod(
-            "Load", BindingFlags.NonPublic | BindingFlags.Instance, null,
-            new[] { typeof(CustomLevelInfo.DifficultyLevelInfo), typeof(string), typeof(BeatmapDataSO) }, null)
-            ?? throw new MissingMethodException(typeof(CustomLevelStandardLevelLoader).FullName, "Load");
-
         internal static async Task<StandardLevelSO?> LoadAsync(CustomLevelInfoWrapper entry, CancellationToken cancellationToken)
         {
             string? audioPath = EarlyLevelCatalog.LocalAsset(entry.path, entry.customLevelInfo.difficultyLevels[0].audioPath);
@@ -78,50 +72,50 @@ namespace Legato.Beatmaps
             if (!environment) environment = Resources.Load<SceneInfo>("SceneInfo/DefaultEnvironmentSceneInfo");
             if (!environment) return null;
 
-            var chartLoader = ScriptableObject.CreateInstance<CustomLevelStandardLevelLoader>();
             var difficulties = new List<StandardLevelSO.DifficultyBeatmap>();
             var charts = new List<BeatmapDataSO>();
-            StandardLevelSO? level = null;
+            var level = ScriptableObject.CreateInstance<StandardLevelSO>();
             bool published = false;
             try
             {
+                // The native difficulty constructor reads tempo and shuffle from its parent immediately.
+                Initialize(Array.Empty<StandardLevelSO.DifficultyBeatmap>());
                 foreach (CustomLevelInfo.DifficultyLevelInfo difficulty in info.difficultyLevels)
                 {
-                    if (string.IsNullOrEmpty(difficulty?.difficulty) ||
-                        EarlyLevelCatalog.LocalAsset(entry.path, difficulty.jsonPath) == null) continue;
+                    if (difficulty == null || string.IsNullOrEmpty(difficulty.difficulty) ||
+                        !difficulty.difficulty.LevelDifficultyFromName(out LevelDifficulty kind)) continue;
+                    string? chartPath = EarlyLevelCatalog.LocalAsset(entry.path, difficulty.jsonPath);
+                    if (chartPath == null) continue;
 
                     var chart = ScriptableObject.CreateInstance<BeatmapDataSO>();
                     charts.Add(chart);
-                    var native = (StandardLevelSO.DifficultyBeatmap?)LoadChart.Invoke(chartLoader, new object[] { difficulty, entry.path, chart });
-                    if (native != null) difficulties.Add(native);
-                    else
-                    {
-                        charts.RemoveAt(charts.Count - 1);
-                        Object.Destroy(chart);
-                    }
+                    chart.SetJsonData(File.ReadAllText(chartPath));
+                    difficulties.Add(new StandardLevelSO.DifficultyBeatmap(level, kind, difficulty.difficultyRank,
+                        difficulty.noteJumpMovementSpeed, chart));
                 }
                 if (difficulties.Count == 0) return null;
 
-                level = ScriptableObject.CreateInstance<StandardLevelSO>();
-                level.InitFull(entry.levelID, info.songName ?? string.Empty, info.songSubName ?? string.Empty,
-                    info.authorName ?? string.Empty, audio, audio.length, info.beatsPerMinute, 0f, 0f, 1f,
-                    info.previewStartTime, info.previewDuration, null, difficulties.ToArray(), environment);
+                Initialize(difficulties.ToArray());
                 published = true;
                 return level;
             }
-            catch (TargetInvocationException error) when (error.InnerException is IOException or UnauthorizedAccessException)
+            catch (Exception error) when (error is IOException or UnauthorizedAccessException or ArgumentException)
             {
                 return null;
             }
             finally
             {
-                Object.Destroy(chartLoader);
                 if (!published)
                 {
                     if (level) Object.Destroy(level);
                     foreach (BeatmapDataSO chart in charts) Object.Destroy(chart);
                 }
             }
+
+            void Initialize(StandardLevelSO.DifficultyBeatmap[] beatmaps) =>
+                level.InitFull(entry.levelID, info.songName ?? string.Empty, info.songSubName ?? string.Empty,
+                    info.authorName ?? string.Empty, audio, audio.length, info.beatsPerMinute, 0f, 0f, 1f,
+                    info.previewStartTime, info.previewDuration, null, beatmaps, environment);
         }
     }
 }
