@@ -166,6 +166,35 @@ internal class AssetBundleManager : IDisposable
                 _log.Info("Loaded the Unity 2019.4 map bundle through a UnityFS 6 archive.");
             }
 
+            if (converted != null && SystemInfo.graphicsDeviceType == UnityEngine.Rendering.GraphicsDeviceType.Direct3D11)
+            {
+                byte[]? repaired = null;
+                int programCount = 0;
+                try
+                {
+                    repaired = Legacy.LegacyDirect3DShaderRepair.Rewrite(legacyArchive, out programCount);
+                }
+                catch (Exception exception)
+                {
+                    _log.Warn($"Could not convert Direct3D shader headers: {exception.Message}");
+                }
+
+                if (repaired != null)
+                {
+                    // The original archive has already passed the map's CRC check.
+                    converted.Unload(true);
+                    AssetBundle? compatible = AssetBundle.LoadFromMemory(repaired);
+                    if (compatible != null)
+                    {
+                        _log.Info($"Converted {programCount} Direct3D shader programs for Unity 2019.3.");
+                        return compatible;
+                    }
+
+                    _log.Warn("Could not open the repaired shader archive. Loading the original map bundle.");
+                    return AssetBundle.LoadFromMemory(legacyArchive, checksum.Value);
+                }
+            }
+
             return converted;
         }
 #endif
