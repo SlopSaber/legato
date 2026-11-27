@@ -443,7 +443,7 @@
                Exclude="$(LegatoSourceRoot)Providers\PlaylistManager\EarlyPlaylistNavigation.cs"
                Condition="'$(LegatoEnablePlaylistManagerProviders)' == 'true' AND '$(LegatoTargetVersion)' != '0.11.1'" />
       <Compile Include="$(LegatoSourceRoot)Providers\PlaylistManager\EarlyPlaylistNavigation.cs"
-               Condition="'$(LegatoEnablePlaylistManagerProviders)' == 'true' AND '$(LegatoTargetVersion)' == '0.11.1'" />
+               Condition="'$(LegatoTargetVersion)' == '0.11.1' AND ('$(LegatoEnablePlaylistManagerProviders)' == 'true' OR '$(LegatoEnableEarlySongNavigation)' == 'true')" />
       <Compile Include="$(LegatoSourceRoot)Providers\LeaderboardCore\EarlyLeaderboardScreen.cs"
                Condition="'$(LegatoEnableLeaderboardCoreProviders)' == 'true' AND '$(LegatoTargetVersion)' == '0.11.1'" />
       <Compile Include="$(LegatoSourceRoot)Library\EditorAccess\**\*.cs"

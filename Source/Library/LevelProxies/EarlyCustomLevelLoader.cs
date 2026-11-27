@@ -17,14 +17,15 @@ namespace Legato.Beatmaps
 {
     internal static class EarlyCustomLevelLoader
     {
-        internal static async Task<StandardLevelSO?> LoadAsync(EarlyMapEntry entry, CancellationToken cancellationToken)
+        internal static async Task<StandardLevelSO?> LoadAsync(EarlyMapEntry entry, CancellationToken cancellationToken,
+            IReadOnlyCollection<LevelDifficulty>? allowedDifficulties = null, bool longPreviews = false)
         {
             CustomLevelInfoWrapper native = entry.Native;
             string? audioPath = EarlyMapFiles.LocalAsset(native.path, native.customLevelInfo.difficultyLevels[0]?.audioPath);
             if (audioPath == null || !IsPositive(native.customLevelInfo.beatsPerMinute)) return null;
 
             List<(CustomLevelInfo.DifficultyLevelInfo Difficulty, LevelDifficulty Kind, string Json)> charts =
-                await Task.Run(() => ReadCharts(native, cancellationToken), cancellationToken);
+                await Task.Run(() => ReadCharts(native, allowedDifficulties, cancellationToken), cancellationToken);
             if (charts.Count == 0) return null;
             byte[]? coverBytes = await Task.Run(() => ReadCover(native), cancellationToken);
             await UnityGame.SwitchToMainThreadAsync();
@@ -40,7 +41,7 @@ namespace Legato.Beatmaps
             try
             {
                 cancellationToken.ThrowIfCancellationRequested();
-                level = BuildLevel(entry, audio!, charts, coverBytes);
+                level = BuildLevel(entry, audio!, charts, coverBytes, longPreviews);
                 return level;
             }
             finally
@@ -50,14 +51,15 @@ namespace Legato.Beatmaps
         }
 
         private static List<(CustomLevelInfo.DifficultyLevelInfo Difficulty, LevelDifficulty Kind, string Json)>
-            ReadCharts(CustomLevelInfoWrapper native, CancellationToken cancellationToken)
+            ReadCharts(CustomLevelInfoWrapper native, IReadOnlyCollection<LevelDifficulty>? allowedDifficulties, CancellationToken cancellationToken)
         {
             var charts = new List<(CustomLevelInfo.DifficultyLevelInfo, LevelDifficulty, string)>();
             foreach (CustomLevelInfo.DifficultyLevelInfo difficulty in native.customLevelInfo.difficultyLevels)
             {
                 cancellationToken.ThrowIfCancellationRequested();
                 if (difficulty == null || string.IsNullOrEmpty(difficulty.difficulty) ||
-                    !difficulty.difficulty.LevelDifficultyFromName(out LevelDifficulty kind)) continue;
+                    !difficulty.difficulty.LevelDifficultyFromName(out LevelDifficulty kind) ||
+                    (allowedDifficulties != null && !allowedDifficulties.Contains(kind))) continue;
 
                 try
                 {
@@ -132,15 +134,16 @@ namespace Legato.Beatmaps
         }
 
         private static StandardLevelSO? BuildLevel(EarlyMapEntry entry, AudioClip audio,
-            List<(CustomLevelInfo.DifficultyLevelInfo Difficulty, LevelDifficulty Kind, string Json)> sources, byte[]? coverBytes)
+            List<(CustomLevelInfo.DifficultyLevelInfo Difficulty, LevelDifficulty Kind, string Json)> sources, byte[]? coverBytes, bool longPreviews)
         {
             CustomLevelInfoWrapper native = entry.Native;
             CustomLevelInfo info = native.customLevelInfo;
             float previewStart = Mathf.Clamp(info.previewStartTime, 0f, Mathf.Max(0f, audio.length - 0.1f));
-            float previewDuration = Mathf.Clamp(info.previewDuration, 0f, audio.length - previewStart);
+            float remainingAudio = audio.length - previewStart;
+            float previewDuration = longPreviews ? remainingAudio : Mathf.Clamp(info.previewDuration, 0f, remainingAudio);
 
-            SceneInfo environment = Resources.Load<SceneInfo>("SceneInfo/" + info.environmentName + "SceneInfo");
-            if (!environment) environment = Resources.Load<SceneInfo>("SceneInfo/DefaultEnvironmentSceneInfo");
+            SceneInfo environment = UnityEngine.Resources.Load<SceneInfo>("SceneInfo/" + info.environmentName + "SceneInfo");
+            if (!environment) environment = UnityEngine.Resources.Load<SceneInfo>("SceneInfo/DefaultEnvironmentSceneInfo");
             if (!environment) return null;
 
             var difficulties = new List<StandardLevelSO.DifficultyBeatmap>();

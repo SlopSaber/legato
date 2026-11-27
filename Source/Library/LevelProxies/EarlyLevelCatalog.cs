@@ -15,6 +15,7 @@ namespace Legato.Beatmaps
         private readonly Dictionary<string, StandardLevelSO> _loaded;
         private readonly Dictionary<string, EarlyMapEntry> _byPath = new(StringComparer.OrdinalIgnoreCase);
         private readonly Dictionary<string, EarlyMapEntry> _byHash = new(StringComparer.OrdinalIgnoreCase);
+        private readonly Dictionary<string, string> _hashes = new(StringComparer.OrdinalIgnoreCase);
 
         private EarlyLevelCatalog(Dictionary<string, StandardLevelSO> loaded)
         {
@@ -24,23 +25,47 @@ namespace Legato.Beatmaps
         internal static BeatmapLevel? FindLoaded(string? levelId)
         {
             if (string.IsNullOrEmpty(levelId)) return null;
-            return Resources.FindObjectsOfTypeAll<StandardLevelSO>()
+            return UnityEngine.Resources.FindObjectsOfTypeAll<StandardLevelSO>()
                 .FirstOrDefault(level => level && string.Equals(level.levelID, levelId, StringComparison.OrdinalIgnoreCase));
         }
 
-        internal static Task<EarlyLevelCatalog> ReadAsync(bool indexHashes, CancellationToken cancellationToken)
+        internal IReadOnlyCollection<EarlyMapEntry> Entries => _byPath.Values;
+
+        internal bool TryGetEntry(string levelId, out EarlyMapEntry? entry) => _byPath.TryGetValue(levelId, out entry);
+
+        internal string? HashFor(string levelId) => _hashes.TryGetValue(levelId, out string hash) ? hash : null;
+
+        internal static Task<EarlyLevelCatalog> ReadAsync(bool indexHashes, CancellationToken cancellationToken) =>
+            ReadAsync(new[] { CustomLevelsModelSO.customLevelsDirectoryPath }, indexHashes, cancellationToken);
+
+        internal static Task<EarlyLevelCatalog> ReadAsync(IEnumerable<string> customRoots, bool indexHashes, CancellationToken cancellationToken)
         {
             var loaded = new Dictionary<string, StandardLevelSO>(StringComparer.OrdinalIgnoreCase);
-            foreach (StandardLevelSO level in Resources.FindObjectsOfTypeAll<StandardLevelSO>())
+            foreach (StandardLevelSO level in UnityEngine.Resources.FindObjectsOfTypeAll<StandardLevelSO>())
             {
                 if (level && !string.IsNullOrEmpty(level.levelID)) loaded[level.levelID] = level;
             }
 
-            string root = Path.GetFullPath(CustomLevelsModelSO.customLevelsDirectoryPath);
+            string[] roots = customRoots.Where(root => !string.IsNullOrWhiteSpace(root)).ToArray();
             var catalog = new EarlyLevelCatalog(loaded);
             return Task.Run(() =>
             {
-                catalog.ReadCustomLevels(root, indexHashes, cancellationToken);
+                var visited = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+                foreach (string root in roots)
+                {
+                    cancellationToken.ThrowIfCancellationRequested();
+                    try
+                    {
+                        string directory = Path.GetFullPath(root);
+                        if (directory.Length > Path.GetPathRoot(directory).Length)
+                            directory = directory.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
+                        if (visited.Add(directory)) catalog.ReadCustomLevels(directory, indexHashes, cancellationToken);
+                    }
+                    catch (Exception error) when (error is IOException or UnauthorizedAccessException or ArgumentException or NotSupportedException)
+                    {
+                        // A configured folder can be unavailable while the native song folder remains readable.
+                    }
+                }
                 return catalog;
             }, cancellationToken);
         }
@@ -89,7 +114,11 @@ namespace Legato.Beatmaps
                     if (!indexHashes) continue;
 
                     string? hash = EarlyMapFiles.ComputeHash(entry);
-                    if (hash != null && !_byHash.ContainsKey(hash)) _byHash[hash] = entry;
+                    if (hash != null)
+                    {
+                        _hashes[native.levelID] = hash;
+                        if (!_byHash.ContainsKey(hash)) _byHash[hash] = entry;
+                    }
                 }
                 catch (Exception error) when (error is IOException or UnauthorizedAccessException or ArgumentException)
                 {
