@@ -1,3 +1,4 @@
+#if !LEGATO_SIRA_EARLY_CONTEXTS
 using HMUI;
 using TMPro;
 using UnityEngine;
@@ -75,3 +76,4 @@ namespace SiraUtil.Submissions
         }
     }
 }
+#endif
