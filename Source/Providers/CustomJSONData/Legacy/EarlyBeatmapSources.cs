@@ -1,10 +1,11 @@
 #if LEGATO_EARLY_SCENE_SETUP
 #nullable enable
-using System;
-using System.Runtime.CompilerServices;
 
 namespace Legato.Beatmaps
 {
+    using System;
+    using System.Runtime.CompilerServices;
+
     internal static class EarlyBeatmapSources
     {
         private const string DomainKey = "Legato.Beatmaps.EarlyBeatmapSources";
