@@ -18,11 +18,24 @@ public static class EarlyTableExtensions
         EarlyTableLayout.Create(parent, name, out table);
 
     /// <summary>Attaches a data source and activates the native list.</summary>
-    public static void ActivateCustomTable(this TableView table, TableView.IDataSource dataSource, Vector2 size, bool showScrollbar)
+    public static void ActivateCustomTable(this TableView table, TableView.IDataSource dataSource, Vector2 size, bool showScrollbar) =>
+        ActivateCustomTable(table, dataSource, size, showScrollbar, false, false);
+
+    /// <summary>Activates a custom list with the requested orientation and alignment.</summary>
+    public static void ActivateCustomTable(this TableView table, TableView.IDataSource dataSource, Vector2 size, bool showScrollbar, bool alignCenter, bool horizontal)
     {
         EarlyTableLayout layout = table.transform.parent.GetComponent<EarlyTableLayout>();
-        layout.Show(dataSource, size, false, showScrollbar);
+        layout.SetDirection(horizontal ? "Horizontal" : "Vertical");
+        layout.Show(dataSource, size, alignCenter, showScrollbar);
     }
+
+    /// <summary>Creates a native song cell with cover, title, and author controls.</summary>
+    /// <returns>The song cell ready to bind to a row.</returns>
+    public static StandardLevelListTableCell CreateCustomSongCell(this TableView table) => EarlyListCells.CreateSongCell(table);
+
+    /// <summary>Creates a native single-label cell.</summary>
+    /// <returns>The text cell ready to bind to a row.</returns>
+    public static SimpleListTableCell CreateCustomTextCell(this TableView table) => EarlyListCells.CreateTextCell(table);
 
     public static void SelectCellWithIdx(this TableView table, int index)
     {
