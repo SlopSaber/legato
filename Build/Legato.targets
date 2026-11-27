@@ -29,7 +29,7 @@
       <_LegatoTargetVersion Include="@(LegatoGameVersion->WithMetadataValue('Identity', '$(LegatoTargetVersion)'))" />
       <_LegatoSourceVersion Include="@(LegatoGameVersion->WithMetadataValue('Identity', '$(LegatoSourceVersion)'))" />
       <_LegatoPortableShaderProfile Include="@(LegatoPortableShaderProfile->WithMetadataValue('Identity', '$(LegatoTargetVersion)'))"
-                                   Condition="'$(LegatoEnablePortableRendering)' == 'true' OR '$(LegatoEnableCinemaAssets)' == 'true'" />
+                                   Condition="'$(LegatoEnablePortableRendering)' == 'true' OR '$(LegatoEnableCinemaAssets)' == 'true' OR '@(LegatoPortableShaderSource)' != ''" />
     </ItemGroup>
     <PropertyGroup>
       <LegatoTargetProfile>@(_LegatoTargetVersion->'%(Profile)')</LegatoTargetProfile>
