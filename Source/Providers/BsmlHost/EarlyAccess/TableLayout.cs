@@ -12,6 +12,18 @@ namespace BeatSaberMarkupLanguage.Components;
 
 public static class EarlyTableExtensions
 {
+    /// <summary>Creates a dormant native table and its enclosing BSML layout.</summary>
+    /// <returns>The layout containing the table.</returns>
+    public static GameObject CreateCustomTable(Transform parent, string name, out TableView table) =>
+        EarlyTableLayout.Create(parent, name, out table);
+
+    /// <summary>Attaches a data source and activates the native list.</summary>
+    public static void ActivateCustomTable(this TableView table, TableView.IDataSource dataSource, Vector2 size, bool showScrollbar)
+    {
+        EarlyTableLayout layout = table.transform.parent.GetComponent<EarlyTableLayout>();
+        layout.Show(dataSource, size, false, showScrollbar);
+    }
+
     public static void SelectCellWithIdx(this TableView table, int index)
     {
         if (table.dataSource != null && index >= 0 && index < table.dataSource.NumberOfRows())

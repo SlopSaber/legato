@@ -27,6 +27,7 @@ namespace Legato.Coroutines {
         }
     }
 }
+#if !LEGATO_EARLY_STANDARD_MAPS
 namespace Legato.Audio {
     internal static class PlaybackLifecycle {
         internal static bool IsPlaying(AudioTimeSyncController controller) =>
@@ -43,3 +44,4 @@ namespace Legato.Audio {
 #endif
     }
 }
+#endif

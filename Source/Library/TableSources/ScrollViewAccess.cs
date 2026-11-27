@@ -5,7 +5,16 @@ using IPA.Utilities;
 
 namespace Legato.UI {
     internal static class ScrollViewAccess {
-#if LEGATO_BEFORE_MULTIPLAYER
+#if LEGATO_EARLY_STANDARD_MAPS
+        internal static void ScrollToTop(TableView table, bool animated) {
+            if (table.dataSource?.NumberOfRows() > 0) table.ScrollToRow(0, animated);
+        }
+
+        internal static void ScrollToBottom(TableView table, bool animated) {
+            int count = table.dataSource?.NumberOfRows() ?? 0;
+            if (count > 0) table.ScrollToRow(count - 1, animated);
+        }
+#elif LEGATO_BEFORE_MULTIPLAYER
         internal static void ScrollToTop(TableView table, bool animated) {
             if (table.numberOfCells > 0) table.ScrollToCellWithIdx(0, TableViewScroller.ScrollPositionType.Beginning, animated);
         }

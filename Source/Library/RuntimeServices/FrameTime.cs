@@ -1,3 +1,4 @@
+#if !LEGATO_EARLY_STANDARD_MAPS
 namespace Legato.Coroutines {
     internal static class FrameTime {
         internal static float Delta(TimeHelper helper) =>
@@ -14,3 +15,4 @@ namespace Legato.Coroutines {
 #endif
     }
 }
+#endif
