@@ -57,6 +57,13 @@ namespace Legato.Performance {
 #endif
         }
 
+#if LEGATO_EARLY_STANDARD_MAPS
+        internal float ReadLegacyXrFallback(float current, float frameSeconds) {
+            if (!Finite(current) && XRStats.TryGetGPUTimeLastFrame(out float seconds) &&
+                Valid(seconds) && seconds <= Mathf.Max(0.5f, frameSeconds)) return seconds * 1000f;
+            return current;
+        }
+#else
         internal float ReadXrFallback(float current, XRDisplaySubsystem display, float frameSeconds) {
 #if !LEGATO_NATIVE_GPU_TIMING
             if (!Finite(current) && display.TryGetAppGPUTimeLastFrame(out float seconds) && Valid(seconds)) {
@@ -69,6 +76,7 @@ namespace Legato.Performance {
 #endif
             return current;
         }
+#endif
 
         private static bool Finite(float value) => !float.IsNaN(value) && !float.IsInfinity(value);
 #if !LEGATO_NATIVE_GPU_TIMING
