@@ -28,7 +28,7 @@ public abstract class BsmlSegmentedControl : SegmentedControl, SegmentedControl.
     internal static T Create<T>(Transform parent, string name, bool vertical = false)
         where T : BsmlSegmentedControl
     {
-        GameObject node = new GameObject(name, typeof(RectTransform));
+        GameObject node = new(name, typeof(RectTransform));
         node.layer = parent.gameObject.layer;
         RectTransform rect = (RectTransform)node.transform;
         rect.SetParent(parent, false);
@@ -100,7 +100,7 @@ public abstract class BsmlSegmentedControl : SegmentedControl, SegmentedControl.
 
     private TextSegmentedControlCell CreateCellWithoutPrefab()
     {
-        GameObject node = new GameObject("BSML Segment", typeof(RectTransform));
+        GameObject node = new("BSML Segment", typeof(RectTransform));
         node.layer = gameObject.layer;
         node.SetActive(false);
         node.transform.SetParent(transform, false);

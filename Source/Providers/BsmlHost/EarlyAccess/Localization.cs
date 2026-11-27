@@ -40,6 +40,7 @@ public sealed class EarlyLocalizedText : MonoBehaviour
         }
     }
 }
+
 internal static class EarlyLocalization
 {
     private static readonly Lazy<Dictionary<string, string>> Text = new(Load);
@@ -51,7 +52,7 @@ internal static class EarlyLocalization
 
     private static Dictionary<string, string> Load()
     {
-        Dictionary<string, string> text = new Dictionary<string, string>(StringComparer.Ordinal)
+        Dictionary<string, string> text = new(StringComparer.Ordinal)
         {
             ["BUTTON_CANCEL"] = "Cancel",
             ["BUTTON_OK"] = "OK",
@@ -63,7 +64,7 @@ internal static class EarlyLocalization
             return text;
         }
 
-        using StreamReader reader = new StreamReader(stream);
+        using StreamReader reader = new(stream);
         foreach (List<string> row in ReadRows(reader))
         {
             if (row.Count > 2 && row[0] != "Polyglot" && !string.IsNullOrEmpty(row[0]) && !string.IsNullOrEmpty(row[2]))
@@ -77,8 +78,8 @@ internal static class EarlyLocalization
 
     private static IEnumerable<List<string>> ReadRows(TextReader reader)
     {
-        List<string> row = new List<string>();
-        StringBuilder field = new StringBuilder();
+        List<string> row = new();
+        StringBuilder field = new();
         bool quoted = false;
         for (int value = reader.Read(); value != -1; value = reader.Read())
         {

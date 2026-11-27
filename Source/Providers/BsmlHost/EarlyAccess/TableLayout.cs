@@ -20,6 +20,7 @@ public static class EarlyTableExtensions
         }
     }
 }
+
 [HarmonyPatch(typeof(TableView), "Update")]
 internal static class EarlyTablePaging
 {

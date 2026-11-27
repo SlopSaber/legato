@@ -9,7 +9,7 @@ internal static class EarlyButtonFactory
 {
     internal static Button Create(Transform parent, string name)
     {
-        GameObject node = new GameObject(name, typeof(RectTransform));
+        GameObject node = new(name, typeof(RectTransform));
         node.layer = parent.gameObject.layer;
         RectTransform rect = (RectTransform)node.transform;
         rect.SetParent(parent, false);

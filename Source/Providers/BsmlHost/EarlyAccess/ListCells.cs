@@ -41,7 +41,7 @@ internal static class EarlyListCells
 
     internal static BSMLBoxTableCell CreateBoxCell(TableView table)
     {
-        GameObject node = new GameObject("BSML Box Cell", typeof(RectTransform));
+        GameObject node = new("BSML Box Cell", typeof(RectTransform));
         node.SetActive(false);
         node.layer = table.gameObject.layer;
         BSMLBoxTableCell cell = node.AddComponent<BSMLBoxTableCell>();
@@ -73,7 +73,7 @@ internal static class EarlyListCells
     private static T Create<T>(TableView table, out RectTransform content)
         where T : TableCell
     {
-        GameObject node = new GameObject(typeof(T).Name, typeof(RectTransform));
+        GameObject node = new(typeof(T).Name, typeof(RectTransform));
         node.SetActive(false);
         node.layer = table.gameObject.layer;
         T cell = node.AddComponent<T>();
