@@ -2,15 +2,17 @@ using System;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+#if !LEGATO_BSUTILS_EARLY
 using Zenject;
+using static GameScenesManager;
+#endif
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using BS_Utils.Utilities.Events;
-using static GameScenesManager;
 
 namespace BS_Utils.Utilities
 {
-    public class BSEvents : MonoBehaviour
+    public partial class BSEvents : MonoBehaviour
     {
         static BSEvents Instance;
 
@@ -33,9 +35,15 @@ namespace BS_Utils.Utilities
 
         // Menu Events
         public static event Action<StandardLevelDetailViewController> difficultySelected;
+#if LEGATO_BSUTILS_EARLY
+        public static event Action<StandardLevelSelectionFlowCoordinator, GameplayMode> characteristicSelected;
+        public static event Action<StandardLevelSelectionNavigationController, IStandardLevel[]> levelPackSelected;
+        public static event Action<VRUI.VRUIViewController, IStandardLevel> levelSelected;
+#else
         public static event Action<BeatmapCharacteristicSegmentedControlController, BeatmapCharacteristicSO> characteristicSelected;
         public static event Action<LevelSelectionNavigationController, NativeBeatmapLevelPack> levelPackSelected;
         public static event Action<LevelCollectionViewController, BeatmapLevel> levelSelected;
+#endif
 
         // Game Events
         public static event Action songPaused;
@@ -65,12 +73,14 @@ namespace BS_Utils.Utilities
         public static event EventHandler<(MultiplayerLevelScenesTransitionSetupData, DisconnectedReason)> MultiplayerDidDisconnect;
 #endif
 
+#if !LEGATO_BSUTILS_EARLY
         readonly string[] MainSceneNames = { SceneNames.Game, SceneNames.Credits, SceneNames.BeatmapEditor };
         private bool lastMainSceneWasNotMenu = false;
         GameScenesManager gameScenesManager;
 #if !LEGATO_BEFORE_MULTIPLAYER
         private MultiplayerController _multiplayerController;
         private Action<MultiplayerController.State> _multiplayerStateHandler;
+#endif
 #endif
 
         // Weak keys allow old subscriber lists and their scene objects to be collected.
@@ -89,11 +99,14 @@ namespace BS_Utils.Utilities
             if (Instance != null) return;
             Instance = this;
 
+#if !LEGATO_BSUTILS_EARLY
             SceneManager.activeSceneChanged += SceneManagerOnActiveSceneChanged;
+#endif
 
             DontDestroyOnLoad(gameObject);
         }
 
+#if !LEGATO_BSUTILS_EARLY
         private void SceneManagerOnActiveSceneChanged(Scene arg0, Scene arg1)
         {
 #if !LEGATO_BEFORE_MULTIPLAYER
@@ -367,6 +380,13 @@ namespace BS_Utils.Utilities
             }
         }
 
+#else
+        private void OnDestroy()
+        {
+            if (Instance == this) Instance = null;
+        }
+#endif
+
         private static void InvokeSafely(Action action)
         {
             if (action == null) return;
@@ -500,6 +520,7 @@ namespace BS_Utils.Utilities
                 nameof(LevelFinished));
         }
 #endif
+#if !LEGATO_BSUTILS_EARLY
         internal static void TriggerMissionFinishEvent(MissionLevelScenesTransitionSetupData missionLevelScenesTransitionSetupData, MissionCompletionResults missionCompletionResults)
         {
             Logger.log.Debug("Campaign level finished.");
@@ -507,7 +528,14 @@ namespace BS_Utils.Utilities
                 new CampaignLevelFinishedEventArgs(missionLevelScenesTransitionSetupData, missionCompletionResults),
                 nameof(LevelFinished));
         }
-        internal static void TriggerTutorialFinishEvent(TutorialScenesTransitionSetupData tutorialLevelScenesTransitionSetupData, TutorialScenesTransitionSetupData.TutorialEndStateType endState)
+#endif
+
+        internal static void TriggerTutorialFinishEvent(TutorialScenesTransitionSetupData tutorialLevelScenesTransitionSetupData,
+#if LEGATO_BSUTILS_EARLY
+            bool endState)
+#else
+            TutorialScenesTransitionSetupData.TutorialEndStateType endState)
+#endif
         {
             Logger.log.Debug("Tutorial level finished.");
             LevelFinished?.RaiseEventSafe(tutorialLevelScenesTransitionSetupData,

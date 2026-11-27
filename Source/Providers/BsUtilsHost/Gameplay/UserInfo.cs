@@ -6,7 +6,11 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using BS_Utils.Utilities;
-#if LEGATO_BEFORE_MULTIPLAYER
+#if LEGATO_BSUTILS_EARLY
+using IPlatform = global::PlatformLeaderboardsModel;
+using UserInfo = BS_Utils.Gameplay.EarlyUserInfo;
+using UserPlatform = BS_Utils.Gameplay.EarlyUserInfo.Platform;
+#elif LEGATO_BEFORE_MULTIPLAYER
 using IPlatform = global::PlatformUserModelSO;
 using UserInfo = global::PlatformUserModelSO.UserInfo;
 using UserPlatform = global::PlatformInfo.Platform;
@@ -70,7 +74,9 @@ namespace BS_Utils.Gameplay
 
         private static IPlatform NativePlatform(PlatformLeaderboardsModel model)
         {
-#if LEGATO_PLATFORM_USER_MODEL
+#if LEGATO_BSUTILS_EARLY
+            return model.valid ? model : null;
+#elif LEGATO_PLATFORM_USER_MODEL
             return model._platformUserModel;
 #else
             return model._platform;
@@ -111,7 +117,11 @@ namespace BS_Utils.Gameplay
                         Logger.log.Error("IPlatformUserModel not found, cannot update user info.");
                         return null;
                     }
-                    if (getUserTask == null || getUserTask.Status == TaskStatus.Faulted)
+                    if (getUserTask == null || getUserTask.Status == TaskStatus.Faulted
+#if LEGATO_BSUTILS_EARLY
+                        || (getUserTask.Status == TaskStatus.RanToCompletion && getUserTask.Result == null)
+#endif
+                        )
                         getUserTask = InternalGetUserAsync();
                 }
                 return await getUserTask;
@@ -124,6 +134,20 @@ namespace BS_Utils.Gameplay
             }
         }
 
+#if LEGATO_BSUTILS_EARLY
+        private static Task<UserInfo> InternalGetUserAsync()
+        {
+            if (!SteamManager.Initialized) return Task.FromResult<UserInfo>(null);
+            CSteamID steamUser = SteamUser.GetSteamID();
+            if (steamUser.m_SteamID == 0) return Task.FromResult<UserInfo>(null);
+
+            userName = SteamFriends.GetPersonaName();
+            userID = steamUser.m_SteamID.ToString(System.Globalization.CultureInfo.InvariantCulture);
+            platform = UserPlatform.Steam;
+            userAvatar = GetAvatar(steamUser);
+            return Task.FromResult(new UserInfo(userID, userName));
+        }
+#else
         private static async Task<UserInfo> InternalGetUserAsync()
         {
 #if LEGATO_BEFORE_MULTIPLAYER
@@ -189,6 +213,8 @@ namespace BS_Utils.Gameplay
                 userAvatar = GetAvatar(steamUser);
             }
         }
+#endif
+
         private static Texture2D GetAvatar(CSteamID steamUser)
         {
             int avatarInt = SteamFriends.GetLargeFriendAvatar(steamUser);
@@ -238,4 +264,27 @@ namespace BS_Utils.Gameplay
             return userAvatar;
         }
     }
+
+#if LEGATO_BSUTILS_EARLY
+    /// <summary>Identity obtained through the early game's Steam leaderboard platform.</summary>
+    public sealed class EarlyUserInfo
+    {
+        /// <summary>The account platform supported by the early leaderboard.</summary>
+        public enum Platform
+        {
+            Steam
+        }
+
+        internal EarlyUserInfo(string id, string name)
+        {
+            userId = id;
+            userName = name;
+        }
+
+        public string userId { get; }
+        public string platformUserId => userId;
+        public string userName { get; }
+        public Platform platform => Platform.Steam;
+    }
+#endif
 }

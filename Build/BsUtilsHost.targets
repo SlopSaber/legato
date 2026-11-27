@@ -1,5 +1,17 @@
 <Project>
   <Target Name="LegatoBsUtilsNativeReferences" BeforeTargets="ResolveAssemblyReferences" DependsOnTargets="LegatoConfigure">
+    <PropertyGroup Condition="'$(LegatoTargetVersion)' == '0.11.1'">
+      <DefineConstants>$(DefineConstants);LEGATO_BSUTILS_EARLY;LEGATO_BEFORE_MULTIPLAYER</DefineConstants>
+    </PropertyGroup>
+    <ItemGroup Condition="'$(LegatoTargetVersion)' == '0.11.1'">
+      <Reference Remove="BGLib.AppFlow;BGLib.UnityExtension;BGNetCore;BeatSaber.Init;BeatmapCore;BeatSaber.Multiplayer.Core;BeatSaber.ViewSystem;DataModels;GamePlayCore;HMLib;HMUI;Main;PlatformUserModel;OculusStudios.Platform.Core;OculusStudios.Platform.Steam;com.rlabrecque.steamworks.net;Unity.TextMeshPro;Zenject;Zenject-usage" />
+      <Reference Include="Assembly-CSharp" HintPath="$(LegatoReferenceRoot)\Beat Saber_Data\Managed\Assembly-CSharp.dll" Private="false" />
+      <Reference Include="Assembly-CSharp-firstpass" HintPath="$(LegatoReferenceRoot)\Beat Saber_Data\Managed\Assembly-CSharp-firstpass.dll" Private="false" />
+      <Reference Include="UnityEngine" HintPath="$(LegatoReferenceRoot)\Beat Saber_Data\Managed\UnityEngine.dll" Private="false" />
+      <Reference Include="UnityEngine.UIModule" HintPath="$(LegatoReferenceRoot)\Beat Saber_Data\Managed\UnityEngine.UIModule.dll" Private="false" />
+      <Reference Include="UnityEngine.UI" HintPath="$(LegatoReferenceRoot)\Beat Saber_Data\Managed\UnityEngine.UI.dll" Private="false" />
+      <Reference Include="TextMeshPro-1.0.55.2017.1.0b12" HintPath="$(LegatoReferenceRoot)\Beat Saber_Data\Managed\TextMeshPro-1.0.55.2017.1.0b12.dll" Private="false" />
+    </ItemGroup>
     <ItemGroup Condition="'$(LegatoTargetProfile)' == '1.29.0'">
       <Reference Remove="BGLib.AppFlow;BGLib.UnityExtension;BGNetCore;BeatSaber.Init;BeatSaber.Multiplayer.Core;BeatSaber.ViewSystem;DataModels;PlatformUserModel;OculusStudios.Platform.Core;OculusStudios.Platform.Steam;com.rlabrecque.steamworks.net" />
       <Reference Include="BGNet" HintPath="$(LegatoReferenceRoot)\Beat Saber_Data\Managed\BGNet.dll" Private="false" />
