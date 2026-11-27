@@ -150,7 +150,7 @@ namespace SiraUtil.Sabers
                 model = NewModel(saber.saberType);
                 Attach(saber, model);
                 _replacements.Add(saber, model);
-                stock.SetStockVisible(false);
+                stock.HideStock();
             }
             catch (Exception exception)
             {

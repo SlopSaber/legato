@@ -11,11 +11,13 @@ public class SaberModelController : MonoBehaviour
     private static readonly int ColorProperty = Shader.PropertyToID("_Color");
     private readonly List<Glow> _glows = new();
     private readonly List<KeyValuePair<MeshRenderer, bool>> _stockRenderers = new();
+    private readonly List<KeyValuePair<MeshRenderer, bool>> _hiddenRenderers = new();
     private readonly MaterialPropertyBlock _properties = new();
     private SaberWeaponTrail? _stockTrail;
     private Xft.XWeaponTrail? _ownedTrail;
     private Color _ownedTrailTint;
     private bool _stockTrailEnabled;
+    private bool _stockHidden;
 
     internal Color PhysicalColor { get; private set; } = Color.white;
 
@@ -36,7 +38,6 @@ public class SaberModelController : MonoBehaviour
         SaberModelController model = root.AddComponent<SaberModelController>();
         model.PhysicalColor = color;
         model._stockTrail = saber.GetComponent<SaberWeaponTrail>();
-        model._stockTrailEnabled = model._stockTrail != null && model._stockTrail.enabled;
         foreach (MeshRenderer renderer in saber.GetComponentsInChildren<MeshRenderer>(true))
         {
             model._stockRenderers.Add(new KeyValuePair<MeshRenderer, bool>(renderer, renderer.enabled));
@@ -131,20 +132,28 @@ public class SaberModelController : MonoBehaviour
         }
     }
 
-    internal void SetStockVisible(bool visible)
+    internal void HideStock()
     {
+        if (_stockHidden)
+        {
+            return;
+        }
+
+        _stockHidden = true;
         foreach (KeyValuePair<MeshRenderer, bool> state in _stockRenderers)
         {
             MeshRenderer renderer = state.Key;
             if (renderer != null)
             {
-                renderer.enabled = visible && state.Value;
+                _hiddenRenderers.Add(new KeyValuePair<MeshRenderer, bool>(renderer, renderer.enabled));
+                renderer.enabled = false;
             }
         }
 
         if (_stockTrail != null)
         {
-            _stockTrail.enabled = visible && _stockTrailEnabled;
+            _stockTrailEnabled = _stockTrail.enabled;
+            _stockTrail.enabled = false;
         }
     }
 
@@ -160,7 +169,26 @@ public class SaberModelController : MonoBehaviour
             EarlySaberNative.RestoreTrailColor(_stockTrail);
         }
 
-        SetStockVisible(true);
+        if (!_stockHidden)
+        {
+            return;
+        }
+
+        foreach (KeyValuePair<MeshRenderer, bool> state in _hiddenRenderers)
+        {
+            if (state.Key != null)
+            {
+                state.Key.enabled = state.Value;
+            }
+        }
+
+        if (_stockTrail != null)
+        {
+            _stockTrail.enabled = _stockTrailEnabled;
+        }
+
+        _hiddenRenderers.Clear();
+        _stockHidden = false;
     }
 
     private static Transform CopyTransform(Transform source, Dictionary<Transform, Transform> copies)
