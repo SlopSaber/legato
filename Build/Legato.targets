@@ -106,7 +106,7 @@
       <DefineConstants Condition="'$(_LegatoUsesDifficultyBeatmaps)' == 'true'">$(DefineConstants);LEGATO_DIFFICULTY_BEATMAPS</DefineConstants>
       <DefineConstants Condition="'$(_LegatoCoreApi)' != ''">$(DefineConstants);LEGATO_HISTORICAL_GAME</DefineConstants>
       <DefineConstants Condition="'$(_LegatoCoreApi)' == 'EarlyAccess' OR '$(LegatoTargetProfile)' == '1.0.0'">$(DefineConstants);LEGATO_AUDIO_WITHOUT_STATE</DefineConstants>
-      <DefineConstants Condition="'$(LegatoTargetVersion)' == '0.11.1'">$(DefineConstants);LEGATO_WITHOUT_HTTP_CLIENT</DefineConstants>
+      <DefineConstants Condition="'$(LegatoTargetVersion)' == '0.11.1'">$(DefineConstants);LEGATO_WITHOUT_HTTP_CLIENT;LEGATO_LEGACY_IMAGE_SLICING;LEGATO_LEGACY_RENDER_TEXTURE_MIPS</DefineConstants>
       <DefineConstants Condition="'$(LegatoEnableNativeBeatmapAliases)' == 'true'">$(DefineConstants);LEGATO_NATIVE_BEATMAP_KEYS</DefineConstants>
       <DefineConstants Condition="'$(LegatoEnableSteamAuthentication)' == 'true'">$(DefineConstants);LEGATO_STEAM_WEB_AUTH</DefineConstants>
       <LegatoHasDefaultInterfaceMethods Condition="'$(LegatoTargetProfile)' != '1.29.0' AND '$(LegatoTargetProfile)' != '' AND '$(_LegatoCoreApi)' == ''">true</LegatoHasDefaultInterfaceMethods>
@@ -483,6 +483,8 @@
                Condition="'$(LegatoEnableCounterGameplay)' == 'true'" />
       <Compile Include="$(LegatoSourceRoot)Library\LegacyCutScores\**\*.cs"
                Condition="'$(LegatoEnableLegacyCutScores)' == 'true'" />
+      <Compile Include="$(LegatoSourceRoot)Library\ImageSlicing\SlicedImage.cs"
+               Condition="'$(LegatoEnableEarlyImageSlicing)' == 'true' AND '$(LegatoTargetVersion)' == '0.11.1'" />
       <Compile Include="$(LegatoSourceRoot)Library\Unity\DisplayCompatibility.cs"
                Condition="'$(LegatoEnableDisplayCompatibility)' == 'true' AND '$(LegatoEnableUnityCompatibility)' != 'true'" />
       <Compile Include="$(LegatoSourceRoot)Library\Unity\WebRequestCompatibility.cs"
