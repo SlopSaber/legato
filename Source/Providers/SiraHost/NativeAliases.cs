@@ -1,5 +1,4 @@
 #if LEGATO_SIRA_EARLY_CONTEXTS
-global using FlowCoordinator = VRUI.VRUIFlowCoordinator;
 global using ViewController = VRUI.VRUIViewController;
 global using SaberType = global::Saber.SaberType;
 #else

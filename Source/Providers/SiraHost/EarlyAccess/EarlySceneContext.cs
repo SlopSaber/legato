@@ -70,7 +70,11 @@ namespace Legato.Sira
             _container.Resolve<SceneKernel>().Initialize();
         }
 
+#if LEGATO_SIRA_PUBLICIZED_ZENJECT
+        public override void GetInjectableMonoBehaviours(List<MonoBehaviour> behaviours)
+#else
         protected override void GetInjectableMonoBehaviours(List<MonoBehaviour> behaviours)
+#endif
         {
             foreach (GameObject root in GetRootGameObjects())
             {

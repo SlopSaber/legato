@@ -15,7 +15,7 @@
       <Reference Include="BGNet" HintPath="$(LegatoReferenceRoot)\Beat Saber_Data\Managed\BGNet.dll" Private="false" />
     </ItemGroup>
     <PropertyGroup Condition="'$(LegatoTargetVersion)' == '0.11.1'">
-      <DefineConstants>$(DefineConstants);LEGATO_SIRA_EARLY_CONTEXTS;LEGATO_BEFORE_MULTIPLAYER</DefineConstants>
+      <DefineConstants>$(DefineConstants);LEGATO_SIRA_EARLY_CONTEXTS;LEGATO_SIRA_PUBLICIZED_ZENJECT;LEGATO_BEFORE_MULTIPLAYER</DefineConstants>
       <LegatoEarlyZenjectDirectory Condition="'$(LegatoEarlyZenjectDirectory)' == '' AND Exists('$(LegatoLibraryRoot)\Zenject.dll') AND Exists('$(LegatoLibraryRoot)\Zenject-usage.dll')">$(LegatoLibraryRoot)</LegatoEarlyZenjectDirectory>
       <LegatoEarlyZenjectDirectory Condition="'$(LegatoEarlyZenjectDirectory)' == ''">$(LegatoReferenceRoot)\Beat Saber_Data\Managed</LegatoEarlyZenjectDirectory>
     </PropertyGroup>

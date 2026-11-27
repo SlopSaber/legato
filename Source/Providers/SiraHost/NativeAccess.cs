@@ -1,6 +1,8 @@
 using System;
 using System.Reflection;
+#if !LEGATO_SIRA_EARLY_CONTEXTS
 using HMUI;
+#endif
 using UnityEngine.Networking;
 
 namespace Legato.Sira
@@ -9,7 +11,19 @@ namespace Legato.Sira
     {
         internal static void BindNativeServices(Zenject.DiContainer container)
         {
-#if BEAT_SABER_1_29_0 || LEGATO_BEFORE_MULTIPLAYER
+#if LEGATO_SIRA_EARLY_CONTEXTS
+            if (!container.HasBinding<MainSettingsModel>())
+            {
+                foreach (var initializer in UnityEngine.Resources.FindObjectsOfTypeAll<MainSystemInit>())
+                {
+                    if (initializer.gameObject.scene.IsValid() && MainSettings.GetValue(initializer) is MainSettingsModel settings)
+                    {
+                        container.BindInstance(settings);
+                        break;
+                    }
+                }
+            }
+#elif BEAT_SABER_1_29_0 || LEGATO_BEFORE_MULTIPLAYER
             if (!container.HasBinding<MainSettingsModelSO>())
                 container.Bind<MainSettingsModelSO>().FromInstance(FindMainSettings()).AsSingle();
             if (!container.HasBinding<ColorSchemesSettings>())
@@ -24,17 +38,18 @@ namespace Legato.Sira
 
         internal static bool MatchesInstaller(Type expected, Type actual)
         {
-#if BEAT_SABER_1_29_0 || LEGATO_BEFORE_MULTIPLAYER
+#if !LEGATO_SIRA_EARLY_CONTEXTS && (BEAT_SABER_1_29_0 || LEGATO_BEFORE_MULTIPLAYER)
             if (expected == typeof(AppInit)) return expected.IsAssignableFrom(actual);
 #endif
             return expected == actual;
         }
 
-#if BEAT_SABER_1_29_0 || LEGATO_BEFORE_MULTIPLAYER
+#if LEGATO_SIRA_EARLY_CONTEXTS || BEAT_SABER_1_29_0 || LEGATO_BEFORE_MULTIPLAYER
         private static readonly FieldInfo MainSettings = typeof(MainSystemInit).GetField(
             "_mainSettingsModel", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
             ?? throw new MissingFieldException(typeof(MainSystemInit).FullName, "_mainSettingsModel");
 
+#if !LEGATO_SIRA_EARLY_CONTEXTS
         private static MainSettingsModelSO FindMainSettings()
         {
             foreach (var initializer in UnityEngine.Resources.FindObjectsOfTypeAll<MainSystemInit>())
@@ -52,7 +67,9 @@ namespace Legato.Sira
             ?? throw new MissingFieldException(typeof(CustomLevelLoader).FullName, "_environmentSceneInfoCollection");
 #endif
 #endif
+#endif
 
+#if !LEGATO_SIRA_EARLY_CONTEXTS
 #if LEGATO_HMUI_ACTIVATION_ENUMS
         private static readonly Action<FlowCoordinator, ViewController?, bool> SetBottomScreen =
             (Action<FlowCoordinator, ViewController?, bool>)Delegate.CreateDelegate(
@@ -88,9 +105,17 @@ namespace Legato.Sira
 #endif
         }
 
+#else
+        private static readonly FieldInfo SaberHistory = typeof(Saber).GetField(
+            "_historyData", BindingFlags.Instance | BindingFlags.NonPublic)
+            ?? throw new MissingFieldException(typeof(Saber).FullName, "_historyData");
+#endif
+
         internal static float LastMovementTime(Saber saber)
         {
-#if LEGATO_BEFORE_MULTIPLAYER
+#if LEGATO_SIRA_EARLY_CONTEXTS
+            return SaberHistory.GetValue(saber) is SaberHistoryData history ? history.lastAddedTimeAndPos.time : 0f;
+#elif LEGATO_BEFORE_MULTIPLAYER
             return saber._movementData.lastAddedData.time;
 #elif BEAT_SABER_1_29_0 || (BEAT_SABER_1_37_1 && !LEGATO_SEPARATE_SABER_LOGIC)
             return saber.movementData.lastAddedData.time;

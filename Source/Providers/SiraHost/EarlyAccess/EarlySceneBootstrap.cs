@@ -119,6 +119,9 @@ namespace Legato.Sira
                 Bind(container, Find<GameplayManager>(playerScene));
                 Bind(container, Find<GameEnergyCounter>(playerScene));
                 Bind(container, Find<PauseMenuManager>(playerScene));
+                Bind(container, Find<GamePauseManager>(playerScene));
+                Bind(container, Find<TutorialPauseManager>(playerScene));
+                Bind(container, Find<TutorialController>(playerScene));
                 Bind(container, Find<MainGameSceneSetup>(playerScene));
                 Bind(container, Find<TutorialSceneSetup>(playerScene));
             });
