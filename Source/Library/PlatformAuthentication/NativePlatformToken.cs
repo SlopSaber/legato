@@ -1,4 +1,4 @@
-#if !LEGATO_BEFORE_MULTIPLAYER
+#if !LEGATO_BEFORE_MULTIPLAYER && !LEGATO_EARLY_STANDARD_MAPS
 using System.Threading;
 using System.Threading.Tasks;
 

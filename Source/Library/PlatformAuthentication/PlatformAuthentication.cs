@@ -157,7 +157,7 @@ namespace Legato.Platform {
                 timeout.Cancel();
                 if (completed != completion.Task || !completion.Task.Result)
                     throw new System.InvalidOperationException("The game platform did not return an authentication token.");
-                return System.BitConverter.ToString(buffer, 0, (int)length);
+                return System.BitConverter.ToString(buffer, 0, (int)length).Replace("-", string.Empty);
             } finally {
                 callback.Unregister();
             }
