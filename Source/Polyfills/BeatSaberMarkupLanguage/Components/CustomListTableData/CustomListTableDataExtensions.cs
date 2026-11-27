@@ -14,6 +14,9 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using UnityEngine;
+#if LEGATO_EARLY_VR_UI
+using LevelListTableCell = global::StandardLevelListTableCell;
+#endif
 #if LEGATO_BSML_ALIASED
 using static Bsml::BeatSaberMarkupLanguage.Components.CustomListTableData;
 #else

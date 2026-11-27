@@ -1,4 +1,4 @@
-#if !LEGATO_SIRA_EARLY_CONTEXTS && !LEGATO_BSUTILS_EARLY
+#if !LEGATO_EARLY_SCENE_SETUP && !LEGATO_SIRA_EARLY_CONTEXTS && !LEGATO_BSUTILS_EARLY
 #if BEAT_SABER_1_29_0 || LEGATO_BEFORE_MULTIPLAYER
 global using BeatmapLevelsEntitlementModel = global::AdditionalContentModel;
 global using BeatSaberInit = global::AppInit;
