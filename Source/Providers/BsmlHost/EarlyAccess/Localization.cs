@@ -41,11 +41,13 @@ public sealed class EarlyLocalizedText : MonoBehaviour
     }
 }
 
-internal static class EarlyLocalization
+/// <summary>Provides the embedded English UI strings on early game versions.</summary>
+public static class EarlyLocalization
 {
     private static readonly Lazy<Dictionary<string, string>> Text = new(Load);
 
-    internal static string Get(string key)
+    /// <summary>Returns the translated string or the original key when no translation is available.</summary>
+    public static string Get(string key)
     {
         return !string.IsNullOrEmpty(key) && Text.Value.TryGetValue(key, out string text) ? text : key;
     }

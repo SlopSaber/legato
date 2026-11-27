@@ -1,3 +1,4 @@
+#if !LEGATO_EARLY_SCENE_SETUP
 #nullable enable
 using System;
 using System.Collections.Generic;
@@ -283,3 +284,4 @@ namespace Legato.Presentation {
     }
 #endif
 }
+#endif

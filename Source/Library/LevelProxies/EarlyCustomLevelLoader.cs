@@ -15,7 +15,7 @@ namespace Legato.Beatmaps
     {
         internal static async Task<StandardLevelSO?> LoadAsync(CustomLevelInfoWrapper entry, CancellationToken cancellationToken)
         {
-            string? audioPath = EarlyLevelCatalog.LocalAsset(entry.path, entry.customLevelInfo.difficultyLevels[0].audioPath);
+            string? audioPath = EarlyMapFiles.LocalAsset(entry.path, entry.customLevelInfo.difficultyLevels[0].audioPath);
             if (audioPath == null) return null;
 
             var completion = new TaskCompletionSource<AudioClip?>();
@@ -84,7 +84,7 @@ namespace Legato.Beatmaps
                 {
                     if (difficulty == null || string.IsNullOrEmpty(difficulty.difficulty) ||
                         !difficulty.difficulty.LevelDifficultyFromName(out LevelDifficulty kind)) continue;
-                    string? chartPath = EarlyLevelCatalog.LocalAsset(entry.path, difficulty.jsonPath);
+                    string? chartPath = EarlyMapFiles.LocalAsset(entry.path, difficulty.jsonPath);
                     if (chartPath == null) continue;
 
                     var chart = ScriptableObject.CreateInstance<BeatmapDataSO>();

@@ -4,7 +4,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Security.Cryptography;
 using System.Threading;
 using System.Threading.Tasks;
 using UnityEngine;
@@ -13,7 +12,6 @@ namespace Legato.Beatmaps
 {
     internal sealed class EarlyLevelCatalog
     {
-        private const string InfoFileName = "info.json";
         private readonly Dictionary<string, StandardLevelSO> _loaded;
         private readonly Dictionary<string, CustomLevelInfoWrapper> _byPath = new(StringComparer.OrdinalIgnoreCase);
         private readonly Dictionary<string, CustomLevelInfoWrapper> _byHash = new(StringComparer.OrdinalIgnoreCase);
@@ -38,7 +36,7 @@ namespace Legato.Beatmaps
                 if (level && !string.IsNullOrEmpty(level.levelID)) loaded[level.levelID] = level;
             }
 
-            string root = CustomLevelsModelSO.customLevelsDirectoryPath;
+            string root = Path.GetFullPath(CustomLevelsModelSO.customLevelsDirectoryPath);
             var catalog = new EarlyLevelCatalog(loaded);
             return Task.Run(() =>
             {
@@ -67,32 +65,10 @@ namespace Legato.Beatmaps
 
         internal static Stream? OpenCustomCover(BeatmapLevel? level)
         {
-            string? directory = level?.levelID;
-            if (string.IsNullOrEmpty(directory) || !Path.IsPathRooted(directory)) return null;
             string root = Path.GetFullPath(CustomLevelsModelSO.customLevelsDirectoryPath);
-            directory = Path.GetFullPath(directory);
-            if (!string.Equals(Path.GetDirectoryName(directory), root, StringComparison.OrdinalIgnoreCase) ||
-                !Directory.Exists(directory) || (File.GetAttributes(directory) & FileAttributes.ReparsePoint) != 0 ||
-                LocalAsset(directory, InfoFileName) == null) return null;
-
-            var entry = CustomLevelInfoWrapperLoader.LoadCustomLevelInfoWrapper(directory);
-            string? path = entry == null ? null : LocalAsset(directory, entry.customLevelInfo.coverImagePath);
+            var entry = EarlyMapFiles.ReadLocal(root, level?.levelID);
+            string? path = entry == null ? null : EarlyMapFiles.LocalAsset(entry.path, entry.customLevelInfo.coverImagePath);
             return path == null ? null : File.OpenRead(path);
-        }
-
-        internal static string? LocalAsset(string directory, string? name)
-        {
-            if (string.IsNullOrEmpty(name) || Path.IsPathRooted(name)) return null;
-            string path = Path.GetFullPath(Path.Combine(directory, name));
-            if (!path.StartsWith(directory + Path.DirectorySeparatorChar, StringComparison.OrdinalIgnoreCase) ||
-                !File.Exists(path)) return null;
-
-            for (string? item = path; item != null && !string.Equals(item, directory, StringComparison.OrdinalIgnoreCase);
-                 item = Path.GetDirectoryName(item))
-            {
-                if ((File.GetAttributes(item) & FileAttributes.ReparsePoint) != 0) return null;
-            }
-            return path;
         }
 
         private void ReadCustomLevels(string root, bool indexHashes, CancellationToken cancellationToken)
@@ -103,15 +79,14 @@ namespace Legato.Beatmaps
                 cancellationToken.ThrowIfCancellationRequested();
                 try
                 {
-                    if ((File.GetAttributes(path) & FileAttributes.ReparsePoint) != 0 || LocalAsset(path, InfoFileName) == null) continue;
-                    var entry = CustomLevelInfoWrapperLoader.LoadCustomLevelInfoWrapper(path);
+                    var entry = EarlyMapFiles.ReadLocal(root, path);
                     if (entry == null || entry.customLevelInfo.difficultyLevels.Length == 0 ||
-                        LocalAsset(entry.path, entry.customLevelInfo.difficultyLevels[0].audioPath) == null) continue;
+                        EarlyMapFiles.LocalAsset(entry.path, entry.customLevelInfo.difficultyLevels[0].audioPath) == null) continue;
 
                     _byPath[entry.levelID] = entry;
                     if (!indexHashes) continue;
 
-                    string? hash = ComputeHash(entry);
+                    string? hash = EarlyMapFiles.ComputeHash(entry);
                     if (hash != null && !_byHash.ContainsKey(hash)) _byHash[hash] = entry;
                 }
                 catch (Exception error) when (error is IOException or UnauthorizedAccessException or ArgumentException)
@@ -121,30 +96,6 @@ namespace Legato.Beatmaps
             }
         }
 
-        private static string? ComputeHash(CustomLevelInfoWrapper entry)
-        {
-            string? info = LocalAsset(entry.path, InfoFileName);
-            if (info == null) return null;
-            using var hash = SHA1.Create();
-            byte[] buffer = new byte[8192];
-            AppendFile(info);
-            foreach (CustomLevelInfo.DifficultyLevelInfo difficulty in entry.customLevelInfo.difficultyLevels)
-            {
-                string? path = LocalAsset(entry.path, difficulty?.jsonPath);
-                if (path == null) return null;
-                AppendFile(path);
-            }
-            hash.TransformFinalBlock(Array.Empty<byte>(), 0, 0);
-            return BitConverter.ToString(hash.Hash).Replace("-", string.Empty);
-
-            void AppendFile(string path)
-            {
-                using Stream input = File.OpenRead(path);
-                int count;
-                while ((count = input.Read(buffer, 0, buffer.Length)) != 0)
-                    hash.TransformBlock(buffer, 0, count, buffer, 0);
-            }
-        }
     }
 }
 #endif
