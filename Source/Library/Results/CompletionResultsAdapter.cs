@@ -4,6 +4,25 @@ using IPA.Utilities;
 
 namespace Legato.Gameplay {
     internal static class CompletionResultsAdapter {
+#if LEGATO_EARLY_STANDARD_MAPS
+        private static void SetScore(LevelCompletionResults results, string property, int value) =>
+            typeof(LevelCompletionResults).GetProperty(property, System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Public)!
+                .GetSetMethod(true)!.Invoke(results, new object[] { value });
+
+        internal static void NegateMultipliedScore(ref LevelCompletionResults results) =>
+            SetScore(results, nameof(LevelCompletionResults.unmodifiedScore), -results.unmodifiedScore);
+
+        internal static int GetModifiedScore(LevelCompletionResults results) => results.score;
+
+        internal static int GetMultipliedScore(LevelCompletionResults results) => results.unmodifiedScore;
+
+        internal static int GetMissedCount(LevelCompletionResults results) => results.missedCount;
+
+        internal static void InvalidatePositiveScores(LevelCompletionResults results) {
+            if (results.score > 0) SetScore(results, nameof(LevelCompletionResults.score), -results.score);
+            if (results.unmodifiedScore > 0) SetScore(results, nameof(LevelCompletionResults.unmodifiedScore), -results.unmodifiedScore);
+        }
+#else
 #if BEAT_SABER_1_45_3
         private static readonly FieldAccessor<LevelCompletionResultsBase, LevelScore>.Accessor ScoreAccessor =
             FieldAccessor<LevelCompletionResultsBase, LevelScore>.GetAccessor("score");
@@ -75,5 +94,6 @@ namespace Legato.Gameplay {
             if (GetMultipliedScore(results) > 0) NegateMultipliedScore(ref results);
 #endif
         }
+#endif
     }
 }
