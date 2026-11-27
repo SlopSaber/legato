@@ -7,9 +7,15 @@ using UnityEngine;
 
 namespace Legato.Sira
 {
-    [HarmonyPatch(typeof(SaberBurnMarkArea), "Update")]
+    [HarmonyPatch(typeof(SaberBurnMarkArea), EarlyBurnMarkPatch.FrameUpdateMethod)]
     internal static class EarlyBurnMarkPatch
     {
+#if LEGATO_SIRA_EARLY_NATIVE_CONTEXTS
+        internal const string FrameUpdateMethod = "LateUpdate";
+#else
+        internal const string FrameUpdateMethod = "Update";
+#endif
+
         internal static bool SupportsExtraSabers { get; private set; }
 
         [HarmonyTranspiler]

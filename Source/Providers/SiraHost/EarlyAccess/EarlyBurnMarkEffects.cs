@@ -53,7 +53,7 @@ namespace SiraUtil.Sabers.Effects
         }
 
         [AffinityPrefix]
-        [AffinityPatch(typeof(SaberBurnMarkArea), "Update")]
+        [AffinityPatch(typeof(SaberBurnMarkArea), EarlyBurnMarkPatch.FrameUpdateMethod)]
         private void AddExtraSabers(SaberBurnMarkArea __instance)
         {
             if (!EarlyBurnMarkPatch.SupportsExtraSabers)
