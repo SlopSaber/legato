@@ -12,12 +12,21 @@ namespace CustomJSONData.HarmonyPatches
     [HarmonyPatch(typeof(BeatmapDataLoader), nameof(BeatmapDataLoader.GetBeatmapDataFromJson))]
     internal static class BeatmapLoader
     {
+#if LEGATO_CUSTOM_JSON_EARLY_LOADER
+        private static readonly Func<float, float, float, float, float> _convertTime =
+            (Func<float, float, float, float, float>)Delegate.CreateDelegate(
+                typeof(Func<float, float, float, float, float>),
+                AccessTools.Method(typeof(BeatmapDataLoader), "GetRealTimeFromBpmTime"));
+
+        private static void Postfix(string json, float beatsPerMinute, float shuffle, float shufflePeriod, ref BeatmapData? __result)
+#else
         private static readonly TimeConverter _convertTime = (TimeConverter)Delegate.CreateDelegate(
             typeof(TimeConverter), AccessTools.Method(typeof(BeatmapDataLoader), "GetRealTimeFromBPMTime"));
 
         private delegate float TimeConverter(BeatmapDataLoader loader, float beat, float bpm, float shuffle, float shufflePeriod);
 
         private static void Postfix(BeatmapDataLoader __instance, string json, float startBPM, float shuffle, float shufflePeriod, ref BeatmapData? __result)
+#endif
         {
             if (__result == null || __result is CustomBeatmapData)
             {
@@ -42,7 +51,11 @@ namespace CustomJSONData.HarmonyPatches
                 JArray obstacles = chart["_obstacles"] as JArray ?? new JArray();
                 JArray events = chart["_events"] as JArray ?? new JArray();
                 JObject? chartData = chart["_customData"] as JObject;
+#if LEGATO_CUSTOM_JSON_EARLY_LOADER
+                IReadOnlyList<CustomEventData> customEvents = ReadEvents(chartData?["_customEvents"] as JArray, beatsPerMinute, shuffle, shufflePeriod, version);
+#else
                 IReadOnlyList<CustomEventData> customEvents = ReadEvents(chartData?["_customEvents"] as JArray, events, __instance, startBPM, shuffle, shufflePeriod, version);
+#endif
                 CustomData customData = ReadChartData(chartData, version);
 
                 foreach (BeatmapLineData line in __result.beatmapLinesData)
@@ -80,13 +93,30 @@ namespace CustomJSONData.HarmonyPatches
             }
         }
 
+        internal static CustomData ReadData(JToken? token)
+        {
+            if (token is not JObject data)
+            {
+                return new CustomData();
+            }
+
+            using JsonReader reader = data.CreateReader();
+            reader.Read();
+            return CustomData.FromJSON(reader);
+        }
+
+#if LEGATO_CUSTOM_JSON_EARLY_LOADER
+        private static IReadOnlyList<CustomEventData> ReadEvents(JArray? customEvents, float startBpm, float shuffle, float shufflePeriod, Version version)
+#else
         private static IReadOnlyList<CustomEventData> ReadEvents(JArray? customEvents, JArray events, BeatmapDataLoader loader, float startBpm, float shuffle, float shufflePeriod, Version version)
+#endif
         {
             if (customEvents == null || customEvents.Count == 0)
             {
                 return Array.Empty<CustomEventData>();
             }
 
+#if !LEGATO_CUSTOM_JSON_EARLY_LOADER
             List<(float Beat, float Time, float Bpm)> changes = new() { (0, 0, startBpm) };
             foreach (JObject item in events.OfType<JObject>())
             {
@@ -100,6 +130,7 @@ namespace CustomJSONData.HarmonyPatches
                 }
             }
 
+#endif
             List<CustomEventData> result = new();
             foreach (JObject item in customEvents.OfType<JObject>())
             {
@@ -109,6 +140,10 @@ namespace CustomJSONData.HarmonyPatches
                 }
 
                 float beat = ReadNumber(item["_time"]);
+#if LEGATO_CUSTOM_JSON_EARLY_LOADER
+                float seconds = _convertTime(beat, startBpm, shuffle, shufflePeriod);
+                result.Add(new CustomEventData(seconds, type, ReadData(item["_data"]), version, startBpm));
+#else
                 int changeIndex = 0;
                 while (changeIndex + 1 < changes.Count && changes[changeIndex + 1].Beat < beat)
                 {
@@ -118,6 +153,7 @@ namespace CustomJSONData.HarmonyPatches
                 (float startBeat, float startTime, float bpm) = changes[changeIndex];
                 float seconds = startTime + _convertTime(loader, beat - startBeat, bpm, shuffle, shufflePeriod);
                 result.Add(new CustomEventData(seconds, type, ReadData(item["_data"]), version, bpm));
+#endif
             }
 
             return result.OrderBy(item => item.time).ToArray();
@@ -143,18 +179,6 @@ namespace CustomJSONData.HarmonyPatches
                 reader.Skip();
                 return false;
             });
-        }
-
-        private static CustomData ReadData(JToken? token)
-        {
-            if (token is not JObject data)
-            {
-                return new CustomData();
-            }
-
-            using JsonReader reader = data.CreateReader();
-            reader.Read();
-            return CustomData.FromJSON(reader);
         }
 
         private static float ReadNumber(JToken? token, float fallback = 0)

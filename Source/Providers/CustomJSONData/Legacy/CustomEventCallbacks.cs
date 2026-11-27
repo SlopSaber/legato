@@ -13,6 +13,31 @@ namespace CustomJSONData
 
         public static event Action<BeatmapObjectCallbackController, CustomEventData>? CustomEventTriggered;
 
+#if LEGATO_CUSTOM_JSON_EARLY_LOADER
+        [HarmonyPostfix]
+        [HarmonyPatch(nameof(BeatmapObjectCallbackController.Init))]
+        private static void Reset(BeatmapObjectCallbackController __instance) => _cursors.Remove(__instance);
+
+        [HarmonyPrefix]
+        [HarmonyPatch("LateUpdate")]
+        private static void Update(BeatmapObjectCallbackController __instance, BeatmapDataModel ____beatmapDataModel, FloatVariable ____songTime)
+        {
+            if (____beatmapDataModel == null || ____beatmapDataModel.beatmapData is not CustomBeatmapData chart)
+            {
+                _cursors.Remove(__instance);
+                return;
+            }
+
+            if (!_cursors.TryGetValue(__instance, out EventCursor cursor) || !ReferenceEquals(cursor.Events, chart.customEventDatas))
+            {
+                _cursors.Remove(__instance);
+                cursor = new EventCursor(chart.customEventDatas);
+                _cursors.Add(__instance, cursor);
+            }
+
+            TriggerEvents(__instance, cursor, ____songTime.value);
+        }
+#else
         [HarmonyPostfix]
         [HarmonyPatch(nameof(BeatmapObjectCallbackController.SetNewBeatmapData))]
         private static void Reset(BeatmapObjectCallbackController __instance, BeatmapData beatmapData)
@@ -33,11 +58,16 @@ namespace CustomJSONData
                 return;
             }
 
-            float songTime = ____audioTimeSource.songTime;
+            TriggerEvents(__instance, cursor, ____audioTimeSource.songTime);
+        }
+#endif
+
+        private static void TriggerEvents(BeatmapObjectCallbackController controller, EventCursor cursor, float songTime)
+        {
             while (cursor.Index < cursor.Events.Count && cursor.Events[cursor.Index].time < songTime)
             {
                 CustomEventData item = cursor.Events[cursor.Index++];
-                CustomEventTriggered?.Invoke(__instance, item);
+                CustomEventTriggered?.Invoke(controller, item);
             }
         }
 

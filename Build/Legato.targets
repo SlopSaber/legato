@@ -705,11 +705,17 @@
                Condition="'$(LegatoEnableVivifyProviders)' == 'true' AND '$(LegatoTargetVersion)' == '1.11.1'" />
       <Compile Include="$(LegatoSourceRoot)Providers\CustomJSONData\**\*.cs"
                Exclude="$(LegatoSourceRoot)Providers\CustomJSONData\Legacy\**\*.cs"
-               Condition="'$(LegatoEnableCustomJsonDataProviders)' == 'true' AND '$(LegatoTargetVersion)' != '1.11.1'" />
+               Condition="'$(LegatoEnableCustomJsonDataProviders)' == 'true' AND '$(LegatoTargetVersion)' != '1.11.1' AND '$(LegatoTargetVersion)' != '0.11.1'" />
       <Compile Include="$(LegatoSourceRoot)Providers\CustomJSONData\Legacy\**\*.cs;$(LegatoSourceRoot)Providers\CustomJSONData\CustomBeatmap\CustomDataConverter.cs;$(LegatoSourceRoot)Providers\CustomJSONData\CustomBeatmap\SaveData\CustomLevelInfoSaveData.cs;$(LegatoSourceRoot)Providers\CustomJSONData\Utils\DictionaryExtensions.cs"
+               Exclude="$(LegatoSourceRoot)Providers\CustomJSONData\Legacy\EarlyLevelMetadata.cs"
                Condition="'$(LegatoEnableCustomJsonDataProviders)' == 'true' AND '$(LegatoTargetVersion)' == '1.11.1'" />
+      <Compile Include="$(LegatoSourceRoot)Providers\CustomJSONData\Legacy\**\*.cs;$(LegatoSourceRoot)Providers\CustomJSONData\Utils\DictionaryExtensions.cs"
+               Exclude="$(LegatoSourceRoot)Providers\CustomJSONData\Legacy\LevelMetadata.cs"
+               Condition="'$(LegatoEnableCustomJsonDataProviders)' == 'true' AND '$(LegatoTargetVersion)' == '0.11.1'" />
       <Compile Remove="CustomBeatmap\CustomBeatmapDataSortedListForTypes.cs;CustomBeatmap\CustomEventData.cs;CustomBeatmap\EventData\**\*.cs"
-               Condition="'$(LegatoEnableCustomJsonDataProviders)' == 'true' AND '$(LegatoTargetVersion)' == '1.11.1'" />
+               Condition="'$(LegatoEnableCustomJsonDataProviders)' == 'true' AND ('$(LegatoTargetVersion)' == '1.11.1' OR '$(LegatoTargetVersion)' == '0.11.1')" />
+      <Compile Remove="HarmonyPatches\CustomBeatmapData\LevelInfoSaveDataRedirect.cs"
+               Condition="'$(LegatoEnableCustomJsonDataProviders)' == 'true' AND '$(LegatoTargetVersion)' == '0.11.1'" />
       <Compile Include="$(LegatoSourceRoot)Library\BundleShaderMetadata\**\*.cs"
                Condition="'$(LegatoEnableBundleShaderMetadata)' == 'true'" />
       <Compile Include="$(LegatoSourceRoot)Library\SaberModels\**\*.cs"

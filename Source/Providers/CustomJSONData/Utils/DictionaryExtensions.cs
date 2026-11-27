@@ -1,5 +1,12 @@
-﻿using System.Linq;
+﻿#if !LEGATO_CUSTOM_JSON_LEGACY_LOADER
+using System.Linq;
+#endif
 using CustomJSONData.CustomBeatmap;
+#if LEGATO_CUSTOM_JSON_EARLY_LOADER
+using NativeDifficultyBeatmap = IStandardLevelDifficultyBeatmap;
+#elif LEGATO_CUSTOM_JSON_LEGACY_LOADER
+using NativeDifficultyBeatmap = IDifficultyBeatmap;
+#endif
 using JetBrains.Annotations;
 
 namespace CustomJSONData
@@ -8,13 +15,13 @@ namespace CustomJSONData
     {
 #if LEGATO_CUSTOM_JSON_LEGACY_LOADER
         [PublicAPI]
-        public static CustomData GetBeatmapCustomData(this IDifficultyBeatmap difficultyBeatmap)
+        public static CustomData GetBeatmapCustomData(this NativeDifficultyBeatmap difficultyBeatmap)
         {
             return (difficultyBeatmap.beatmapData as CustomBeatmapData)?.beatmapCustomData ?? new CustomData();
         }
 
         [PublicAPI]
-        public static CustomData GetLevelCustomData(this IDifficultyBeatmap difficultyBeatmap)
+        public static CustomData GetLevelCustomData(this NativeDifficultyBeatmap difficultyBeatmap)
         {
             return (difficultyBeatmap.beatmapData as CustomBeatmapData)?.levelCustomData ?? new CustomData();
         }

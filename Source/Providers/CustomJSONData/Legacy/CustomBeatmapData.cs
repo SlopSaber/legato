@@ -10,7 +10,10 @@ namespace CustomJSONData.CustomBeatmap
         private static readonly PropertyInfo[] _nativeChartProperties = new[]
         {
             nameof(beatmapLinesData), nameof(beatmapEventData), nameof(notesCount),
-            nameof(obstaclesCount), nameof(bombsCount), nameof(spawnRotationEventsCount)
+            nameof(obstaclesCount),
+#if !LEGATO_CUSTOM_JSON_EARLY_LOADER
+            nameof(bombsCount), nameof(spawnRotationEventsCount)
+#endif
         }.Select(name => typeof(BeatmapData).GetProperty(name)).ToArray();
 
         internal CustomBeatmapData(
@@ -42,11 +45,13 @@ namespace CustomJSONData.CustomBeatmap
 
         public IReadOnlyList<BeatmapEventData> beatmapEventDatas => beatmapEventData;
 
+#if !LEGATO_CUSTOM_JSON_EARLY_LOADER
         public void ApplyLevelMetadata(CustomLevelInfoSaveData info, CustomLevelInfoSaveData.DifficultyBeatmap difficulty)
         {
             levelCustomData = info.customData.Copy();
             beatmapCustomData = difficulty.customData.Copy();
         }
+#endif
 
         public void ReplaceChartFrom(CustomBeatmapData chart)
         {
@@ -65,6 +70,14 @@ namespace CustomJSONData.CustomBeatmap
         }
 
         public CustomBeatmapData CopyWithEvents(BeatmapEventData[] events) => CopyDataTo(new BeatmapData(beatmapLinesData, events));
+
+#if LEGATO_CUSTOM_JSON_EARLY_LOADER
+        internal void ApplyLevelMetadata(CustomData level, CustomData difficulty)
+        {
+            levelCustomData = level.Copy();
+            beatmapCustomData = difficulty.Copy();
+        }
+#endif
 
         internal CustomBeatmapData CopyDataTo(BeatmapData result)
         {
@@ -108,9 +121,22 @@ namespace CustomJSONData.CustomBeatmap
 
     public sealed class CustomNoteData : NoteData, ICustomData, IVersionable
     {
+#if LEGATO_CUSTOM_JSON_EARLY_LOADER
+        private static readonly PropertyInfo _flipLine = typeof(NoteData).GetProperty(nameof(flipLineIndex));
+        private static readonly PropertyInfo _flipSide = typeof(NoteData).GetProperty(nameof(flipYSide));
+#endif
+
         internal CustomNoteData(NoteData note, CustomData data, Version version)
+#if LEGATO_CUSTOM_JSON_EARLY_LOADER
+            : base(note.id, note.time, note.lineIndex, note.noteLineLayer, note.startNoteLineLayer, note.noteType, note.cutDirection)
+#else
             : base(note.id, note.time, note.lineIndex, note.noteLineLayer, note.startNoteLineLayer, note.noteType, note.cutDirection, note.timeToNextBasicNote, note.timeToPrevBasicNote, note.flipLineIndex, note.flipYSide)
+#endif
         {
+#if LEGATO_CUSTOM_JSON_EARLY_LOADER
+            _flipLine.SetValue(this, note.flipLineIndex);
+            _flipSide.SetValue(this, note.flipYSide);
+#endif
             customData = data;
             this.version = version;
         }
