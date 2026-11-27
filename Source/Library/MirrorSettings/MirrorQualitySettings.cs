@@ -1,13 +1,16 @@
-#if LEGATO_BEFORE_MULTIPLAYER || BEAT_SABER_1_29_0 || LEGATO_APPLY_PERFORMANCE_PRESET
+#if LEGATO_EARLY_SCENE_SETUP || LEGATO_BEFORE_MULTIPLAYER || BEAT_SABER_1_29_0 || LEGATO_APPLY_PERFORMANCE_PRESET
 global using MirrorQuality = Legato.Rendering.LegacyMirrorQuality;
 #else
 global using MirrorQuality = BeatSaber.Settings.QualitySettings.MirrorQuality;
 #endif
 
 using System;
-#if LEGATO_BEFORE_MULTIPLAYER || BEAT_SABER_1_29_0
+#if LEGATO_EARLY_SCENE_SETUP || LEGATO_BEFORE_MULTIPLAYER || BEAT_SABER_1_29_0
 using System.Linq;
 using UnityEngine;
+#if LEGATO_EARLY_SCENE_SETUP
+using IPA.Utilities;
+#endif
 #elif LEGATO_APPLY_PERFORMANCE_PRESET
 using BeatSaber.GameSettings;
 using BeatSaber.PerformancePresets;
@@ -16,19 +19,31 @@ using IPA.Utilities;
 
 namespace Legato.Rendering
 {
-#if LEGATO_BEFORE_MULTIPLAYER || BEAT_SABER_1_29_0 || LEGATO_APPLY_PERFORMANCE_PRESET
+#if LEGATO_EARLY_SCENE_SETUP || LEGATO_BEFORE_MULTIPLAYER || BEAT_SABER_1_29_0 || LEGATO_APPLY_PERFORMANCE_PRESET
     public enum LegacyMirrorQuality { Off = 0, Low = 1, Medium = 2, High = 3 }
 #endif
 
     internal sealed class MirrorQualitySettings
     {
-#if LEGATO_BEFORE_MULTIPLAYER || BEAT_SABER_1_29_0
+#if LEGATO_EARLY_SCENE_SETUP
+        private readonly MainSettingsModel _settings = FindResource<MainSettingsModel>();
+        private readonly MirrorRenderer _renderer = FindResource<MirrorRenderer>();
+        private readonly MirrorRendererGraphicsSettingsPresets _presets = FindResource<MirrorRendererGraphicsSettingsPresets>();
+
+        internal MirrorQuality Current => _settings.mirrorGraphicsSettings == 2
+            ? MirrorQuality.High : (MirrorQuality)_settings.mirrorGraphicsSettings;
+
+        internal void Apply(MirrorQuality quality)
+        {
+            int index = quality == MirrorQuality.High ? 2 : (int)quality;
+            if ((uint)index >= (uint)_presets.presets.Length) throw new ArgumentOutOfRangeException(nameof(quality));
+            _renderer.InitFromPreset(_presets.presets[index]);
+            _renderer.InvokeMethod<object, MirrorRenderer>("ValidateParams");
+        }
+#elif LEGATO_BEFORE_MULTIPLAYER || BEAT_SABER_1_29_0
         private readonly MainSettingsModelSO _settings = FindResource<MainSettingsModelSO>();
         private readonly MirrorRendererSO _renderer = FindResource<MirrorRendererSO>();
         private readonly MirrorRendererGraphicsSettingsPresets _presets = FindResource<MirrorRendererGraphicsSettingsPresets>();
-
-        private static T FindResource<T>() where T : UnityEngine.Object => UnityEngine.Resources.FindObjectsOfTypeAll<T>().FirstOrDefault()
-            ?? throw new InvalidOperationException("Native mirror resource is unavailable: " + typeof(T).FullName);
 
         internal MirrorQuality Current
         {
@@ -108,6 +123,10 @@ namespace Legato.Rendering
             _applicator.ApplyGraphicSettings(settings, SceneType.Menu);
             _applicator.ApplyGraphicSettings(settings, SceneType.Game);
         }
+#endif
+#if LEGATO_EARLY_SCENE_SETUP || LEGATO_BEFORE_MULTIPLAYER || BEAT_SABER_1_29_0
+        private static T FindResource<T>() where T : UnityEngine.Object => UnityEngine.Resources.FindObjectsOfTypeAll<T>().FirstOrDefault()
+            ?? throw new InvalidOperationException("Native mirror resource is unavailable: " + typeof(T).FullName);
 #endif
     }
 }
