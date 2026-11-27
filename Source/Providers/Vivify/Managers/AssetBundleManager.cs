@@ -147,6 +147,28 @@ internal class AssetBundleManager : IDisposable
             return null;
         }
 
+#if LEGATO_VIVIFY_LEGACY_GAMEPLAY
+        byte[]? legacyArchive = null;
+        try
+        {
+            legacyArchive = Legato.Rendering.LegacyBundleArchive.Convert(path);
+        }
+        catch (Exception exception) when (exception is InvalidDataException or IOException or ArgumentException or IndexOutOfRangeException or OverflowException or NotSupportedException)
+        {
+            _log.Warn($"Could not convert the Unity 2019.4 bundle archive: {exception.Message}");
+        }
+
+        if (legacyArchive != null)
+        {
+            AssetBundle? converted = AssetBundle.LoadFromMemory(legacyArchive, checksum.Value);
+            if (converted != null)
+            {
+                _log.Info("Loaded the Unity 2019.4 map bundle through a UnityFS 6 archive.");
+            }
+
+            return converted;
+        }
+#endif
         AssetBundle? original = AssetBundle.LoadFromFile(path, checksum.Value);
 #if BEAT_SABER_1453
         if (original == null || !Legato.Rendering.LegacyShaderSupport.IsUniversalPipeline())
