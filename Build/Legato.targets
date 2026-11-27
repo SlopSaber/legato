@@ -436,7 +436,10 @@
       <Compile Include="$(LegatoSourceRoot)Library\CollectionNavigation\**\*.cs"
                Condition="'$(LegatoEnableCollectionNavigation)' == 'true'" />
       <Compile Include="$(LegatoSourceRoot)Providers\PlaylistManager\**\*.cs"
-               Condition="'$(LegatoEnablePlaylistManagerProviders)' == 'true'" />
+               Exclude="$(LegatoSourceRoot)Providers\PlaylistManager\EarlyPlaylistNavigation.cs"
+               Condition="'$(LegatoEnablePlaylistManagerProviders)' == 'true' AND '$(LegatoTargetVersion)' != '0.11.1'" />
+      <Compile Include="$(LegatoSourceRoot)Providers\PlaylistManager\EarlyPlaylistNavigation.cs"
+               Condition="'$(LegatoEnablePlaylistManagerProviders)' == 'true' AND '$(LegatoTargetVersion)' == '0.11.1'" />
       <Compile Include="$(LegatoSourceRoot)Library\EditorAccess\**\*.cs"
                Condition="'$(LegatoEnableEditorAccess)' == 'true'" />
       <Compile Include="$(LegatoSourceRoot)Library\ViewLifecycle\**\*.cs"
