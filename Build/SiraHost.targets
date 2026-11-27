@@ -14,6 +14,16 @@
       <Reference Include="Polyglot" HintPath="$(LegatoReferenceRoot)\Beat Saber_Data\Managed\Polyglot.dll" Private="false" />
       <Reference Include="BGNet" HintPath="$(LegatoReferenceRoot)\Beat Saber_Data\Managed\BGNet.dll" Private="false" />
     </ItemGroup>
+    <PropertyGroup Condition="'$(LegatoTargetVersion)' == '0.11.1'">
+      <DefineConstants>$(DefineConstants);LEGATO_SIRA_EARLY_CONTEXTS;LEGATO_BEFORE_MULTIPLAYER</DefineConstants>
+      <LegatoEarlyZenjectDirectory Condition="'$(LegatoEarlyZenjectDirectory)' == '' AND Exists('$(LegatoLibraryRoot)\Zenject.dll') AND Exists('$(LegatoLibraryRoot)\Zenject-usage.dll')">$(LegatoLibraryRoot)</LegatoEarlyZenjectDirectory>
+      <LegatoEarlyZenjectDirectory Condition="'$(LegatoEarlyZenjectDirectory)' == ''">$(LegatoReferenceRoot)\Beat Saber_Data\Managed</LegatoEarlyZenjectDirectory>
+    </PropertyGroup>
+    <ItemGroup Condition="'$(LegatoTargetVersion)' == '0.11.1'">
+      <Reference Remove="BGLib.AppFlow;BGLib.DotnetExtension;BGLib.Polyglot;BGLib.UnityExtension;BGNetCore;BeatSaber.Init;BeatmapCore;DataModels;GameplayCore;Unity.InputSystem;Unity.XR.Management;Unity.XR.OpenXR;UnityEngine.SpatialTracking;Zenject;Zenject-usage" />
+      <Reference Include="Zenject" HintPath="$(LegatoEarlyZenjectDirectory)\Zenject.dll" Private="false" Publicize="true" />
+      <Reference Include="Zenject-usage" HintPath="$(LegatoEarlyZenjectDirectory)\Zenject-usage.dll" Private="false" />
+    </ItemGroup>
     <ItemGroup Condition="'$(LegatoTargetVersion)' == '1.11.1'">
       <Reference Remove="BGLib.AppFlow;BGLib.DotnetExtension;BGLib.Polyglot;BGLib.UnityExtension;BGNetCore;BeatSaber.Init;BeatmapCore;DataModels;GameplayCore;Unity.InputSystem;Unity.XR.Management;Unity.XR.OpenXR;UnityEngine.SpatialTracking" />
       <Reference Include="Colors" HintPath="$(LegatoReferenceRoot)\Beat Saber_Data\Managed\Colors.dll" Private="false" />

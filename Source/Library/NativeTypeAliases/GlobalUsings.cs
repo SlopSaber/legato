@@ -1,3 +1,4 @@
+#if !LEGATO_SIRA_EARLY_CONTEXTS
 #if BEAT_SABER_1_29_0 || LEGATO_BEFORE_MULTIPLAYER
 global using BeatmapLevelsEntitlementModel = global::AdditionalContentModel;
 global using BeatSaberInit = global::AppInit;
@@ -17,4 +18,5 @@ global using MissionLevelScenesTransitionSetupData = global::MissionLevelScenesT
 global using ScenesTransitionSetupData = global::ScenesTransitionSetupDataSO;
 global using StandardLevelScenesTransitionSetupData = global::StandardLevelScenesTransitionSetupDataSO;
 global using TutorialScenesTransitionSetupData = global::TutorialScenesTransitionSetupDataSO;
+#endif
 #endif
