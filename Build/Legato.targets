@@ -46,7 +46,7 @@
       <LegatoTargetDefine Condition="'$(LegatoTargetProfile)' != ''">BEAT_SABER_$([System.String]::Copy('$(LegatoTargetProfile)').Replace('.', '_'))</LegatoTargetDefine>
       <DefineConstants Condition="'$(LegatoTargetDefine)' != ''">$(DefineConstants);$(LegatoTargetDefine);@(_LegatoTargetVersion->'%(Constants)')</DefineConstants>
       <DefineConstants Condition="'$(LegatoEnableGameplayAnchors)' == 'true' AND ('$(LegatoTargetVersion)' == '0.11.1' OR '$(LegatoTargetVersion)' == '0.11.2')">$(DefineConstants);LEGATO_EARLY_GAMEPLAY_ANCHORS</DefineConstants>
-      <DefineConstants Condition="'$(LegatoEnableAssetBundleHost)' == 'true' AND '$(LegatoTargetVersion)' == '0.11.1'">$(DefineConstants);LEGATO_EARLY_ASSET_BUNDLE_HOST;LEGATO_BEFORE_MULTIPLAYER</DefineConstants>
+      <DefineConstants Condition="'$(LegatoEnableAssetBundleHost)' == 'true' AND ('$(LegatoTargetVersion)' == '0.11.1' OR '$(LegatoTargetVersion)' == '0.11.2')">$(DefineConstants);LEGATO_EARLY_ASSET_BUNDLE_HOST;LEGATO_BEFORE_MULTIPLAYER</DefineConstants>
       <DefineConstants Condition="'$(_LegatoApiVersion)' != '' AND $([MSBuild]::VersionLessThan('$(_LegatoApiVersion)', '1.37.2'))">$(DefineConstants);LEGATO_INTEGER_REFRESH_RATE;LEGATO_LEGACY_FRAME_TIMING;LEGATO_BASIC_TEXTURE_CREATION_FLAGS</DefineConstants>
       <DefineConstants Condition="'$(_LegatoApiVersion)' != '' AND $([MSBuild]::VersionGreaterThanOrEquals('$(_LegatoApiVersion)', '1.37.2'))">$(DefineConstants);LEGATO_LINE_RENDERER_TEXTURE_SCALE</DefineConstants>
       <DefineConstants Condition="'$(LegatoEnablePhysics)' == 'true' AND '$(_LegatoApiVersion)' != '' AND $([MSBuild]::VersionGreaterThanOrEquals('$(_LegatoApiVersion)', '1.40.9'))">$(DefineConstants);LEGATO_UNITY_6_RIGIDBODY</DefineConstants>
@@ -560,7 +560,7 @@
       <Compile Include="$(LegatoSourceRoot)Library\Transitions\**\*.cs"
                Condition="'$(LegatoEnableTransitions)' == 'true'" />
       <Compile Remove="$(LegatoSourceRoot)Library\Transitions\HealthWarningFlow.cs"
-               Condition="'$(LegatoTargetVersion)' == '0.11.1'" />
+               Condition="'$(LegatoTargetVersion)' == '0.11.1' OR '$(LegatoTargetVersion)' == '0.11.2'" />
       <Compile Include="$(LegatoSourceRoot)Library\HealthWarningStartup\HealthWarningStartup.cs"
                Condition="'$(LegatoEnableHealthWarningStartup)' == 'true'" />
       <Compile Include="$(LegatoSourceRoot)Library\SceneEvents\**\*.cs"

@@ -14,7 +14,33 @@ using UnityEngine;
 
 namespace Legato.Presentation {
     internal static class PauseMenuLayout {
-#if LEGATO_BEFORE_MULTIPLAYER
+#if LEGATO_EARLY_STANDARD_MAPS
+        internal static NativePauseLevel? SceneLevel(MainGameSceneSetup scene) =>
+            scene.GetField<MainGameSceneSetupData, MainGameSceneSetup>("_mainGameSceneSetupData")?.difficultyLevel?.level;
+
+        internal static (TextMeshProUGUI Title, TextMeshProUGUI Difficulty) LegacyLabels(PauseMenuManager menu) =>
+            (menu.GetField<TextMeshProUGUI, PauseMenuManager>("_levelNameText"),
+             menu.GetField<TextMeshProUGUI, PauseMenuManager>("_levelDifficultyText"));
+
+        internal static (Button? Back, Button? Restart, Button? Continue) LegacyButtons(PauseMenuManager menu) {
+            Button? back = null;
+            Button? restart = null;
+            Button? resume = null;
+            var wrapper = menu.GetField<GameObject, PauseMenuManager>("_gameObjectsWrapper");
+            if (wrapper == null) return (null, null, null);
+            foreach (Button button in wrapper.GetComponentsInChildren<Button>(true)) {
+                for (int i = 0; i < button.onClick.GetPersistentEventCount(); i++) {
+                    if (button.onClick.GetPersistentTarget(i) != menu) continue;
+                    switch (button.onClick.GetPersistentMethodName(i)) {
+                        case nameof(PauseMenuManager.MenuButtonPressed): back = button; break;
+                        case nameof(PauseMenuManager.RestartButtonPressed): restart = button; break;
+                        case nameof(PauseMenuManager.ContinueButtonPressed): resume = button; break;
+                    }
+                }
+            }
+            return (back, restart, resume);
+        }
+#elif LEGATO_BEFORE_MULTIPLAYER
         internal static NativePauseLevel? SceneLevel(GameplayCoreSceneSetupData scene) => scene.difficultyBeatmap?.level;
         internal static string Contributors(NativePauseLevel level) => level.levelAuthorName;
 
@@ -75,8 +101,10 @@ namespace Legato.Presentation {
             manager.transform.Find("Wrapper/MenuWrapper/Canvas");
 #endif
 
+#if !LEGATO_EARLY_STANDARD_MAPS
         internal static PauseMenuManager? GetManager(PauseController controller) =>
             controller.GetField<PauseMenuManager, PauseController>("_pauseMenuManager");
+#endif
 
         internal static Canvas? ParentCanvas(Component? component) {
             for (Transform? current = component != null ? component.transform : null; current != null; current = current.parent) {
