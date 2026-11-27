@@ -6,7 +6,7 @@ using System.Linq;
 using System.Reflection;
 using UnityEngine;
 using Zenject;
-#if LEGATO_BEFORE_MULTIPLAYER
+#if LEGATO_BEFORE_MULTIPLAYER || LEGATO_EARLY_GAMEPLAY_ANCHORS
 using NativeBeatmapData = global::BeatmapData;
 #else
 using NativeBeatmapData = global::IReadonlyBeatmapData;
@@ -24,7 +24,7 @@ namespace Legato.Gameplay
         {
             _leftHanded = leftHanded;
             var properties = new Dictionary<Type, PropertyInfo?>();
-#if LEGATO_BEFORE_MULTIPLAYER
+#if LEGATO_BEFORE_MULTIPLAYER || LEGATO_EARLY_GAMEPLAY_ANCHORS
             var notes = data.beatmapLinesData.SelectMany(line => line.beatmapObjectsData).OfType<NoteData>()
                 .Where(note => note.noteType != NoteType.Bomb);
 #else

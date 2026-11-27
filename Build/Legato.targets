@@ -45,6 +45,7 @@
       <_LegatoUsesDifficultyBeatmaps Condition="'$(_LegatoPolyfillProfile)' == '1.29.0' OR '$(_LegatoCoreApi)' == 'LegacyPreview'">true</_LegatoUsesDifficultyBeatmaps>
       <LegatoTargetDefine Condition="'$(LegatoTargetProfile)' != ''">BEAT_SABER_$([System.String]::Copy('$(LegatoTargetProfile)').Replace('.', '_'))</LegatoTargetDefine>
       <DefineConstants Condition="'$(LegatoTargetDefine)' != ''">$(DefineConstants);$(LegatoTargetDefine);@(_LegatoTargetVersion->'%(Constants)')</DefineConstants>
+      <DefineConstants Condition="'$(LegatoEnableGameplayAnchors)' == 'true' AND '$(LegatoTargetVersion)' == '0.11.1'">$(DefineConstants);LEGATO_EARLY_GAMEPLAY_ANCHORS</DefineConstants>
       <DefineConstants Condition="'$(_LegatoApiVersion)' != '' AND $([MSBuild]::VersionLessThan('$(_LegatoApiVersion)', '1.37.2'))">$(DefineConstants);LEGATO_INTEGER_REFRESH_RATE;LEGATO_LEGACY_FRAME_TIMING;LEGATO_BASIC_TEXTURE_CREATION_FLAGS</DefineConstants>
       <DefineConstants Condition="'$(_LegatoApiVersion)' != '' AND $([MSBuild]::VersionGreaterThanOrEquals('$(_LegatoApiVersion)', '1.37.2'))">$(DefineConstants);LEGATO_LINE_RENDERER_TEXTURE_SCALE</DefineConstants>
       <DefineConstants Condition="'$(LegatoEnablePhysics)' == 'true' AND '$(_LegatoApiVersion)' != '' AND $([MSBuild]::VersionGreaterThanOrEquals('$(_LegatoApiVersion)', '1.40.9'))">$(DefineConstants);LEGATO_UNITY_6_RIGIDBODY</DefineConstants>
