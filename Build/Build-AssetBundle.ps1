@@ -13,6 +13,7 @@ $ErrorActionPreference = 'Stop'
 if ($TargetVersion -notmatch '^\d+\.\d+\.\d+$') { throw 'TargetVersion must identify a supported game target.' }
 if (!$UnityVersion) {
     $UnityVersion = switch ($TargetVersion) {
+        '0.11.2' { '2018.1.6f1'; break }
         '1.11.1' { '2019.3.2f1'; break }
         { $_ -in '1.29.0','1.29.1' } { '2019.4.28f1'; break }
         '1.46.0' { '6000.3.19f1'; break }
@@ -33,6 +34,7 @@ if ($sourceVersion -ne $UnityVersion) {
     throw "Asset source project targets Unity $sourceVersion, but $TargetVersion requires the configured Unity $UnityVersion builder. Supply compatible source; opening a newer project in an older editor is not a conversion."
 }
 $requiredFamily = switch ($TargetVersion) {
+    '0.11.2' { '2018.1.6f1'; break }
     '1.11.1' { '2019.3.'; break }
     { $_ -in '1.29.0','1.29.1' } { '2019.4.'; break }
     '1.46.0' { '6000.3.'; break }
@@ -46,7 +48,10 @@ if (!$UnityEditorPath) {
 $editor = [IO.Path]::GetFullPath($UnityEditorPath)
 if (!(Test-Path -LiteralPath $editor -PathType Leaf)) { throw 'The selected Unity editor is not installed.' }
 $editorVersion = (Get-Item -LiteralPath $editor).VersionInfo.ProductVersion
-if (!$editorVersion.StartsWith($UnityVersion, [StringComparison]::Ordinal)) { throw "Editor executable reports $editorVersion instead of $UnityVersion." }
+$legacyFileVersion = $UnityVersion -eq '2018.1.6f1' -and $editorVersion -match '^2018\.1\.6\.\d+$'
+if (!$legacyFileVersion -and !$editorVersion.StartsWith($UnityVersion, [StringComparison]::Ordinal)) {
+    throw "Editor executable reports $editorVersion instead of $UnityVersion."
+}
 if ($log -eq $output -or $output -eq $editor -or $log -eq $editor) { throw 'Build output, log and editor paths must be distinct.' }
 foreach ($path in @($project, $output, $log, $editor)) {
     if ($path.Contains('"')) { throw 'Build paths cannot contain quotes.' }

@@ -1,7 +1,12 @@
 using System;
 using System.IO;
+#if !UNITY_2019_1_OR_NEWER
+using System.Reflection;
+#endif
 using UnityEditor;
+#if UNITY_2019_1_OR_NEWER
 using UnityEditor.Rendering;
+#endif
 using UnityEngine;
 using UnityEngine.Rendering;
 #if UNITY_6000_0_OR_NEWER
@@ -17,7 +22,7 @@ namespace Legato.AssetBuild
         {
             public string bundleName = "";
             public string outputDirectory = "";
-            public string[] shaders = Array.Empty<string>();
+            public string[] shaders = new string[0];
             public bool singlePassStereo = false;
         }
 
@@ -45,7 +50,9 @@ namespace Legato.AssetBuild
             stripping.stripUnusedPostProcessingVariants = false;
 #else
             GraphicsSettings.renderPipelineAsset = null;
+#if UNITY_2019_3_OR_NEWER
             QualitySettings.renderPipeline = null;
+#endif
 #endif
             var graphics = new SerializedObject(AssetDatabase.LoadAllAssetsAtPath("ProjectSettings/GraphicsSettings.asset")[0]);
             graphics.FindProperty("m_InstancingStripping").intValue = 2;
@@ -72,10 +79,21 @@ namespace Legato.AssetBuild
         {
             var shader = AssetDatabase.LoadAssetAtPath<Shader>(path);
             if (shader == null) throw new InvalidOperationException("Missing shader: " + path);
+#if UNITY_2019_1_OR_NEWER
             foreach (var message in ShaderUtil.GetShaderMessages(shader))
                 if (message.severity == ShaderCompilerMessageSeverity.Error)
                     throw new InvalidOperationException(path + ": " + message.message);
             if (ShaderUtil.ShaderHasError(shader)) throw new InvalidOperationException("Shader compilation failed: " + path);
+#else
+            var getErrors = typeof(ShaderUtil).GetMethod("GetShaderErrors", BindingFlags.NonPublic | BindingFlags.Static);
+            var messages = (Array)getErrors.Invoke(null, new object[] { shader });
+            foreach (object message in messages)
+            {
+                var type = message.GetType();
+                if ((int)type.GetField("warning").GetValue(message) == 0)
+                    throw new InvalidOperationException(path + ": " + type.GetField("message").GetValue(message));
+            }
+#endif
         }
     }
 }
