@@ -18,7 +18,11 @@ internal static class SaberTrailAccess
         trail._pointStart = top;
         trail._pointEnd = bottom;
         trail._granularity = granularity;
+#if LEGATO_EARLY_STANDARD_MAPS
+        trail._color = color;
+#else
         trail.color = color;
+#endif
         SetDuration(trail, duration);
         if (duration <= 0f) trail.enabled = false;
     }
@@ -39,7 +43,11 @@ internal static class SaberTrailAccess
 
     internal static void SetColor(XWeaponTrail trail, Color color, int property)
     {
+#if LEGATO_EARLY_STANDARD_MAPS
+        trail._color = color;
+#else
         trail.color = color;
+#endif
         if (trail._trailRenderer == null) return;
         var renderer = trail._trailRenderer._meshRenderer;
         var properties = new MaterialPropertyBlock();
@@ -52,7 +60,9 @@ internal static class SaberTrailAccess
 
     internal static void Reset(XWeaponTrail trail, float whiteSectionDuration)
     {
+#if !LEGATO_EARLY_STANDARD_MAPS
         trail._whiteSteps = whiteSectionDuration > 0f ? 4 : 0;
+#endif
         trail._frameNum = 0;
     }
 
@@ -61,12 +71,26 @@ internal static class SaberTrailAccess
         trail._maxFrame = Mathf.Max(2, Mathf.RoundToInt(duration * LegacyFramesPerSecond));
     }
 
+#if LEGATO_EARLY_STANDARD_MAPS
+    internal static void DrawWhiteHead(XWeaponTrail trail)
+    {
+        var segment = trail._vertexSegment;
+        var colors = segment.Pool.Colors;
+        int end = segment.VertStart + Mathf.Min(2, trail._granularity) * 3;
+        for (int i = segment.VertStart; i < end; i++) colors[i] = Color.white;
+    }
+#endif
+
     internal static void MapAgeCoordinate(XWeaponTrail trail, bool flip)
     {
         if (!flip) return;
 
         var segment = trail._vertexSegment;
+#if LEGATO_EARLY_STANDARD_MAPS
+        var uvs = segment.Pool.UVs;
+#else
         var uvs = segment.Pool.uvs;
+#endif
         int end = segment.VertStart + trail._granularity * 3;
         for (int i = segment.VertStart; i < end; i++)
             uvs[i].y = 1f - uvs[i].y;

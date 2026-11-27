@@ -44,6 +44,9 @@ public class CustomSaberTrail : Trail
 
     public float OverrideWidth { private get; set; } = 1f;
     public bool UseWidthOverride { private get; set; }
+#if LEGATO_EARLY_STANDARD_MAPS
+    internal bool WhiteHead { get; set; } = true;
+#endif
     
     public ITrailData TrailData => trailData;
 
@@ -101,7 +104,11 @@ public class CustomSaberTrail : Trail
         _trailRenderer.enabled = false;
         _trailRenderer._meshRenderer.enabled = false;
         _trailRenderer.gameObject.SetActive(true);
+#if LEGATO_EARLY_STANDARD_MAPS
+        Legato.Models.SaberTrailAccess.SetColor(this, Color, MaterialProperties.Color);
+#else
         Legato.Models.SaberTrailAccess.SetColor(this, color, MaterialProperties.Color);
+#endif
     }
 
     private new void OnDestroy()
