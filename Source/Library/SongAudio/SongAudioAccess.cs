@@ -1,5 +1,10 @@
 #if LEGATO_EARLY_SCENE_SETUP
 using UnityEngine;
+#if LEGATO_EARLY_STANDARD_MAPS
+using NativeDspOffset = DoubleSO;
+#else
+using NativeDspOffset = DoubleVariableSetter;
+#endif
 #elif LEGATO_SYNC_CONTROLLER_AUDIO_STATE || LEGATO_BEFORE_MULTIPLAYER
 global using NativeAudioState = global::AudioTimeSyncController.State;
 #else
@@ -17,7 +22,7 @@ namespace Legato.Gameplay {
             source != null && source.isPlaying;
 
         internal static double DspTimeOffset(AudioTimeSyncController audio) =>
-            FieldAccessor<AudioTimeSyncController, DoubleVariableSetter>.Get(audio, "_dspTimeOffset").value;
+            FieldAccessor<AudioTimeSyncController, NativeDspOffset>.Get(audio, "_dspTimeOffset").value;
 #else
         internal static bool IsPlaying(AudioTimeSyncController audio) => audio.state == NativeAudioState.Playing;
         internal static void Seek(AudioTimeSyncController audio, float songTime) {
