@@ -1,3 +1,22 @@
+#if LEGATO_EARLY_STANDARD_MAPS
+namespace Legato.Gameplay {
+    internal static class GameplaySceneAccess {
+        internal static IStandardLevelDifficultyBeatmap Key(MainGameSceneSetupData data) => data.difficultyLevel;
+        internal static IStandardLevel Level(MainGameSceneSetupData data) => data.difficultyLevel.level;
+        internal static float NoteJumpBeatOffset(MainGameSceneSetupData data) => 0f;
+        internal static PlayerLevelStatsData Stats(PlayerDynamicData player, MainGameSceneSetupData data) =>
+            player.GetPlayerLevelStatsData(Level(data).levelID, Key(data).difficulty, data.gameplayMode);
+        internal static bool Rotating(MainGameSceneSetupData data) => false;
+    }
+
+    internal enum NoteScoringKind { Other, Normal, ArcHead, ArcTail, ChainHead, ChainLink }
+
+    internal static class NoteScoring {
+        internal static NoteScoringKind Kind(NoteData note) =>
+            note.noteType is NoteType.NoteA or NoteType.NoteB ? NoteScoringKind.Normal : NoteScoringKind.Other;
+    }
+}
+#else
 using IPA.Utilities;
 using System.Collections.Generic;
 
@@ -98,3 +117,4 @@ namespace Legato.Scenes {
         }
     }
 }
+#endif
