@@ -1,3 +1,12 @@
+#if LEGATO_EARLY_VR_UI
+#nullable enable
+namespace Legato.Presentation {
+    internal static class FlowAccess {
+        internal static void Present(object? parent, EarlyFlowCoordinator child) => child.Present();
+        internal static void Dismiss(object? parent, EarlyFlowCoordinator child) => child.Dismiss();
+    }
+}
+#else
 using HMUI;
 using IPA.Utilities;
 
@@ -19,3 +28,4 @@ namespace Legato.Presentation {
 #endif
     }
 }
+#endif
