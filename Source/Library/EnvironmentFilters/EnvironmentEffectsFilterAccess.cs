@@ -1,11 +1,13 @@
 #nullable enable
 using System;
 using System.Reflection;
+#if !LEGATO_EARLY_STANDARD_MAPS
 using static PlayerSaveData;
+#endif
 
 namespace Legato.Gameplay {
     internal static class EnvironmentEffectsFilterAccess {
-#if LEGATO_BEFORE_MULTIPLAYER
+#if LEGATO_BEFORE_MULTIPLAYER || LEGATO_EARLY_STANDARD_MAPS
         private static readonly MethodInfo Clone = typeof(object).GetMethod("MemberwiseClone", BindingFlags.Instance | BindingFlags.NonPublic)!;
         private static readonly FieldInfo BeatmapEvents = typeof(BeatmapData).GetField("<beatmapEventData>k__BackingField", BindingFlags.Instance | BindingFlags.NonPublic)!;
 
@@ -21,7 +23,12 @@ namespace Legato.Gameplay {
         private static readonly FieldInfo? ExpertPlus = typeof(PlayerSpecificSettings).GetField("_environmentEffectsFilterExpertPlusPreset", Fields);
 #endif
         internal static bool Apply(object[] arguments, bool forceStatic) {
-#if LEGATO_BEFORE_MULTIPLAYER
+#if LEGATO_EARLY_STANDARD_MAPS
+            foreach (object argument in arguments) {
+                if (argument is GameplayOptions options) return options.staticLights || forceStatic;
+            }
+            return false;
+#elif LEGATO_BEFORE_MULTIPLAYER
             for (int index = 0; index < arguments.Length; index++) {
                 if (arguments[index] is not PlayerSpecificSettings settings) continue;
                 if (!settings.staticLights && forceStatic) {
