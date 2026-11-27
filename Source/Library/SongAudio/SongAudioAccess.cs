@@ -1,4 +1,6 @@
-#if LEGATO_SYNC_CONTROLLER_AUDIO_STATE || LEGATO_BEFORE_MULTIPLAYER
+#if LEGATO_EARLY_SCENE_SETUP
+using UnityEngine;
+#elif LEGATO_SYNC_CONTROLLER_AUDIO_STATE || LEGATO_BEFORE_MULTIPLAYER
 global using NativeAudioState = global::AudioTimeSyncController.State;
 #else
 global using NativeAudioState = global::IAudioTimeSource.State;
@@ -8,6 +10,15 @@ using IPA.Utilities;
 
 namespace Legato.Gameplay {
     internal static class SongAudioAccess {
+#if LEGATO_EARLY_SCENE_SETUP
+        internal static bool IsPlaying(AudioTimeSyncController audio) =>
+            audio != null && audio.isActiveAndEnabled &&
+            FieldAccessor<AudioTimeSyncController, AudioSource>.Get(audio, "_audioSource") is AudioSource source &&
+            source != null && source.isPlaying;
+
+        internal static double DspTimeOffset(AudioTimeSyncController audio) =>
+            FieldAccessor<AudioTimeSyncController, DoubleVariableSetter>.Get(audio, "_dspTimeOffset").value;
+#else
         internal static bool IsPlaying(AudioTimeSyncController audio) => audio.state == NativeAudioState.Playing;
         internal static void Seek(AudioTimeSyncController audio, float songTime) {
 #if LEGATO_BEFORE_MULTIPLAYER
@@ -32,5 +43,6 @@ namespace Legato.Gameplay {
             audio.SeekTo((songTime - start) / audio.timeScale);
 #endif
         }
+#endif
     }
 }
