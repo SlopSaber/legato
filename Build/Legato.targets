@@ -403,6 +403,8 @@
                Condition="'$(LegatoEnableEffectLifecycle)' == 'true'" />
       <Compile Include="$(LegatoSourceRoot)Library\LevelProxies\**\*.cs"
                Condition="'$(LegatoEnableLevelProxies)' == 'true'" />
+      <Compile Include="$(LegatoSourceRoot)Library\LevelProxies\EarlyBeatmapSources.cs"
+               Condition="'$(LegatoTargetVersion)' == '0.11.1' AND '$(LegatoEnableCustomJsonDataProviders)' == 'true' AND '$(LegatoEnableLevelProxies)' != 'true'" />
       <Compile Include="$(LegatoSourceRoot)Library\StatisticsViews\**\*.cs"
                Condition="'$(LegatoEnableStatisticsViews)' == 'true'" />
       <Compile Include="$(LegatoSourceRoot)Library\Physics\**\*.cs"

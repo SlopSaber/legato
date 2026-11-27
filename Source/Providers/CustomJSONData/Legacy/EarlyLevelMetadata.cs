@@ -3,6 +3,7 @@ using System.IO;
 using System.Runtime.CompilerServices;
 using CustomJSONData.CustomBeatmap;
 using HarmonyLib;
+using Legato.Beatmaps;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
@@ -12,7 +13,6 @@ namespace CustomJSONData.HarmonyPatches
     internal static class EarlyLevelMetadata
     {
         private static readonly ConditionalWeakTable<CustomLevelInfo.DifficultyLevelInfo, Metadata> _levels = new();
-        private static readonly ConditionalWeakTable<BeatmapDataSO, Metadata> _beatmaps = new();
 
         [HarmonyPostfix]
         [HarmonyPatch(typeof(CustomLevelLoader), nameof(CustomLevelLoader.LoadCustomLevelInfo))]
@@ -56,9 +56,9 @@ namespace CustomJSONData.HarmonyPatches
         [HarmonyPatch(typeof(CustomLevelStandardLevelLoader), "Load")]
         private static void TrackBeatmap(CustomLevelInfo.DifficultyLevelInfo difficultyLevelsInfo, BeatmapDataSO beatmapData, StandardLevelSO.DifficultyBeatmap? __result)
         {
-            if (__result != null && _levels.TryGetValue(difficultyLevelsInfo, out Metadata metadata))
+            if (__result != null)
             {
-                _beatmaps.GetValue(beatmapData, _ => metadata);
+                EarlyBeatmapSources.Associate(beatmapData, difficultyLevelsInfo);
             }
         }
 
@@ -66,7 +66,9 @@ namespace CustomJSONData.HarmonyPatches
         [HarmonyPatch(typeof(BeatmapDataSO), nameof(BeatmapDataSO.Load))]
         private static void ApplyMetadata(BeatmapDataSO __instance, BeatmapData? ____beatmapData)
         {
-            if (____beatmapData is CustomBeatmapData chart && _beatmaps.TryGetValue(__instance, out Metadata metadata))
+            if (____beatmapData is CustomBeatmapData chart &&
+                EarlyBeatmapSources.GetDifficulty(__instance) is CustomLevelInfo.DifficultyLevelInfo source &&
+                _levels.TryGetValue(source, out Metadata metadata))
             {
                 chart.ApplyLevelMetadata(metadata.Level, metadata.Difficulty);
             }

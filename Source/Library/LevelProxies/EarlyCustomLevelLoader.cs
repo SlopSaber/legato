@@ -90,6 +90,7 @@ namespace Legato.Beatmaps
                     var chart = ScriptableObject.CreateInstance<BeatmapDataSO>();
                     charts.Add(chart);
                     chart.SetJsonData(File.ReadAllText(chartPath));
+                    EarlyBeatmapSources.Associate(chart, difficulty);
                     difficulties.Add(new StandardLevelSO.DifficultyBeatmap(level, kind, difficulty.difficultyRank,
                         difficulty.noteJumpMovementSpeed, chart));
                 }
