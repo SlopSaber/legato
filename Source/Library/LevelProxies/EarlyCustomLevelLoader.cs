@@ -23,7 +23,7 @@ namespace Legato.Beatmaps
             string? audioPath = EarlyMapFiles.LocalAsset(entry.DirectoryPath, entry.Info.difficultyLevels[0]?.audioPath);
             if (audioPath == null || !IsPositive(entry.Info.beatsPerMinute)) return null;
 
-            List<(EarlyLevelDifficulty Difficulty, LevelDifficulty Kind, string Json)> charts =
+            List<(EarlyLevelDifficulty Difficulty, LevelDifficulty Kind, string Json, string Path)> charts =
                 await Task.Run(() => ReadCharts(entry, allowedDifficulties, cancellationToken), cancellationToken);
             if (charts.Count == 0) return null;
             byte[]? coverBytes = await Task.Run(() => ReadCover(entry), cancellationToken);
@@ -49,10 +49,10 @@ namespace Legato.Beatmaps
             }
         }
 
-        private static List<(EarlyLevelDifficulty Difficulty, LevelDifficulty Kind, string Json)>
+        private static List<(EarlyLevelDifficulty Difficulty, LevelDifficulty Kind, string Json, string Path)>
             ReadCharts(EarlyMapEntry entry, IReadOnlyCollection<LevelDifficulty>? allowedDifficulties, CancellationToken cancellationToken)
         {
-            var charts = new List<(EarlyLevelDifficulty, LevelDifficulty, string)>();
+            var charts = new List<(EarlyLevelDifficulty, LevelDifficulty, string, string)>();
             foreach (EarlyLevelDifficulty difficulty in entry.Info.difficultyLevels)
             {
                 cancellationToken.ThrowIfCancellationRequested();
@@ -77,7 +77,7 @@ namespace Legato.Beatmaps
                         obstacles.Any(item => item is not JObject itemData || !HasLane(itemData) ||
                             itemData.Value<int>("_type") is < 0 or > 1)) continue;
 
-                    charts.Add((difficulty, kind, json));
+                    charts.Add((difficulty, kind, json, path));
                 }
                 catch (Exception error) when (error is IOException or UnauthorizedAccessException or ArgumentException or
                     JsonException or FormatException or OverflowException or InvalidCastException)
@@ -133,7 +133,8 @@ namespace Legato.Beatmaps
         }
 
         private static StandardLevelSO? BuildLevel(EarlyMapEntry entry, AudioClip audio,
-            List<(EarlyLevelDifficulty Difficulty, LevelDifficulty Kind, string Json)> sources, byte[]? coverBytes, bool longPreviews)
+            List<(EarlyLevelDifficulty Difficulty, LevelDifficulty Kind, string Json, string Path)> sources,
+            byte[]? coverBytes, bool longPreviews)
         {
             EarlyLevelInfo info = entry.Info;
             float previewStart = Mathf.Clamp(info.previewStartTime, 0f, Mathf.Max(0f, audio.length - 0.1f));
@@ -167,7 +168,7 @@ namespace Legato.Beatmaps
 
                 // The native difficulty constructor reads tempo and shuffle from its parent immediately.
                 Initialize(Array.Empty<StandardLevelSO.DifficultyBeatmap>());
-                foreach ((EarlyLevelDifficulty difficulty, LevelDifficulty kind, string json) in sources)
+                foreach ((EarlyLevelDifficulty difficulty, LevelDifficulty kind, string json, string path) in sources)
                 {
                     var chart = ScriptableObject.CreateInstance<BeatmapDataSO>();
                     charts.Add(chart);
@@ -176,6 +177,7 @@ namespace Legato.Beatmaps
                         ? metadata : null;
 #if LEGATO_EARLY_STANDARD_MAPS
                     EarlyBeatmapSources.AssociateMetadata(chart, entry.CustomData, difficultyData);
+                    EarlyBeatmapSources.AssociateFile(chart, path);
 #else
                     EarlyBeatmapSources.Associate(chart, difficulty, entry.CustomData, difficultyData);
 #endif

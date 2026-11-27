@@ -16,7 +16,7 @@
     <EditorConfigFiles Include="$(LegatoSourceRoot)Providers\Heck\.editorconfig"
                        Condition="'$(LegatoEnableHeckProviders)' == 'true'" />
     <EditorConfigFiles Include="$(LegatoSourceRoot)Providers\CustomJSONData\.editorconfig"
-                       Condition="'$(LegatoEnableCustomJsonDataProviders)' == 'true'" />
+                       Condition="'$(LegatoEnableCustomJsonDataProviders)' == 'true' OR ('$(LegatoTargetVersion)' == '0.11.2' AND '$(LegatoEnableHeckProviders)' == 'true')" />
   </ItemGroup>
   <Target Name="LegatoCustomJsonLegacyReferences" BeforeTargets="ResolveAssemblyReferences" DependsOnTargets="LegatoConfigure">
     <PropertyGroup Condition="'$(LegatoTargetProfile)' == '1.29.0' AND '$(LegatoEnableCustomJsonDataProviders)' == 'true'">
@@ -53,6 +53,12 @@
       <Reference Remove="AdditionalContentModel.Interfaces;BeatmapCore;BeatSaber.GameSettings;BeatSaber.ViewSystem;BGLib.AppFlow;BGLib.DotnetExtension;BGLib.JsonExtension;BGLib.SaveDataCore;BGLib.UnityExtension;BGNetCore;DataModels;GameplayCore;MediaLoader;UnityEngine.InputLegacyModule;Zenject-usage" />
       <Reference Include="UnityEngine.InputLegacyModule" HintPath="$(LegatoReferenceRoot)\Beat Saber_Data\Managed\UnityEngine.InputLegacyModule.dll" Condition="Exists('$(LegatoReferenceRoot)\Beat Saber_Data\Managed\UnityEngine.InputLegacyModule.dll')" />
       <Reference Include="Zenject-usage" HintPath="$(LegatoReferenceRoot)\Beat Saber_Data\Managed\Zenject-usage.dll" Condition="Exists('$(LegatoReferenceRoot)\Beat Saber_Data\Managed\Zenject-usage.dll')" />
+    </ItemGroup>
+    <ItemGroup Condition="'$(LegatoTargetVersion)' == '0.11.2' AND '$(LegatoEnableHeckProviders)' == 'true'">
+      <Reference Remove="AdditionalContentModel.Interfaces;BeatmapCore;BeatSaber.GameSettings;BeatSaber.ViewSystem;BGLib.AppFlow;BGLib.DotnetExtension;BGLib.JsonExtension;BGLib.SaveDataCore;BGLib.UnityExtension;BGNetCore;Colors;DataModels;GameplayCore;HMLib;HMUI;Main;MediaLoader;UnityEngine.InputLegacyModule" />
+      <Reference Include="UnityEngine" HintPath="$(LegatoReferenceRoot)\Beat Saber_Data\Managed\UnityEngine.dll" />
+      <Reference Include="UnityEngine.InputModule" HintPath="$(LegatoReferenceRoot)\Beat Saber_Data\Managed\UnityEngine.InputModule.dll" />
+      <Reference Include="TextMeshPro-1.0.55.2017.1.0b12" HintPath="$(LegatoReferenceRoot)\Beat Saber_Data\Managed\TextMeshPro-1.0.55.2017.1.0b12.dll" />
     </ItemGroup>
   </Target>
   <Target Name="LegatoVivifyLegacyReferences" BeforeTargets="ResolveAssemblyReferences" DependsOnTargets="LegatoConfigure">
@@ -99,7 +105,8 @@
       <DefineConstants Condition="$(LegatoTargetOrder) &gt;= 2">$(DefineConstants);LEGATO_BEATMAP_OBJECT_BEAT</DefineConstants>
       <DefineConstants Condition="'$(LegatoTargetVersion)' == '1.11.1' AND '$(LegatoEnableCustomJsonDataProviders)' == 'true'">$(DefineConstants);LEGATO_CUSTOM_JSON_LEGACY_LOADER</DefineConstants>
       <DefineConstants Condition="('$(LegatoTargetVersion)' == '0.11.1' OR '$(LegatoTargetVersion)' == '0.11.2') AND '$(LegatoEnableCustomJsonDataProviders)' == 'true'">$(DefineConstants);LEGATO_CUSTOM_JSON_LEGACY_LOADER;LEGATO_CUSTOM_JSON_EARLY_LOADER</DefineConstants>
-      <DefineConstants Condition="'$(LegatoTargetVersion)' == '1.11.1' AND '$(LegatoEnableHeckProviders)' == 'true'">$(DefineConstants);LEGATO_HECK_LEGACY_GAMEPLAY</DefineConstants>
+      <DefineConstants Condition="('$(LegatoTargetVersion)' == '1.11.1' OR '$(LegatoTargetVersion)' == '0.11.2') AND '$(LegatoEnableHeckProviders)' == 'true'">$(DefineConstants);LEGATO_HECK_LEGACY_GAMEPLAY</DefineConstants>
+      <DefineConstants Condition="'$(LegatoTargetVersion)' == '0.11.2' AND '$(LegatoEnableHeckProviders)' == 'true'">$(DefineConstants);LEGATO_BEFORE_MULTIPLAYER</DefineConstants>
       <DefineConstants Condition="'$(LegatoTargetVersion)' == '1.11.1' AND '$(LegatoEnableChromaProviders)' == 'true'">$(DefineConstants);LEGATO_CHROMA_LEGACY_LIGHTS</DefineConstants>
       <DefineConstants Condition="'$(LegatoTargetVersion)' == '1.11.1' AND '$(LegatoEnableNoodleExtensionsProviders)' == 'true'">$(DefineConstants);LEGATO_NOODLE_LEGACY_GAMEPLAY</DefineConstants>
       <DefineConstants Condition="'$(LegatoTargetVersion)' == '1.11.1' AND '$(LegatoEnableVivifyProviders)' == 'true'">$(DefineConstants);LEGATO_VIVIFY_LEGACY_GAMEPLAY</DefineConstants>

@@ -8,6 +8,9 @@ using Heck.ReLoad;
 using Heck.Settings;
 using JetBrains.Annotations;
 using Zenject;
+#if LEGATO_EARLY_STANDARD_MAPS
+using Heck.PlayView;
+#endif
 
 namespace Heck.Installers;
 
@@ -33,7 +36,11 @@ internal class HeckAppInstaller : Installer
         Container.BindInterfacesTo<SceneTransitionModuleActivator>().AsSingle();
 #endif
         Container.Bind<DeserializerManager>().AsSingle();
+#if LEGATO_EARLY_STANDARD_MAPS
+        Container.BindInterfacesAndSelfTo<EarlyPlaySession>().AsSingle();
+#else
         Container.BindInterfacesTo<PatchedPlayerInstaller>().AsSingle();
+#endif
 
         Container.BindInterfacesAndSelfTo<FeaturesModule>().AsSingle();
 

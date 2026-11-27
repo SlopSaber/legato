@@ -12,6 +12,9 @@ namespace Legato.Beatmaps
 #if !LEGATO_EARLY_STANDARD_MAPS
         private static readonly ConditionalWeakTable<BeatmapDataSO, CustomLevelInfo.DifficultyLevelInfo> Sources =
             GetShared<CustomLevelInfo.DifficultyLevelInfo>(DomainKey);
+#else
+        private static readonly ConditionalWeakTable<BeatmapDataSO, string> Files =
+            GetShared<string>(DomainKey + ".ChartFiles");
 #endif
 
         private static readonly ConditionalWeakTable<BeatmapDataSO, Tuple<string?, string?>> ImportedMetadata =
@@ -26,6 +29,10 @@ namespace Legato.Beatmaps
 
         internal static CustomLevelInfo.DifficultyLevelInfo? GetDifficulty(BeatmapDataSO chart) =>
             Sources.TryGetValue(chart, out CustomLevelInfo.DifficultyLevelInfo source) ? source : null;
+#else
+        internal static void AssociateFile(BeatmapDataSO chart, string file) => Files.GetValue(chart, _ => file);
+
+        internal static string? GetFile(BeatmapDataSO chart) => Files.TryGetValue(chart, out string file) ? file : null;
 #endif
 
         internal static void AssociateMetadata(BeatmapDataSO chart, string? levelData, string? difficultyData)

@@ -407,7 +407,7 @@
       <Compile Include="$(LegatoSourceRoot)Library\LevelProxies\EarlyMapFiles.cs"
                Condition="('$(LegatoTargetVersion)' == '0.11.1' OR '$(LegatoTargetVersion)' == '0.11.2') AND '$(LegatoEnableLevelListBadges)' == 'true' AND '$(LegatoEnableLevelProxies)' != 'true'" />
       <Compile Include="$(LegatoSourceRoot)Providers\CustomJSONData\Legacy\EarlyBeatmapSources.cs"
-               Condition="('$(LegatoTargetVersion)' == '0.11.1' OR '$(LegatoTargetVersion)' == '0.11.2') AND '$(LegatoEnableLevelProxies)' == 'true' AND '$(LegatoEnableCustomJsonDataProviders)' != 'true'" />
+               Condition="('$(LegatoTargetVersion)' == '0.11.1' OR '$(LegatoTargetVersion)' == '0.11.2') AND ('$(LegatoEnableLevelProxies)' == 'true' OR '$(LegatoEnableHeckProviders)' == 'true') AND '$(LegatoEnableCustomJsonDataProviders)' != 'true'" />
       <Compile Include="$(LegatoSourceRoot)Library\StatisticsViews\**\*.cs"
                Condition="'$(LegatoEnableStatisticsViews)' == 'true'" />
       <Compile Include="$(LegatoSourceRoot)Library\Physics\**\*.cs"
@@ -668,9 +668,11 @@
       <Compile Include="$(LegatoSourceRoot)Providers\Heck\**\*.cs"
                Condition="'$(LegatoEnableHeckProviders)' == 'true'" />
       <Compile Remove="$(LegatoSourceRoot)Providers\Heck\HarmonyPatches\BurstSliderDataRegisterer.cs;$(LegatoSourceRoot)Providers\Heck\HarmonyPatches\PlayViewInterrupter.cs;$(LegatoSourceRoot)Providers\Heck\Services\PlayView\StartStandardLevelParameters.cs;$(LegatoSourceRoot)Providers\Heck\Services\PlayView\StartMultiplayerLevelParameters.cs;HarmonyPatches\FollowedObstacleFiller.cs;HarmonyPatches\NoteCutSoundDelayer.cs;HarmonyPatches\ObjectInitializer.cs;HarmonyPatches\PlayViewTransitionListener.cs"
-               Condition="'$(LegatoEnableHeckProviders)' == 'true' AND '$(LegatoTargetVersion)' == '1.11.1'" />
+               Condition="'$(LegatoEnableHeckProviders)' == 'true' AND ('$(LegatoTargetVersion)' == '1.11.1' OR '$(LegatoTargetVersion)' == '0.11.2')" />
       <Compile Remove="$(LegatoSourceRoot)Providers\Heck\ReLoad\ReLoader.cs;$(LegatoSourceRoot)Providers\Heck\ReLoad\ReLoaderLoader.cs;$(LegatoSourceRoot)Providers\Heck\ReLoad\RestartReLoad.cs"
-               Condition="'$(LegatoEnableHeckProviders)' == 'true' AND '$(LegatoTargetVersion)' == '1.11.1'" />
+               Condition="'$(LegatoEnableHeckProviders)' == 'true' AND ('$(LegatoTargetVersion)' == '1.11.1' OR '$(LegatoTargetVersion)' == '0.11.2')" />
+      <Compile Remove="$(LegatoSourceRoot)Providers\Heck\HarmonyPatches\PatchedPlayerInstaller.cs;$(LegatoSourceRoot)Providers\Heck\HarmonyPatches\ModuleActivator\SceneTransitionModuleActivatorV1_34_2AndEarlier.cs;$(LegatoSourceRoot)Providers\Heck\HarmonyPatches\PlayViewInterrupter.Legacy.cs;$(LegatoSourceRoot)Providers\Heck\Services\PlayView\StartStandardLevelParameters.Legacy.cs;$(LegatoSourceRoot)Providers\Heck\Services\PlayView\PlayViewManager.cs;$(LegatoSourceRoot)Providers\Heck\SettingsSetter\SettingsSetterViewController.cs;$(LegatoSourceRoot)Providers\Heck\ReLoad\*.Legacy.cs;$(LegatoSourceRoot)Providers\Heck\ReLoad\MenuReLoad.cs"
+               Condition="'$(LegatoEnableHeckProviders)' == 'true' AND '$(LegatoTargetVersion)' == '0.11.2'" />
       <Compile Include="$(LegatoSourceRoot)Providers\Chroma\**\*.cs"
                Condition="'$(LegatoEnableChromaProviders)' == 'true'" />
       <Compile Remove="$(LegatoSourceRoot)Providers\Chroma\EnvironmentEnhancement\Saved\Features.cs;$(LegatoSourceRoot)Providers\Chroma\HarmonyPatches\SavedEnvironmentLoading.cs;$(LegatoSourceRoot)Providers\Chroma\HarmonyPatches\EnvironmentComponent\BeatmapObjectsAvoidanceTransformOverride.cs;$(LegatoSourceRoot)Providers\Chroma\HarmonyPatches\EnvironmentComponent\RingAwakeInstantiator.cs;Colorizer\SliderColorizer.cs;HarmonyPatches\Mirror\*.cs;HarmonyPatches\ZenModeWalls\*.cs;HarmonyPatches\Events\MovementBeatmapChromafier.cs"

@@ -1,6 +1,9 @@
 using Heck.BaseProvider;
 using JetBrains.Annotations;
 using Zenject;
+#if LEGATO_EARLY_STANDARD_MAPS
+using IPA.Utilities;
+#endif
 #if LEGATO_HECK_LEGACY_GAMEPLAY
 using System.Reflection;
 using HarmonyLib;
@@ -20,6 +23,29 @@ internal class MovementDataBaseProvider : IBaseProvider
     internal float[] PlayerHeight { get; set; } = new float[1];
 }
 
+#if LEGATO_EARLY_STANDARD_MAPS
+internal sealed class MovementDataGetter : ITickable
+{
+    private readonly MovementDataBaseProvider _values;
+    private readonly BeatmapObjectSpawnController _spawner;
+    private readonly MainSettingsModel _settings;
+
+    [UsedImplicitly]
+    private MovementDataGetter(MovementDataBaseProvider values, BeatmapObjectSpawnController spawner, MainSettingsModel settings)
+    {
+        _values = values;
+        _spawner = spawner;
+        _settings = settings;
+    }
+
+    public void Tick()
+    {
+        _values.NoteJumpMovementSpeed[0] = FieldAccessor<BeatmapObjectSpawnController, float>.Get(_spawner, "_noteJumpMovementSpeed");
+        _values.JumpDistance[0] = FieldAccessor<BeatmapObjectSpawnController, float>.Get(_spawner, "_jumpDistance");
+        _values.PlayerHeight[0] = _settings.playerHeight;
+    }
+}
+#else
 internal class MovementDataGetter : IInitializable, ITickable
 {
 #if LEGATO_HECK_LEGACY_GAMEPLAY
@@ -102,3 +128,4 @@ internal class MovementDataGetter : IInitializable, ITickable
         }
     }
 }
+#endif

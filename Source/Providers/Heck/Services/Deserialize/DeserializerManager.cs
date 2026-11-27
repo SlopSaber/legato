@@ -11,6 +11,9 @@ using static Heck.HeckController;
 #if LEGATO_HECK_LEGACY_GAMEPLAY
 using IReadonlyBeatmapData = BeatmapData;
 #endif
+#if LEGATO_EARLY_STANDARD_MAPS
+using IDifficultyBeatmap = IStandardLevelDifficultyBeatmap;
+#endif
 
 namespace Heck.Deserialize;
 

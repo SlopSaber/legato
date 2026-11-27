@@ -10,6 +10,12 @@ using Heck.Patcher;
 using JetBrains.Annotations;
 using SiraUtil.Logging;
 using Zenject;
+#if LEGATO_EARLY_STANDARD_MAPS
+using IDifficultyBeatmap = IStandardLevelDifficultyBeatmap;
+using NativeEnvironmentOverride = SceneInfo;
+#else
+using NativeEnvironmentOverride = OverrideEnvironmentSettings;
+#endif
 
 namespace Heck.Module;
 
@@ -120,7 +126,7 @@ public class ModuleManager : IDisposable
         IDifficultyBeatmap? difficultyBeatmap,
 #endif
         LevelType levelType,
-        ref OverrideEnvironmentSettings? overrideEnvironmentSettings)
+        ref NativeEnvironmentOverride? overrideEnvironmentSettings)
     {
         bool disableAll = false;
         string[]? requirements = null;
@@ -321,11 +327,11 @@ public class ModuleManager : IDisposable
 
     public class ModuleArgs
     {
-        public ModuleArgs(OverrideEnvironmentSettings? overrideEnvironmentSettings)
+        public ModuleArgs(NativeEnvironmentOverride? overrideEnvironmentSettings)
         {
             OverrideEnvironmentSettings = overrideEnvironmentSettings;
         }
 
-        public OverrideEnvironmentSettings? OverrideEnvironmentSettings { get; set; }
+        public NativeEnvironmentOverride? OverrideEnvironmentSettings { get; set; }
     }
 }
