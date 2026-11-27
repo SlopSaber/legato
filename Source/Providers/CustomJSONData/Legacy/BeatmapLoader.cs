@@ -17,14 +17,29 @@ namespace CustomJSONData.HarmonyPatches
             (Func<float, float, float, float, float>)Delegate.CreateDelegate(
                 typeof(Func<float, float, float, float, float>),
                 AccessTools.Method(typeof(BeatmapDataLoader), "GetRealTimeFromBpmTime"));
-
-        private static void Postfix(string json, float beatsPerMinute, float shuffle, float shufflePeriod, ref BeatmapData? __result)
 #else
         private static readonly TimeConverter _convertTime = (TimeConverter)Delegate.CreateDelegate(
             typeof(TimeConverter), AccessTools.Method(typeof(BeatmapDataLoader), "GetRealTimeFromBPMTime"));
 
         private delegate float TimeConverter(BeatmapDataLoader loader, float beat, float bpm, float shuffle, float shufflePeriod);
 
+#endif
+
+        internal static CustomData ReadData(JToken? token)
+        {
+            if (token is not JObject data)
+            {
+                return new CustomData();
+            }
+
+            using JsonReader reader = data.CreateReader();
+            reader.Read();
+            return CustomData.FromJSON(reader);
+        }
+
+#if LEGATO_CUSTOM_JSON_EARLY_LOADER
+        private static void Postfix(string json, float beatsPerMinute, float shuffle, float shufflePeriod, ref BeatmapData? __result)
+#else
         private static void Postfix(BeatmapDataLoader __instance, string json, float startBPM, float shuffle, float shufflePeriod, ref BeatmapData? __result)
 #endif
         {
@@ -91,18 +106,6 @@ namespace CustomJSONData.HarmonyPatches
             {
                 Plugin.Log.Warn($"Could not read beatmap custom data: {exception.Message}");
             }
-        }
-
-        internal static CustomData ReadData(JToken? token)
-        {
-            if (token is not JObject data)
-            {
-                return new CustomData();
-            }
-
-            using JsonReader reader = data.CreateReader();
-            reader.Read();
-            return CustomData.FromJSON(reader);
         }
 
 #if LEGATO_CUSTOM_JSON_EARLY_LOADER
