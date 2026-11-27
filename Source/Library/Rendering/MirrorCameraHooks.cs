@@ -46,6 +46,12 @@ namespace Legato.Rendering {
 
             private static void Finalizer(MaskState __state) => __state.Restore();
         }
+#elif LEGATO_EARLY_STANDARD_MAPS
+        [HarmonyPatch(typeof(MirrorRenderer), "CreateOrUpdateMirrorCamera")]
+        private static class EarlyHook {
+            [HarmonyPriority(300)]
+            private static void Postfix(Camera __0, Camera ____mirrorCamera) => LegacyMask?.Invoke(____mirrorCamera, __0);
+        }
 #else
         [HarmonyPatch(typeof(MirrorRendererSO), "CreateOrUpdateMirrorCamera")]
         private static class LegacyHook {
