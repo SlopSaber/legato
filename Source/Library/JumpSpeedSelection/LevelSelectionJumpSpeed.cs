@@ -2,6 +2,13 @@ using IPA.Utilities;
 
 namespace Legato.Gameplay {
     internal static class LevelSelectionJumpSpeed {
+#if LEGATO_EARLY_STANDARD_MAPS
+        internal static float Selected(StandardLevelDetailViewController view) {
+            var data = view == null ? null : view.difficultyLevel;
+            if (data == null) return 0f;
+            return data.noteJumpMovementSpeed > 0f ? data.noteJumpMovementSpeed : data.difficulty.NoteJumpMovementSpeed();
+        }
+#else
         internal static float Selected(StandardLevelDetailView view) {
             if (view == null) return 0f;
 #if BEAT_SABER_1_29_0 || LEGATO_BEFORE_MULTIPLAYER
@@ -20,6 +27,7 @@ namespace Legato.Gameplay {
 #endif
 #endif
         }
+#endif
 
 #if LEGATO_BEFORE_MULTIPLAYER
         internal static float Selected(MissionLevelDetailViewController view) {
