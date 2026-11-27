@@ -8,11 +8,13 @@ namespace BeatSaberMarkupLanguage.Components;
 
 internal static class EarlySettingControlLayout
 {
-    internal static GameObject CreateSlider(Transform parent, out RangeValuesTextSlider slider, out TextMeshProUGUI label)
+    internal static GameObject CreateSlider(Transform parent, out RangeValuesTextSlider slider, out TextMeshProUGUI label, float width = 90f)
     {
-        var row = CreateRow(parent, "BSMLSliderSetting", out label);
+        var row = CreateRow(parent, "BSMLSliderSetting", out label, width);
         var controls = EarlyScrollLayout.CreateRect(row, "Controls");
-        PlaceOnRight(controls, new Vector2(52f, 8f));
+        float controlsWidth = Mathf.Min(52f, width - 9f);
+        PlaceOnRight(controls, new Vector2(controlsWidth, 8f));
+        label.rectTransform.offsetMax = new Vector2(-controlsWidth - 2f, 0f);
         var rect = EarlyScrollLayout.CreateRect(controls, "BSMLSlider");
         var hitArea = rect.gameObject.AddComponent<UnityEngine.UI.Image>();
         hitArea.color = new Color(0f, 0f, 0f, 0.001f);
@@ -115,13 +117,52 @@ internal static class EarlySettingControlLayout
         return icon;
     }
 
-    private static RectTransform CreateRow(Transform parent, string name, out TextMeshProUGUI label)
+    internal static GameObject CreateStepRow(Transform parent, out TextMeshProUGUI title, out TextMeshProUGUI value,
+        out Button decrease, out Button increase)
+    {
+        var row = CreateRow(parent, "BSMLIncDecSetting", out title);
+        title.rectTransform.offsetMax = new Vector2(-43f, 0f);
+
+        var controls = EarlyScrollLayout.CreateRect(row, "ValuePicker");
+        PlaceOnRight(controls, new Vector2(40f, 8f));
+        decrease = CreateStepButton(controls, false);
+        increase = CreateStepButton(controls, true);
+        value = CreateLabel(controls, "Value");
+        value.rectTransform.offsetMin = new Vector2(6f, 0f);
+        value.rectTransform.offsetMax = new Vector2(-6f, 0f);
+        value.alignment = TextAlignmentOptions.Center;
+        value.overflowMode = TextOverflowModes.Ellipsis;
+        return row.gameObject;
+    }
+
+    internal static GameObject CreateEditRow(Transform parent, string name, out TextMeshProUGUI title, out RectTransform controls, out Button edit)
+    {
+        var row = CreateRow(parent, name, out title);
+        title.rectTransform.offsetMax = new Vector2(-48f, 0f);
+        controls = EarlyScrollLayout.CreateRect(row, "ValuePicker");
+        PlaceOnRight(controls, new Vector2(46f, 8f));
+        edit = EarlyButtonFactory.Create(controls, "EditButton");
+        PlaceOnRight((RectTransform)edit.transform, new Vector2(16f, 6f));
+        EarlyButtonFactory.AddLabel(edit).text = "Edit";
+        return row.gameObject;
+    }
+
+    internal static UnityEngine.UI.Image CreateSwatch(Transform parent, Vector2 position, Vector2 size)
+    {
+        var swatch = EarlyScrollLayout.CreateRect(parent, "Color");
+        swatch.anchorMin = swatch.anchorMax = new Vector2(0.5f, 0.5f);
+        swatch.sizeDelta = size;
+        swatch.anchoredPosition = position;
+        return CreateImage(swatch, Color.white);
+    }
+
+    private static RectTransform CreateRow(Transform parent, string name, out TextMeshProUGUI label, float width = 90f)
     {
         var row = EarlyScrollLayout.CreateRect(parent, name);
         row.gameObject.SetActive(false);
-        row.sizeDelta = new Vector2(90f, 8f);
+        row.sizeDelta = new Vector2(width, 8f);
         var layout = row.gameObject.AddComponent<LayoutElement>();
-        layout.preferredWidth = 90f;
+        layout.preferredWidth = width;
         layout.preferredHeight = 8f;
         label = CreateLabel(row, "Title");
         label.rectTransform.offsetMax = new Vector2(-54f, 0f);
@@ -130,7 +171,7 @@ internal static class EarlySettingControlLayout
         return row;
     }
 
-    private static TextMeshProUGUI CreateLabel(Transform parent, string name)
+    internal static TextMeshProUGUI CreateLabel(Transform parent, string name)
     {
         var label = EarlyScrollLayout.CreateRect(parent, name).gameObject.AddComponent<TextMeshProUGUI>();
         label.font = TMP_Settings.defaultFontAsset;

@@ -40,7 +40,7 @@ namespace Legato.Unity
         /// <param name="pointer">The active VR pointer.</param>
         /// <returns>The selected controller.</returns>
         internal static VRController SelectedController(VRPointer pointer) =>
-#if BEAT_SABER_1_29_0 || LEGATO_HMUI_ACTIVATION_ENUMS
+#if BEAT_SABER_1_29_0 || LEGATO_HMUI_ACTIVATION_ENUMS || LEGATO_EARLY_VR_UI
             pointer.vrController;
 #else
             pointer.lastSelectedVrController;
@@ -52,7 +52,7 @@ namespace Legato.Unity
         /// <param name="controller">The VR controller.</param>
         /// <returns>The current vertical axis value.</returns>
         internal static float VerticalAxis(VRController controller) =>
-#if BEAT_SABER_1_29_0 || LEGATO_HMUI_ACTIVATION_ENUMS
+#if BEAT_SABER_1_29_0 || LEGATO_HMUI_ACTIVATION_ENUMS || LEGATO_EARLY_VR_UI
             controller.verticalAxisValue;
 #else
             controller.thumbstick.y;
@@ -77,7 +77,7 @@ namespace Legato.Unity
         /// <param name="request">The completed request.</param>
         /// <returns>Whether the request succeeded.</returns>
         internal static bool WebRequestSucceeded(UnityWebRequest request) =>
-#if BEAT_SABER_1_29_0 || LEGATO_HMUI_ACTIVATION_ENUMS
+#if BEAT_SABER_1_29_0 || LEGATO_HMUI_ACTIVATION_ENUMS || LEGATO_EARLY_VR_UI
             !request.isNetworkError && !request.isHttpError;
 #else
             request.result == UnityWebRequest.Result.Success;
@@ -90,7 +90,7 @@ namespace Legato.Unity
         /// <param name="destination">The material to update.</param>
         internal static void CopyKeywords(Material source, Material destination)
         {
-#if BEAT_SABER_1_29_0 || LEGATO_HMUI_LEGACY_GRAPHICS
+#if BEAT_SABER_1_29_0 || LEGATO_HMUI_LEGACY_GRAPHICS || LEGATO_EARLY_VR_UI
             destination.shaderKeywords = source.shaderKeywords;
 #else
             destination.enabledKeywords = source.enabledKeywords;
@@ -103,7 +103,9 @@ namespace Legato.Unity
         /// <param name="mesh">The native text submesh.</param>
         /// <returns>The owning text component.</returns>
         internal static TMP_Text GetTextComponent(TMP_SubMeshUI mesh) =>
-#if BEAT_SABER_1_29_0 || LEGATO_HMUI_PLAIN_TMP
+#if LEGATO_EARLY_VR_UI
+            mesh.GetComponentInParent<TMP_Text>();
+#elif BEAT_SABER_1_29_0 || LEGATO_HMUI_PLAIN_TMP
             mesh.m_TextComponent;
 #else
             mesh.textComponent;

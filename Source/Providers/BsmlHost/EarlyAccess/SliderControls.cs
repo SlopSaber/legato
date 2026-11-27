@@ -43,6 +43,8 @@ public class TextSlider : Slider
         Refresh();
     }
 
+    internal void SetWithoutNotification(float value) => Set(value, false);
+
     internal void SetStepButtons(bool show)
     {
         decrement.gameObject.SetActive(show);
