@@ -17,6 +17,9 @@ namespace Legato.Gameplay
         {
             _skipWarning = skipWarning;
 
+#if LEGATO_BEFORE_MULTIPLAYER
+            Type? transitions = Type.GetType("DefaultScenesTransitionsFromInit, Main");
+#else
             Type? resolver = Type.GetType("InitialDestinationResolver, GameInit");
             if (resolver != null)
             {
@@ -32,6 +35,7 @@ namespace Legato.Gameplay
 
             Type? transitions = Type.GetType("DefaultScenesTransitionsFromInit, GameInit")
                 ?? Type.GetType("DefaultScenesTransitionsFromInit, Main");
+#endif
             if (transitions == null)
                 throw new TypeLoadException("Could not find the game startup transition.");
 
