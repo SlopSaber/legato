@@ -4,7 +4,10 @@ using UnityEngine;
 
 namespace Legato.Beatmaps {
     internal static class LevelCover {
-#if LEGATO_BEFORE_MULTIPLAYER
+#if LEGATO_EARLY_STANDARD_MAPS
+#nullable enable
+        internal static Task<Sprite?> Load(IStandardLevel level) => Task.FromResult<Sprite?>(level.coverImage);
+#elif LEGATO_BEFORE_MULTIPLAYER
 #nullable enable
         internal static async Task<Sprite?> Load(BeatmapLevel level) {
             Texture2D texture = await level.GetCoverImageTexture2DAsync(CancellationToken.None).ConfigureAwait(true);
