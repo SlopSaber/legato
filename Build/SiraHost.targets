@@ -14,12 +14,15 @@
       <Reference Include="Polyglot" HintPath="$(LegatoReferenceRoot)\Beat Saber_Data\Managed\Polyglot.dll" Private="false" />
       <Reference Include="BGNet" HintPath="$(LegatoReferenceRoot)\Beat Saber_Data\Managed\BGNet.dll" Private="false" />
     </ItemGroup>
-    <PropertyGroup Condition="'$(LegatoTargetVersion)' == '0.11.1'">
+    <PropertyGroup Condition="'$(LegatoTargetVersion)' == '0.11.1' OR '$(LegatoTargetVersion)' == '0.11.2'">
       <DefineConstants>$(DefineConstants);LEGATO_SIRA_EARLY_CONTEXTS;LEGATO_SIRA_PUBLICIZED_ZENJECT;LEGATO_BEFORE_MULTIPLAYER</DefineConstants>
-      <LegatoEarlyZenjectDirectory Condition="'$(LegatoEarlyZenjectDirectory)' == '' AND Exists('$(LegatoLibraryRoot)\Zenject.dll') AND Exists('$(LegatoLibraryRoot)\Zenject-usage.dll')">$(LegatoLibraryRoot)</LegatoEarlyZenjectDirectory>
+      <LegatoEarlyZenjectDirectory Condition="'$(LegatoEarlyZenjectDirectory)' == '' AND '$(LegatoTargetVersion)' == '0.11.1' AND Exists('$(LegatoLibraryRoot)\Zenject.dll') AND Exists('$(LegatoLibraryRoot)\Zenject-usage.dll')">$(LegatoLibraryRoot)</LegatoEarlyZenjectDirectory>
       <LegatoEarlyZenjectDirectory Condition="'$(LegatoEarlyZenjectDirectory)' == ''">$(LegatoReferenceRoot)\Beat Saber_Data\Managed</LegatoEarlyZenjectDirectory>
     </PropertyGroup>
-    <ItemGroup Condition="'$(LegatoTargetVersion)' == '0.11.1'">
+    <PropertyGroup Condition="'$(LegatoTargetVersion)' == '0.11.2'">
+      <DefineConstants>$(DefineConstants);LEGATO_SIRA_EARLY_NATIVE_CONTEXTS</DefineConstants>
+    </PropertyGroup>
+    <ItemGroup Condition="'$(LegatoTargetVersion)' == '0.11.1' OR '$(LegatoTargetVersion)' == '0.11.2'">
       <Reference Remove="BGLib.AppFlow;BGLib.DotnetExtension;BGLib.Polyglot;BGLib.UnityExtension;BGNetCore;BeatSaber.Init;BeatmapCore;DataModels;GameplayCore;Unity.InputSystem;Unity.XR.Management;Unity.XR.OpenXR;UnityEngine.SpatialTracking;Zenject;Zenject-usage" />
       <Reference Include="Zenject" HintPath="$(LegatoEarlyZenjectDirectory)\Zenject.dll" Private="false" Publicize="true" />
       <Reference Include="Zenject-usage" HintPath="$(LegatoEarlyZenjectDirectory)\Zenject-usage.dll" Private="false" />

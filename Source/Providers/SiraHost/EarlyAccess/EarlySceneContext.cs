@@ -1,5 +1,8 @@
 #if LEGATO_SIRA_EARLY_CONTEXTS
 using System.Collections.Generic;
+#if LEGATO_SIRA_EARLY_NATIVE_CONTEXTS
+using System.Linq;
+#endif
 using SiraUtil.Affinity;
 using SiraUtil.Zenject;
 using SiraUtil.Zenject.Internal;
@@ -36,11 +39,25 @@ namespace Legato.Sira
             }
         }
 
-        internal void Install(Location location, Scene scene, DiContainer? parent, System.Action<DiContainer> bindNative)
+        internal void Install(Location location, Scene scene, DiContainer? parent, System.Action<DiContainer> bindNative
+#if LEGATO_SIRA_EARLY_NATIVE_CONTEXTS
+            , DiContainer? nativeContainer
+#endif
+        )
         {
             _scene = scene;
             Location = location;
-            _container = parent == null ? new DiContainer() : new DiContainer(parent);
+#if LEGATO_SIRA_EARLY_NATIVE_CONTEXTS
+            if (nativeContainer != null && parent != null && !parent.ParentContainers.Contains(nativeContainer))
+            {
+                _container = new DiContainer(new[] { parent, nativeContainer });
+            }
+            else
+#endif
+            {
+                _container = parent == null ? new DiContainer() : new DiContainer(parent);
+            }
+
             _container.IsInstalling = true;
             try
             {
@@ -56,14 +73,20 @@ namespace Legato.Sira
                 _container.Bind(typeof(IInitializable), typeof(System.IDisposable)).To<SiraKernel>().AsSingle();
                 bindNative(_container);
 
-                List<MonoBehaviour> behaviours = new();
-                GetInjectableMonoBehaviours(behaviours);
-                foreach (MonoBehaviour behaviour in behaviours)
+#if LEGATO_SIRA_EARLY_NATIVE_CONTEXTS
+                if (nativeContainer == null)
+#endif
                 {
-                    _container.QueueForInject(behaviour);
+                    List<MonoBehaviour> behaviours = new();
+                    GetInjectableMonoBehaviours(behaviours);
+                    foreach (MonoBehaviour behaviour in behaviours)
+                    {
+                        _container.QueueForInject(behaviour);
+                    }
+
+                    InstallSceneBindings(behaviours);
                 }
 
-                InstallSceneBindings(behaviours);
                 InstallInstallers();
             }
             finally

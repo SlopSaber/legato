@@ -45,7 +45,11 @@ namespace Legato.Sira
         }
 
         [HarmonyPostfix]
+#if LEGATO_SIRA_EARLY_NATIVE_CONTEXTS
+        [HarmonyPatch(typeof(MainSystemInit), "Start")]
+#else
         [HarmonyPatch(typeof(MainSystemInit), "Awake")]
+#endif
         private static void InitializeApplication(MainSettingsModel ____mainSettingsModel)
         {
             Run(() => EnsureApp(____mainSettingsModel));
@@ -67,17 +71,32 @@ namespace Legato.Sira
             });
         }
 
+#if LEGATO_SIRA_EARLY_NATIVE_CONTEXTS
+        [HarmonyPrefix]
+        [HarmonyPatch(typeof(AsyncScenesLoader), nameof(AsyncScenesLoader.LoadScenes))]
+        private static void ObserveGameplayLoad(AsyncScenesLoader __instance, SceneInfo[] scenes)
+        {
+            SceneInfo? playerScene = Array.Find(scenes, scene =>
+                scene != null && (scene.sceneName == "StandardLevel" || scene.sceneName == "TutorialLevel"));
+            AttachGameplayLoadHandler(__instance, playerScene);
+        }
+#else
         [HarmonyPostfix]
         [HarmonyPatch(typeof(AsyncScenesLoader), "Start")]
-        private static void ObserveGameplayLoad(AsyncScenesLoader __instance, SceneInfo ____mainScene)
+        private static void ObserveGameplayLoad(AsyncScenesLoader __instance, SceneInfo ____mainScene) =>
+            AttachGameplayLoadHandler(__instance, ____mainScene);
+#endif
+
+        private static void AttachGameplayLoadHandler(AsyncScenesLoader loader, SceneInfo? mainScene)
         {
-            if (_reportFailure == null || ____mainScene == null)
+            if (_reportFailure == null || mainScene == null)
             {
                 return;
             }
 
             Location location;
-            switch (____mainScene.sceneName)
+            string sceneName = mainScene.sceneName;
+            switch (sceneName)
             {
                 case "StandardLevel":
                     location = Location.StandardPlayer;
@@ -91,11 +110,11 @@ namespace Legato.Sira
 
             void Loaded()
             {
-                __instance.loadingDidFinishEvent -= Loaded;
-                Run(() => InitializeGameplay(location, SceneManager.GetSceneByName(____mainScene.sceneName)));
+                loader.loadingDidFinishEvent -= Loaded;
+                Run(() => InitializeGameplay(location, SceneManager.GetSceneByName(sceneName)));
             }
 
-            __instance.loadingDidFinishEvent += Loaded;
+            loader.loadingDidFinishEvent += Loaded;
         }
 
         private static void InitializeGameplay(Location location, Scene playerScene)
@@ -111,6 +130,9 @@ namespace Legato.Sira
             EarlySceneContext core = Install(Location.GameCore, coreScene, app.Container, container =>
             {
                 Bind(container, player);
+#if LEGATO_SIRA_EARLY_NATIVE_CONTEXTS
+                Bind(container, Find<SaberClashEffect>(coreScene));
+#endif
                 Bind(container, EarlySaberNative.GetColors(player?.leftSaber) ?? EarlySaberNative.GetColors(player?.rightSaber));
                 Bind(container, Find<AudioTimeSyncController>(playerScene));
                 Bind(container, Find<BeatmapDataModel>(playerScene));
@@ -169,7 +191,14 @@ namespace Legato.Sira
             EarlySceneContext added = root.AddComponent<EarlySceneContext>();
             try
             {
+#if LEGATO_SIRA_EARLY_NATIVE_CONTEXTS
+                DiContainer? nativeContainer = scene.isLoaded
+                    ? Find<SceneContext>(scene)?.Container ?? Find<SceneDecoratorContext>(scene)?.Container
+                    : null;
+                added.Install(location, scene, parent, bindNative, nativeContainer);
+#else
                 added.Install(location, scene, parent, bindNative);
+#endif
                 _contexts.Add(added);
                 return added;
             }
