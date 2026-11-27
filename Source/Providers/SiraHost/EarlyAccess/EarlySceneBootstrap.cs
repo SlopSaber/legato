@@ -1,6 +1,10 @@
 #if LEGATO_SIRA_EARLY_CONTEXTS
 using System;
 using System.Collections.Generic;
+#if LEGATO_SIRA_EARLY_NATIVE_CONTEXTS
+using System.Reflection;
+using System.Reflection.Emit;
+#endif
 using HarmonyLib;
 using SiraUtil.Zenject;
 using UnityEngine;
@@ -18,6 +22,10 @@ namespace Legato.Sira
             AccessTools.FieldRefAccess<MainGameSceneSetup, MainGameSceneSetupData>("_mainGameSceneSetupData");
         private static readonly AccessTools.FieldRef<TutorialSceneSetup, TutorialSceneSetupData> TutorialData =
             AccessTools.FieldRefAccess<TutorialSceneSetup, TutorialSceneSetupData>("_tutorialSceneSetupData");
+#if LEGATO_SIRA_EARLY_NATIVE_CONTEXTS
+        private static readonly AccessTools.FieldRef<MainGameSceneSetup, BeatmapDataModel> StandardChart =
+            AccessTools.FieldRefAccess<MainGameSceneSetup, BeatmapDataModel>("_beatmapDataModel");
+#endif
         private static Action<Exception>? _reportFailure;
         private static EarlySceneContext? _app;
 
@@ -80,6 +88,34 @@ namespace Legato.Sira
                 scene != null && (scene.sceneName == "StandardLevel" || scene.sceneName == "TutorialLevel"));
             AttachGameplayLoadHandler(__instance, playerScene);
         }
+
+        [HarmonyTranspiler]
+        [HarmonyPatch(typeof(MainGameSceneSetup), "Start")]
+        private static IEnumerable<CodeInstruction> InstallPlayerWithNativeChart(IEnumerable<CodeInstruction> instructions)
+        {
+            MethodInfo setChart = AccessTools.PropertySetter(typeof(BeatmapDataModel), nameof(BeatmapDataModel.beatmapData));
+            MethodInfo install = AccessTools.DeclaredMethod(typeof(EarlySceneBootstrap), nameof(InitializeStandardPlayer));
+            bool installed = false;
+            foreach (CodeInstruction instruction in instructions)
+            {
+                yield return instruction;
+                if (instruction.Calls(setChart))
+                {
+                    // Bind the exact transformed chart before the game initializes callbacks or audio.
+                    yield return new CodeInstruction(OpCodes.Ldarg_0);
+                    yield return new CodeInstruction(OpCodes.Call, install);
+                    installed = true;
+                }
+            }
+
+            if (!installed)
+            {
+                throw new InvalidOperationException("Could not locate the native chart assignment in MainGameSceneSetup.Start.");
+            }
+        }
+
+        private static void InitializeStandardPlayer(MainGameSceneSetup setup) =>
+            Run(() => InitializeGameplay(Location.StandardPlayer, setup.gameObject.scene));
 #else
         [HarmonyPostfix]
         [HarmonyPatch(typeof(AsyncScenesLoader), "Start")]
@@ -111,23 +147,30 @@ namespace Legato.Sira
             void Loaded()
             {
                 loader.loadingDidFinishEvent -= Loaded;
+#if LEGATO_SIRA_EARLY_NATIVE_CONTEXTS
+                if (location == Location.StandardPlayer)
+                {
+                    Run(() => InitializeGameplayCore(SceneManager.GetSceneByName(sceneName)));
+                    return;
+                }
+#endif
                 Run(() => InitializeGameplay(location, SceneManager.GetSceneByName(sceneName)));
             }
 
             loader.loadingDidFinishEvent += Loaded;
         }
 
-        private static void InitializeGameplay(Location location, Scene playerScene)
+        private static EarlySceneContext? InitializeGameplayCore(Scene playerScene)
         {
             Scene coreScene = SceneManager.GetSceneByName("GameCore");
             if (!coreScene.isLoaded || !playerScene.isLoaded)
             {
-                return;
+                return null;
             }
 
             EarlySceneContext app = EnsureApp();
             PlayerController? player = Find<PlayerController>(coreScene);
-            EarlySceneContext core = Install(Location.GameCore, coreScene, app.Container, container =>
+            return Install(Location.GameCore, coreScene, app.Container, container =>
             {
                 Bind(container, player);
 #if LEGATO_SIRA_EARLY_NATIVE_CONTEXTS
@@ -139,6 +182,15 @@ namespace Legato.Sira
                 Bind(container, Find<BeatmapObjectCallbackController>(playerScene));
                 Bind(container, Find<BeatmapObjectSpawnController>(playerScene));
             });
+        }
+
+        private static void InitializeGameplay(Location location, Scene playerScene)
+        {
+            EarlySceneContext? core = InitializeGameplayCore(playerScene);
+            if (core == null)
+            {
+                return;
+            }
 
             Install(location, playerScene, core.Container, container =>
             {
@@ -153,6 +205,19 @@ namespace Legato.Sira
                 TutorialSceneSetup? tutorial = Find<TutorialSceneSetup>(playerScene);
                 Bind(container, standard);
                 Bind(container, tutorial);
+#if LEGATO_SIRA_EARLY_NATIVE_CONTEXTS
+                if (standard != null)
+                {
+                    Bind(container, StandardData(standard));
+                    BeatmapData? chart = StandardChart(standard)?.beatmapData;
+                    if (chart != null)
+                    {
+                        container.BindInstance(chart);
+                    }
+
+                    Bind(container, Find<GameSongController>(playerScene));
+                }
+#endif
                 GameSceneSetupData? setup = standard != null ? StandardData(standard) : tutorial != null ? TutorialData(tutorial) : null;
                 Bind(container, setup?.sceneInfo?.gameScenesManager);
             });
