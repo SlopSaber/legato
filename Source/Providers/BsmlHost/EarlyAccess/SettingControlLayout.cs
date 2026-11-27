@@ -73,6 +73,48 @@ internal static class EarlySettingControlLayout
         return dropdown;
     }
 
+    internal static GameObject CreateToggle(Transform parent, string name, out UnityEngine.UI.Toggle toggle, out TextMeshProUGUI label)
+    {
+        var row = CreateRow(parent, name, out label);
+        label.rectTransform.offsetMax = new Vector2(-24f, 0f);
+
+        var track = EarlyScrollLayout.CreateRect(row, "Switch");
+        PlaceOnRight(track, new Vector2(22f, 7f));
+        var background = track.gameObject.AddComponent<UnityEngine.UI.Image>();
+        background.sprite = Utilities.FindSpriteCached("RoundRectButton");
+        background.type = UnityEngine.UI.Image.Type.Sliced;
+        background.color = new Color(0.33f, 0.39f, 0.47f, 1f);
+
+        var state = EarlyScrollLayout.CreateRect(track, "Selected");
+        var foreground = CreateImage(state, new Color(0.26f, 0.64f, 0.9f, 1f));
+        foreground.sprite = background.sprite;
+        foreground.type = background.type;
+
+        var stateLabel = CreateLabel(track, "Value");
+        stateLabel.alignment = TextAlignmentOptions.Center;
+        stateLabel.fontSize = 3.5f;
+        stateLabel.text = "OFF";
+        toggle = track.gameObject.AddComponent<UnityEngine.UI.Toggle>();
+        toggle.graphic = foreground;
+        toggle.targetGraphic = background;
+        toggle.isOn = false;
+        toggle.onValueChanged.AddListener(value => stateLabel.text = value ? "ON" : "OFF");
+        return row.gameObject;
+    }
+
+    internal static UnityEngine.UI.Image AddModifierIcon(Transform row, TextMeshProUGUI label)
+    {
+        var rect = EarlyScrollLayout.CreateRect(row, "Icon");
+        rect.anchorMin = rect.anchorMax = rect.pivot = new Vector2(0f, 0.5f);
+        rect.sizeDelta = new Vector2(6f, 6f);
+        rect.anchoredPosition = Vector2.zero;
+        label.rectTransform.offsetMin = new Vector2(8f, 0f);
+        var icon = CreateImage(rect, Color.white);
+        icon.sprite = Utilities.FindSpriteCached("ArrowRight");
+        icon.preserveAspect = true;
+        return icon;
+    }
+
     private static RectTransform CreateRow(Transform parent, string name, out TextMeshProUGUI label)
     {
         var row = EarlyScrollLayout.CreateRect(parent, name);
