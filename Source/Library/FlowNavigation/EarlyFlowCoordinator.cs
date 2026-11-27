@@ -1,4 +1,4 @@
-#if LEGATO_EARLY_VR_UI
+#if LEGATO_EARLY_STANDARD_MAPS
 #nullable enable
 using System.Linq;
 using TMPro;
@@ -49,7 +49,7 @@ namespace Legato.Presentation {
                 var canvas = gameObject.AddComponent<Canvas>();
                 canvas.additionalShaderChannels |= AdditionalCanvasShaderChannels.TexCoord1 | AdditionalCanvasShaderChannels.TexCoord2;
             }
-            if (GetComponent<VRGraphicRaycaster>() == null) gameObject.AddComponent<VRGraphicRaycaster>();
+            if (GetComponent<VRUIControls.VRGraphicRaycaster>() == null) gameObject.AddComponent<VRUIControls.VRGraphicRaycaster>();
         }
 
         protected void ProvideInitialViewControllers(VRUIViewController mainViewController,
@@ -70,7 +70,7 @@ namespace Legato.Presentation {
 
         internal bool Present() {
             if (_presenting || isInViewControllerHierarchy) return false;
-            VRUIViewController? parent = Resources.FindObjectsOfTypeAll<MainMenuViewController>()
+            VRUIViewController? parent = UnityEngine.Resources.FindObjectsOfTypeAll<MainMenuViewController>()
                 .FirstOrDefault(menu => menu.gameObject.scene.IsValid() && menu.isInViewControllerHierarchy);
             if (parent == null) return false;
             while (parent.childViewController != null) parent = parent.childViewController;
@@ -87,17 +87,6 @@ namespace Legato.Presentation {
             if (childViewController == null) DismissModalViewController(null, true);
         }
 
-        protected override void DidDeactivate(DeactivationType deactivationType) {
-            if (deactivationType == DeactivationType.RemovedFromHierarchy) ClearViews();
-            base.DidDeactivate(deactivationType);
-        }
-
-        protected override void LeftAndRightScreenViewControllers(out VRUIViewController leftScreenViewController,
-            out VRUIViewController rightScreenViewController) {
-            leftScreenViewController = _left!;
-            rightScreenViewController = _right!;
-        }
-
         protected virtual void LateUpdate() {
             if (!isInViewControllerHierarchy) {
                 if (!_presenting && _main != null) ClearViews();
@@ -106,20 +95,28 @@ namespace Legato.Presentation {
             if (_header == null) BuildHeader();
             if (_backButton != null && _backButton.gameObject.activeSelf != showBackButton)
                 _backButton.gameObject.SetActive(showBackButton);
-            if (_presenting || childViewController != null || !_hasPending) return;
+            if (_presenting || childViewController != null) return;
 
-            _hasPending = false;
-            if (_main != _pendingMain) {
-                ClearChildControllers();
-                _main = _pendingMain;
-                if (_main != null) {
-                    PushViewController(_main, true);
-                    _main.rectTransform.offsetMax = new Vector2(_main.rectTransform.offsetMax.x, -HeaderHeight);
+            if (_hasPending) {
+                _hasPending = false;
+                if (_main != _pendingMain) {
+                    ClearChildControllers();
+                    _main = _pendingMain;
+                    if (_main != null) {
+                        PushViewController(_main, true);
+                        _main.rectTransform.offsetMax = new Vector2(_main.rectTransform.offsetMax.x, -HeaderHeight);
+                    }
                 }
+                _header!.SetAsLastSibling();
+                _left = _pendingLeft;
+                _right = _pendingRight;
             }
-            _header!.SetAsLastSibling();
-            SetSideView(screen?.screenSystem?.leftScreen, ref _left, _pendingLeft);
-            SetSideView(screen?.screenSystem?.rightScreen, ref _right, _pendingRight);
+            KeepSideView(screen?.screenSystem?.leftScreen, _left);
+            KeepSideView(screen?.screenSystem?.rightScreen, _right);
+        }
+
+        private static void KeepSideView(VRUIScreen? target, VRUIViewController? view) {
+            if (target != null && view != null && target.rootViewController != view) target.SetRootViewController(view);
         }
 
         private void ClearViews() {
@@ -186,7 +183,7 @@ namespace Legato.Presentation {
         }
 
         private static Sprite? FindSprite(string name) =>
-            Resources.FindObjectsOfTypeAll<Sprite>().FirstOrDefault(sprite => sprite.name == name);
+            UnityEngine.Resources.FindObjectsOfTypeAll<Sprite>().FirstOrDefault(sprite => sprite.name == name);
     }
 }
 #endif

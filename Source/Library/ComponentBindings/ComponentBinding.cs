@@ -6,7 +6,7 @@ namespace Legato.Injection
     {
         internal static NameTransformScopeConcreteIdArgConditionCopyNonLazyBinder OnNewGameObject(FromBinder binder)
         {
-#if !LEGATO_NATIVE_ZENJECT_COMPONENT_BINDER && !LEGATO_SIRA_EARLY_CONTEXTS
+#if !LEGATO_NATIVE_ZENJECT_COMPONENT_BINDER && !LEGATO_SIRA_EARLY_CONTEXTS && !LEGATO_EARLY_STANDARD_MAPS
             // Match the native deferred provider while retaining context parenting and injection.
             var parameters = new GameObjectCreationParameters();
             BindingUtil.AssertIsComponent(binder.ConcreteTypes);

@@ -8,6 +8,16 @@ using IPA.Utilities;
 #endif
 
 namespace Legato.Gameplay {
+#if LEGATO_EARLY_STANDARD_MAPS
+    internal static class JumpSelectionContext {
+        internal static (float speed, float offset) JumpDetails(BeatmapLevel level, BeatmapKey key) {
+            if (key == null) return (10f, 0f);
+            float speed = key.noteJumpMovementSpeed;
+            return (speed <= 0f ? key.difficulty.NoteJumpMovementSpeed() : speed, 0f);
+        }
+        internal static BeatmapKey DetailKey(StandardLevelDetailViewController view) => view.difficultyLevel;
+    }
+#else
     internal static class JumpSelectionContext {
 #if LEGATO_VARIABLE_MOVEMENT_DATA
         internal const int SpeedParameterIndex = 2;
@@ -89,4 +99,5 @@ namespace Legato.Gameplay {
             }
         }
     }
+#endif
 }

@@ -1,4 +1,4 @@
-#if LEGATO_EARLY_VR_UI
+#if LEGATO_EARLY_STANDARD_MAPS
 #nullable enable
 namespace Legato.Presentation {
     internal static class FlowAccess {
