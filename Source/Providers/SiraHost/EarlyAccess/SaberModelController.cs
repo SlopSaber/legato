@@ -13,7 +13,8 @@ public class SaberModelController : MonoBehaviour
     private readonly List<KeyValuePair<MeshRenderer, bool>> _stockRenderers = new();
     private readonly MaterialPropertyBlock _properties = new();
     private SaberWeaponTrail? _stockTrail;
-    private EarlyModelTrail? _ownedTrail;
+    private Xft.XWeaponTrail? _ownedTrail;
+    private Color _ownedTrailTint;
     private bool _stockTrailEnabled;
 
     internal Color PhysicalColor { get; private set; } = Color.white;
@@ -102,10 +103,10 @@ public class SaberModelController : MonoBehaviour
     {
         if (_ownedTrail == null && GetComponentInChildren<Xft.XWeaponTrail>(true) == null)
         {
-            _ownedTrail = EarlySaberNative.CreateTrail(transform, template.GetComponent<SaberWeaponTrail>(), saber);
+            _ownedTrail = EarlySaberNative.CreateTrail(transform, template.GetComponent<SaberWeaponTrail>(), saber, out _ownedTrailTint);
             if (_ownedTrail != null)
             {
-                _ownedTrail.ModelColor = PhysicalColor;
+                EarlySaberNative.SetOwnedTrailColor(_ownedTrail, PhysicalColor * _ownedTrailTint);
                 _ownedTrail.gameObject.SetActive(true);
             }
         }
@@ -126,7 +127,7 @@ public class SaberModelController : MonoBehaviour
 
         if (_ownedTrail != null)
         {
-            _ownedTrail.ModelColor = color;
+            EarlySaberNative.SetOwnedTrailColor(_ownedTrail, color * _ownedTrailTint);
         }
     }
 

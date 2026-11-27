@@ -23,6 +23,7 @@ namespace Legato.Sira
         private static readonly AccessTools.FieldRef<XWeaponTrail, Transform> TrailEnd = AccessTools.FieldRefAccess<XWeaponTrail, Transform>("_pointEnd");
         private static readonly AccessTools.FieldRef<XWeaponTrail, int> TrailFrames = AccessTools.FieldRefAccess<XWeaponTrail, int>("_maxFrame");
         private static readonly AccessTools.FieldRef<XWeaponTrail, int> TrailGranularity = AccessTools.FieldRefAccess<XWeaponTrail, int>("_granularity");
+        private static readonly AccessTools.FieldRef<XWeaponTrail, Color> OwnedColor = AccessTools.FieldRefAccess<XWeaponTrail, Color>("_color");
         private static readonly AccessTools.FieldRef<XWeaponTrail, int> TrailWarmup = AccessTools.FieldRefAccess<XWeaponTrail, int>("_skipFirstFrames");
         private static readonly AccessTools.FieldRef<Rotate, Vector3> RotationOrigin = AccessTools.FieldRefAccess<Rotate, Vector3>("_startRotationAngles");
         private static readonly ConditionalWeakTable<SaberWeaponTrail, Tint> TrailColors = new();
@@ -57,8 +58,9 @@ namespace Legato.Sira
             rotation._speed = source._speed;
         }
 
-        internal static EarlyModelTrail? CreateTrail(Transform parent, SaberWeaponTrail? template, Saber saber)
+        internal static XWeaponTrail? CreateTrail(Transform parent, SaberWeaponTrail? template, Saber saber, out Color tint)
         {
+            tint = Color.white;
             if (template == null || TrailPrefab(template) == null)
             {
                 return null;
@@ -67,16 +69,18 @@ namespace Legato.Sira
             GameObject root = new("Saber Trail") { layer = parent.gameObject.layer };
             root.SetActive(false);
             root.transform.SetParent(parent, false);
-            EarlyModelTrail trail = root.AddComponent<EarlyModelTrail>();
+            XWeaponTrail trail = root.AddComponent<XWeaponTrail>();
             TrailPrefab(trail) = TrailPrefab(template);
             TrailStart(trail) = saber.saberBladeBottomPosTransform;
             TrailEnd(trail) = saber.saberBladeTopPosTransform;
             TrailFrames(trail) = TrailFrames(template);
             TrailGranularity(trail) = TrailGranularity(template);
             TrailWarmup(trail) = TrailWarmup(template);
-            trail.Multiplier = TrailTint(template);
+            tint = TrailTint(template);
             return trail;
         }
+
+        internal static void SetOwnedTrailColor(XWeaponTrail trail, Color color) => OwnedColor(trail) = color;
 
         internal static void SetTrailColor(SaberWeaponTrail trail, Color color)
         {
@@ -104,15 +108,6 @@ namespace Legato.Sira
         {
             public Color Color { get; set; }
         }
-    }
-
-    internal sealed class EarlyModelTrail : XWeaponTrail
-    {
-        internal Color ModelColor { get; set; }
-
-        internal Color Multiplier { get; set; }
-
-        protected override Color Color => ModelColor * Multiplier;
     }
 }
 #endif
