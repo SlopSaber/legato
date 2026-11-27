@@ -60,6 +60,7 @@ namespace BetterSongList.UI
         private readonly Dictionary<string, IFilter> _filters = new();
         private readonly List<object> _sortOptions = new();
         private readonly List<object> _filterOptions = new();
+        private readonly List<object> _legendOptions = new() { "Choose a group" };
         private readonly System.Random _random = new();
         private StandardLevelListViewController _view;
         private RectTransform _controls;
@@ -75,6 +76,12 @@ namespace BetterSongList.UI
 
         [UIComponent("filter-dropdown")]
         private DropDownListSetting _filterDropdown = null;
+
+        [UIComponent("legend-dropdown")]
+        private DropDownListSetting _legendDropdown = null;
+
+        [UIObject("scroll-buttons")]
+        private GameObject _scrollButtons = null;
 
         internal static bool initialized { get; private set; }
         internal static GameplayMode Mode { get; set; }
@@ -92,6 +99,7 @@ namespace BetterSongList.UI
             _refresh?.Cancel();
             _input = levels ?? Array.Empty<IStandardLevel>();
             _output = _input;
+            ShowLegend(null);
             _restoreSelection = true;
         }
 
@@ -157,6 +165,8 @@ namespace BetterSongList.UI
             {
                 BSMLParser.Instance.Parse(Utilities.GetResourceContent(GetType().Assembly,
                     "BetterSongList.UI.BSML.EarlyBrowser.bsml"), controls, this);
+                _scrollButtons.SetActive(Config.Instance.ExtendSongsScrollbar);
+                ShowLegend(null);
                 initialized = true;
             }
             catch
@@ -174,6 +184,48 @@ namespace BetterSongList.UI
 
         [UIValue("filter-options")]
         private List<object> Filters => _filterOptions;
+
+        [UIValue("legend")]
+        private List<object> Legend => _legendOptions;
+
+        private void ShowLegend(ISorterWithLegend sorter)
+        {
+            if (_legendDropdown == null) return;
+            _legendOptions.Clear();
+            _legendOptions.Add("Choose a group");
+            if (Config.Instance.EnableAlphabetScrollbar && sorter != null)
+                foreach (var entry in sorter.BuildLegend(_output) ?? Enumerable.Empty<KeyValuePair<string, int>>())
+                    _legendOptions.Add(new JumpGroup(entry.Key, entry.Value));
+
+            _legendDropdown.gameObject.SetActive(_legendOptions.Count > 2);
+            if (_legendDropdown.gameObject.activeSelf)
+            {
+                _legendDropdown.UpdateChoices();
+                _legendDropdown.Value = _legendOptions[0];
+            }
+        }
+
+        [UIAction("jump-to-group")]
+        private void JumpToGroup(object choice)
+        {
+            if (choice is not JumpGroup group) return;
+            EarlyStandardSongList.ScrollTo(_view, group.Row);
+            _legendDropdown.Value = _legendOptions[0];
+        }
+
+        private sealed class JumpGroup
+        {
+            private readonly string _label;
+            internal int Row { get; }
+
+            internal JumpGroup(string label, int row)
+            {
+                _label = label;
+                Row = row;
+            }
+
+            public override string ToString() => _label;
+        }
 
         [UIValue("sort")]
         private string Sort
@@ -242,8 +294,61 @@ namespace BetterSongList.UI
         [UIAction("bottom")]
         private void ScrollBottom() => EarlyStandardSongList.ScrollTo(_view, _output.Length - 1);
 
-        [UIValue("show-scroll-buttons")]
-        private bool ShowScrollButtons => Config.Instance.ExtendSongsScrollbar;
+        [UIValue("mapper-search")]
+        private bool MapperSearch
+        {
+            get => Config.Instance.ModBasegameSearch;
+            set => Config.Instance.ModBasegameSearch = value;
+        }
+
+        [UIValue("scroll-jumps")]
+        private bool ScrollJumps
+        {
+            get => Config.Instance.ExtendSongsScrollbar;
+            set => Config.Instance.ExtendSongsScrollbar = value;
+        }
+
+        [UIValue("group-jumps")]
+        private bool GroupJumps
+        {
+            get => Config.Instance.EnableAlphabetScrollbar;
+            set => Config.Instance.EnableAlphabetScrollbar = value;
+        }
+
+        [UIValue("leaderboards")]
+        private List<object> Leaderboards { get; } = new() { "ScoreSaber", "BeatLeader" };
+
+        [UIValue("leaderboard")]
+        private string Leaderboard
+        {
+            get => Config.Instance.PreferredLeaderboard;
+            set => Config.Instance.PreferredLeaderboard = value;
+        }
+
+        [UIValue("chart-metrics")]
+        private List<object> ChartMetrics { get; } = new() { "Reaction Time", "Jump Distance", "Map Age" };
+
+        [UIValue("chart-metric")]
+        private string ChartMetric
+        {
+            get => Config.Instance.PreferredMiscSetting;
+            set => Config.Instance.PreferredMiscSetting = value;
+        }
+
+        [UIValue("accuracy-scale")]
+        private float AccuracyScale
+        {
+            get => Config.Instance.AccuracyMultiplier;
+            set => Config.Instance.AccuracyMultiplier = value;
+        }
+
+        [UIAction("save-settings")]
+        private void SaveSettings()
+        {
+            Config.Instance.Changed();
+            _scrollButtons.SetActive(Config.Instance.ExtendSongsScrollbar);
+            Refresh();
+        }
 
         private void Notify(string name) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
 
@@ -274,7 +379,7 @@ namespace BetterSongList.UI
                 var sortPreparation = sorter is FolderDateSorter folders ? folders.PrepareFor(_input, token)
                     : sorter?.isReady == false ? sorter.Prepare(token) : Task.CompletedTask;
                 var preparation = Task.WhenAll(sortPreparation,
-                    filter?.isReady == false ? filter.Prepare(token) : Task.CompletedTask);
+                    filter is PlayedFilter || filter?.isReady == false ? filter.Prepare(token) : Task.CompletedTask);
                 await AwaitPreparation(preparation, token);
                 token.ThrowIfCancellationRequested();
                 if (_view == null || !_view.isInViewControllerHierarchy) return;
@@ -296,6 +401,7 @@ namespace BetterSongList.UI
                 var visible = levels.ToArray();
                 if (!EarlyStandardSongList.Replace(_view, visible)) return;
                 _output = visible;
+                ShowLegend(sorter?.isReady == true ? sorter as ISorterWithLegend : null);
                 SetStatus(visible.Length == 0 ? "No matching songs" : string.Empty);
                 if (_restoreSelection && _view.selectedLevel == null && Config.Instance.LastCategory == Mode.ToString())
                 {
