@@ -1,6 +1,8 @@
 #if LEGATO_SIRA_EARLY_CONTEXTS
 using System.Collections.Generic;
+using SiraUtil.Affinity;
 using SiraUtil.Zenject;
+using SiraUtil.Zenject.Internal;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using Zenject;
@@ -49,6 +51,9 @@ namespace Legato.Sira
 
                 _container.Bind<Context>().FromInstance(this).AsSingle();
                 _container.Bind<SceneKernel>().FromNewComponentOn(gameObject).AsSingle().NonLazy();
+                _container.Bind<AffinityManager>().AsSingle();
+                _container.Bind<ILateDisposable>().To<AffinityKernel>().AsSingle().NonLazy();
+                _container.Bind(typeof(IInitializable), typeof(System.IDisposable)).To<SiraKernel>().AsSingle();
                 bindNative(_container);
 
                 List<MonoBehaviour> behaviours = new();
