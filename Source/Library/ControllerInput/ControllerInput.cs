@@ -16,13 +16,13 @@ namespace Legato.Unity
     internal static class ControllerInput
     {
         internal static VRController SelectedController(VRPointer pointer) =>
-#if LEGATO_BEFORE_MULTIPLAYER || BEAT_SABER_1_29_0
+#if LEGATO_EARLY_STANDARD_MAPS || LEGATO_BEFORE_MULTIPLAYER || BEAT_SABER_1_29_0
             pointer.vrController;
 #else
             pointer.lastSelectedVrController;
 #endif
         internal static float VerticalAxis(VRController controller) =>
-#if LEGATO_BEFORE_MULTIPLAYER || BEAT_SABER_1_29_0
+#if LEGATO_EARLY_STANDARD_MAPS || LEGATO_BEFORE_MULTIPLAYER || BEAT_SABER_1_29_0
             controller.verticalAxisValue;
 #else
             controller.thumbstick.y;
@@ -31,7 +31,7 @@ namespace Legato.Unity
         private static readonly FieldAccessor<VRController, NativeInputPlatform>.Accessor Platform =
             FieldAccessor<VRController, NativeInputPlatform>.GetAccessor("_vrPlatformHelper");
 #endif
-#if LEGATO_PRIVATE_POINTER_CURSOR
+#if LEGATO_PRIVATE_POINTER_CURSOR || LEGATO_EARLY_STANDARD_MAPS
         private static readonly FieldAccessor<VRPointer, Transform>.Accessor Cursor =
             FieldAccessor<VRPointer, Transform>.GetAccessor("_cursorTransform");
 #endif
@@ -49,7 +49,7 @@ namespace Legato.Unity
 
         internal static Transform ViewAnchor(VRController controller)
         {
-#if LEGATO_BEFORE_MULTIPLAYER || BEAT_SABER_1_29_0
+#if LEGATO_EARLY_STANDARD_MAPS || LEGATO_BEFORE_MULTIPLAYER || BEAT_SABER_1_29_0
             return controller.transform;
 #else
             return controller.viewAnchorTransform;
@@ -58,7 +58,7 @@ namespace Legato.Unity
 
         internal static Transform PointerCursor(VRPointer pointer)
         {
-#if LEGATO_PRIVATE_POINTER_CURSOR
+#if LEGATO_PRIVATE_POINTER_CURSOR || LEGATO_EARLY_STANDARD_MAPS
             return Cursor(ref pointer);
 #else
             return pointer.cursorTransform;

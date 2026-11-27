@@ -7,7 +7,8 @@ param(
     [Parameter(Mandatory)][string]$LogPath,
     [string]$UnityVersion,
     [string]$UnityEditorRoot = $env:UNITY_EDITOR_ROOT,
-    [string]$UnityEditorPath
+    [string]$UnityEditorPath,
+    [switch]$UseGraphicsDevice
 )
 $ErrorActionPreference = 'Stop'
 if ($TargetVersion -notmatch '^\d+\.\d+\.\d+$') { throw 'TargetVersion must identify a supported game target.' }
@@ -63,7 +64,8 @@ if (Test-Path -LiteralPath $lockPath) {
 }
 [IO.Directory]::CreateDirectory([IO.Path]::GetDirectoryName($log)) | Out-Null
 $before = [DateTime]::UtcNow
-$arguments = '-batchmode -nographics -quit -projectPath "' + $project + '" -executeMethod ' + $ExecuteMethod + ' -logFile "' + $log + '"'
+$graphics = if ($UseGraphicsDevice) { '-force-d3d11' } else { '-nographics' }
+$arguments = '-batchmode ' + $graphics + ' -quit -projectPath "' + $project + '" -executeMethod ' + $ExecuteMethod + ' -logFile "' + $log + '"'
 $process = Start-Process -FilePath $editor -ArgumentList $arguments -WindowStyle Hidden -PassThru
 $process.WaitForExit()
 if ($process.ExitCode -ne 0) { throw "Asset output build failed ($($process.ExitCode)). Log: $log" }
