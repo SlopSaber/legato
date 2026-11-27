@@ -24,7 +24,28 @@ namespace BSP_ICSharpCode.SharpZipLib.Encryption
 		private byte[] _encryptBuffer;
 		private int _encrPos;
 		private byte[] _pwdVerifier;
+#if LEGATO_EARLY_STANDARD_MAPS
+		private sealed class IncrementalHmac
+		{
+			private readonly HMACSHA1 _hmac;
+
+			internal IncrementalHmac(byte[] key) => _hmac = new HMACSHA1(key);
+
+			internal void AppendData(byte[] data, int offset, int count) => _hmac.TransformBlock(data, offset, count, null, 0);
+
+			internal byte[] GetHashAndReset()
+			{
+				_hmac.TransformFinalBlock(Array.Empty<byte>(), 0, 0);
+				byte[] hash = _hmac.Hash;
+				_hmac.Initialize();
+				return hash;
+			}
+		}
+
+		private IncrementalHmac _hmacsha1;
+#else
 		private IncrementalHash _hmacsha1;
+#endif
 		private byte[] _authCode = null;
 
 		private bool _writeMode;
@@ -61,7 +82,11 @@ var pdb = new Rfc2898DeriveBytes(key, saltBytes, KEY_ROUNDS);
 			_encryptor = rm.CreateEncryptor(key1bytes, new byte[16]);
 			_pwdVerifier = pdb.GetBytes(PWD_VER_LENGTH);
 			//
+#if LEGATO_EARLY_STANDARD_MAPS
+			_hmacsha1 = new IncrementalHmac(key2bytes);
+#else
 			_hmacsha1 = IncrementalHash.CreateHMAC(HashAlgorithmName.SHA1, key2bytes);
+#endif
 			_writeMode = writeMode;
 		}
 

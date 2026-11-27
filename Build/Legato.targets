@@ -501,6 +501,8 @@
                Condition="'$(LegatoEnableLegacyCutScores)' == 'true'" />
       <Compile Include="$(LegatoSourceRoot)Library\ImageSlicing\SlicedImage.cs"
                Condition="'$(LegatoEnableEarlyImageSlicing)' == 'true' AND ('$(LegatoTargetVersion)' == '0.11.1' OR '$(LegatoTargetVersion)' == '0.11.2')" />
+      <Compile Include="$(LegatoSourceRoot)Library\LegacyUnityUi\**\*.cs"
+               Condition="'$(LegatoEnableLegacyUnityUiMembers)' == 'true' AND ('$(LegatoTargetVersion)' == '0.11.1' OR '$(LegatoTargetVersion)' == '0.11.2')" />
       <Compile Include="$(LegatoSourceRoot)Library\Unity\DisplayCompatibility.cs"
                Condition="'$(LegatoEnableDisplayCompatibility)' == 'true' AND '$(LegatoEnableUnityCompatibility)' != 'true'" />
       <Compile Include="$(LegatoSourceRoot)Library\Unity\WebRequestCompatibility.cs"

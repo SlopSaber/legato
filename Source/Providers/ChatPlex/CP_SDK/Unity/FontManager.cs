@@ -1,4 +1,5 @@
-﻿using CP_SDK.Unity.OpenType;
+﻿#if !LEGATO_EARLY_STANDARD_MAPS
+using CP_SDK.Unity.OpenType;
 using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
@@ -592,3 +593,4 @@ namespace CP_SDK.Unity
         }
     }
 }
+#endif

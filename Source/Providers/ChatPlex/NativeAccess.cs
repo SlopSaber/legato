@@ -6,6 +6,7 @@ using TMPro;
 using IPA.Utilities;
 namespace Legato.ChatPlex {
     internal static class NativeAccess {
+#if !LEGATO_EARLY_STANDARD_MAPS
         internal static BeatmapCharacteristic Characteristic(BeatmapKey key) =>
 #if BEAT_SABER_1_29_0 || LEGATO_BEFORE_MULTIPLAYER
             key.parentDifficultyBeatmapSet.beatmapCharacteristic;
@@ -36,6 +37,7 @@ namespace Legato.ChatPlex {
 #else
             level.previewMediaData is FileSystemPreviewMediaData media ? media._previewAudioClipPath : null;
 #endif
+#endif
         internal static VRController SelectedController(VRUIControls.VRPointer pointer) =>
 #if BEAT_SABER_1_29_0 || LEGATO_BEFORE_MULTIPLAYER
             pointer?.vrController;
@@ -54,6 +56,7 @@ namespace Legato.ChatPlex {
 #else
             controller.thumbstick.y;
 #endif
+#if !LEGATO_EARLY_STANDARD_MAPS
         internal static void SetFaceInfo(TMP_FontAsset font, UnityEngine.TextCore.FaceInfo info) {
 #if BEAT_SABER_1_29_0 || LEGATO_BEFORE_MULTIPLAYER
             font.SetField("m_FaceInfo", info);
@@ -65,10 +68,11 @@ namespace Legato.ChatPlex {
         internal static IEnumerable<BeatmapKey> GetBeatmapKeys(this BeatmapLevel level) =>
             level is IBeatmapLevel full ? full.beatmapLevelData.difficultyBeatmapSets.SelectMany(set => set.difficultyBeatmaps) : Enumerable.Empty<BeatmapKey>();
 #endif
-#if LEGATO_CHARACTERISTIC_NAME_PROPERTY
+#endif
+#if LEGATO_CHARACTERISTIC_NAME_PROPERTY && !LEGATO_EARLY_STANDARD_MAPS
         internal static string SerializedName(this BeatmapCharacteristicSO characteristic) => characteristic.serializedName;
 #endif
-#if LEGATO_SCRIPTABLE_CHARACTERISTICS
+#if LEGATO_SCRIPTABLE_CHARACTERISTICS && !LEGATO_EARLY_STANDARD_MAPS
         internal static string HintLocalizationKey(this BeatmapCharacteristicSO characteristic) => characteristic.descriptionLocalizationKey;
 #endif
 #if BEAT_SABER_1_37_1 && !LEGATO_ADDITIONAL_PACK_LEVELS
