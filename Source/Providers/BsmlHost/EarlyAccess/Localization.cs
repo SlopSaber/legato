@@ -9,44 +9,14 @@ using UnityEngine;
 
 namespace Legato.LocalizationSupport;
 
-public sealed class EarlyLocalizedText : MonoBehaviour
-{
-    public TextMeshProUGUI localizedComponent { get; set; }
-
-    public bool maintainTextAlignment { get; set; }
-
-    public string key { get; set; }
-
-    public string Key
-    {
-        get => key;
-        set
-        {
-            key = value;
-            if (isActiveAndEnabled)
-            {
-                Apply();
-            }
-        }
-    }
-
-    private void OnEnable() => Apply();
-
-    private void Apply()
-    {
-        if (localizedComponent != null && !string.IsNullOrEmpty(key))
-        {
-            localizedComponent.text = EarlyLocalization.Get(key);
-        }
-    }
-}
-
 /// <summary>Provides the embedded English UI strings on early game versions.</summary>
 public static class EarlyLocalization
 {
     private static readonly Lazy<Dictionary<string, string>> Text = new(Load);
 
-    /// <summary>Returns the translated string or the original key when no translation is available.</summary>
+    /// <summary>Looks up an embedded UI string by key.</summary>
+    /// <param name="key">The localization key.</param>
+    /// <returns>The translation, or the original key when no translation is available.</returns>
     public static string Get(string key)
     {
         return !string.IsNullOrEmpty(key) && Text.Value.TryGetValue(key, out string text) ? text : key;
@@ -124,4 +94,35 @@ public static class EarlyLocalization
     }
 }
 
+public sealed class EarlyLocalizedText : MonoBehaviour
+{
+    public TextMeshProUGUI localizedComponent { get; set; }
+
+    public bool maintainTextAlignment { get; set; }
+
+    public string key { get; set; }
+
+    public string Key
+    {
+        get => key;
+        set
+        {
+            key = value;
+            if (isActiveAndEnabled)
+            {
+                Apply();
+            }
+        }
+    }
+
+    private void OnEnable() => Apply();
+
+    private void Apply()
+    {
+        if (localizedComponent != null && !string.IsNullOrEmpty(key))
+        {
+            localizedComponent.text = EarlyLocalization.Get(key);
+        }
+    }
+}
 #endif

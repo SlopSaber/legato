@@ -8,7 +8,7 @@ using HarmonyLib;
 using HMUI;
 using TMPro;
 using UnityEngine;
-using UnityEngine.UI;
+using Image = UnityEngine.UI.Image;
 using Object = UnityEngine.Object;
 
 namespace Legato.Presentation;
