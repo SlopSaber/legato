@@ -4,8 +4,9 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <LegatoGameVersion Include="0.10.1;0.10.2;0.10.2p1" Profile="0.10.1" Order="-5" CoreApi="EarlyAccess" />
-    <LegatoGameVersion Include="0.11.0;0.11.1;0.11.2;0.12.0;0.12.0p1;0.12.1;0.12.2;0.13.0;0.13.0p1;0.13.1;0.13.2" Profile="0.11.2" Order="-4" CoreApi="EarlyAccess" />
+    <LegatoGameVersion Include="0.10.1;0.10.2;0.10.2p1" Profile="0.10.1" Order="-5" CoreApi="EarlyAccess" Constants="LEGATO_SHARED_MATERIAL_ARRAY" />
+    <LegatoGameVersion Include="0.11.0;0.11.1;0.11.2;0.12.0;0.12.0p1;0.12.1;0.12.2" Profile="0.11.2" Order="-4" CoreApi="EarlyAccess" Constants="LEGATO_SHARED_MATERIAL_ARRAY" />
+    <LegatoGameVersion Include="0.13.0;0.13.0p1;0.13.1;0.13.2" Profile="0.11.2" Order="-4" CoreApi="EarlyAccess" />
     <LegatoGameVersion Include="1.0.0;1.0.1;1.1.0;1.1.0p1;1.2.0" Profile="1.0.0" Order="-3" CoreApi="LegacyPreview" Constants="LEGATO_COVER_TEXTURE;LEGATO_NO_TRANSITION_DIFFICULTY" />
     <LegatoGameVersion Include="1.3.0;1.4.0;1.4.2;1.5.0" Profile="1.0.0" Order="-3" CoreApi="LegacyPreview" Constants="LEGATO_COVER_TEXTURE" />
     <LegatoGameVersion Include="1.6.0;1.6.1;1.6.2;1.7.0;1.8.0;1.9.0;1.9.1;1.10.0;1.11.0" Profile="1.11.1" Order="-2" CoreApi="LegacyPreview" Constants="LEGATO_COVER_TEXTURE;LEGATO_DIFFICULTY_IN_SCENE_SETUP" />
