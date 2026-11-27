@@ -1,4 +1,4 @@
-#if LEGATO_EARLY_SCENE_SETUP
+#if LEGATO_EARLY_SCENE_SETUP || LEGATO_EARLY_STANDARD_MAPS
 global using BeatmapLevel = global::IStandardLevel;
 global using BeatmapKey = global::IStandardLevelDifficultyBeatmap;
 global using BeatmapDifficulty = global::LevelDifficulty;

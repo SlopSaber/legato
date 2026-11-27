@@ -1,5 +1,5 @@
 #nullable enable
-#if !LEGATO_BEFORE_MULTIPLAYER && !LEGATO_EARLY_SCENE_SETUP
+#if !LEGATO_BEFORE_MULTIPLAYER && !LEGATO_EARLY_SCENE_SETUP && !LEGATO_EARLY_STANDARD_MAPS
 using System.Collections.Generic;
 #endif
 using System.Threading;
@@ -9,7 +9,7 @@ using UnityEngine;
 namespace Legato.Beatmaps {
     /// <summary>Preserves a level preview through the selected native API.</summary>
     public abstract class LevelPreviewProxy : BeatmapLevel {
-#if LEGATO_EARLY_SCENE_SETUP
+#if LEGATO_EARLY_SCENE_SETUP || LEGATO_EARLY_STANDARD_MAPS
         internal BeatmapLevel Source { get; }
         /// <summary>Wraps the supplied native level.</summary>
         protected LevelPreviewProxy(BeatmapLevel source) { Source = source; }
@@ -99,7 +99,7 @@ namespace Legato.Beatmaps {
 
     /// <summary>Wraps preview levels as a native level pack.</summary>
     public abstract class LevelPackProxy
-#if LEGATO_EARLY_SCENE_SETUP
+#if LEGATO_EARLY_SCENE_SETUP || LEGATO_EARLY_STANDARD_MAPS
     {
         /// <summary>The stable identifier for the level group.</summary>
         public string packID { get; }

@@ -1,4 +1,4 @@
-#if LEGATO_EARLY_SCENE_SETUP
+#if LEGATO_EARLY_SCENE_SETUP || LEGATO_EARLY_STANDARD_MAPS
 #nullable enable
 using System;
 using System.Collections;
@@ -20,14 +20,13 @@ namespace Legato.Beatmaps
         internal static async Task<StandardLevelSO?> LoadAsync(EarlyMapEntry entry, CancellationToken cancellationToken,
             IReadOnlyCollection<LevelDifficulty>? allowedDifficulties = null, bool longPreviews = false)
         {
-            CustomLevelInfoWrapper native = entry.Native;
-            string? audioPath = EarlyMapFiles.LocalAsset(native.path, native.customLevelInfo.difficultyLevels[0]?.audioPath);
-            if (audioPath == null || !IsPositive(native.customLevelInfo.beatsPerMinute)) return null;
+            string? audioPath = EarlyMapFiles.LocalAsset(entry.DirectoryPath, entry.Info.difficultyLevels[0]?.audioPath);
+            if (audioPath == null || !IsPositive(entry.Info.beatsPerMinute)) return null;
 
-            List<(CustomLevelInfo.DifficultyLevelInfo Difficulty, LevelDifficulty Kind, string Json)> charts =
-                await Task.Run(() => ReadCharts(native, allowedDifficulties, cancellationToken), cancellationToken);
+            List<(EarlyLevelDifficulty Difficulty, LevelDifficulty Kind, string Json)> charts =
+                await Task.Run(() => ReadCharts(entry, allowedDifficulties, cancellationToken), cancellationToken);
             if (charts.Count == 0) return null;
-            byte[]? coverBytes = await Task.Run(() => ReadCover(native), cancellationToken);
+            byte[]? coverBytes = await Task.Run(() => ReadCover(entry), cancellationToken);
             await UnityGame.SwitchToMainThreadAsync();
             cancellationToken.ThrowIfCancellationRequested();
 
@@ -50,11 +49,11 @@ namespace Legato.Beatmaps
             }
         }
 
-        private static List<(CustomLevelInfo.DifficultyLevelInfo Difficulty, LevelDifficulty Kind, string Json)>
-            ReadCharts(CustomLevelInfoWrapper native, IReadOnlyCollection<LevelDifficulty>? allowedDifficulties, CancellationToken cancellationToken)
+        private static List<(EarlyLevelDifficulty Difficulty, LevelDifficulty Kind, string Json)>
+            ReadCharts(EarlyMapEntry entry, IReadOnlyCollection<LevelDifficulty>? allowedDifficulties, CancellationToken cancellationToken)
         {
-            var charts = new List<(CustomLevelInfo.DifficultyLevelInfo, LevelDifficulty, string)>();
-            foreach (CustomLevelInfo.DifficultyLevelInfo difficulty in native.customLevelInfo.difficultyLevels)
+            var charts = new List<(EarlyLevelDifficulty, LevelDifficulty, string)>();
+            foreach (EarlyLevelDifficulty difficulty in entry.Info.difficultyLevels)
             {
                 cancellationToken.ThrowIfCancellationRequested();
                 if (difficulty == null || string.IsNullOrEmpty(difficulty.difficulty) ||
@@ -63,7 +62,7 @@ namespace Legato.Beatmaps
 
                 try
                 {
-                    string? path = EarlyMapFiles.LocalAsset(native.path, difficulty.jsonPath);
+                    string? path = EarlyMapFiles.LocalAsset(entry.DirectoryPath, difficulty.jsonPath);
                     if (path == null) continue;
                     string json = File.ReadAllText(path);
                     using var reader = new JsonTextReader(new StringReader(json)) { DateParseHandling = DateParseHandling.None };
@@ -92,11 +91,11 @@ namespace Legato.Beatmaps
                 index.Value<int>() is >= 0 and < 4;
         }
 
-        private static byte[]? ReadCover(CustomLevelInfoWrapper native)
+        private static byte[]? ReadCover(EarlyMapEntry entry)
         {
             try
             {
-                string? coverPath = EarlyMapFiles.LocalAsset(native.path, native.customLevelInfo.coverImagePath);
+                string? coverPath = EarlyMapFiles.LocalAsset(entry.DirectoryPath, entry.Info.coverImagePath);
                 return coverPath == null ? null : File.ReadAllBytes(coverPath);
             }
             catch (Exception error) when (error is IOException or UnauthorizedAccessException or ArgumentException)
@@ -134,10 +133,9 @@ namespace Legato.Beatmaps
         }
 
         private static StandardLevelSO? BuildLevel(EarlyMapEntry entry, AudioClip audio,
-            List<(CustomLevelInfo.DifficultyLevelInfo Difficulty, LevelDifficulty Kind, string Json)> sources, byte[]? coverBytes, bool longPreviews)
+            List<(EarlyLevelDifficulty Difficulty, LevelDifficulty Kind, string Json)> sources, byte[]? coverBytes, bool longPreviews)
         {
-            CustomLevelInfoWrapper native = entry.Native;
-            CustomLevelInfo info = native.customLevelInfo;
+            EarlyLevelInfo info = entry.Info;
             float previewStart = Mathf.Clamp(info.previewStartTime, 0f, Mathf.Max(0f, audio.length - 0.1f));
             float remainingAudio = audio.length - previewStart;
             float previewDuration = longPreviews ? remainingAudio : Mathf.Clamp(info.previewDuration, 0f, remainingAudio);
@@ -169,16 +167,20 @@ namespace Legato.Beatmaps
 
                 // The native difficulty constructor reads tempo and shuffle from its parent immediately.
                 Initialize(Array.Empty<StandardLevelSO.DifficultyBeatmap>());
-                foreach ((CustomLevelInfo.DifficultyLevelInfo difficulty, LevelDifficulty kind, string json) in sources)
+                foreach ((EarlyLevelDifficulty difficulty, LevelDifficulty kind, string json) in sources)
                 {
                     var chart = ScriptableObject.CreateInstance<BeatmapDataSO>();
                     charts.Add(chart);
                     chart.SetJsonData(json);
                     string? difficultyData = entry.DifficultyData != null && entry.DifficultyData.TryGetValue(difficulty, out string metadata)
                         ? metadata : null;
+#if LEGATO_EARLY_STANDARD_MAPS
+                    EarlyBeatmapSources.AssociateMetadata(chart, entry.CustomData, difficultyData);
+#else
                     EarlyBeatmapSources.Associate(chart, difficulty, entry.CustomData, difficultyData);
+#endif
                     difficulties.Add(new StandardLevelSO.DifficultyBeatmap(level, kind, difficulty.difficultyRank,
-                        difficulty.noteJumpMovementSpeed, chart));
+                        entry.JumpSpeedFor(difficulty), chart));
                 }
                 Initialize(difficulties.ToArray());
                 published = true;
@@ -196,7 +198,7 @@ namespace Legato.Beatmaps
             }
 
             void Initialize(StandardLevelSO.DifficultyBeatmap[] beatmaps) =>
-                level.InitFull(native.levelID, info.songName ?? string.Empty, info.songSubName ?? string.Empty,
+                level.InitFull(entry.LevelId, info.songName ?? string.Empty, info.songSubName ?? string.Empty,
                     info.authorName ?? string.Empty, audio, audio.length, info.beatsPerMinute, entry.SongTimeOffset, entry.Shuffle, entry.ShufflePeriod,
                     previewStart, previewDuration, cover, beatmaps, environment);
         }

@@ -3,6 +3,9 @@ using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using CustomJSONData.CustomBeatmap;
 using HarmonyLib;
+#if LEGATO_EARLY_STANDARD_MAPS
+using FloatVariable = FloatSO;
+#endif
 
 namespace CustomJSONData
 {

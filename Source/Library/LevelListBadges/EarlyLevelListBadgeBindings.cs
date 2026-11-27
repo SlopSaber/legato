@@ -175,6 +175,7 @@ internal static class EarlyStandardLevelBadgePatch
     }
 }
 
+#if !LEGATO_EARLY_STANDARD_MAPS
 [HarmonyPatch(typeof(CustomLevelListTableView), nameof(CustomLevelListTableView.CellForRow))]
 internal static class EarlyImportedLevelBadgePatch
 {
@@ -187,6 +188,7 @@ internal static class EarlyImportedLevelBadgePatch
             LevelListBadgeBindings.Bind(cell, Title(cell), cell.levelID);
     }
 }
+#endif
 
 [HarmonyPatch(typeof(TableCell), nameof(TableCell.TableViewSetup))]
 internal static class EarlyLevelBadgeAttachPatch

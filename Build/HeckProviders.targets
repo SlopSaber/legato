@@ -25,10 +25,10 @@
     <ItemGroup Condition="'$(LegatoTargetProfile)' == '1.29.0' AND '$(LegatoEnableCustomJsonDataProviders)' == 'true'">
       <Reference Remove="AdditionalContentModel.Interfaces;DataModels;Tweening" />
     </ItemGroup>
-    <ItemGroup Condition="('$(LegatoTargetVersion)' == '1.11.1' OR '$(LegatoTargetVersion)' == '0.11.1') AND '$(LegatoEnableCustomJsonDataProviders)' == 'true'">
+    <ItemGroup Condition="('$(LegatoTargetVersion)' == '1.11.1' OR '$(LegatoTargetVersion)' == '0.11.1' OR '$(LegatoTargetVersion)' == '0.11.2') AND '$(LegatoEnableCustomJsonDataProviders)' == 'true'">
       <Reference Remove="AdditionalContentModel.Interfaces;BeatmapCore;DataModels;GameplayCore;Tweening" />
     </ItemGroup>
-    <ItemGroup Condition="'$(LegatoTargetVersion)' == '0.11.1' AND '$(LegatoEnableCustomJsonDataProviders)' == 'true'">
+    <ItemGroup Condition="('$(LegatoTargetVersion)' == '0.11.1' OR '$(LegatoTargetVersion)' == '0.11.2') AND '$(LegatoEnableCustomJsonDataProviders)' == 'true'">
       <Reference Remove="Colors" />
     </ItemGroup>
   </Target>
@@ -98,7 +98,7 @@
       <DefineConstants Condition="$(LegatoTargetOrder) &gt;= 4 OR ($(LegatoTargetOrder) &gt;= 3 AND '$(LegatoEnableHeckProviders)' != 'true')">$(DefineConstants);LATEST</DefineConstants>
       <DefineConstants Condition="$(LegatoTargetOrder) &gt;= 2">$(DefineConstants);LEGATO_BEATMAP_OBJECT_BEAT</DefineConstants>
       <DefineConstants Condition="'$(LegatoTargetVersion)' == '1.11.1' AND '$(LegatoEnableCustomJsonDataProviders)' == 'true'">$(DefineConstants);LEGATO_CUSTOM_JSON_LEGACY_LOADER</DefineConstants>
-      <DefineConstants Condition="'$(LegatoTargetVersion)' == '0.11.1' AND '$(LegatoEnableCustomJsonDataProviders)' == 'true'">$(DefineConstants);LEGATO_CUSTOM_JSON_LEGACY_LOADER;LEGATO_CUSTOM_JSON_EARLY_LOADER</DefineConstants>
+      <DefineConstants Condition="('$(LegatoTargetVersion)' == '0.11.1' OR '$(LegatoTargetVersion)' == '0.11.2') AND '$(LegatoEnableCustomJsonDataProviders)' == 'true'">$(DefineConstants);LEGATO_CUSTOM_JSON_LEGACY_LOADER;LEGATO_CUSTOM_JSON_EARLY_LOADER</DefineConstants>
       <DefineConstants Condition="'$(LegatoTargetVersion)' == '1.11.1' AND '$(LegatoEnableHeckProviders)' == 'true'">$(DefineConstants);LEGATO_HECK_LEGACY_GAMEPLAY</DefineConstants>
       <DefineConstants Condition="'$(LegatoTargetVersion)' == '1.11.1' AND '$(LegatoEnableChromaProviders)' == 'true'">$(DefineConstants);LEGATO_CHROMA_LEGACY_LIGHTS</DefineConstants>
       <DefineConstants Condition="'$(LegatoTargetVersion)' == '1.11.1' AND '$(LegatoEnableNoodleExtensionsProviders)' == 'true'">$(DefineConstants);LEGATO_NOODLE_LEGACY_GAMEPLAY</DefineConstants>

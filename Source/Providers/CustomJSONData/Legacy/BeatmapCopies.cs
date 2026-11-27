@@ -14,6 +14,9 @@ namespace CustomJSONData.HarmonyPatches
             yield return AccessTools.Method(typeof(BeatmapDataNoArrowsTransform), nameof(BeatmapDataNoArrowsTransform.CreateTransformedData));
 #if LEGATO_CUSTOM_JSON_EARLY_LOADER
             yield return AccessTools.Method(typeof(BeatmapDataObstaclesTransform), nameof(BeatmapDataObstaclesTransform.CreateTransformedData));
+#if LEGATO_EARLY_STANDARD_MAPS
+            yield return AccessTools.Method(typeof(BeatDataTransformHelper), nameof(BeatDataTransformHelper.CreateTransformedBeatmapData));
+#endif
 #else
             yield return AccessTools.Method(typeof(BeatmapDataObstaclesAndBombsTransform), nameof(BeatmapDataObstaclesAndBombsTransform.CreateTransformedData));
             yield return AccessTools.Method(typeof(BeatmapDataStaticLightsTransform), nameof(BeatmapDataStaticLightsTransform.CreateTransformedData));

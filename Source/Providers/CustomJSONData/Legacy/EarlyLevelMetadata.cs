@@ -1,6 +1,8 @@
 using System;
 using System.IO;
+#if !LEGATO_EARLY_STANDARD_MAPS
 using System.Runtime.CompilerServices;
+#endif
 using CustomJSONData.CustomBeatmap;
 using HarmonyLib;
 using Legato.Beatmaps;
@@ -12,6 +14,7 @@ namespace CustomJSONData.HarmonyPatches
     [HarmonyPatch]
     internal static class EarlyLevelMetadata
     {
+#if !LEGATO_EARLY_STANDARD_MAPS
         private static readonly ConditionalWeakTable<CustomLevelInfo.DifficultyLevelInfo, Metadata> _levels = new();
 
         [HarmonyPostfix]
@@ -61,32 +64,55 @@ namespace CustomJSONData.HarmonyPatches
                 EarlyBeatmapSources.Associate(beatmapData, difficultyLevelsInfo);
             }
         }
+#endif
 
         [HarmonyPostfix]
         [HarmonyPatch(typeof(BeatmapDataSO), nameof(BeatmapDataSO.Load))]
         private static void ApplyMetadata(BeatmapDataSO __instance, BeatmapData? ____beatmapData)
         {
-            if (____beatmapData is not CustomBeatmapData chart ||
-                EarlyBeatmapSources.GetDifficulty(__instance) is not CustomLevelInfo.DifficultyLevelInfo source)
+            if (____beatmapData is not CustomBeatmapData chart)
             {
                 return;
             }
 
-            if (!_levels.TryGetValue(source, out Metadata metadata) && EarlyBeatmapSources.GetImportedMetadata(__instance) is { } imported)
-            {
-                try
-                {
-                    metadata = _levels.GetValue(source, _ => new Metadata(Parse(imported.Item1), Parse(imported.Item2)));
-                }
-                catch (JsonException exception)
-                {
-                    Plugin.Log.Warn($"Could not read imported custom level metadata: {exception.Message}");
-                }
-            }
-
+            Metadata? metadata = FindMetadata(__instance);
             if (metadata != null)
             {
                 chart.ApplyLevelMetadata(metadata.Level, metadata.Difficulty);
+            }
+        }
+
+        private static Metadata? FindMetadata(BeatmapDataSO chart)
+        {
+#if !LEGATO_EARLY_STANDARD_MAPS
+            if (EarlyBeatmapSources.GetDifficulty(chart) is not CustomLevelInfo.DifficultyLevelInfo source)
+            {
+                return null;
+            }
+
+            if (_levels.TryGetValue(source, out Metadata metadata))
+            {
+                return metadata;
+            }
+#endif
+
+            if (EarlyBeatmapSources.GetImportedMetadata(chart) is not { } imported)
+            {
+                return null;
+            }
+
+            try
+            {
+#if LEGATO_EARLY_STANDARD_MAPS
+                return new Metadata(Parse(imported.Item1), Parse(imported.Item2));
+#else
+                return _levels.GetValue(source, _ => new Metadata(Parse(imported.Item1), Parse(imported.Item2)));
+#endif
+            }
+            catch (JsonException exception)
+            {
+                Plugin.Log.Warn($"Could not read imported custom level metadata: {exception.Message}");
+                return null;
             }
 
             static CustomData Parse(string? data)

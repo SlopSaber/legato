@@ -110,6 +110,7 @@
       <DefineConstants Condition="'$(_LegatoCoreApi)' == 'EarlyAccess' OR '$(LegatoTargetProfile)' == '1.0.0'">$(DefineConstants);LEGATO_AUDIO_WITHOUT_STATE</DefineConstants>
       <DefineConstants Condition="'$(LegatoTargetVersion)' == '0.11.1'">$(DefineConstants);LEGATO_WITHOUT_HTTP_CLIENT;LEGATO_LEGACY_IMAGE_SLICING;LEGATO_LEGACY_RENDER_TEXTURE_MIPS</DefineConstants>
       <DefineConstants Condition="'$(LegatoTargetVersion)' == '0.11.1'">$(DefineConstants);LEGATO_EARLY_SCENE_SETUP</DefineConstants>
+      <DefineConstants Condition="'$(LegatoTargetVersion)' == '0.11.2'">$(DefineConstants);LEGATO_EARLY_STANDARD_MAPS</DefineConstants>
       <DefineConstants Condition="'$(LegatoEnableNativeBeatmapAliases)' == 'true'">$(DefineConstants);LEGATO_NATIVE_BEATMAP_KEYS</DefineConstants>
       <DefineConstants Condition="'$(LegatoEnableSteamAuthentication)' == 'true'">$(DefineConstants);LEGATO_STEAM_WEB_AUTH</DefineConstants>
       <LegatoHasDefaultInterfaceMethods Condition="'$(LegatoTargetProfile)' != '1.29.0' AND '$(LegatoTargetProfile)' != '' AND '$(_LegatoCoreApi)' == ''">true</LegatoHasDefaultInterfaceMethods>
@@ -404,9 +405,9 @@
       <Compile Include="$(LegatoSourceRoot)Library\LevelProxies\**\*.cs"
                Condition="'$(LegatoEnableLevelProxies)' == 'true'" />
       <Compile Include="$(LegatoSourceRoot)Library\LevelProxies\EarlyMapFiles.cs"
-               Condition="'$(LegatoTargetVersion)' == '0.11.1' AND '$(LegatoEnableLevelListBadges)' == 'true' AND '$(LegatoEnableLevelProxies)' != 'true'" />
+               Condition="('$(LegatoTargetVersion)' == '0.11.1' OR '$(LegatoTargetVersion)' == '0.11.2') AND '$(LegatoEnableLevelListBadges)' == 'true' AND '$(LegatoEnableLevelProxies)' != 'true'" />
       <Compile Include="$(LegatoSourceRoot)Providers\CustomJSONData\Legacy\EarlyBeatmapSources.cs"
-               Condition="'$(LegatoTargetVersion)' == '0.11.1' AND '$(LegatoEnableLevelProxies)' == 'true' AND '$(LegatoEnableCustomJsonDataProviders)' != 'true'" />
+               Condition="('$(LegatoTargetVersion)' == '0.11.1' OR '$(LegatoTargetVersion)' == '0.11.2') AND '$(LegatoEnableLevelProxies)' == 'true' AND '$(LegatoEnableCustomJsonDataProviders)' != 'true'" />
       <Compile Include="$(LegatoSourceRoot)Library\StatisticsViews\**\*.cs"
                Condition="'$(LegatoEnableStatisticsViews)' == 'true'" />
       <Compile Include="$(LegatoSourceRoot)Library\Physics\**\*.cs"
@@ -441,11 +442,11 @@
                Condition="'$(LegatoEnableCollectionNavigation)' == 'true'" />
       <Compile Include="$(LegatoSourceRoot)Providers\PlaylistManager\**\*.cs"
                Exclude="$(LegatoSourceRoot)Providers\PlaylistManager\EarlyPlaylistNavigation.cs"
-               Condition="'$(LegatoEnablePlaylistManagerProviders)' == 'true' AND '$(LegatoTargetVersion)' != '0.11.1'" />
+               Condition="'$(LegatoEnablePlaylistManagerProviders)' == 'true' AND '$(LegatoTargetVersion)' != '0.11.1' AND '$(LegatoTargetVersion)' != '0.11.2'" />
       <Compile Include="$(LegatoSourceRoot)Providers\PlaylistManager\EarlyPlaylistNavigation.cs"
-               Condition="'$(LegatoTargetVersion)' == '0.11.1' AND ('$(LegatoEnablePlaylistManagerProviders)' == 'true' OR '$(LegatoEnableEarlySongNavigation)' == 'true')" />
+               Condition="('$(LegatoTargetVersion)' == '0.11.1' OR '$(LegatoTargetVersion)' == '0.11.2') AND ('$(LegatoEnablePlaylistManagerProviders)' == 'true' OR '$(LegatoEnableEarlySongNavigation)' == 'true')" />
       <Compile Include="$(LegatoSourceRoot)Providers\LeaderboardCore\EarlyLeaderboardScreen.cs"
-               Condition="'$(LegatoEnableLeaderboardCoreProviders)' == 'true' AND '$(LegatoTargetVersion)' == '0.11.1'" />
+               Condition="'$(LegatoEnableLeaderboardCoreProviders)' == 'true' AND ('$(LegatoTargetVersion)' == '0.11.1' OR '$(LegatoTargetVersion)' == '0.11.2')" />
       <Compile Include="$(LegatoSourceRoot)Library\EditorAccess\**\*.cs"
                Condition="'$(LegatoEnableEditorAccess)' == 'true'" />
       <Compile Include="$(LegatoSourceRoot)Library\ViewLifecycle\**\*.cs"
@@ -723,17 +724,17 @@
                Condition="'$(LegatoEnableVivifyProviders)' == 'true' AND '$(LegatoTargetVersion)' == '1.11.1'" />
       <Compile Include="$(LegatoSourceRoot)Providers\CustomJSONData\**\*.cs"
                Exclude="$(LegatoSourceRoot)Providers\CustomJSONData\Legacy\**\*.cs"
-               Condition="'$(LegatoEnableCustomJsonDataProviders)' == 'true' AND '$(LegatoTargetVersion)' != '1.11.1' AND '$(LegatoTargetVersion)' != '0.11.1'" />
+               Condition="'$(LegatoEnableCustomJsonDataProviders)' == 'true' AND '$(LegatoTargetVersion)' != '1.11.1' AND '$(LegatoTargetVersion)' != '0.11.1' AND '$(LegatoTargetVersion)' != '0.11.2'" />
       <Compile Include="$(LegatoSourceRoot)Providers\CustomJSONData\Legacy\**\*.cs;$(LegatoSourceRoot)Providers\CustomJSONData\CustomBeatmap\CustomDataConverter.cs;$(LegatoSourceRoot)Providers\CustomJSONData\CustomBeatmap\SaveData\CustomLevelInfoSaveData.cs;$(LegatoSourceRoot)Providers\CustomJSONData\Utils\DictionaryExtensions.cs"
                Exclude="$(LegatoSourceRoot)Providers\CustomJSONData\Legacy\EarlyLevelMetadata.cs"
                Condition="'$(LegatoEnableCustomJsonDataProviders)' == 'true' AND '$(LegatoTargetVersion)' == '1.11.1'" />
       <Compile Include="$(LegatoSourceRoot)Providers\CustomJSONData\Legacy\**\*.cs;$(LegatoSourceRoot)Providers\CustomJSONData\CustomBeatmap\CustomDataConverter.cs;$(LegatoSourceRoot)Providers\CustomJSONData\Utils\DictionaryExtensions.cs"
                Exclude="$(LegatoSourceRoot)Providers\CustomJSONData\Legacy\LevelMetadata.cs"
-               Condition="'$(LegatoEnableCustomJsonDataProviders)' == 'true' AND '$(LegatoTargetVersion)' == '0.11.1'" />
+               Condition="'$(LegatoEnableCustomJsonDataProviders)' == 'true' AND ('$(LegatoTargetVersion)' == '0.11.1' OR '$(LegatoTargetVersion)' == '0.11.2')" />
       <Compile Remove="CustomBeatmap\CustomBeatmapDataSortedListForTypes.cs;CustomBeatmap\CustomEventData.cs;CustomBeatmap\EventData\**\*.cs"
-               Condition="'$(LegatoEnableCustomJsonDataProviders)' == 'true' AND ('$(LegatoTargetVersion)' == '1.11.1' OR '$(LegatoTargetVersion)' == '0.11.1')" />
+               Condition="'$(LegatoEnableCustomJsonDataProviders)' == 'true' AND ('$(LegatoTargetVersion)' == '1.11.1' OR '$(LegatoTargetVersion)' == '0.11.1' OR '$(LegatoTargetVersion)' == '0.11.2')" />
       <Compile Remove="HarmonyPatches\CustomBeatmapData\LevelInfoSaveDataRedirect.cs"
-               Condition="'$(LegatoEnableCustomJsonDataProviders)' == 'true' AND '$(LegatoTargetVersion)' == '0.11.1'" />
+               Condition="'$(LegatoEnableCustomJsonDataProviders)' == 'true' AND ('$(LegatoTargetVersion)' == '0.11.1' OR '$(LegatoTargetVersion)' == '0.11.2')" />
       <Compile Include="$(LegatoSourceRoot)Library\BundleShaderMetadata\**\*.cs"
                Condition="'$(LegatoEnableBundleShaderMetadata)' == 'true'" />
       <Compile Include="$(LegatoSourceRoot)Library\SaberModels\**\*.cs"

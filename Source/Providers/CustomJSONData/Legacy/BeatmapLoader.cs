@@ -13,10 +13,16 @@ namespace CustomJSONData.HarmonyPatches
     internal static class BeatmapLoader
     {
 #if LEGATO_CUSTOM_JSON_EARLY_LOADER
+#if LEGATO_EARLY_STANDARD_MAPS
+        private const string TimeConversionMethod = "GetRealTimeFromBPMTime";
+#else
+        private const string TimeConversionMethod = "GetRealTimeFromBpmTime";
+#endif
+
         private static readonly Func<float, float, float, float, float> _convertTime =
             (Func<float, float, float, float, float>)Delegate.CreateDelegate(
                 typeof(Func<float, float, float, float, float>),
-                AccessTools.Method(typeof(BeatmapDataLoader), "GetRealTimeFromBpmTime"));
+                AccessTools.Method(typeof(BeatmapDataLoader), TimeConversionMethod));
 #else
         private static readonly TimeConverter _convertTime = (TimeConverter)Delegate.CreateDelegate(
             typeof(TimeConverter), AccessTools.Method(typeof(BeatmapDataLoader), "GetRealTimeFromBPMTime"));

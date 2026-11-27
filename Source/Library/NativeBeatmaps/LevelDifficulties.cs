@@ -4,7 +4,7 @@ using System.Linq;
 namespace Legato.Beatmaps {
     internal static class LevelDifficulties {
         internal static IEnumerable<BeatmapDifficulty> Standard(BeatmapLevel level) {
-#if LEGATO_EARLY_SCENE_SETUP
+#if LEGATO_EARLY_SCENE_SETUP || LEGATO_EARLY_STANDARD_MAPS
             return StandardKeys(level).Select(key => key.difficulty);
 #elif BEAT_SABER_1_29_0 || LEGATO_BEFORE_MULTIPLAYER
             return level.previewDifficultyBeatmapSets.Where(set => string.Equals(set.beatmapCharacteristic.serializedName, "Standard", System.StringComparison.Ordinal))
@@ -14,7 +14,7 @@ namespace Legato.Beatmaps {
 #endif
         }
         internal static IEnumerable<BeatmapKey> StandardKeys(BeatmapLevel level) {
-#if LEGATO_EARLY_SCENE_SETUP
+#if LEGATO_EARLY_SCENE_SETUP || LEGATO_EARLY_STANDARD_MAPS
             return level.difficultyBeatmaps;
 #elif BEAT_SABER_1_29_0 || LEGATO_BEFORE_MULTIPLAYER
             return ((IBeatmapLevel)level).beatmapLevelData.difficultyBeatmapSets

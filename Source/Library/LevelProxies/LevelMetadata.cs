@@ -7,7 +7,7 @@ using System.Reflection;
 namespace Legato.Beatmaps {
     internal static class LevelMetadata {
         internal static string Authors(BeatmapLevel level) =>
-#if LEGATO_EARLY_SCENE_SETUP
+#if LEGATO_EARLY_SCENE_SETUP || LEGATO_EARLY_STANDARD_MAPS
             string.Empty;
 #elif BEAT_SABER_1_29_0 || LEGATO_BEFORE_MULTIPLAYER
             level.levelAuthorName;
@@ -16,7 +16,7 @@ namespace Legato.Beatmaps {
 #endif
         internal static BeatmapDifficulty Difficulty(BeatmapKey? key) => key?.difficulty ?? default;
         internal static string Characteristic(BeatmapKey? key) =>
-#if LEGATO_EARLY_SCENE_SETUP
+#if LEGATO_EARLY_SCENE_SETUP || LEGATO_EARLY_STANDARD_MAPS
             key == null ? string.Empty : "Standard";
 #elif BEAT_SABER_1_29_0 || LEGATO_BEFORE_MULTIPLAYER
             key == null ? string.Empty : BeatmapKeyExtensions.CharacteristicSerializedName(key);
@@ -24,7 +24,7 @@ namespace Legato.Beatmaps {
             key.HasValue ? BeatmapKeyExtensions.CharacteristicSerializedName(key.Value) : string.Empty;
 #endif
         internal static Stream? OpenCustomCover(BeatmapLevel? level, object? loader) {
-#if LEGATO_EARLY_SCENE_SETUP
+#if LEGATO_EARLY_SCENE_SETUP || LEGATO_EARLY_STANDARD_MAPS
             return EarlyLevelCatalog.OpenCustomCover(level);
 #else
             string? directory = null;

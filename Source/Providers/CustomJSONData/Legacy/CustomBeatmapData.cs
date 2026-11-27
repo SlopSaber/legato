@@ -127,7 +127,9 @@ namespace CustomJSONData.CustomBeatmap
 #endif
 
         internal CustomNoteData(NoteData note, CustomData data, Version version)
-#if LEGATO_CUSTOM_JSON_EARLY_LOADER
+#if LEGATO_EARLY_STANDARD_MAPS
+            : base(note.id, note.time, note.lineIndex, note.noteLineLayer, note.startNoteLineLayer, note.noteType, note.cutDirection, note.timeToNextBasicNote, note.timeToPrevBasicNote)
+#elif LEGATO_CUSTOM_JSON_EARLY_LOADER
             : base(note.id, note.time, note.lineIndex, note.noteLineLayer, note.startNoteLineLayer, note.noteType, note.cutDirection)
 #else
             : base(note.id, note.time, note.lineIndex, note.noteLineLayer, note.startNoteLineLayer, note.noteType, note.cutDirection, note.timeToNextBasicNote, note.timeToPrevBasicNote, note.flipLineIndex, note.flipYSide)
