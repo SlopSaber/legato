@@ -133,6 +133,7 @@ internal static class EarlyMapFiles
             return new EarlyMapEntry(directory, info, infoPath, difficulties.Select(chart => chart?.jsonPath).ToArray())
             {
                 JumpSpeeds = speed,
+                MapperName = Text(document, "levelAuthorName") ?? Text(document, "_levelAuthorName"),
                 CustomData = ((document["_customData"] ?? document["customData"]) as JObject)?.ToString(Formatting.None),
                 DifficultyData = metadata,
             };
@@ -224,6 +225,7 @@ internal static class EarlyMapFiles
             {
 #if LEGATO_EARLY_STANDARD_MAPS
                 JumpSpeeds = speed,
+                MapperName = Text(info, "_levelAuthorName"),
 #endif
                 SongTimeOffset = Number(info, "_songTimeOffset"),
                 Shuffle = Number(info, "_shuffle"),
@@ -268,6 +270,7 @@ internal sealed class EarlyMapEntry
     }
 
     internal IReadOnlyDictionary<EarlyLevelDifficulty, float>? JumpSpeeds { get; set; }
+    internal string? MapperName { get; set; }
 #else
     internal EarlyMapEntry(CustomLevelInfoWrapper native, string infoPath, IReadOnlyList<string?> chartNames)
     {

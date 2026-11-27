@@ -1,11 +1,16 @@
 <Project>
   <Target Name="LegatoBetterSongListSources" BeforeTargets="ResolveAssemblyReferences" DependsOnTargets="LegatoConfigure">
-    <ItemGroup>
+    <ItemGroup Condition="'$(LegatoTargetVersion)' != '0.11.2'">
       <Compile Remove="HarmonyPatches\ImproveBasegameSearch.cs;HarmonyPatches\PresetFilter.cs;HarmonyPatches\HookSelectedInTable.cs;HarmonyPatches\RestoreLevelSelection.cs;HarmonyPatches\HookFilterClear.cs;HarmonyPatches\HookLevelCollectionTableSet.cs;HarmonyPatches\HookSelectedCollection.cs;Util\LocalScoresUtil.cs" />
-      <Compile Include="$(LegatoSourceRoot)Providers\BetterSongList\**\*.cs" />
-      <Compile Include="$(LegatoSourceRoot)Library\SongBrowser\**\*.cs" />
+      <Compile Include="$(LegatoSourceRoot)Providers\BetterSongList\**\*.cs"
+               Exclude="$(LegatoSourceRoot)Providers\BetterSongList\Early\**\*.cs" />
+      <Compile Include="$(LegatoSourceRoot)Library\SongBrowser\BrowserLevels.cs" />
       <Compile Include="$(LegatoSourceRoot)Library\CollectionNavigation\RowSelection.cs"
                Condition="'$(LegatoEnableCollectionNavigation)' != 'true'" />
+    </ItemGroup>
+    <ItemGroup Condition="'$(LegatoTargetVersion)' == '0.11.2'">
+      <Compile Include="$(LegatoSourceRoot)Providers\BetterSongList\Early\**\*.cs" />
+      <Compile Include="$(LegatoSourceRoot)Library\SongBrowser\EarlyStandardSongList.cs" />
     </ItemGroup>
   </Target>
 </Project>
