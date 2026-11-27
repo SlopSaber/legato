@@ -1,6 +1,6 @@
 using System;
 using System.IO;
-#if BEAT_SABER_1_29_0 || LEGATO_BEFORE_MULTIPLAYER
+#if BEAT_SABER_1_29_0 || LEGATO_BEFORE_MULTIPLAYER || LEGATO_EARLY_STANDARD_MAPS
 using UnityEngine.Networking;
 #endif
 using System.Linq;
@@ -16,6 +16,42 @@ namespace Legato.Audio {
         internal bool IsAsset;
         internal string ProviderName;
     }
+#if LEGATO_EARLY_STANDARD_MAPS
+    internal static class LevelAudioAccess {
+        internal static Task<LevelAudioData> Load(string customLevelFolder, BeatmapLevel level, CancellationToken token) {
+            token.ThrowIfCancellationRequested();
+            if (level == null) return Task.FromResult<LevelAudioData>(null);
+            if (!string.IsNullOrEmpty(customLevelFolder)) {
+                var media = Legato.Beatmaps.CustomLevelMedia.ReadLevel(customLevelFolder);
+                return Task.FromResult(media == null ? null
+                    : new LevelAudioData { FilePath = media.Value.AudioPath, ProviderName = "CustomLevelFolder" });
+            }
+            return Task.FromResult(new LevelAudioData { IsAsset = true, AssetClip = level.audioClip, ProviderName = level.GetType().Name });
+        }
+        internal static Task<string> BundlePath(BeatmapLevel level, CancellationToken token) {
+            token.ThrowIfCancellationRequested();
+            return Task.FromResult(string.Empty);
+        }
+        internal static Task<AudioClip> BundleClip(AssetBundle bundle, string name, CancellationToken token) {
+            token.ThrowIfCancellationRequested();
+            return Task.FromResult<AudioClip>(null);
+        }
+        internal static async Task<AudioClip> LoadDecodedFile(string path) {
+            var audioType = string.Equals(Path.GetExtension(path), ".wav", StringComparison.OrdinalIgnoreCase)
+                ? AudioType.WAV : AudioType.OGGVORBIS;
+            using var request = UnityWebRequestMultimedia.GetAudioClip(new Uri(Path.GetFullPath(path)).AbsoluteUri, audioType);
+            var operation = request.SendWebRequest();
+            while (!operation.isDone) await Task.Yield();
+            if (request.isNetworkError || request.isHttpError) throw new IOException(request.error);
+            return DownloadHandlerAudioClip.GetContent(request);
+        }
+        internal static bool IsPlaying(AudioTimeSyncController controller) {
+            var source = controller.GetField<AudioSource, AudioTimeSyncController>("_audioSource");
+            return source != null && source.isPlaying;
+        }
+        internal static BeatmapLevel Selected(StandardLevelDetailViewController controller) => controller?.difficultyLevel?.level;
+    }
+#else
     internal static class LevelAudioAccess {
         internal static async Task<LevelAudioData> Load(BeatmapLevelsModel model, BeatmapLevel level, CancellationToken token) {
 #if BEAT_SABER_1_29_0 || LEGATO_BEFORE_MULTIPLAYER
@@ -102,4 +138,5 @@ namespace Legato.Audio {
             controller.beatmapLevel;
 #endif
     }
+#endif
 }

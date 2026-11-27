@@ -28,21 +28,34 @@ namespace Legato.Beatmaps {
 
             root = Path.GetFullPath(root).TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
             foreach (string directory in Directory.GetDirectories(root)) {
-                try {
-                    EarlyMapEntry? entry = EarlyMapFiles.ReadLocal(root, directory);
-                    if (entry == null) continue;
-
-                    string? audio = entry.Info.difficultyLevels?.Select(chart => chart?.audioPath).FirstOrDefault(path => !string.IsNullOrEmpty(path));
-                    string? audioPath = EarlyMapFiles.LocalAsset(entry.DirectoryPath, audio);
-                    if (audioPath == null) continue;
-
-                    result.Add(new EarlyMedia(audioPath, EarlyMapFiles.LocalAsset(entry.DirectoryPath, entry.Info.coverImagePath),
-                        string.IsNullOrEmpty(entry.Info.songName) ? Path.GetFileName(entry.DirectoryPath) : entry.Info.songName,
-                        entry.Info.authorName ?? string.Empty));
-                } catch (Exception) {
-                }
+                EarlyMedia? media = Read(root, directory);
+                if (media != null) result.Add(media.Value);
             }
             return result;
+        }
+
+        internal static EarlyMedia? ReadLevel(string folder) {
+            if (string.IsNullOrEmpty(folder) || !Directory.Exists(folder)) return null;
+            folder = Path.GetFullPath(folder).TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
+            string? root = Path.GetDirectoryName(folder);
+            return root == null ? null : Read(root, folder);
+        }
+
+        private static EarlyMedia? Read(string root, string directory) {
+            try {
+                EarlyMapEntry? entry = EarlyMapFiles.ReadLocal(root, directory);
+                if (entry == null) return null;
+
+                string? audio = entry.Info.difficultyLevels?.Select(chart => chart?.audioPath).FirstOrDefault(path => !string.IsNullOrEmpty(path));
+                string? audioPath = EarlyMapFiles.LocalAsset(entry.DirectoryPath, audio);
+                if (audioPath == null) return null;
+
+                return new EarlyMedia(audioPath, EarlyMapFiles.LocalAsset(entry.DirectoryPath, entry.Info.coverImagePath),
+                    string.IsNullOrEmpty(entry.Info.songName) ? Path.GetFileName(entry.DirectoryPath) : entry.Info.songName,
+                    entry.Info.authorName ?? string.Empty);
+            } catch (Exception) {
+                return null;
+            }
         }
 #else
 #if !BEAT_SABER_1_29_0 && !LEGATO_BEFORE_MULTIPLAYER

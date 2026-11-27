@@ -12,8 +12,22 @@ public class TextSlider : Slider
     private Func<float, string> formatter;
     private Button decrement;
     private Button increment;
+    private Color? textColor;
 
     public event Action<TextSlider, float> valueDidChangeEvent;
+
+    public Color valueTextColor
+    {
+        get => textColor ?? (ValueLabel != null ? ValueLabel.color : Color.white);
+        set
+        {
+            textColor = value;
+            if (ValueLabel != null)
+            {
+                ValueLabel.color = value;
+            }
+        }
+    }
 
     public int numberOfSteps
     {
@@ -45,6 +59,11 @@ public class TextSlider : Slider
     internal void Bind(TextMeshProUGUI valueLabel, Button decrease, Button increase)
     {
         ValueLabel = valueLabel;
+        if (textColor.HasValue)
+        {
+            ValueLabel.color = textColor.Value;
+        }
+
         decrement = decrease;
         increment = increase;
         decrement.onClick.AddListener(() => MoveStep(-1));
