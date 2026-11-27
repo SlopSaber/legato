@@ -13,8 +13,8 @@ namespace Legato.Beatmaps
     internal sealed class EarlyLevelCatalog
     {
         private readonly Dictionary<string, StandardLevelSO> _loaded;
-        private readonly Dictionary<string, CustomLevelInfoWrapper> _byPath = new(StringComparer.OrdinalIgnoreCase);
-        private readonly Dictionary<string, CustomLevelInfoWrapper> _byHash = new(StringComparer.OrdinalIgnoreCase);
+        private readonly Dictionary<string, EarlyMapEntry> _byPath = new(StringComparer.OrdinalIgnoreCase);
+        private readonly Dictionary<string, EarlyMapEntry> _byHash = new(StringComparer.OrdinalIgnoreCase);
 
         private EarlyLevelCatalog(Dictionary<string, StandardLevelSO> loaded)
         {
@@ -50,15 +50,16 @@ namespace Legato.Beatmaps
             cancellationToken.ThrowIfCancellationRequested();
             if (levelId != null && _loaded.TryGetValue(levelId, out var loaded) && loaded) return loaded;
 
-            CustomLevelInfoWrapper? info = null;
+            EarlyMapEntry? info = null;
             if (levelId != null) _byPath.TryGetValue(levelId, out info);
             if (info == null && hash != null) _byHash.TryGetValue(hash, out info);
             if (info == null) return null;
 
-            if (!_loaded.TryGetValue(info.levelID, out loaded) || !loaded)
+            string nativeId = info.Native.levelID;
+            if (!_loaded.TryGetValue(nativeId, out loaded) || !loaded)
             {
                 loaded = await EarlyCustomLevelLoader.LoadAsync(info, cancellationToken);
-                if (loaded) _loaded[info.levelID] = loaded!;
+                if (loaded) _loaded[nativeId] = loaded!;
             }
             return loaded;
         }
@@ -67,7 +68,7 @@ namespace Legato.Beatmaps
         {
             string root = Path.GetFullPath(CustomLevelsModelSO.customLevelsDirectoryPath);
             var entry = EarlyMapFiles.ReadLocal(root, level?.levelID);
-            string? path = entry == null ? null : EarlyMapFiles.LocalAsset(entry.path, entry.customLevelInfo.coverImagePath);
+            string? path = entry == null ? null : EarlyMapFiles.LocalAsset(entry.Native.path, entry.Native.customLevelInfo.coverImagePath);
             return path == null ? null : File.OpenRead(path);
         }
 
@@ -80,10 +81,11 @@ namespace Legato.Beatmaps
                 try
                 {
                     var entry = EarlyMapFiles.ReadLocal(root, path);
-                    if (entry == null || entry.customLevelInfo.difficultyLevels.Length == 0 ||
-                        EarlyMapFiles.LocalAsset(entry.path, entry.customLevelInfo.difficultyLevels[0].audioPath) == null) continue;
+                    if (entry == null) continue;
+                    CustomLevelInfoWrapper native = entry.Native;
+                    if (EarlyMapFiles.LocalAsset(native.path, native.customLevelInfo.difficultyLevels[0]?.audioPath) == null) continue;
 
-                    _byPath[entry.levelID] = entry;
+                    _byPath[native.levelID] = entry;
                     if (!indexHashes) continue;
 
                     string? hash = EarlyMapFiles.ComputeHash(entry);

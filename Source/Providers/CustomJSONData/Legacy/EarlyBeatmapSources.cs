@@ -9,27 +9,41 @@ namespace Legato.Beatmaps
     internal static class EarlyBeatmapSources
     {
         private const string DomainKey = "Legato.Beatmaps.EarlyBeatmapSources";
-        private static readonly ConditionalWeakTable<BeatmapDataSO, CustomLevelInfo.DifficultyLevelInfo> Sources = GetSharedSources();
+        private static readonly ConditionalWeakTable<BeatmapDataSO, CustomLevelInfo.DifficultyLevelInfo> Sources =
+            GetShared<CustomLevelInfo.DifficultyLevelInfo>(DomainKey);
 
-        internal static void Associate(BeatmapDataSO chart, CustomLevelInfo.DifficultyLevelInfo source) =>
+        private static readonly ConditionalWeakTable<BeatmapDataSO, Tuple<string?, string?>> ImportedMetadata =
+            GetShared<Tuple<string?, string?>>(DomainKey + ".ImportedMetadata");
+
+        internal static void Associate(BeatmapDataSO chart, CustomLevelInfo.DifficultyLevelInfo source, string? levelData = null, string? difficultyData = null)
+        {
             Sources.GetValue(chart, _ => source);
+            if (levelData != null || difficultyData != null)
+            {
+                ImportedMetadata.GetValue(chart, _ => Tuple.Create(levelData, difficultyData));
+            }
+        }
 
         internal static CustomLevelInfo.DifficultyLevelInfo? GetDifficulty(BeatmapDataSO chart) =>
             Sources.TryGetValue(chart, out CustomLevelInfo.DifficultyLevelInfo source) ? source : null;
 
-        private static ConditionalWeakTable<BeatmapDataSO, CustomLevelInfo.DifficultyLevelInfo> GetSharedSources()
+        internal static Tuple<string?, string?>? GetImportedMetadata(BeatmapDataSO chart) =>
+            ImportedMetadata.TryGetValue(chart, out Tuple<string?, string?> metadata) ? metadata : null;
+
+        private static ConditionalWeakTable<BeatmapDataSO, TValue> GetShared<TValue>(string key)
+            where TValue : class
         {
             // Legato embeds a copy in each consumer. Keep one weak table keyed by native chart identity.
             AppDomain domain = AppDomain.CurrentDomain;
-            lock (string.Intern(DomainKey))
+            lock (string.Intern(key))
             {
-                if (domain.GetData(DomainKey) is ConditionalWeakTable<BeatmapDataSO, CustomLevelInfo.DifficultyLevelInfo> sources)
+                if (domain.GetData(key) is ConditionalWeakTable<BeatmapDataSO, TValue> sources)
                 {
                     return sources;
                 }
 
                 sources = new();
-                domain.SetData(DomainKey, sources);
+                domain.SetData(key, sources);
                 return sources;
             }
         }

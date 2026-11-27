@@ -66,11 +66,38 @@ namespace CustomJSONData.HarmonyPatches
         [HarmonyPatch(typeof(BeatmapDataSO), nameof(BeatmapDataSO.Load))]
         private static void ApplyMetadata(BeatmapDataSO __instance, BeatmapData? ____beatmapData)
         {
-            if (____beatmapData is CustomBeatmapData chart &&
-                EarlyBeatmapSources.GetDifficulty(__instance) is CustomLevelInfo.DifficultyLevelInfo source &&
-                _levels.TryGetValue(source, out Metadata metadata))
+            if (____beatmapData is not CustomBeatmapData chart ||
+                EarlyBeatmapSources.GetDifficulty(__instance) is not CustomLevelInfo.DifficultyLevelInfo source)
+            {
+                return;
+            }
+
+            if (!_levels.TryGetValue(source, out Metadata metadata) && EarlyBeatmapSources.GetImportedMetadata(__instance) is { } imported)
+            {
+                try
+                {
+                    metadata = _levels.GetValue(source, _ => new Metadata(Parse(imported.Item1), Parse(imported.Item2)));
+                }
+                catch (JsonException exception)
+                {
+                    Plugin.Log.Warn($"Could not read imported custom level metadata: {exception.Message}");
+                }
+            }
+
+            if (metadata != null)
             {
                 chart.ApplyLevelMetadata(metadata.Level, metadata.Difficulty);
+            }
+
+            static CustomData Parse(string? data)
+            {
+                if (data == null)
+                {
+                    return new CustomData();
+                }
+
+                using var reader = new JsonTextReader(new StringReader(data)) { DateParseHandling = DateParseHandling.None };
+                return BeatmapLoader.ReadData(JObject.Load(reader));
             }
         }
 
