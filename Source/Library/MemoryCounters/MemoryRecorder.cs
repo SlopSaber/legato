@@ -9,7 +9,7 @@ namespace Legato.Profiling
 {
     internal struct MemoryRecorder : IDisposable
     {
-#if BEAT_SABER_1_29_0 || LEGATO_BEFORE_MULTIPLAYER
+#if BEAT_SABER_1_29_0 || LEGATO_BEFORE_MULTIPLAYER || LEGATO_EARLY_STANDARD_MAPS
         private readonly Func<long>? _read;
 
         private MemoryRecorder(Func<long> read) => _read = read;
@@ -20,7 +20,9 @@ namespace Legato.Profiling
             return name switch
             {
                 "Gfx Used Memory" when Profiler.supported => new MemoryRecorder(Profiler.GetAllocatedMemoryForGraphicsDriver),
+#if !LEGATO_EARLY_STANDARD_MAPS
                 "Texture Memory" => new MemoryRecorder(() => checked((long)Texture.currentTextureMemory)),
+#endif
                 _ => default
             };
         }
@@ -57,14 +59,16 @@ namespace Legato.Profiling
 #endif
 
         internal static long? AllocationCallstacksEnabled =>
-#if BEAT_SABER_1_29_0 || LEGATO_BEFORE_MULTIPLAYER
+#if LEGATO_EARLY_STANDARD_MAPS
+            null;
+#elif BEAT_SABER_1_29_0 || LEGATO_BEFORE_MULTIPLAYER
             Profiler.supported ? (Profiler.enableAllocationCallstacks ? 1L : 0L) : (long?)null;
 #else
             Profiler.enableAllocationCallstacks ? 1L : 0L;
 #endif
     }
 
-#if BEAT_SABER_1_29_0 || LEGATO_BEFORE_MULTIPLAYER
+#if BEAT_SABER_1_29_0 || LEGATO_BEFORE_MULTIPLAYER || LEGATO_EARLY_STANDARD_MAPS
     internal readonly struct UnavailableMemorySample
     {
         internal long Value => throw new InvalidOperationException("No frame sample is available.");
