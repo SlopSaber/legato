@@ -1,4 +1,4 @@
-#if BEAT_SABER_1_29_0 || LEGATO_HMUI_LEGACY_GRAPHICS
+#if BEAT_SABER_1_29_0 || LEGATO_HMUI_LEGACY_GRAPHICS || LEGATO_EARLY_VR_UI
 using System;
 using System.Collections.Generic;
 using System.Reflection;

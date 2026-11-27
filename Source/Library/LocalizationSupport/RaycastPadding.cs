@@ -1,6 +1,6 @@
 using UnityEngine;
 using UnityEngine.UI;
-#if BEAT_SABER_1_29_0 || LEGATO_HMUI_LEGACY_GRAPHICS
+#if BEAT_SABER_1_29_0 || LEGATO_HMUI_LEGACY_GRAPHICS || LEGATO_EARLY_VR_UI
 using System.Collections.Generic;
 #endif
 
@@ -11,7 +11,7 @@ namespace Legato.Unity
     /// </summary>
     internal static class RaycastPadding
     {
-#if BEAT_SABER_1_29_0 || LEGATO_HMUI_LEGACY_GRAPHICS
+#if BEAT_SABER_1_29_0 || LEGATO_HMUI_LEGACY_GRAPHICS || LEGATO_EARLY_VR_UI
         private static readonly Dictionary<int, Vector4> Paddings = new();
 #endif
 
@@ -22,7 +22,7 @@ namespace Legato.Unity
         /// <param name="padding">Padding for the four edges.</param>
         internal static void Set(Graphic graphic, Vector4 padding)
         {
-#if BEAT_SABER_1_29_0 || LEGATO_HMUI_LEGACY_GRAPHICS
+#if BEAT_SABER_1_29_0 || LEGATO_HMUI_LEGACY_GRAPHICS || LEGATO_EARLY_VR_UI
             int id = graphic.rectTransform.GetInstanceID();
             Paddings[id] = padding;
             PaddingLifetime lifetime = graphic.GetComponent<PaddingLifetime>();
@@ -37,7 +37,7 @@ namespace Legato.Unity
 #endif
         }
 
-#if BEAT_SABER_1_29_0 || LEGATO_HMUI_LEGACY_GRAPHICS
+#if BEAT_SABER_1_29_0 || LEGATO_HMUI_LEGACY_GRAPHICS || LEGATO_EARLY_VR_UI
         /// <summary>
         /// Tests a screen position against the rectangle's configured bounds.
         /// </summary>
@@ -47,7 +47,7 @@ namespace Legato.Unity
         /// <returns>Whether the position is inside those bounds.</returns>
         internal static bool Contains(RectTransform rect, Vector2 screenPoint, Camera camera)
         {
-#if LEGATO_HMUI_LEGACY_GRAPHICS
+#if LEGATO_HMUI_LEGACY_GRAPHICS || LEGATO_EARLY_VR_UI
             if (!Paddings.TryGetValue(rect.GetInstanceID(), out Vector4 padding))
             {
                 return RectTransformUtility.RectangleContainsScreenPoint(rect, screenPoint, camera);
