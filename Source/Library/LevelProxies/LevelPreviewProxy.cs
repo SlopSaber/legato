@@ -120,7 +120,6 @@ namespace Legato.Beatmaps {
             smallCoverImage = smallCover;
             beatmapLevels = levels;
         }
-    }
 #elif BEAT_SABER_1_29_0 || LEGATO_BEFORE_MULTIPLAYER
         :
         IBeatmapLevelPack {
