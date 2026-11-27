@@ -534,6 +534,11 @@ internal class EventLobbyChatViewController : BSMLAutomaticViewController
 
     private void Update()
     {
+        if (_playerCount == null)
+        {
+            return;
+        }
+
 #if LEGATO_BEFORE_MULTIPLAYER
         if (_chatKeyboard != null && _chatKeyboard.isActiveAndEnabled)
         {

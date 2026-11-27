@@ -169,6 +169,11 @@ internal class EventIntroViewController : BSMLAutomaticViewController
 
     private void Update()
     {
+        if (_heldButton == null || _circle == null)
+        {
+            return;
+        }
+
         float dur = _heldButton.HeldDuration;
         _circle.fillAmount = dur;
 

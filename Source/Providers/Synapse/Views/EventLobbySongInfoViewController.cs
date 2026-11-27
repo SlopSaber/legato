@@ -259,6 +259,11 @@ internal class EventLobbySongInfoViewController : BSMLAutomaticViewController
 
     private void Update()
     {
+        if (_loadingGroup == null || _startObject == null)
+        {
+            return;
+        }
+
         if (_loadingGroup.activeInHierarchy)
         {
             _angle += Time.deltaTime * 200;
