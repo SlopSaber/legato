@@ -11,11 +11,13 @@ internal static class EarlyStandardGameplayOptions
     private static void Prefix(StandardLevelSelectionFlowCoordinator __instance) => EarlyGameplayOptions.SetStandard(__instance);
 }
 
+#if !LEGATO_EARLY_STANDARD_LEVEL_SELECTION
 [HarmonyPatch(typeof(CustomLevelSelectionFlowCoordinator), nameof(CustomLevelSelectionFlowCoordinator.Present))]
 internal static class EarlyCustomGameplayOptions
 {
     private static void Prefix(CustomLevelSelectionFlowCoordinator __instance) => EarlyGameplayOptions.SetCustom(__instance);
 }
+#endif
 
 [HarmonyPatch(typeof(GameplayOptionsViewController), "DidActivate")]
 internal static class EarlyGameplayOptionsActivation

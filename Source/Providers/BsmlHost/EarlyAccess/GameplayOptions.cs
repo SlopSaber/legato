@@ -21,12 +21,14 @@ internal sealed class EarlyGameplayOptions : MonoBehaviour
         SetMenuType(detail, MenuType.Solo);
     }
 
+#if !LEGATO_EARLY_STANDARD_LEVEL_SELECTION
     internal static void SetCustom(CustomLevelSelectionFlowCoordinator flow)
     {
         StandardLevelDetailViewController detail =
             flow.GetField<StandardLevelDetailViewController, CustomLevelSelectionFlowCoordinator>("_songDetailViewController");
         SetMenuType(detail, MenuType.Custom);
     }
+#endif
 
     private static void SetMenuType(StandardLevelDetailViewController detail, MenuType type)
     {

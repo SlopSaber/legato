@@ -10,6 +10,7 @@ public class ItemForFocussedScrolling : MonoBehaviour
 {
 }
 
+#if !LEGATO_EARLY_NATIVE_SCROLL_INDICATOR
 public class VerticalScrollIndicator : MonoBehaviour
 {
     // Preserve the native HMUI field accessed by derived scroll indicators.
@@ -61,6 +62,7 @@ public class VerticalScrollIndicator : MonoBehaviour
         _handle.offsetMin = _handle.offsetMax = Vector2.zero;
     }
 }
+#endif
 
 public class ScrollView : MonoBehaviour, IBeginDragHandler
 {

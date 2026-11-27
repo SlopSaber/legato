@@ -3,10 +3,13 @@
     <EditorConfigFiles Include="$(LegatoSourceRoot)Providers\BsmlHost\.editorconfig;$(LegatoSourceRoot)Library\LocalizationSupport\.editorconfig" />
   </ItemGroup>
   <Target Name="LegatoBsmlNativeReferences" BeforeTargets="ResolveAssemblyReferences" DependsOnTargets="LegatoConfigure">
-    <PropertyGroup Condition="'$(LegatoTargetVersion)' == '0.11.1'">
+    <PropertyGroup Condition="'$(LegatoTargetVersion)' == '0.11.1' OR '$(LegatoTargetVersion)' == '0.11.2'">
       <DefineConstants>$(DefineConstants);LEGATO_EARLY_VR_UI;LEGATO_HMUI_PLAIN_TMP</DefineConstants>
     </PropertyGroup>
-    <ItemGroup Condition="'$(LegatoTargetVersion)' == '0.11.1'">
+    <PropertyGroup Condition="'$(LegatoTargetVersion)' == '0.11.2'">
+      <DefineConstants>$(DefineConstants);LEGATO_EARLY_SETTINGS_NAVIGATION;LEGATO_EARLY_NATIVE_SCROLL_INDICATOR;LEGATO_EARLY_STANDARD_LEVEL_SELECTION</DefineConstants>
+    </PropertyGroup>
+    <ItemGroup Condition="'$(LegatoTargetVersion)' == '0.11.1' OR '$(LegatoTargetVersion)' == '0.11.2'">
       <Reference Update="@(Reference)"
                  Condition="'%(Reference.Identity)' == 'System.Xml.Linq' AND Exists('$(LegatoReferenceRoot)\IPA\CoreLibraries\System.Xml.Linq.dll')">
         <HintPath>$(LegatoReferenceRoot)\IPA\CoreLibraries\System.Xml.Linq.dll</HintPath>

@@ -232,7 +232,7 @@
 
   <Target Name="LegatoResolveEarlyGameReferences" BeforeTargets="ResolveAssemblyReferences"
           AfterTargets="BSIPA_ResolveLayoutReferences" DependsOnTargets="LegatoConfigure"
-          Condition="'$(LegatoTargetVersion)' == '0.11.1'">
+          Condition="'$(LegatoTargetVersion)' == '0.11.1' OR '$(LegatoTargetVersion)' == '0.11.2'">
     <ItemGroup>
       <Reference Remove="Main;HMUI;HMLib;VRUI;GameplayCore;Unity.TextMeshPro" />
       <Reference Include="Assembly-CSharp" HintPath="$(LegatoReferenceRoot)\Beat Saber_Data\Managed\Assembly-CSharp.dll"
@@ -370,7 +370,7 @@
     <PropertyGroup>
       <_LegatoBsmlApiVersion>@(_LegatoBsmlIdentity->'%(Version)')</_LegatoBsmlApiVersion>
       <DefineConstants Condition="'$(_LegatoBsmlApiVersion)' != '' AND $([MSBuild]::VersionGreaterThanOrEquals('$(_LegatoBsmlApiVersion)', '1.14.0.0'))">$(DefineConstants);LEGATO_BSML_CURRENT</DefineConstants>
-      <DefineConstants Condition="'$(LegatoEnableBSML)' == 'true' AND '$(LegatoTargetVersion)' == '0.11.1'">$(DefineConstants);LEGATO_EARLY_VR_UI;LEGATO_HMUI_PLAIN_TMP</DefineConstants>
+      <DefineConstants Condition="'$(LegatoEnableBSML)' == 'true' AND ('$(LegatoTargetVersion)' == '0.11.1' OR '$(LegatoTargetVersion)' == '0.11.2')">$(DefineConstants);LEGATO_EARLY_VR_UI;LEGATO_HMUI_PLAIN_TMP</DefineConstants>
     </PropertyGroup>
     <PropertyGroup Condition="'$(LegatoEnableAutoAdapters)' != 'false' AND '$(_LegatoCoreApi)' == ''">
       <LegatoEnableBSML Condition="'$(LegatoEnableBSML)' == '' AND '@(_LegatoBSMLReference)' != ''">true</LegatoEnableBSML>
@@ -841,7 +841,7 @@
   <Import Project="$(MSBuildThisFileDirectory)ReactiveHost.targets" Condition="'$(LegatoEnableReactiveHost)' == 'true'" />
   <Import Project="$(MSBuildThisFileDirectory)NativeTypeAliases.targets" Condition="'$(LegatoEnableNativeTypeAliases)' == 'true' OR '$(LegatoEnableAssetBundleHost)' == 'true' OR '$(LegatoEnableRendererLayers)' == 'true' OR ('$(LegatoTargetVersion)' == '1.11.1' AND '$(LegatoEnableNativeBeatmapAliases)' == 'true')" />
   <Target Name="LegatoEarlyPresentationReferences" BeforeTargets="ResolveAssemblyReferences" DependsOnTargets="LegatoConfigure"
-          Condition="'$(LegatoTargetVersion)' == '0.11.1' AND ('$(LegatoEnableBSML)' == 'true' OR '@(Reference->WithMetadataValue('Identity', 'BSML'))' != '')">
+          Condition="('$(LegatoTargetVersion)' == '0.11.1' OR '$(LegatoTargetVersion)' == '0.11.2') AND ('$(LegatoEnableBSML)' == 'true' OR '@(Reference->WithMetadataValue('Identity', 'BSML'))' != '')">
     <ItemGroup>
       <Reference Remove="Main;HMLib;HMUI;Unity.TextMeshPro;UnityEngine.UIElementsModule;UnityEngine.XRModule;VRUI" />
       <Reference Include="Assembly-CSharp" HintPath="$(LegatoReferenceRoot)\Beat Saber_Data\Managed\Assembly-CSharp.dll" Private="false"

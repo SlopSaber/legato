@@ -88,8 +88,16 @@ internal static class EarlyScrollLayout
         UnityEngine.UI.Image image = handle.gameObject.AddComponent<UnityEngine.UI.Image>();
         image.color = new Color(1f, 1f, 1f, 0.85f);
         image.raycastTarget = false;
+#if LEGATO_EARLY_NATIVE_SCROLL_INDICATOR
+        track.gameObject.SetActive(false);
+        handle.anchorMin = new Vector2(0f, 1f);
+        handle.pivot = new Vector2(0.5f, 1f);
+#endif
         BSMLScrollIndicator indicator = track.gameObject.AddComponent<BSMLScrollIndicator>();
         indicator.Handle = handle;
+#if LEGATO_EARLY_NATIVE_SCROLL_INDICATOR
+        track.gameObject.SetActive(true);
+#endif
         return indicator;
     }
 
