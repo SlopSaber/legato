@@ -48,10 +48,28 @@ namespace MappingExtensions.HarmonyPatches
     [HarmonyPatch(typeof(BeatmapDataLoader), nameof(BeatmapDataLoader.GetBeatmapDataFromBeatmapSaveData))]
     internal static class LegacyBeatmapLoaderLanes
     {
-        private static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
+        private static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions, ILGenerator generator)
         {
-            // Lane buckets are fixed at four. The original encoded index stays on each object.
+            // Preview and gameplay loads can use this loader concurrently.
+            var processorType = typeof(BeatmapDataLoader.NotesInTimeRowProcessor);
+            var processor = generator.DeclareLocal(processorType);
+            var processorField = AccessTools.DeclaredField(typeof(BeatmapDataLoader), "_notesInTimeRowProcessor");
             var codes = instructions.ToList();
+            int processorReads = 0;
+            for (int i = 0; i < codes.Count; i++)
+            {
+                if (codes[i].opcode != OpCodes.Ldfld || !Equals(codes[i].operand, processorField)) continue;
+                codes[i].opcode = OpCodes.Pop;
+                codes[i].operand = null;
+                codes.Insert(++i, new CodeInstruction(OpCodes.Ldloc, processor));
+                processorReads++;
+            }
+            if (processorReads != 4)
+                throw new System.InvalidOperationException($"Expected four native row processor reads; found {processorReads}.");
+            codes.Insert(0, new CodeInstruction(OpCodes.Stloc, processor));
+            codes.Insert(0, new CodeInstruction(OpCodes.Newobj, AccessTools.Constructor(processorType)));
+
+            // Lane buckets are fixed at four. The original encoded index stays on each object.
             var add = AccessTools.Method(typeof(List<BeatmapObjectData>), nameof(List<BeatmapObjectData>.Add));
             var storageIndex = AccessTools.Method(typeof(LegacyPlacement), nameof(LegacyPlacement.StorageIndex));
             int buckets = 0;
