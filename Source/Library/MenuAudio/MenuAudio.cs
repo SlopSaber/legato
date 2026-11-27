@@ -7,6 +7,11 @@ namespace Legato.Audio {
     internal static class MenuAudio {
         internal static AudioClip DefaultClip(SongPreviewPlayer player) => player.GetField<AudioClip, SongPreviewPlayer>("_defaultAudioClip");
 
+#if LEGATO_EARLY_SCENE_SETUP
+        internal static void SetDefaultClip(SongPreviewPlayer player, AudioClip clip) =>
+            player.SetField<SongPreviewPlayer, AudioClip>("_defaultAudioClip", clip);
+#endif
+
 #if LEGATO_BEFORE_MULTIPLAYER
         internal static AudioSource? ActivePreviewSource(SongPreviewPlayer player) {
             var sources = player.GetField<AudioSource[], SongPreviewPlayer>("_audioSources");
@@ -22,7 +27,7 @@ namespace Legato.Audio {
 #endif
 
         internal static void ProcessResultDestination(ResultsViewController controller) {
-#if !BEAT_SABER_1_29_0 && !LEGATO_BEFORE_MULTIPLAYER
+#if !BEAT_SABER_1_29_0 && !LEGATO_BEFORE_MULTIPLAYER && !LEGATO_EARLY_SCENE_SETUP
             if (controller._menuDestinationRequest != null)
                 controller.ProcessMenuDestinationRequest(controller._menuDestinationRequest);
 #endif
