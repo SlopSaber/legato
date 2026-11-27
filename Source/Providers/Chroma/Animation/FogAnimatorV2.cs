@@ -15,7 +15,11 @@ namespace Chroma.Animation;
 [CustomEvent(ASSIGN_FOG_TRACK)]
 internal class FogAnimatorV2 : ITickable, IDisposable, ICustomEvent
 {
+#if LEGATO_CHROMA_LEGACY_LIGHTS
+    private BloomFogSO? _bloomFog;
+#else
     private readonly BloomFogSO _bloomFog;
+#endif
     private readonly DeserializedData _deserializedData;
 
     private readonly BloomFogEnvironmentParams _transitionFogParams;
@@ -28,7 +32,11 @@ internal class FogAnimatorV2 : ITickable, IDisposable, ICustomEvent
 
     [UsedImplicitly]
     private FogAnimatorV2(
+#if LEGATO_CHROMA_LEGACY_LIGHTS
+        [InjectOptional] BloomFogSO? bloomFog,
+#else
         BloomFogSO bloomFog,
+#endif
         [Inject(Id = ID)] DeserializedData deserializedData)
     {
         _bloomFog = bloomFog;
@@ -61,7 +69,7 @@ internal class FogAnimatorV2 : ITickable, IDisposable, ICustomEvent
     public void Dispose()
     {
 #if LEGATO_CHROMA_LEGACY_LIGHTS
-        if (_bloomFog.fog1Params == _transitionFogParams)
+        if (_bloomFog != null && _bloomFog.fog1Params == _transitionFogParams)
         {
             _bloomFog.fog1Params = _previousFogParams;
             _bloomFog.transition = _previousTransition;
@@ -82,7 +90,18 @@ internal class FogAnimatorV2 : ITickable, IDisposable, ICustomEvent
         }
 
 #if LEGATO_CHROMA_LEGACY_LIGHTS
-        if (_bloomFog.fog0Params == null)
+        if (_bloomFog == null)
+        {
+            BloomFogEnvironment? environment = Legato.Unity.ObjectDiscovery.FindAnyActive<BloomFogEnvironment>();
+            if (environment == null)
+            {
+                return;
+            }
+
+            _bloomFog = environment._bloomFog;
+        }
+
+        if (_bloomFog == null || _bloomFog.fog0Params == null)
         {
             return;
         }

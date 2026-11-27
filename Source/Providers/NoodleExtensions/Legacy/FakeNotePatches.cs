@@ -64,7 +64,8 @@ internal sealed class FakeNotePatches : IAffinity
 
     [AffinityPrefix]
     [AffinityPatch(typeof(NoteCutSoundEffectManager), "BeatmapObjectCallback")]
-    private bool ScheduleCutSound(BeatmapObjectData beatmapObjectData) => _fakePatchesManager.IsRealNote(beatmapObjectData);
+    private bool ScheduleCutSound(BeatmapObjectData beatmapObjectData) =>
+        beatmapObjectData is not NoteData note || _fakePatchesManager.IsRealNote(note);
 
     [AffinityPostfix]
     [AffinityPatch(typeof(BombNoteController), nameof(BombNoteController.Init))]
