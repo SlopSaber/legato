@@ -404,6 +404,8 @@
                Condition="'$(LegatoEnableEffectLifecycle)' == 'true'" />
       <Compile Include="$(LegatoSourceRoot)Library\LevelProxies\**\*.cs"
                Condition="'$(LegatoEnableLevelProxies)' == 'true'" />
+      <Compile Include="$(LegatoSourceRoot)Library\SongBrowser\EarlyStandardSongList.cs"
+               Condition="'$(LegatoTargetVersion)' == '0.11.2' AND ('$(LegatoEnableBetterSongListProviders)' == 'true' OR '$(LegatoEnableEarlyStandardSongList)' == 'true')" />
       <Compile Include="$(LegatoSourceRoot)Library\LevelProxies\EarlyMapFiles.cs"
                Condition="('$(LegatoTargetVersion)' == '0.11.1' OR '$(LegatoTargetVersion)' == '0.11.2') AND '$(LegatoEnableLevelListBadges)' == 'true' AND '$(LegatoEnableLevelProxies)' != 'true'" />
       <Compile Include="$(LegatoSourceRoot)Providers\CustomJSONData\Legacy\EarlyBeatmapSources.cs"

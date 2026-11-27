@@ -17,7 +17,7 @@ namespace Legato.SongBrowser
             AccessTools.FieldRefAccess<StandardLevelListTableView, IStandardLevel[]>("_levels");
 
         internal static RectTransform Container(StandardLevelListViewController view) =>
-            ViewTable(view).transform.parent as RectTransform;
+            (RectTransform)ViewTable(view).transform.parent;
 
         internal static bool Replace(StandardLevelListViewController view, IStandardLevel[] levels)
         {
@@ -67,6 +67,29 @@ namespace Legato.SongBrowser
             if (view != null && view.isInViewControllerHierarchy && ViewLevels(view) is { } levels &&
                 (uint)index < (uint)levels.Length)
                 NativeTable(ViewTable(view)).ScrollToRow(index, false);
+        }
+
+        internal static bool OpenReplacement(StandardLevelListViewController view, IStandardLevel[] source,
+            IStandardLevel previous, IStandardLevel updated)
+        {
+            if (view == null || view.selectedLevel != previous || ViewLevels(view) is not { } visible)
+                return false;
+
+            int row = Array.IndexOf(visible, previous);
+            int sourceRow = Array.IndexOf(source, previous);
+            if (row < 0 || sourceRow < 0 ||
+                source.GetType().GetElementType()?.IsInstanceOfType(updated) != true)
+                return false;
+
+            var replacement = new IStandardLevel[visible.Length];
+            Array.Copy(visible, replacement, visible.Length);
+            replacement[row] = updated;
+            if (!Replace(view, replacement))
+                return false;
+
+            // SongCore and PlaylistManager keep this array to rebuild the game menu after playback.
+            source[sourceRow] = updated;
+            return TrySelect(view, row);
         }
     }
 }

@@ -10,7 +10,6 @@
     </ItemGroup>
     <ItemGroup Condition="'$(LegatoTargetVersion)' == '0.11.2'">
       <Compile Include="$(LegatoSourceRoot)Providers\BetterSongList\Early\**\*.cs" />
-      <Compile Include="$(LegatoSourceRoot)Library\SongBrowser\EarlyStandardSongList.cs" />
     </ItemGroup>
   </Target>
 </Project>
