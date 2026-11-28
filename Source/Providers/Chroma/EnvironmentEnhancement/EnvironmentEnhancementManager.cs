@@ -119,6 +119,9 @@ internal class EnvironmentEnhancementManager : IAffinity
                     {
                         if (LegacyEnvironmentRemoval.Init(_beatmapData))
                         {
+#if BEAT_SABER_1_11_1
+                            HideDetachedRings();
+#endif
                             yield break;
                         }
                     }
@@ -384,7 +387,39 @@ internal class EnvironmentEnhancementManager : IAffinity
                 _log.Debug("=====================================");
             }
         }
+#if BEAT_SABER_1_11_1
+        HideDetachedRings();
+#endif
     }
+
+#if BEAT_SABER_1_11_1
+    private void HideDetachedRings()
+    {
+        int hidden = 0;
+        foreach (TrackLaneRingsManager manager in Resources.FindObjectsOfTypeAll<TrackLaneRingsManager>())
+        {
+            if (!manager.gameObject.scene.isLoaded || manager.gameObject.activeInHierarchy || manager.Rings is not { } rings)
+            {
+                continue;
+            }
+
+            // The native manager spawns these as scene roots, outside its activation hierarchy.
+            foreach (TrackLaneRing ring in rings)
+            {
+                if (ring != null && ring.transform.parent == null && ring.gameObject.activeSelf)
+                {
+                    ring.gameObject.SetActive(false);
+                    hidden++;
+                }
+            }
+        }
+
+        if (hidden > 0)
+        {
+            _log.Debug($"Hid {hidden} detached rings from disabled environment objects.");
+        }
+    }
+#endif
 
     private List<GameObjectInfo> GetAllGameObjects()
     {
